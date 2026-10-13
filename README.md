@@ -1,3 +1,9 @@
+<div align="center">
+
+**简体中文** | [English](./README.en.md)
+
+</div>
+
 # UnattendLocal · Windows 无人值守配置工具
 
 UnattendLocal 是面向 Windows 10/11 的中文本地配置工具，以 Schneegans 的 UnattendGenerator 生成核心为基础，提供中文图形界面，方便创建、检查和导出 Windows 安装应答文件 `autounattend.xml`。
@@ -10,7 +16,7 @@ UnattendLocal 是面向 Windows 10/11 的中文本地配置工具，以 Schneega
 - 支持自定义安装脚本、JSON 方案保存与恢复，以及配置摘要和 XML 预览。
 - 支持导入已有应答 XML，修改已支持的设置；对尚未支持的内容提示并尽量保留，遇到无法可靠合并的冲突时阻止导出。
 
-项目目前处于持续开发和测试阶段，正在逐步完善原作者功能的本地化与支持。部分配置仍需在目标 Windows 环境中验证。
+**当前开发版本：V0.1 pre40。** 项目目前处于持续开发和测试阶段，正在逐步完善原作者功能的本地化与支持。部分配置仍需在目标 Windows 环境中验证。
 
 ## 引用与鸣谢
 
