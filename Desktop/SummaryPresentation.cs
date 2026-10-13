@@ -12,7 +12,7 @@ public record SummaryPresentation(IReadOnlyList<SummarySection> Sections, IReadO
     private static readonly (string Kind, string Title, string[] Labels)[] Categories =
     [
         ("basic", "基本设置与账户", ["适用系统", "版本与密钥", "区域与时区", "账户", "键盘初始状态", "粘滞键", "鼠标指针精确度", "账户锁定策略"]),
-        ("protection", "安装与设备保护", ["Windows 11 安装检查", "安装镜像", "磁盘分区", "设备自动加密"]),
+        ("protection", "安装与设备保护", ["Windows 11 安装检查", "安装镜像", "CompactOS", "磁盘分区", "设备自动加密"]),
         ("network", "网络、隐私与脚本", ["网络", "隐私", "脚本", "自定义脚本"]),
         ("shell", "开始菜单与任务栏", ["任务栏", "任务栏开关", "搜索与托盘", "开始菜单", "开始菜单电源按钮旁文件夹", "任务栏结束任务"]),
         ("explorer", "资源管理器与桌面", ["资源管理器", "资源管理器操作", "系统桌面图标", "Edge 桌面快捷方式"]),

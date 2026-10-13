@@ -18,6 +18,7 @@ public static class PlanStore {
   foreach(var script in p.Scripts.Where(s=>s.IsRemovedType))script.Enabled=false;
   HardwareSettings.NormalizeLegacy(p);
   if(p.ImportedXml is {} imported&&(imported.SourceXml==null||imported.BaselineXml==null||imported.SourceXml.Length>XmlMerge.MaxLength||imported.BaselineXml.Length>XmlMerge.MaxLength||imported.Notices==null||imported.Blockers==null))throw new ArgumentException("方案中的 XML 导入记录无效。");
+  using(var document=JsonDocument.Parse(json))CompactOsSettings.NormalizeLoaded(p,document.RootElement.TryGetProperty(nameof(InstallPlan.CompactOsMode),out _));
   p.ClearDiskConsent();
   return p;
  }

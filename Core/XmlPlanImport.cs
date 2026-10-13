@@ -27,6 +27,7 @@ public static class XmlPlanImport {
   }
   // Credentials come from actual XML, never from form comments or the reversible settings note.
   ReadCredentials(doc,ns,p,notes);
+  var compactState=CompactOsSettings.ReadIntoPlan(doc,p,notes);
   p.Architecture=arches.FirstOrDefault()??"amd64";
   p.ConfigurationMode="自定义配置";p.CustomStartingPoint="保留当前设置";p.RecommendationId="";p.RecommendationVersion=0;p.RecommendationWindows="";
   p.ClearDiskConsent();
@@ -44,6 +45,7 @@ public static class XmlPlanImport {
   }
   if(baseline.Length>0)DescribeRemainder(doc,XmlMerge.Read(baseline),notes);
   p.ImportedXml=new ImportedXml{SourceXml=doc.OuterXml,BaselineXml=baseline,Notices=notes.Distinct().ToArray(),Blockers=blockers.Distinct().ToArray(),RequiresDiskReview=disk};
+  CompactOsSettings.UpdateImportState(p.ImportedXml,compactState);
   p.ClearDiskConsent();return p;
  }
  private static string SafeReason(string message)=>message.Contains("'")?"原有模式或参数暂不受支持，请核对设置。":message;
@@ -213,7 +215,7 @@ public static class XmlPlanImport {
   }
   p.RestartExplorerAfterScripts=Checked("RestartExplorer");known.Add("RestartExplorer");
   // Native XML and payload readers handle these; credentials are never accepted from comments.
-  foreach(var key in new[]{"LanguageMode","UILanguage","Locale","Keyboard","GeoLocation","ComputerNameMode","ComputerName","TimeZoneMode","TimeZone","WindowsEditionMode","WindowsEdition","ProductKey","UseActivationKey","ActivationKey","UserAccountMode","AutoLogonMode","ObscurePasswords","PasswordExpirationMode","PasswordMaxAge","LockoutMode","LockoutThreshold","LockoutWindow","LockoutDuration","WifiMode","WifiName","WifiPassword","WifiAuthentication","WifiNonBroadcast","ExpressSettings","TaskbarSearch","HideFiles","TaskbarIconsMode","TaskbarIconsXml","StartTilesMode","StartTilesXml","StartPinsMode","StartPinsJson","ColorMode","SystemColorTheme","AppsColorTheme","AccentColor","AccentColorOnStart","AccentColorOnBorders","EnableTransparency","WallpaperMode","WallpaperColor","LockKeysMode","ProcessorArchitecture","BypassRequirementsCheck","BypassNetworkCheck","StickyKeysHotKeyActive","StickyKeysHotKeySound","StickyKeysIndicator","StickyKeysAudibleFeedback","StickyKeysTriState","StickyKeysTwoKeysOff","NotFilename"})known.Add(key);
+  foreach(var key in new[]{"LanguageMode","UILanguage","Locale","Keyboard","GeoLocation","ComputerNameMode","ComputerName","TimeZoneMode","TimeZone","WindowsEditionMode","WindowsEdition","ProductKey","UseActivationKey","ActivationKey","UserAccountMode","AutoLogonMode","ObscurePasswords","PasswordExpirationMode","PasswordMaxAge","LockoutMode","LockoutThreshold","LockoutWindow","LockoutDuration","WifiMode","WifiName","WifiPassword","WifiAuthentication","WifiNonBroadcast","ExpressSettings","TaskbarSearch","HideFiles","TaskbarIconsMode","TaskbarIconsXml","StartTilesMode","StartTilesXml","StartPinsMode","StartPinsJson","ColorMode","SystemColorTheme","AppsColorTheme","AccentColor","AccentColorOnStart","AccentColorOnBorders","EnableTransparency","WallpaperMode","WallpaperColor","LockKeysMode","ProcessorArchitecture","BypassRequirementsCheck","BypassNetworkCheck","StickyKeysHotKeyActive","StickyKeysHotKeySound","StickyKeysIndicator","StickyKeysAudibleFeedback","StickyKeysTriState","StickyKeysTwoKeysOff","NotFilename","CompactOs"})known.Add(key);
   foreach(var pair in values){
    if(known.Contains(pair.Key)||Match(pair.Key,@"^(Account(Name|DisplayName|Password|Group)|(?:System|DefaultUser|FirstLogon|UserOnce)Script(?:Type)?)[0-9]+$").Success)continue;
    if(pair.Value is "false" or "Default" or "" or "Implicit")continue;
@@ -250,6 +252,7 @@ public static class XmlPlanImport {
   if(data.OriginalOmitted||data.SourceXml.Length==0||data.BaselineXml.Length==0)throw new ArgumentException("缺少完整 XML 原文/编辑基准，请重新导入原 XML；不会使用界面默认值代替丢失内容。");
   if(data.Blockers.Length>0)throw new ArgumentException(string.Join("\n",data.Blockers));
   var source=XmlMerge.Read(data.SourceXml);
+  CompactOsSettings.ValidateImported(p,source);
   if(HasRemovedScript(source))throw new ArgumentException("原 XML 仍含已移除支持的 JScript，不能再导出。");
   if((data.RequiresDiskReview||NeedsDiskReview(source))&&!p.ConfirmImportedXmlRisk)throw new ArgumentException("导入的 XML 含磁盘配置或 Windows PE 命令，请在配置方案页重新核对原文操作范围并勾选风险确认。");
  }

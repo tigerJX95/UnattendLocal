@@ -1,5 +1,8 @@
 namespace UnattendLocal.Core;
 public class ImportedXml {
+ public bool CompactOsScriptControlled {get;set;}
+ public string CompactOsSourceMode {get;set;}=CompactOsSettings.Default;
+ public bool CompactOsSourceKnown {get;set;}
  public string SourceXml {get;set;}="";
  public string BaselineXml {get;set;}="";
  public string[] Notices {get;set;}=[];

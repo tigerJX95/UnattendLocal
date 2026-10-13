@@ -16,6 +16,7 @@ public class UserEntry : Observable {
  private bool _NeedsPassword = false; public bool NeedsPassword {get=>_NeedsPassword;set=>Set(ref _NeedsPassword,value);}
 }
 public class InstallPlan : Observable {
+ private string _CompactOsMode=CompactOsSettings.Default; public string CompactOsMode {get=>_CompactOsMode;set=>Set(ref _CompactOsMode,value);}
  private ImportedXml? _ImportedXml; public ImportedXml? ImportedXml {get=>_ImportedXml;set=>Set(ref _ImportedXml,value);}
  private bool _ConfirmImportedXmlRisk; public bool ConfirmImportedXmlRisk {get=>_ConfirmImportedXmlRisk;set=>Set(ref _ConfirmImportedXmlRisk,value);}
  public ObservableCollection<ScriptEntry> Scripts {get;set;}=new();

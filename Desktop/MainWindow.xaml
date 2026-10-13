@@ -1,4 +1,4 @@
-<Window xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:local="clr-namespace:UnattendLocal.Desktop" xmlns:core="clr-namespace:UnattendLocal.Core;assembly=Core" x:Class="UnattendLocal.Desktop.MainWindow" Icon="Assets/App.ico" Title="Windows 无人值守配置工具 · V0.1 pre39" Width="1060" Height="780" MinWidth="850" MinHeight="620" Background="{DynamicResource CanvasBrush}" Foreground="{DynamicResource ForegroundBrush}" FontFamily="Microsoft YaHei UI" FontSize="14">
+<Window xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:local="clr-namespace:UnattendLocal.Desktop" xmlns:core="clr-namespace:UnattendLocal.Core;assembly=Core" x:Class="UnattendLocal.Desktop.MainWindow" Icon="Assets/App.ico" Title="Windows 无人值守配置工具 · V0.1 pre40" Width="1060" Height="780" MinWidth="850" MinHeight="620" Background="{DynamicResource CanvasBrush}" Foreground="{DynamicResource ForegroundBrush}" FontFamily="Microsoft YaHei UI" FontSize="14">
   <DockPanel>
     <Border DockPanel.Dock="Top" Background="{DynamicResource SurfaceBrush}" Padding="24,16">
       <DockPanel>
@@ -311,6 +311,14 @@
             <StackPanel IsEnabled="{Binding IsImageName}"><TextBlock Text="完整镜像名称"/><TextBox Text="{Binding Plan.ImageName,UpdateSourceTrigger=PropertyChanged}" ToolTip="{Binding DataContext.HelpTips[image],RelativeSource={RelativeSource AncestorType=Window}}" /></StackPanel>
             <StackPanel IsEnabled="{Binding IsImageIndex}"><TextBlock Text="镜像索引（从 1 开始）"/><TextBox Text="{Binding Plan.ImageIndex,UpdateSourceTrigger=PropertyChanged,ValidatesOnExceptions=True}" ToolTip="{Binding DataContext.HelpTips[image],RelativeSource={RelativeSource AncestorType=Window}}" /></StackPanel>
             <TextBlock Style="{StaticResource ExplanationText}" Text="　　可在 Windows 上用 DISM /Get-ImageInfo /ImageFile:路径查看镜像信息。本版不读取或校验实际镜像内容；名称、索引和密钥冲突可能使安装失败或出现选择页面。" TextWrapping="Wrap" Foreground="{DynamicResource SecondaryBrush}" />
+          </StackPanel></Border>
+          <Border Style="{StaticResource Card}"><StackPanel>
+            <TextBlock Text="CompactOS 系统文件压缩" FontSize="20" FontWeight="SemiBold" Margin="0,0,0,16" ToolTip="{Binding DataContext.HelpTips[compactos],RelativeSource={RelativeSource AncestorType=Window}}"/>
+            <ComboBox SelectedValue="{Binding Plan.CompactOsMode}" SelectedValuePath="Content" IsEnabled="{Binding CanEditCompactOs}" ToolTip="{Binding DataContext.HelpTips[compactos],RelativeSource={RelativeSource AncestorType=Window}}"><ComboBoxItem Content="使用 Windows 默认设置"/><ComboBoxItem Content="启用 CompactOS（压缩系统文件）"/><ComboBoxItem Content="禁用 CompactOS（不压缩系统文件）"/></ComboBox>
+            <TextBlock Style="{StaticResource ExplanationText}" Text="{Binding CompactOsSummary,StringFormat='　　{0}'}" Foreground="{DynamicResource SecondaryBrush}"/>
+            <TextBlock Style="{StaticResource ExplanationText}" Text="　　CompactOS 压缩 Windows 系统文件以减少磁盘占用，不压缩整个磁盘，也不改变分区配置。默认由安装程序决定；此项不依赖首次自动登录。" Foreground="{DynamicResource SecondaryBrush}"/>
+            <TextBlock Style="{StaticResource ExplanationText}" Text="　　读取压缩文件需要解压，实际性能和节省空间取决于处理器、存储设备及镜像内容。仅配置即将安装的系统，不修改当前电脑。" Foreground="{DynamicResource SecondaryBrush}"/>
+            <TextBlock Text="　　导入的 XML 使用自定义安装或压缩脚本，参数已保留；本版暂不能在界面覆盖该脚本的 CompactOS 设置，请用原工具调整后重新导入。" Foreground="{DynamicResource WarningBrush}" ><TextBlock.Style><Style TargetType="TextBlock" BasedOn="{StaticResource ExplanationText}"><Setter Property="Visibility" Value="Collapsed"/><Style.Triggers><DataTrigger Binding="{Binding CanEditCompactOs}" Value="False"><Setter Property="Visibility" Value="Visible"/></DataTrigger></Style.Triggers></Style></TextBlock.Style></TextBlock>
           </StackPanel></Border>
           <Border Style="{StaticResource Card}"><StackPanel>
             <TextBlock Text="磁盘与分区" FontSize="20" FontWeight="SemiBold" Margin="0,0,0,16" />

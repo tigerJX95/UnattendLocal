@@ -78,6 +78,7 @@ public static class HelpCatalog
         [
             new("custom", "新建自定义配置", "从独立基础值开始，不沿用推荐策略或预填账户。默认预设语言、自动创建本地账户、有线网络和关闭快捷隐私；语言区域、SKU、账户及凭据需在工具内填写。密码到期使用 Windows 默认策略，时区由 Windows 决定；磁盘保持手动，避免误删数据。切换模式时可重新开始或保留当前设置，重新开始会清空已有配置。"),
             new("timezone", "时区设置", "由 Windows 决定时不写入固定时区；指定时区时必须选择目标时区。自定义基础配置默认由 Windows 决定，推荐配置默认使用所选固定时区。"),
+            new("compactos", "CompactOS 系统文件压缩", "默认模式不写入压缩覆盖，由 Windows 安装程序决定；启用或禁用分别写入安装阶段的 Compact=true 或 false。CompactOS 通过压缩 Windows 系统文件减少磁盘占用，不压缩整个磁盘，不调整分区或镜像来源。压缩节省的空间和读取时的解压开销受系统版本、镜像内容、处理器及存储性能影响，不保证固定节省量或性能提升。设置作用于即将安装的 Windows，不修改当前电脑，也不依赖首次自动登录。默认只影响新生成的配置，不自动解压已安装系统。导入的自定义镜像应用/Compact 脚本由原脚本控制，当前只能识别并保留，不能在界面修改其压缩参数。"),
             new("image", "镜像选择", "按名称或索引选择安装介质中的镜像。索引从 1 开始，可使用 DISM /Get-ImageInfo 核对；镜像必须与产品密钥、SKU、语言和架构匹配。此工具不读取实际镜像内容。"),
             new("customscripts", "按阶段执行自定义脚本", "System 在 specialize 阶段以 SYSTEM 身份执行；DefaultUser 随后修改默认用户注册表模板；FirstLogon 在全机首个用户登录时执行；UserOnce 在每个用户首次登录时执行，不保证桌面已加载完成。支持 CMD、PowerShell、REG、VBScript，DefaultUser 仅支持前三种。同阶段按列表顺序；必须自行处理等待与错误。空白启用脚本不能导出，淡色示例仅供参考。JScript（.js）已停止支持；旧方案内容保留但自动停用，请移除或手动改写。"),
             new("scriptcontent", "脚本内容与保存", "脚本嵌入应答文件，安装时按所选阶段执行，本工具不会本地执行。关闭某条脚本只保留编辑内容，不参与生成。方案会原样保存脚本；省略凭据与预览遮蔽不解析脚本内部的密码、令牌。"),
@@ -217,6 +218,7 @@ public static class HelpCatalog
             "hardwareram" => $"当前：内存容量检查绕过{(plan.BypassHardware||plan.BypassRAMCheck?"开启":"关闭")}。",
             "architecture" => $"当前目标架构：{ChoiceLocalization.Architecture(plan.Architecture)}。",
             "computer" => string.IsNullOrEmpty(plan.ComputerName)?"当前：由 Windows 自动生成计算机名。":$"当前计算机名：{plan.ComputerName}。",
+            "compactos" => $"当前：{CompactOsSettings.ModeSummary(plan)}。",
             "image" => $"当前：{InstallationSettings.ImageSummary(plan)}。",
             "diskmode" or "disktarget" or "diskformat" or "disklayout" => $"当前：{InstallationSettings.DiskSummary(plan)}。",
             "edition" or "sku" => $"当前：{plan.EditionMode}；SKU {(string.IsNullOrWhiteSpace(plan.EditionId)?"尚未选择":plan.EditionId)}。",
