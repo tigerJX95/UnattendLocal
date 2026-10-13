@@ -1,0 +1,2 @@
+upstream-import.xml：2026-10-13从原作者网站download接口获取的回归样例，包含尚未在界面实现的DisableUac设置及已支持的EnableLongPaths。URL与生成参数保留在样例注释中。账户ImportFixture、密码FixtureOnly123仅为合成测试数据。测试仅读取和比较XML，不执行其中任何安装或注册表命令。
+来源：https://schneegans.de/windows/unattend-generator/

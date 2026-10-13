@@ -1,4 +1,4 @@
-<Window xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:local="clr-namespace:UnattendLocal.Desktop" xmlns:core="clr-namespace:UnattendLocal.Core;assembly=Core" x:Class="UnattendLocal.Desktop.MainWindow" Icon="Assets/App.ico" Title="Windows 无人值守配置工具 · V0.1 pre36" Width="1060" Height="780" MinWidth="850" MinHeight="620" Background="{DynamicResource CanvasBrush}" Foreground="{DynamicResource ForegroundBrush}" FontFamily="Microsoft YaHei UI" FontSize="14">
+<Window xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:local="clr-namespace:UnattendLocal.Desktop" xmlns:core="clr-namespace:UnattendLocal.Core;assembly=Core" x:Class="UnattendLocal.Desktop.MainWindow" Icon="Assets/App.ico" Title="Windows 无人值守配置工具 · V0.1 pre39" Width="1060" Height="780" MinWidth="850" MinHeight="620" Background="{DynamicResource CanvasBrush}" Foreground="{DynamicResource ForegroundBrush}" FontFamily="Microsoft YaHei UI" FontSize="14">
   <DockPanel>
     <Border DockPanel.Dock="Top" Background="{DynamicResource SurfaceBrush}" Padding="24,16">
       <DockPanel>
@@ -6,6 +6,7 @@
           <Button Content="新建推荐配置" Click="NewClick" />
           <Button Content="新建自定义配置" Click="NewCustomClick" />
           <Button Content="打开方案" Click="OpenClick" />
+          <Button Content="导入应答 XML" Click="ImportAnswerClick" />
           <Button Content="保存方案" Click="SaveClick" />
           <Button x:Name="ThemeToggleButton" Click="ThemeToggleClick" ContentTemplate="{x:Null}">
             <Button.ToolTip><ToolTip x:Name="ThemeToggleTip" ContentTemplate="{x:Null}" Content="切换为深色主题"/></Button.ToolTip>
@@ -27,6 +28,17 @@
     <TabControl x:Name="Pages" TabStripPlacement="Left" Background="{DynamicResource CanvasBrush}" BorderThickness="0" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch">
       <TabItem Header="配置方案" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch">
         <ScrollViewer VerticalScrollBarVisibility="Auto"><StackPanel Margin="24">
+          <Border Style="{StaticResource Card}" Visibility="{Binding HasImportedXml,Converter={StaticResource VisibleWhen}}"><StackPanel>
+            <TextBlock Text="已导入的 XML" FontSize="20" FontWeight="SemiBold" Margin="0,0,0,16"/>
+            <TextBlock Text="{Binding XmlImportSummary}" FontWeight="SemiBold" TextWrapping="Wrap"/>
+            <TextBlock Style="{StaticResource ExplanationText}" Text="　　已还原的设置可在分类页修改；未完全识别或尚未实现的内容保留在原 XML 中。检查与导出会尝试合并修改，冲突时停止，不自动丢弃原配置。" Foreground="{DynamicResource SecondaryBrush}"/>
+            <TextBlock Style="{StaticResource ExplanationText}" Text="{Binding XmlImportDetails}" Foreground="{DynamicResource WarningBrush}"/>
+            <StackPanel Visibility="{Binding HasImportedXmlRisk,Converter={StaticResource VisibleWhen}}">
+              <TextBlock Style="{StaticResource ExplanationText}" Text="　　原 XML 含磁盘配置或 Windows PE 命令，可能清空、格式化磁盘或执行其他命令。界面中的磁盘摘要不能代表全部原文操作范围，请重新核对原文件。" Foreground="{DynamicResource WarningBrush}"/>
+              <CheckBox Content="已核对导入 XML 中全部磁盘及 Windows PE 操作、完成备份并获得授权" IsChecked="{Binding Plan.ConfirmImportedXmlRisk}" ToolTip="此确认不会执行命令；导出时仍有危险操作确认。新建方案或修改磁盘配置后需要重新确认。"/>
+            </StackPanel>
+            <TextBlock Style="{StaticResource ExplanationText}" Text="　　新建配置会重新开始；应用推荐值只调整推荐涉及的设置，原文仍保留，相关内容冲突时将阻止导出。导入不会运行任何安装命令。" Foreground="{DynamicResource SecondaryBrush}"/>
+          </StackPanel></Border>
           <Border Style="{StaticResource Card}"><StackPanel>
             <TextBlock Text="推荐配置与自定义配置" FontSize="20" FontWeight="SemiBold" Margin="0,0,0,16" />
             <TextBlock Style="{StaticResource ExplanationText}" Text="　　推荐配置提供可修改的起点。自定义配置可从基础值开始，由你逐项选择或填写。所有模式均使用左侧各分类页面。" TextWrapping="Wrap" Foreground="{DynamicResource SecondaryBrush}" />
@@ -117,15 +129,42 @@
               </StackPanel>
             </Border>
             <Border Style="{StaticResource Card}"><StackPanel>
-              <TextBlock Text="锁定键初始状态" FontSize="20" FontWeight="SemiBold" Margin="0,0,0,16" ToolTip="{Binding DataContext.HelpTips[lockkeys],RelativeSource={RelativeSource AncestorType=Window}}"/>
-              <ComboBox SelectedValue="{Binding Plan.LockKeyMode}" SelectedValuePath="Content" ToolTip="{Binding DataContext.HelpTips[lockkeys],RelativeSource={RelativeSource AncestorType=Window}}"><ComboBoxItem Content="使用 Windows 默认状态"/><ComboBoxItem Content="自定义初始状态"/></ComboBox>
+              <TextBlock Text="锁定键初始状态与按键行为" FontSize="20" FontWeight="SemiBold" Margin="0,0,0,16" ToolTip="{Binding DataContext.HelpTips[lockkeys],RelativeSource={RelativeSource AncestorType=Window}}"/>
+              <ComboBox SelectedValue="{Binding Plan.LockKeyMode}" SelectedValuePath="Tag" ToolTip="{Binding DataContext.HelpTips[lockkeys],RelativeSource={RelativeSource AncestorType=Window}}"><ComboBoxItem Content="使用 Windows 默认状态" Tag="使用 Windows 默认状态"/><ComboBoxItem Content="自定义初始状态与按键行为" Tag="自定义初始状态"/></ComboBox>
               <StackPanel IsEnabled="{Binding IsCustomLockKeys}" Visibility="{Binding IsCustomLockKeys,Converter={StaticResource VisibleWhen}}">
-                <CheckBox Content="初始开启 Num Lock（数字锁定）" IsChecked="{Binding Plan.InitialNumLockOn}" ToolTip="{Binding DataContext.HelpTips[numlock],RelativeSource={RelativeSource AncestorType=Window}}"/>
-                <CheckBox Content="初始开启 Caps Lock（大写锁定）" IsChecked="{Binding Plan.InitialCapsLockOn}" ToolTip="{Binding DataContext.HelpTips[capslock],RelativeSource={RelativeSource AncestorType=Window}}"/>
-                <CheckBox Content="初始开启 Scroll Lock（滚动锁定）" IsChecked="{Binding Plan.InitialScrollLockOn}" ToolTip="{Binding DataContext.HelpTips[scrolllock],RelativeSource={RelativeSource AncestorType=Window}}"/>
+                <TextBlock Text="Num Lock（数字锁定）" Margin="0,12,0,4" FontWeight="SemiBold"/>
+                <CheckBox Content="初始开启" IsChecked="{Binding Plan.InitialNumLockOn}" ToolTip="{Binding DataContext.HelpTips[numlock],RelativeSource={RelativeSource AncestorType=Window}}"/>
+                <CheckBox Content="忽略此键的按键（无法用此键切换）" IsChecked="{Binding Plan.IgnoreNumLock}" ToolTip="{Binding DataContext.HelpTips[lockbehavior],RelativeSource={RelativeSource AncestorType=Window}}"/>
+                <TextBlock Text="Caps Lock（大写锁定）" Margin="0,12,0,4" FontWeight="SemiBold"/>
+                <CheckBox Content="初始开启" IsChecked="{Binding Plan.InitialCapsLockOn}" ToolTip="{Binding DataContext.HelpTips[capslock],RelativeSource={RelativeSource AncestorType=Window}}"/>
+                <CheckBox Content="忽略此键的按键（无法用此键切换）" IsChecked="{Binding Plan.IgnoreCapsLock}" ToolTip="{Binding DataContext.HelpTips[lockbehavior],RelativeSource={RelativeSource AncestorType=Window}}"/>
+                <TextBlock Text="Scroll Lock（滚动锁定）" Margin="0,12,0,4" FontWeight="SemiBold"/>
+                <CheckBox Content="初始开启" IsChecked="{Binding Plan.InitialScrollLockOn}" ToolTip="{Binding DataContext.HelpTips[scrolllock],RelativeSource={RelativeSource AncestorType=Window}}"/>
+                <CheckBox Content="忽略此键的按键（无法用此键切换）" IsChecked="{Binding Plan.IgnoreScrollLock}" ToolTip="{Binding DataContext.HelpTips[lockbehavior],RelativeSource={RelativeSource AncestorType=Window}}"/>
               </StackPanel>
-              <TextBlock Text="{Binding LockKeyStateSummary}" Foreground="{DynamicResource SecondaryBrush}" TextWrapping="Wrap" Margin="0,8,0,0"/>
-              <TextBlock Style="{StaticResource ExplanationText}" Text="　　自定义模式下，未勾选表示初始关闭。设置作用于安装后的登录界面与新建用户，按键仍可正常切换；实际状态受固件、驱动及 Windows 行为影响。" Foreground="{DynamicResource SecondaryBrush}" TextWrapping="Wrap"/>
+              <TextBlock Style="{StaticResource ExplanationText}" Text="{Binding LockKeyStateSummary,StringFormat='　　{0}'}" Foreground="{DynamicResource SecondaryBrush}"/>
+              <TextBlock Style="{StaticResource ExplanationText}" Text="　　自定义模式下，未勾选初始开启表示初始关闭。忽略按键会影响目标系统所有用户和登录界面，请先确认所需状态；可能覆盖其他键盘重映射设置。" Foreground="{DynamicResource SecondaryBrush}"/>
+              <TextBlock Style="{StaticResource ExplanationText}" Text="　　固件、驱动及 Windows 行为可能影响实际效果。切回默认仅改变新生成的配置，不自动清除已安装系统的按键映射。" Foreground="{DynamicResource SecondaryBrush}"/>
+            </StackPanel></Border>
+            <Border Style="{StaticResource Card}"><StackPanel>
+              <TextBlock Text="粘滞键" FontSize="20" FontWeight="SemiBold" Margin="0,0,0,16" ToolTip="{Binding DataContext.HelpTips[stickykeys],RelativeSource={RelativeSource AncestorType=Window}}"/>
+              <ComboBox SelectedValue="{Binding Plan.StickyKeysMode}" SelectedValuePath="Content" ToolTip="{Binding DataContext.HelpTips[stickykeys],RelativeSource={RelativeSource AncestorType=Window}}"><ComboBoxItem Content="使用 Windows 默认设置"/><ComboBoxItem Content="禁用粘滞键"/><ComboBoxItem Content="自定义粘滞键"/></ComboBox>
+              <StackPanel IsEnabled="{Binding IsCustomStickyKeys}" Visibility="{Binding IsCustomStickyKeys,Converter={StaticResource VisibleWhen}}">
+                <CheckBox Content="连续按 Shift 五次切换粘滞键" IsChecked="{Binding Plan.StickyHotKeyActive}" ToolTip="{Binding DataContext.HelpTips[stickyhotkey],RelativeSource={RelativeSource AncestorType=Window}}"/>
+                <CheckBox Content="使用 Shift 快捷切换时播放提示音" IsChecked="{Binding Plan.StickyHotKeySound}" ToolTip="{Binding DataContext.HelpTips[stickyhotkeysound],RelativeSource={RelativeSource AncestorType=Window}}"/>
+                <CheckBox Content="显示粘滞键任务栏图标" IsChecked="{Binding Plan.StickyIndicator}" ToolTip="{Binding DataContext.HelpTips[stickyindicator],RelativeSource={RelativeSource AncestorType=Window}}"/>
+                <CheckBox Content="按下或释放快捷键时播放提示音" IsChecked="{Binding Plan.StickyAudibleFeedback}" ToolTip="{Binding DataContext.HelpTips[stickyaudible],RelativeSource={RelativeSource AncestorType=Window}}"/>
+                <CheckBox Content="连续按两次时锁定快捷键" IsChecked="{Binding Plan.StickyTriState}" ToolTip="{Binding DataContext.HelpTips[stickytristate],RelativeSource={RelativeSource AncestorType=Window}}"/>
+                <CheckBox Content="同时按下两个键时关闭粘滞键" IsChecked="{Binding Plan.StickyTwoKeysOff}" ToolTip="{Binding DataContext.HelpTips[stickytwokeysoff],RelativeSource={RelativeSource AncestorType=Window}}"/>
+              </StackPanel>
+              <TextBlock Style="{StaticResource ExplanationText}" Text="{Binding StickyKeysSummary,StringFormat='　　{0}'}" Foreground="{DynamicResource SecondaryBrush}"/>
+              <TextBlock Style="{StaticResource ExplanationText}" Text="　　粘滞键是键盘辅助功能，方便依次输入组合快捷键。自定义选项不会自动开启粘滞键；设置影响新建用户和登录界面，不调整筛选键或切换键。" Foreground="{DynamicResource SecondaryBrush}"/>
+              <TextBlock Style="{StaticResource ExplanationText}" Text="　　禁用后将失去此键盘辅助功能及 Shift 快捷切换，需要辅助输入的用户请谨慎选择。" Foreground="{DynamicResource WarningBrush}" Visibility="{Binding IsStickyKeysDisabled,Converter={StaticResource VisibleWhen}}"/>
+            </StackPanel></Border>
+            <Border Style="{StaticResource Card}"><StackPanel>
+              <TextBlock Text="鼠标" FontSize="20" FontWeight="SemiBold" Margin="0,0,0,16"/>
+              <CheckBox Content="关闭鼠标“提高指针精确度”" IsChecked="{Binding Plan.DisablePointerPrecision}" ToolTip="{Binding DataContext.HelpTips[pointerprecision],RelativeSource={RelativeSource AncestorType=Window}}"/>
+              <TextBlock Style="{StaticResource ExplanationText}" Text="　　减少 Windows 鼠标加速，不调整 DPI、指针速度或游戏内设置。只配置安装后的新建用户；默认遵循 Windows，驱动和应用可能另有独立设置。" Foreground="{DynamicResource SecondaryBrush}"/>
             </StackPanel></Border>
           </StackPanel>
         </ScrollViewer>
@@ -610,6 +649,9 @@
               <TextBlock Style="{StaticResource ExplanationText}" Text="　　允许支持长路径的应用处理较深的目录；旧程序仍可能受限制，单个文件名长度限制不变。" TextWrapping="Wrap" Foreground="{DynamicResource SecondaryBrush}"/>
               <CheckBox Content="关闭系统声音" IsChecked="{Binding Plan.TurnOffSystemSounds}" Margin="0,14,0,0" ToolTip="{Binding DataContext.HelpTips[systemsounds],RelativeSource={RelativeSource AncestorType=Window}}"/>
               <TextBlock Style="{StaticResource ExplanationText}" Text="　　关闭系统提示音方案与系统启动声音，不影响音乐、视频和应用音频。未勾选时遵循 Windows 默认行为。" TextWrapping="Wrap" Foreground="{DynamicResource SecondaryBrush}"/>
+              <CheckBox Content="禁用应用建议和自动推广" IsChecked="{Binding Plan.DisableAppSuggestions}" Margin="0,14,0,0" ToolTip="{Binding DataContext.HelpTips[appsuggestions],RelativeSource={RelativeSource AncestorType=Window}}"/>
+              <TextBlock Style="{StaticResource ExplanationText}" Text="　　减少系统应用建议与自动推广安装；不卸载已有应用，不阻止主动安装。默认遵循 Windows 与组织策略。" Foreground="{DynamicResource SecondaryBrush}"/>
+              <TextBlock Style="{StaticResource ExplanationText}" Text="　　此项可能影响“移动设备”中的“管理设备”入口，需要相关功能时请谨慎选择。" Foreground="{DynamicResource WarningBrush}" Visibility="{Binding Plan.DisableAppSuggestions,Converter={StaticResource VisibleWhen}}"/>
             </StackPanel></Border>
             <Border Style="{StaticResource Card}"><StackPanel>
               <TextBlock Text="Windows 更新" FontSize="20" FontWeight="SemiBold" Margin="0,0,0,16"/>
@@ -900,6 +942,9 @@
               <StackPanel>
                 <TextBlock Text="检查与导出" FontSize="20" FontWeight="SemiBold" Margin="0,0,0,16" />
                 <TextBlock Style="{StaticResource ExplanationText}" Text="　　导出前重新检查当前配置。XML 可能包含账户及 Wi-Fi 凭据；预览默认遮蔽密码。" TextWrapping="Wrap" />
+                <TextBlock Style="{StaticResource ExplanationText}" Text="{Binding XmlImportSummary,StringFormat='　　{0}'}" Visibility="{Binding HasImportedXml,Converter={StaticResource VisibleWhen}}" Foreground="{DynamicResource WarningBrush}"/>
+                <TextBlock Style="{StaticResource ExplanationText}" Text="　　导入的原 XML 含磁盘配置或 Windows PE 命令；下方磁盘设置仅涵盖已还原的部分，请核对原文件的全部操作范围。" Visibility="{Binding HasImportedXmlRisk,Converter={StaticResource VisibleWhen}}" Foreground="{DynamicResource WarningBrush}"/>
+
                 <local:ConfigurationSummaryView Summary="{Binding ConfigurationSummary}" ShowDetails="False" Margin="0,0,0,0"/>
                 <Border Margin="0,0,0,16">
                   <Border.Style><Style TargetType="Border"><Setter Property="Padding" Value="0"/><Setter Property="BorderThickness" Value="0"/>

@@ -16,8 +16,22 @@ public class UserEntry : Observable {
  private bool _NeedsPassword = false; public bool NeedsPassword {get=>_NeedsPassword;set=>Set(ref _NeedsPassword,value);}
 }
 public class InstallPlan : Observable {
+ private ImportedXml? _ImportedXml; public ImportedXml? ImportedXml {get=>_ImportedXml;set=>Set(ref _ImportedXml,value);}
+ private bool _ConfirmImportedXmlRisk; public bool ConfirmImportedXmlRisk {get=>_ConfirmImportedXmlRisk;set=>Set(ref _ConfirmImportedXmlRisk,value);}
  public ObservableCollection<ScriptEntry> Scripts {get;set;}=new();
  private bool _RestartExplorerAfterScripts;public bool RestartExplorerAfterScripts {get=>_RestartExplorerAfterScripts;set=>Set(ref _RestartExplorerAfterScripts,value);}
+ private bool _DisablePointerPrecision; public bool DisablePointerPrecision {get=>_DisablePointerPrecision;set=>Set(ref _DisablePointerPrecision,value);}
+ private string _StickyKeysMode=StickyKeySettings.Default; public string StickyKeysMode {get=>_StickyKeysMode;set=>Set(ref _StickyKeysMode,value);}
+ private bool _StickyHotKeyActive; public bool StickyHotKeyActive {get=>_StickyHotKeyActive;set=>Set(ref _StickyHotKeyActive,value);}
+ private bool _StickyHotKeySound; public bool StickyHotKeySound {get=>_StickyHotKeySound;set=>Set(ref _StickyHotKeySound,value);}
+ private bool _StickyIndicator; public bool StickyIndicator {get=>_StickyIndicator;set=>Set(ref _StickyIndicator,value);}
+ private bool _StickyAudibleFeedback; public bool StickyAudibleFeedback {get=>_StickyAudibleFeedback;set=>Set(ref _StickyAudibleFeedback,value);}
+ private bool _StickyTriState; public bool StickyTriState {get=>_StickyTriState;set=>Set(ref _StickyTriState,value);}
+ private bool _StickyTwoKeysOff; public bool StickyTwoKeysOff {get=>_StickyTwoKeysOff;set=>Set(ref _StickyTwoKeysOff,value);}
+ private bool _IgnoreNumLock; public bool IgnoreNumLock {get=>_IgnoreNumLock;set=>Set(ref _IgnoreNumLock,value);}
+ private bool _IgnoreCapsLock; public bool IgnoreCapsLock {get=>_IgnoreCapsLock;set=>Set(ref _IgnoreCapsLock,value);}
+ private bool _IgnoreScrollLock; public bool IgnoreScrollLock {get=>_IgnoreScrollLock;set=>Set(ref _IgnoreScrollLock,value);}
+ private bool _DisableAppSuggestions; public bool DisableAppSuggestions {get=>_DisableAppSuggestions;set=>Set(ref _DisableAppSuggestions,value);}
  private bool _DisableWindowsUpdate; public bool DisableWindowsUpdate {get=>_DisableWindowsUpdate;set=>Set(ref _DisableWindowsUpdate,value);}
  private bool _HideEdgeFre; public bool HideEdgeFre {get=>_HideEdgeFre;set=>Set(ref _HideEdgeFre,value);}
  private bool _DisableEdgeStartupBoost; public bool DisableEdgeStartupBoost {get=>_DisableEdgeStartupBoost;set=>Set(ref _DisableEdgeStartupBoost,value);}
@@ -118,7 +132,7 @@ public class InstallPlan : Observable {
  private bool _ConfirmFormatPartition; public bool ConfirmFormatPartition {get=>_ConfirmFormatPartition;set=>Set(ref _ConfirmFormatPartition,value);}
  private string _DiskPartScript=""; public string DiskPartScript {get=>_DiskPartScript;set{if(_DiskPartScript==value)return;ClearDiskConsent();Set(ref _DiskPartScript,value);}}
  private bool _ConfirmDiskScript; public bool ConfirmDiskScript {get=>_ConfirmDiskScript;set=>Set(ref _ConfirmDiskScript,value);}
- public void ClearDiskConsent(){ConfirmDiskScript=false;ConfirmWipeDisk=false;ConfirmFormatPartition=false;}
+ public void ClearDiskConsent(){ConfirmImportedXmlRisk=false;ConfirmDiskScript=false;ConfirmWipeDisk=false;ConfirmFormatPartition=false;}
  private string _CustomStartingPoint="保留当前设置"; public string CustomStartingPoint {get=>_CustomStartingPoint;set=>Set(ref _CustomStartingPoint,value);}
  private string _TimeZoneMode="指定时区"; public string TimeZoneMode {get=>_TimeZoneMode;set=>Set(ref _TimeZoneMode,value);}
  private string _ConfigurationMode="自定义配置"; public string ConfigurationMode {get=>_ConfigurationMode;set=>Set(ref _ConfigurationMode,value);}

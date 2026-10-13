@@ -778,4 +778,184 @@ viewModel.Plan=Plan();viewModel.Preview="stale-update";viewModel.Plan.DisableWin
 Check(!viewModel.Preview.Contains("stale-update")&&viewModel.ConfigurationSummary.Contains("Windows 更新：循环暂停 7 天")&&viewModel.HelpTips["windowsupdate"].Body.Contains("当前：循环暂停更新"),"update choice refreshes help/summary and invalidates preview");
 Check(viewModel.HelpTips["windowsupdate"].Body.Contains("安全补丁")&&viewModel.HelpTips["windowsupdate"].Body.Contains("禁用或删除 PauseWindowsUpdate")&&viewModel.HelpTips["windowsupdate"].Body.Contains("不会删除已安装系统里的任务"),"help states maintenance impact and temporary/permanent recovery");
 viewModel.Plan.DisableWindowsUpdate=false;Check(viewModel.ConfigurationSummary.Contains("Windows 更新：遵循 Windows 默认行为")&&viewModel.HelpTips["windowsupdate"].Body.Contains("当前：遵循 Windows 默认行为"),"unchecking updates default wording");
-Console.WriteLine($"Final pre36 total: {count} tests passed.");
+// Application suggestions: upstream default-user content settings and machine consumer policy.
+Check(!InstallPlan.New().DisableAppSuggestions&&!InstallPlan.NewCustom().DisableAppSuggestions&&!PlanStore.Deserialize("{\"SchemaVersion\":1,\"Users\":[]}").DisableAppSuggestions,"new and legacy plans keep Windows application-suggestion defaults");
+foreach(var arch in new[]{"amd64","arm64","x86"}){
+ p=Plan();p.Architecture=arch;Check(!DecodedXml(Xml(p)).Contains("DisableWindowsConsumerFeatures"),"default does not generate consumer-policy override: "+arch);
+ p.DisableAppSuggestions=true;xml=Xml(p);var defaults=Node(xml,"//*[local-name()='File' and contains(@path,'DefaultUser.ps1')]")??"";var install=Node(xml,"//*[local-name()='File' and contains(@path,'Specialize.ps1')]")??"";
+ Check(defaults.Contains("SilentInstalledAppsEnabled")&&defaults.Contains("SystemPaneSuggestionsEnabled")&&defaults.Contains("SubscribedContent-338388Enabled")&&defaults.Contains(@"HKU\DefaultUser\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager")&&defaults.Contains("/v $name /t REG_DWORD /d 0 /f"),"content-delivery defaults follow upstream: "+arch);
+ Check(install.Contains(@"HKLM\Software\Policies\Microsoft\Windows\CloudContent")&&install.Contains("DisableWindowsConsumerFeatures")&&install.Contains("/t REG_DWORD /d 1 /f;"),"consumer policy applied in specialize: "+arch);
+ Check(!DecodedXml(xml).Contains("Remove-AppxPackage")&&!DecodedXml(xml).Contains("RemoveBloatware.ps1"),"suggestion flag does not introduce app removal: "+arch);
+ p.DisableAppSuggestions=false;Check(!DecodedXml(Xml(p)).Contains("DisableWindowsConsumerFeatures"),"unchecking omits suggestion override: "+arch);
+}
+p=Plan();p.DisableAppSuggestions=true;
+foreach(var secrets in new[]{false,true})Check(PlanStore.Deserialize(PlanStore.Serialize(p,secrets)).DisableAppSuggestions,"suggestion flag roundtrips: "+secrets);
+Check(Recommendations.Differences(p).Any(d=>d.Property==nameof(InstallPlan.DisableAppSuggestions))&&Recommendations.Summary(p).Contains("应用建议：禁用建议与自动推广"),"suggestion flag visible in differences and summary");
+Recommendations.SelectNetworkScene(p,"wifi");Check(p.DisableAppSuggestions,"network scene preserves suggestions preference");
+Recommendations.Restore(p,nameof(InstallPlan.DisableAppSuggestions));Check(!p.DisableAppSuggestions,"single restore returns suggestion setting to default");
+p.DisableAppSuggestions=true;Recommendations.Apply(p,"wired");Check(!p.DisableAppSuggestions,"full recommendation restores suggestion defaults");
+p=Plan();p.DisableAppSuggestions=true;p.AutoLogon=false;p.KeepSensitiveFiles=true;Check(DecodedXml(Xml(p)).Contains("DisableWindowsConsumerFeatures")&&!Xml(p).Contains("<AutoLogon>"),"suggestion settings independent of automatic login");
+viewModel.Plan=Plan();viewModel.Preview="stale-suggestions";viewModel.Plan.DisableAppSuggestions=true;
+Check(!viewModel.Preview.Contains("stale-suggestions")&&viewModel.ConfigurationSummary.Contains("应用建议：禁用建议与自动推广")&&viewModel.HelpTips["appsuggestions"].Body.Contains("当前：禁用应用建议"),"suggestion preference refreshes summary/help and invalidates preview");
+Check(viewModel.HelpTips["appsuggestions"].Body.Contains("管理设备按钮不可用")&&viewModel.HelpTips["appsuggestions"].Body.Contains("不会卸载现有应用"),"help documents mobile-device side effect and retained installed apps");
+viewModel.Plan.DisableAppSuggestions=false;Check(viewModel.ConfigurationSummary.Contains("应用建议：遵循 Windows 默认行为")&&viewModel.HelpTips["appsuggestions"].Body.Contains("当前：遵循 Windows 默认行为"),"unchecking restores suggestion default wording");
+
+// Input settings: inspect generated XML/embedded data only, never execute scripts.
+var legacyInput=PlanStore.Deserialize("{\"SchemaVersion\":1,\"Users\":[]}");
+foreach(var candidate in new[]{InstallPlan.New(),InstallPlan.NewCustom(),legacyInput})
+ Check(!candidate.DisablePointerPrecision&&candidate.StickyKeysMode==StickyKeySettings.Default&&!candidate.IgnoreCapsLock&&!candidate.IgnoreNumLock&&!candidate.IgnoreScrollLock,"new and legacy input defaults preserve Windows");
+foreach(var arch in new[]{"amd64","arm64","x86"}){
+ p=Plan();p.Architecture=arch;var defaultInput=DecodedXml(Xml(p));
+ Check(!defaultInput.Contains("MouseThreshold1")&&!defaultInput.Contains(@"Accessibility\StickyKeys")&&!defaultInput.Contains("Scancode Map"),"default input options write no overrides: "+arch);
+ p.DisablePointerPrecision=true;xml=Xml(p);var mouseUser=Node(xml,"//*[local-name()='File' and contains(@path,'DefaultUser.ps1')]")??"";var mouseMachine=Node(xml,"//*[local-name()='File' and contains(@path,'Specialize.ps1')]")??"";
+ Check(mouseUser.Contains(@"Registry::HKU\DefaultUser\Control Panel\Mouse")&&mouseUser.Contains("Value = 0;")&&new[]{"MouseSpeed","MouseThreshold1","MouseThreshold2"}.All(n=>mouseUser.Contains("Set-ItemProperty @params -Name '"+n+"'")),"pointer acceleration writes all three upstream values in default-user stage: "+arch);
+ Check(!mouseMachine.Contains("MouseThreshold")&&!mouseUser.Contains("MouseSensitivity"),"pointer option leaves machine settings and pointer speed unchanged: "+arch);
+ p.DisablePointerPrecision=false;Check(!DecodedXml(Xml(p)).Contains("MouseThreshold1"),"unchecking pointer precision omits override: "+arch);
+ for(var mask=0;mask<64;mask++){
+  p=Plan();p.Architecture=arch;p.StickyKeysMode=StickyKeySettings.Custom;
+  p.StickyHotKeyActive=(mask&1)!=0;p.StickyHotKeySound=(mask&2)!=0;p.StickyIndicator=(mask&4)!=0;p.StickyAudibleFeedback=(mask&8)!=0;p.StickyTriState=(mask&16)!=0;p.StickyTwoKeysOff=(mask&32)!=0;
+  var expected=10+((mask&1)!=0?4:0)+((mask&2)!=0?16:0)+((mask&4)!=0?32:0)+((mask&8)!=0?64:0)+((mask&16)!=0?128:0)+((mask&32)!=0?256:0);
+  xml=Xml(p);var user=Node(xml,"//*[local-name()='File' and contains(@path,'DefaultUser.ps1')]")??"";var machine=Node(xml,"//*[local-name()='File' and contains(@path,'Specialize.ps1')]")??"";
+  Check(user.Contains(@"HKU\DefaultUser\Control Panel\Accessibility\StickyKeys")&&user.Contains($"/v Flags /t REG_SZ /d {expected} /f;")&&machine.Contains(@"HKU\.DEFAULT\Control Panel\Accessibility\StickyKeys")&&machine.Contains($"/v Flags /t REG_SZ /d {expected} /f;"),"all sticky flags independent with original available/confirm bits: "+arch+"/"+mask);
+ }
+ p.StickyKeysMode=StickyKeySettings.Disabled;var disabledSticky=DecodedXml(Xml(p));
+ Check(disabledSticky.Contains("/v Flags /t REG_SZ /d 10 /f;")&&!disabledSticky.Contains("/v Flags /t REG_SZ /d 510 /f;"),"disabled sticky ignores retained custom flags: "+arch);
+ p.StickyKeysMode=StickyKeySettings.Default;Check(!DecodedXml(Xml(p)).Contains(@"Accessibility\StickyKeys"),"sticky default suppresses retained custom flags: "+arch);
+ for(var mask=0;mask<8;mask++){
+  p=Plan();p.Architecture=arch;p.LockKeyMode=KeyboardLockSettings.Custom;p.IgnoreCapsLock=(mask&1)!=0;p.IgnoreNumLock=(mask&2)!=0;p.IgnoreScrollLock=(mask&4)!=0;
+  xml=Xml(p);var mappingText=Node(xml,"//*[local-name()='File' and contains(@path,'Specialize.ps1')]")??"";
+  if(mask==0){Check(!mappingText.Contains("Scancode Map"),"normal toggle creates no scan-code override: "+arch);continue;}
+  var mapping=new List<byte>(new byte[8]);var pairs=new List<byte[]>();
+  if((mask&1)!=0)pairs.Add(new byte[]{0,0,0x3a,0});if((mask&2)!=0)pairs.Add(new byte[]{0,0,0x45,0});if((mask&4)!=0)pairs.Add(new byte[]{0,0,0x46,0});
+  mapping.AddRange(new byte[]{(byte)(pairs.Count+1),0,0,0});foreach(var pair in pairs)mapping.AddRange(pair);mapping.AddRange(new byte[4]);
+  var match=System.Text.RegularExpressions.Regex.Match(mappingText,@"Scancode Map'.*FromBase64String\('([^']+)'\)");
+  Check(match.Success&&Convert.FromBase64String(match.Groups[1].Value).SequenceEqual(mapping),"scan-code binary header count mappings terminator: "+arch+"/"+mask);
+  Check((Node(xml,"//*[local-name()='File' and contains(@path,'DefaultUser.ps1')]")??"").Contains("-Value 2 -Force"),"ignored keys keep independently chosen initial indicators: "+arch+"/"+mask);
+ }
+ p.LockKeyMode=KeyboardLockSettings.Default;Check(!DecodedXml(Xml(p)).Contains("Scancode Map"),"default mode suppresses retained ignored keys: "+arch);
+}
+p=Plan();p.StickyKeysMode="invalid";Reject(p,"unknown sticky mode cannot export");Check(Recommendations.MissingInputs(p).Contains("有效的粘滞键"),"invalid sticky choice visible before export");
+p=Plan();p.StickyKeysMode=null!;Reject(p,"null sticky mode cannot export");
+p=Plan();p.LockKeyMode=KeyboardLockSettings.Custom;p.InitialCapsLockOn=true;p.IgnoreCapsLock=true;p.IgnoreNumLock=true;p.DisablePointerPrecision=true;p.StickyKeysMode=StickyKeySettings.Custom;p.StickyHotKeyActive=true;p.StickyIndicator=true;p.StickyTwoKeysOff=true;
+foreach(var secrets in new[]{false,true}){
+ var round=PlanStore.Deserialize(PlanStore.Serialize(p,secrets));
+ Check(round.DisablePointerPrecision&&round.IgnoreCapsLock&&round.IgnoreNumLock&&!round.IgnoreScrollLock&&round.InitialCapsLockOn&&round.StickyKeysMode==StickyKeySettings.Custom&&round.StickyHotKeyActive&&round.StickyIndicator&&round.StickyTwoKeysOff&&!round.StickyAudibleFeedback&&!round.StickyHotKeySound&&!round.StickyTriState,"all input preferences roundtrip without affecting secret choice: "+secrets);
+}
+Check(Recommendations.Differences(p).Any(d=>d.Property==nameof(InstallPlan.DisablePointerPrecision))&&Recommendations.Differences(p).Single(d=>d.Property==nameof(InstallPlan.StickyKeysMode)).Current.Contains("连续五次 Shift 切换")&&Recommendations.Differences(p).Single(d=>d.Property==nameof(InstallPlan.LockKeyMode)).Current.Contains("Caps Lock 忽略按键"),"input differences show effective custom values");
+Recommendations.SelectNetworkScene(p,"wifi");Check(p.DisablePointerPrecision&&p.StickyKeysMode==StickyKeySettings.Custom&&p.IgnoreCapsLock,"network scenes preserve all input preferences");
+Recommendations.Restore(p,nameof(InstallPlan.StickyKeysMode));Recommendations.Restore(p,nameof(InstallPlan.LockKeyMode));Recommendations.Restore(p,nameof(InstallPlan.DisablePointerPrecision));
+Check(p.StickyKeysMode==StickyKeySettings.Default&&p.LockKeyMode==KeyboardLockSettings.Default&&!p.DisablePointerPrecision&&p.StickyHotKeyActive&&p.IgnoreCapsLock,"single restores deactivate overrides and preserve nested input choices");
+p.StickyKeysMode=StickyKeySettings.Disabled;p.LockKeyMode=KeyboardLockSettings.Custom;p.DisablePointerPrecision=true;Recommendations.Apply(p,"wired");
+Check(p.StickyKeysMode==StickyKeySettings.Default&&p.LockKeyMode==KeyboardLockSettings.Default&&!p.DisablePointerPrecision&&p.StickyHotKeyActive&&p.IgnoreCapsLock,"full recommendation resets input modes but retains personal sub-options");
+p.LockKeyMode=KeyboardLockSettings.Custom;p.StickyKeysMode=StickyKeySettings.Custom;p.DisablePointerPrecision=true;p.AutoLogon=false;p.KeepSensitiveFiles=true;var noLogonInput=DecodedXml(Xml(p));
+Check(!Xml(p).Contains("<AutoLogon>")&&noLogonInput.Contains("Scancode Map")&&noLogonInput.Contains("MouseThreshold2")&&noLogonInput.Contains(@"Accessibility\StickyKeys"),"combined input preferences work without auto logon");
+viewModel.Plan=Plan();viewModel.Preview="stale-input";viewModel.Plan.StickyKeysMode=StickyKeySettings.Custom;
+Check(viewModel.IsCustomStickyKeys&&!viewModel.IsStickyKeysDisabled&&!viewModel.Preview.Contains("stale-input"),"sticky mode activates controls and invalidates preview");
+viewModel.Preview="stale-input";viewModel.Plan.StickyHotKeyActive=true;
+Check(!viewModel.Preview.Contains("stale-input")&&viewModel.StickyKeysSummary.Contains("连续五次 Shift")&&viewModel.ConfigurationSummary.Contains("粘滞键：自定义")&&viewModel.HelpTips["stickyhotkey"].Body.StartsWith("当前：自定义"),"sticky sub-options refresh summary help and preview");
+viewModel.Plan.StickyKeysMode=StickyKeySettings.Disabled;Check(!viewModel.IsCustomStickyKeys&&viewModel.IsStickyKeysDisabled&&viewModel.Plan.StickyHotKeyActive&&viewModel.HelpTips["stickyhotkey"].Body.Contains("不参与生成"),"disabled sticky shows assistance warning and retains inactive sub-options");
+viewModel.Plan.StickyKeysMode=StickyKeySettings.Default;Check(!viewModel.IsStickyKeysDisabled&&viewModel.HelpTips["stickykeys"].Body.Contains("Windows 默认设置"),"default sticky closes warning and updates help");
+viewModel.Preview="stale-input";viewModel.Plan.DisablePointerPrecision=true;Check(!viewModel.Preview.Contains("stale-input")&&viewModel.ConfigurationSummary.Contains("鼠标指针精确度：关闭")&&viewModel.HelpTips["pointerprecision"].Body.StartsWith("当前：关闭"),"pointer preference refreshes summary help and preview");
+viewModel.Plan.LockKeyMode=KeyboardLockSettings.Custom;viewModel.Preview="stale-input";viewModel.Plan.IgnoreNumLock=true;
+Check(!viewModel.Preview.Contains("stale-input")&&viewModel.LockKeyStateSummary.Contains("Num Lock 忽略按键")&&viewModel.HelpTips["numlock"].Body.Contains("忽略按键"),"key behavior refreshes effective state and preview");
+viewModel.Plan.LockKeyMode=KeyboardLockSettings.Default;Check(viewModel.HelpTips["lockbehavior"].Body.Contains("不参与生成"),"default keyboard describes ignored inactive choices");
+Check(viewModel.HelpTips["lockbehavior"].Body.Contains("不会清除已经安装")&&viewModel.HelpTips["lockbehavior"].Body.Contains("不能与其他扫描码映射合并")&&viewModel.HelpTips["stickykeys"].Body.Contains("不会自动开启")&&viewModel.HelpTips["stickykeys"].Body.Contains("需要键盘辅助功能"),"input help documents scope reinstallation and accessibility effects");
+var inputSummary=UnattendLocal.Desktop.SummaryPresentation.FromText(viewModel.ConfigurationSummary);
+Check(inputSummary.Sections.Single(section=>section.Kind=="basic").Rows.Any(row=>row.SourceLabel=="粘滞键")&&inputSummary.Sections.Single(section=>section.Kind=="basic").Rows.Any(row=>row.SourceLabel=="鼠标指针精确度"),"input rows grouped with basic settings");
+
+// XML import/merge: generated payloads are never executed.
+bool SameXml(string left,string right)=>XmlMerge.Equal(XmlMerge.Read(left).DocumentElement,XmlMerge.Read(right).DocumentElement);
+string WithoutSnapshot(string text){var d=XmlMerge.Read(text);foreach(XmlComment c in d.SelectNodes("//comment()")!.Cast<XmlComment>().ToArray())c.ParentNode!.RemoveChild(c);return d.OuterXml;}
+void BadImport(string text,string name){try{XmlPlanImport.Import(text,g);}catch(Exception e)when(e is ArgumentException or XmlException or FormatException){Check(true,name);return;}throw new Exception("Expected import rejection: "+name);}
+foreach(var arch in new[]{"amd64","arm64","x86"}){
+ p=Plan();p.Architecture=arch;p.ComputerName="ImportPC";p.DisableAppSuggestions=true;p.HideEdgeFre=true;p.EnableLongPaths=true;p.DisablePointerPrecision=true;p.StickyKeysMode=StickyKeySettings.Custom;p.StickyIndicator=true;p.StickyHotKeyActive=true;p.LockKeyMode=KeyboardLockSettings.Custom;p.IgnoreCapsLock=true;p.InitialCapsLockOn=true;
+ p.Scripts.Add(new ScriptEntry{Type="Cmd",Phase="System",Content="echo import-marker"});
+ xml=Xml(p);var imported=XmlPlanImport.Import(xml,g);
+ Check(imported.ConfigurationMode=="自定义配置"&&imported.CustomStartingPoint=="保留当前设置"&&imported.RecommendationId==""&&imported.Architecture==arch,"XML import uses custom retained-values mode: "+arch);
+ Check(imported.Users[0].Password==p.Users[0].Password&&!imported.Users[0].NeedsPassword&&imported.DisableAppSuggestions&&imported.DisablePointerPrecision&&imported.StickyHotKeyActive&&imported.IgnoreCapsLock&&imported.Scripts.Single().Content=="echo import-marker","snapshot restores actual credentials and active settings: "+arch);
+ Check(imported.ImportedXml!.Blockers.Length==0&&imported.ImportedXml.Notices.Length==0&&SameXml(xml,Xml(imported)),"own XML roundtrip without changing payload: "+arch);
+ imported.ComputerName="ChangedPC";imported.DisablePointerPrecision=false;var changed=Xml(imported);
+ Check(changed.Contains("ChangedPC")&&!DecodedXml(changed).Contains("MouseThreshold1")&&DecodedXml(changed).Contains("import-marker"),"imported name and pointer edits preserve existing custom script: "+arch);
+ imported.TurnOffSystemSounds=true;Check(DecodedXml(Xml(imported)).Contains("AppEvents"),"add setting to imported XML: "+arch);
+ var again=XmlPlanImport.Import(Xml(imported),g);Check(again.ComputerName=="ChangedPC"&&!again.DisablePointerPrecision&&again.TurnOffSystemSounds&&SameXml(Xml(imported),Xml(again)),"edited XML can be imported again: "+arch);
+ var legacy=XmlPlanImport.Import(WithoutSnapshot(xml),g);
+ Check(legacy.ComputerName=="ImportPC"&&legacy.IgnoreCapsLock&&legacy.StickyIndicator&&legacy.DisableAppSuggestions&&legacy.DisablePointerPrecision&&legacy.Users[0].Password==p.Users[0].Password,"legacy export reads direct XML and generated flags: "+arch);
+ Check(legacy.ImportedXml!.Blockers.Length==0&&SameXml(xml,Xml(legacy)),"legacy unchanged XML preserves all original contents: "+arch);
+}
+// Preserve unimplemented component, extension files and extra commands while editing supported data.
+p=Plan();p.ComputerName="BeforePC";xml=WithoutSnapshot(Xml(p));var source=XmlMerge.Read(xml);
+var nsImport=new XmlNamespaceManager(source.NameTable);nsImport.AddNamespace("u",XmlMerge.Namespace);
+var setupImport=(XmlElement)source.SelectSingleNode("//u:settings[@pass='specialize']/u:component[@name='Microsoft-Windows-Shell-Setup']",nsImport)!;
+var extra=source.CreateElement("RegisteredOrganization",XmlMerge.Namespace);extra.InnerText="Preserve organization";setupImport.AppendChild(extra);
+var extensions=(XmlElement)source.SelectSingleNode("//*[local-name()='Extensions']")!;
+var extraFile=source.CreateElement("File",Schneegans.Unattend.Constants.MyNamespaceUri);extraFile.SetAttribute("path",@"C:\Windows\Setup\Scripts\UnsupportedFeature.ps1");extraFile.InnerText="Write-Output 'keep-original-extra'";extensions.AppendChild(extraFile);
+var firstImport=(XmlElement)source.SelectSingleNode("//*[local-name()='File' and contains(@path,'FirstLogon.ps1')]")!;firstImport.InnerText+="\nWrite-Output 'retain-original-command';\n";
+var preserved=XmlPlanImport.Import(source.OuterXml,g);Check(preserved.ImportedXml!.Notices.Any(n=>n.Contains("UnsupportedFeature.ps1")),"unknown extension file is listed without leaking its content");
+preserved.ComputerName="AfterPC";var preservedOut=Xml(preserved);
+Check(preservedOut.Contains("AfterPC")&&preservedOut.Contains("Preserve organization")&&DecodedXml(preservedOut).Contains("keep-original-extra")&&DecodedXml(preservedOut).Contains("retain-original-command"),"unknown component child file and command survive a supported edit");
+preserved.EnableLongPaths=true;Check(DecodedXml(Xml(preserved)).Contains("LongPathsEnabled")&&DecodedXml(Xml(preserved)).Contains("keep-original-extra"),"adding a supported script-backed setting preserves unknown file");
+// Change within a main script with unsupported content: exact unique context must match.
+var scriptBase=Plan();scriptBase.DisableAppSuggestions=true;var scriptSource=XmlMerge.Read(WithoutSnapshot(Xml(scriptBase)));var defaultImport=(XmlElement)scriptSource.SelectSingleNode("//*[local-name()='File' and contains(@path,'DefaultUser.ps1')]")!;defaultImport.InnerText+="\nWrite-Output 'extra-default-user';\n";
+var scriptImport=XmlPlanImport.Import(scriptSource.OuterXml,g);scriptImport.DisablePointerPrecision=true;var mergedScript=DecodedXml(Xml(scriptImport));
+Check(mergedScript.Contains("MouseThreshold1")&&mergedScript.Contains("extra-default-user"),"script three-way merge preserves unrecognized extra lines");
+// A newly generated file cannot overwrite an unrelated existing file with the same path.
+var collisionSource=XmlMerge.Read(WithoutSnapshot(Xml(Plan())));var collisionExtensions=(XmlElement)collisionSource.SelectSingleNode("//*[local-name()='Extensions']")!;
+var collisionFile=collisionSource.CreateElement("File",Schneegans.Unattend.Constants.MyNamespaceUri);collisionFile.SetAttribute("path",@"C:\Windows\Setup\Scripts\SetColorTheme.ps1");collisionFile.InnerText="Write-Output 'unrelated-file'";collisionExtensions.AppendChild(collisionFile);
+var collisionPlan=XmlPlanImport.Import(collisionSource.OuterXml,g);collisionPlan.ColorSettingsMode=ColorSettings.Custom;Reject(collisionPlan,"file collision cannot silently overwrite unsupported source");
+// Raw three-way checks isolate conflict behavior from importer inference.
+const string mergeStart="<unattend xmlns='urn:schemas-microsoft-com:unattend'><settings pass='specialize'><component name='Example' processorArchitecture='amd64'><Value>old</Value></component></settings></unattend>";
+var manualSource=mergeStart.Replace(">old<",">manual<");var newer=XmlMerge.Read(mergeStart.Replace(">old<",">new<"));
+try{XmlMerge.Apply(manualSource,mergeStart,newer);throw new Exception("expected conflict");}catch(ArgumentException e){Check(e.Message.Contains("冲突")&&!e.Message.Contains("manual"),"changed source scalar conflicts and messages do not expose original values");}
+Check(XmlMerge.Apply(mergeStart,mergeStart,newer).InnerText=="new","matching scalar source updates correctly");
+BadImport("<LayoutModificationTemplate/>","layout XML is not an answer file");BadImport("<!DOCTYPE unattend [<!ENTITY x SYSTEM 'file:///etc/passwd'>]><unattend xmlns='urn:schemas-microsoft-com:unattend'>&x;</unattend>","DTD and external entities blocked");BadImport("<unattend>","malformed XML rejected");BadImport("<unattend xmlns='urn:schemas-microsoft-com:unattend'><settings pass='specialize'><component name='a' processorArchitecture='amd64'/><component name='b' processorArchitecture='arm64'/></settings></unattend>","multiple architecture documents explicitly rejected");
+BadImport("预览（密码和产品密钥已遮蔽）\n"+Xml(Plan()),"masked preview header cannot be imported");
+// Removed support is a blocking issue, never a passthrough execution path.
+var jsSource=XmlMerge.Read(WithoutSnapshot(Xml(Plan())));var jsExtension=(XmlElement)jsSource.SelectSingleNode("//*[local-name()='Extensions']")!;var jsFile=jsSource.CreateElement("File",Schneegans.Unattend.Constants.MyNamespaceUri);jsFile.SetAttribute("path",@"C:\Windows\Setup\Scripts\legacy.js");jsFile.InnerText="WScript.Echo('legacy');";jsExtension.AppendChild(jsFile);
+var jsImported=XmlPlanImport.Import(jsSource.OuterXml,g);Check(jsImported.ImportedXml!.Blockers.Any(n=>n.Contains("JScript")),"removed JS produces a separate blocking explanation");Reject(jsImported,"JS cannot be exported through preserved original XML");
+// A generated wipe must retain danger and must lose previous confirmations.
+p=Plan();p.DiskMode=InstallationSettings.Wipe;p.TargetDiskId=0;p.ConfirmWipeDisk=true;var diskImported=XmlPlanImport.Import(Xml(p),g);
+Check(diskImported.DiskMode==InstallationSettings.Wipe&&diskImported.ImportedXml!.RequiresDiskReview&&!diskImported.ConfirmWipeDisk&&!diskImported.ConfirmImportedXmlRisk,"XML wipe import clears disk and original-scope consent");Reject(diskImported,"imported disk XML cannot export without new review");diskImported.ConfirmWipeDisk=true;diskImported.ConfirmImportedXmlRisk=true;Check(Xml(diskImported).Contains("echo clean"),"reviewed imported wipe can export");diskImported.TargetDiskId=1;Check(!diskImported.ConfirmWipeDisk&&!diskImported.ConfirmImportedXmlRisk,"disk edit invalidates both old and imported-scope consent");
+// JSON persistence must not sneak original credentials into a no-secrets save.
+p=Plan();p.Users[0].Password="ImportSecretABC123";p.EditionMode="指定自己的产品密钥";p.CustomProductKey="AAAAA-BBBBB-CCCCC-DDDDD-EEEEE";var saveImported=XmlPlanImport.Import(Xml(p),g);
+var withoutSecrets=PlanStore.Serialize(saveImported,false);var noSecretsImported=PlanStore.Deserialize(withoutSecrets);
+Check(!withoutSecrets.Contains("ImportSecretABC123")&&!withoutSecrets.Contains("AAAAA-BBBBB")&&noSecretsImported.ImportedXml!.OriginalOmitted&&noSecretsImported.ImportedXml.SourceXml==""&&noSecretsImported.ImportedXml.BaselineXml=="","no-secret JSON excludes raw original and baseline XML credentials");Reject(noSecretsImported,"no-secret saved import requests reimport rather than dropping original XML");
+var withSecretsImported=PlanStore.Deserialize(PlanStore.Serialize(saveImported,true));Check(withSecretsImported.Users[0].Password=="ImportSecretABC123"&&SameXml(Xml(saveImported),Xml(withSecretsImported)),"full JSON stores and restores imported original and editable state");
+Check(!GeneratorService.Preview(g.Generate(saveImported)).Contains("UnattendLocal:v1")&&!GeneratorService.Preview(g.Generate(saveImported)).Contains("ImportSecretABC123"),"preview removes reversible metadata and masks actual passwords");
+viewModel.Plan=preserved;Check(viewModel.HasImportedXml&&viewModel.XmlImportDetails.Contains("UnsupportedFeature.ps1")&&viewModel.ConfigurationSummary.Contains("XML 导入：已导入"),"import state visible in page and configuration summary");
+Recommendations.Apply(viewModel.Plan,"wired");Check(viewModel.Plan.ImportedXml!=null&&Xml(viewModel.Plan).Contains("Preserve organization"),"applying recommendations retains unknown imported source");
+viewModel.Plan=InstallPlan.NewCustom();Check(!viewModel.HasImportedXml&&!viewModel.HasImportedXmlRisk,"new configuration starts independently without imported source");
+// Hash protects against using stale embedded plan metadata after manual XML editing.
+p=Plan();p.ComputerName="SnapshotPC";xml=Xml(p);var editedSnapshot=xml.Replace("SnapshotPC</ComputerName>","ManualPC</ComputerName>");var readEdited=XmlPlanImport.Import(editedSnapshot,g);
+Check(readEdited.ComputerName=="ManualPC"&&readEdited.ImportedXml!.Notices.Any(n=>n.Contains("还原记录已失效")),"manual XML changes invalidate metadata and actual XML wins");
+
+// Additional input and website-style import scenarios.
+p=Plan();p.VisualEffectsMode=VisualEffectsSettings.Custom;p.EffectFontSmoothing=true;p.DesktopIconsMode=DesktopSettings.CustomIcons;p.DesktopThisPC=true;p.StartFoldersMode=DesktopSettings.CustomFolders;p.StartFolderDownloads=true;p.ColorSettingsMode=ColorSettings.Custom;p.AccentColorHex="#112233";p.WallpaperMode=WallpaperSettings.Solid;p.WallpaperColorHex="#443322";
+var oldAppearance=XmlPlanImport.Import(WithoutSnapshot(Xml(p)),g);
+Check(oldAppearance.VisualEffectsMode==VisualEffectsSettings.Custom&&oldAppearance.EffectFontSmoothing&&oldAppearance.DesktopThisPC&&oldAppearance.StartFolderDownloads&&oldAppearance.AccentColorHex.Equals("#112233",StringComparison.OrdinalIgnoreCase)&&oldAppearance.WallpaperColorHex.Equals("#443322",StringComparison.OrdinalIgnoreCase),"legacy appearance desktop folders and wallpaper restored from generated payloads");
+Check(SameXml(Xml(p),Xml(oldAppearance)),"legacy complex appearance XML unchanged on export");
+p=Plan();p.WifiMode="预设 WPA2 Wi-Fi";p.Ssid="ImportWifi";p.WifiPassword="SecretWifi123";p.HiddenWifi=true;p.UseActivationKey=true;p.ActivationProductKey="AAAAA-BBBBB-CCCCC-DDDDD-EEEEE";
+var readWifi=XmlPlanImport.Import(WithoutSnapshot(Xml(p)),g);Check(readWifi.WifiMode=="预设 WPA2 Wi-Fi"&&readWifi.WifiPassword=="SecretWifi123"&&readWifi.HiddenWifi&&readWifi.UseActivationKey&&readWifi.ActivationProductKey==p.ActivationProductKey,"legacy Wi-Fi actual credentials and independent activation key restored");
+Check(SameXml(Xml(p),Xml(readWifi)),"legacy Wi-Fi roundtrip preserves XML content");
+var webXml=XmlMerge.Read(WithoutSnapshot(Xml(Plan())));webXml.DocumentElement!.PrependChild(webXml.CreateComment("https://schneegans.de/windows/unattend-generator/?EffectsMode=Custom&FontSmoothing=true&DisableUac=true&AccountPassword0=do-not-show-this&WallpaperMode=Default"));
+var webPlan=XmlPlanImport.Import(webXml.OuterXml,g);Check(webPlan.ImportedXml!.Notices.Any(n=>n.Contains("DisableUac"))&&webPlan.ImportedXml.Notices.All(n=>!n.Contains("do-not-show-this")),"website unimplemented parameters identified by name only");
+Check(!GeneratorService.Preview(Encoding.UTF8.GetBytes(webXml.OuterXml)).Contains("do-not-show-this"),"preview removes website URL comment credentials");
+Check(!Xml(webPlan).Contains("do-not-show-this"),"export removes stale website parameter comment");
+var peSource=XmlMerge.Read(WithoutSnapshot(Xml(Plan())));var peNs=new XmlNamespaceManager(peSource.NameTable);peNs.AddNamespace("u",XmlMerge.Namespace);var peSetup=(XmlElement)peSource.SelectSingleNode("//u:settings[@pass='windowsPE']/u:component[@name='Microsoft-Windows-Setup']",peNs)!;
+var peSync=peSource.CreateElement("RunSynchronous",XmlMerge.Namespace);var peCommand=peSource.CreateElement("RunSynchronousCommand",XmlMerge.Namespace);var peOrder=peSource.CreateElement("Order",XmlMerge.Namespace);peOrder.InnerText="99";var pePath=peSource.CreateElement("Path",XmlMerge.Namespace);pePath.InnerText="cmd.exe /c echo arbitrary-pe-command";peCommand.AppendChild(peOrder);peCommand.AppendChild(pePath);peSync.AppendChild(peCommand);peSetup.AppendChild(peSync);
+var pePlan=XmlPlanImport.Import(peSource.OuterXml,g);Check(pePlan.ImportedXml!.RequiresDiskReview,"unrecognized PE command requires original-scope review");Reject(pePlan,"unrecognized PE original cannot bypass confirmation");pePlan.ConfirmImportedXmlRisk=true;Check(Xml(pePlan).Contains("arbitrary-pe-command"),"reviewed unsupported PE command preserved");viewModel.Plan=pePlan;Check(viewModel.IsDestructiveDisk&&viewModel.DiskRisk.Contains("原 XML"),"original PE risk visible even when editable disk mode is manual");
+var longTree="<unattend xmlns='urn:schemas-microsoft-com:unattend'>"+string.Concat(Enumerable.Repeat("<x>",130))+string.Concat(Enumerable.Repeat("</x>",130))+"</unattend>";BadImport(longTree,"excessive XML nesting rejected before recursive merge");
+
+var importAssembly=System.Reflection.Assembly.GetExecutingAssembly();var fixtureName=importAssembly.GetManifestResourceNames().Single(n=>n.EndsWith("upstream-import.xml"));
+using(var fixtureStream=importAssembly.GetManifestResourceStream(fixtureName)!)using(var fixtureReader=new StreamReader(fixtureStream)){
+ var officialXml=fixtureReader.ReadToEnd();var officialPlan=XmlPlanImport.Import(officialXml,g);
+ Check(officialPlan.Users.Single().Name=="ImportFixture"&&officialPlan.Users.Single().Password=="FixtureOnly123"&&officialPlan.EnableLongPaths,"official website XML fixture restores actual fields");
+ Check(officialPlan.ImportedXml!.Notices.Any(n=>n.Contains("DisableUac"))&&officialPlan.ImportedXml.Blockers.Length==0,"official unimplemented UAC setting is reported and retained");
+ Check(SameXml(officialXml,Xml(officialPlan)),"official website XML unchanged roundtrip preserves unknown UAC command");
+ officialPlan.ComputerName="OfficialEdit";var officialEdited=Xml(officialPlan);
+ Check(officialEdited.Contains("OfficialEdit")&&DecodedXml(officialEdited).Contains("EnableLUA")&&DecodedXml(officialEdited).Contains("LongPathsEnabled"),"official XML supported edit retains unimplemented protection command");
+}
+Check(!SameXml("<unattend xmlns='urn:schemas-microsoft-com:unattend'><A><B><C/><D/></B></A></unattend>","<unattend xmlns='urn:schemas-microsoft-com:unattend'><A><B><C/></B><D/></A></unattend>"),"XML integrity distinguishes different parent relationships");
+
+var externalJs=XmlMerge.Read(WithoutSnapshot(Xml(Plan())));var externalFirst=(XmlElement)externalJs.SelectSingleNode("//*[local-name()='File' and contains(@path,'FirstLogon.ps1')]")!;externalFirst.InnerText+="\ncscript.exe C:\\legacy.js;\n";var externalJsPlan=XmlPlanImport.Import(externalJs.OuterXml,g);Check(externalJsPlan.ImportedXml!.Blockers.Any(n=>n.Contains("JScript")),"external JS invocation also cannot bypass removed script support");
+var outsidePeDisk=XmlMerge.Read(WithoutSnapshot(Xml(Plan())));var outsideFirst=(XmlElement)outsidePeDisk.SelectSingleNode("//*[local-name()='File' and contains(@path,'FirstLogon.ps1')]")!;outsideFirst.InnerText+="\nFormat-Volume -DriveLetter Z;\n";Check(XmlPlanImport.Import(outsidePeDisk.OuterXml,g).ImportedXml!.RequiresDiskReview,"disk operation outside PE still requires original-scope review");
+Console.WriteLine($"Final pre39 total: {count} tests passed.");

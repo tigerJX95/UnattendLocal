@@ -20,7 +20,7 @@ public class MainViewModel : Observable {
   ObserveUsers();SelectedUser=plan.Users.FirstOrDefault();RefreshAll();InvalidatePreview();
  }}
  private UserEntry? selected;public UserEntry? SelectedUser {get=>selected;set{Set(ref selected,value);RefreshHelp();}}
- private string preview="配置完成后，点击“检查与预览”。",status="就绪 · V0.1 pre36";
+ private string preview="配置完成后，点击“检查与预览”。",status="就绪 · V0.1 pre39";
  public string Preview {get=>preview;set=>Set(ref preview,value);} public string Status {get=>status;set=>Set(ref status,value);}
  public GeneratorService Service {get;}=new();
  public List<GeneratorService.Choice> Editions=>Service.Editions;
@@ -65,11 +65,20 @@ public class MainViewModel : Observable {
   }finally{updating=false;}
   RefreshAll();InvalidatePreview();
  }
- private void RefreshAll(){RefreshRecommendations();RefreshEdition();RefreshNetwork();RefreshShell();RefreshDesktop();RefreshVisualEffects();RefreshColors();RefreshWallpaper();RefreshLockKeys();RefreshAccountLockout();RefreshHelp();}
+ private void RefreshAll(){RefreshRecommendations();RefreshEdition();RefreshNetwork();RefreshShell();RefreshDesktop();RefreshVisualEffects();RefreshColors();RefreshWallpaper();RefreshLockKeys();RefreshStickyKeys();RefreshAccountLockout();RefreshXmlImport();RefreshHelp();}
  public bool IsCustomAccountLockout=>Plan.AccountLockoutMode==AccountLockoutPolicy.Custom;
  public bool IsAccountLockoutDisabled=>AccountLockoutPolicy.IsDisabled(Plan);
  public string AccountLockoutSummary=>AccountLockoutPolicy.ModeSummary(Plan);
  private void RefreshAccountLockout(){Notify(nameof(IsCustomAccountLockout));Notify(nameof(IsAccountLockoutDisabled));Notify(nameof(AccountLockoutSummary));}
+ public bool HasImportedXml=>Plan.ImportedXml!=null;
+ public bool HasImportedXmlRisk=>Plan.ImportedXml?.RequiresDiskReview==true;
+ public string XmlImportSummary=>XmlPlanImport.Summary(Plan);
+ public string XmlImportDetails=>Plan.ImportedXml is {} data?string.Join("\n",data.Blockers.Concat(data.Notices).Select(n=>"　　"+n)):"";
+ private void RefreshXmlImport(){Notify(nameof(HasImportedXml));Notify(nameof(HasImportedXmlRisk));Notify(nameof(XmlImportSummary));Notify(nameof(XmlImportDetails));}
+ public bool IsCustomStickyKeys=>Plan.StickyKeysMode==StickyKeySettings.Custom;
+ public bool IsStickyKeysDisabled=>Plan.StickyKeysMode==StickyKeySettings.Disabled;
+ public string StickyKeysSummary=>StickyKeySettings.ModeSummary(Plan);
+ private void RefreshStickyKeys(){Notify(nameof(IsCustomStickyKeys));Notify(nameof(IsStickyKeysDisabled));Notify(nameof(StickyKeysSummary));}
  public bool IsCustomLockKeys=>Plan.LockKeyMode==KeyboardLockSettings.Custom;
  public string LockKeyStateSummary=>KeyboardLockSettings.ModeSummary(Plan);
  private void RefreshLockKeys(){Notify(nameof(IsCustomLockKeys));Notify(nameof(LockKeyStateSummary));}
@@ -125,7 +134,7 @@ public class MainViewModel : Observable {
  public bool IsImageName {get=>isImageName;private set=>Set(ref isImageName,value);} public bool IsImageIndex {get=>isImageIndex;private set=>Set(ref isImageIndex,value);}
  public bool IsTargetDisk {get=>isTargetDisk;private set=>Set(ref isTargetDisk,value);} public bool IsExistingDisk {get=>isExistingDisk;private set=>Set(ref isExistingDisk,value);} public bool IsWipeDisk {get=>isWipeDisk;private set=>Set(ref isWipeDisk,value);} public bool IsFormatDisk {get=>isFormatDisk;private set=>Set(ref isFormatDisk,value);} public bool IsDestructiveDisk {get=>isDestructiveDisk;private set=>Set(ref isDestructiveDisk,value);}
  private string diskRisk="";public string DiskRisk {get=>diskRisk;private set=>Set(ref diskRisk,value);}
- private void RefreshInstallation(){IsAutomaticAccounts=Plan.AccountMode=="自动创建本地账户";NeedsRetentionConsent=IsAutomaticAccounts&&!Plan.AutoLogon&&!Plan.KeepSensitiveFiles;IsPasswordDays=IsAutomaticAccounts&&Plan.PasswordExpiration=="指定天数";var wasEnabled=CanBypassNetwork;CanBypassNetwork=Plan.AccountMode!="安装时添加微软账户";if(wasEnabled!=CanBypassNetwork)Notify(nameof(CanHideOnlineAccount));IsCustomConfiguration=Plan.ConfigurationMode=="自定义配置";IsFixedLanguage=!Plan.InteractiveLanguage;IsFixedTimeZone=Plan.TimeZoneMode=="指定时区";IsImageName=Plan.ImageSelection=="按镜像名称";IsImageIndex=Plan.ImageSelection=="按镜像索引";IsExistingDisk=Plan.DiskMode==InstallationSettings.Existing;IsWipeDisk=Plan.DiskMode==InstallationSettings.Wipe;IsScriptDisk=Plan.DiskMode==DiskScriptSettings.Mode;IsPartitionTarget=IsExistingDisk||IsScriptDisk;IsTargetDisk=IsExistingDisk||IsWipeDisk||IsScriptDisk;IsFormatDisk=IsExistingDisk&&Plan.FormatExistingPartition;IsDestructiveDisk=InstallationSettings.Destructive(Plan);DiskRisk=InstallationSettings.DiskSummary(Plan);}
+ private void RefreshInstallation(){IsAutomaticAccounts=Plan.AccountMode=="自动创建本地账户";NeedsRetentionConsent=IsAutomaticAccounts&&!Plan.AutoLogon&&!Plan.KeepSensitiveFiles;IsPasswordDays=IsAutomaticAccounts&&Plan.PasswordExpiration=="指定天数";var wasEnabled=CanBypassNetwork;CanBypassNetwork=Plan.AccountMode!="安装时添加微软账户";if(wasEnabled!=CanBypassNetwork)Notify(nameof(CanHideOnlineAccount));IsCustomConfiguration=Plan.ConfigurationMode=="自定义配置";IsFixedLanguage=!Plan.InteractiveLanguage;IsFixedTimeZone=Plan.TimeZoneMode=="指定时区";IsImageName=Plan.ImageSelection=="按镜像名称";IsImageIndex=Plan.ImageSelection=="按镜像索引";IsExistingDisk=Plan.DiskMode==InstallationSettings.Existing;IsWipeDisk=Plan.DiskMode==InstallationSettings.Wipe;IsScriptDisk=Plan.DiskMode==DiskScriptSettings.Mode;IsPartitionTarget=IsExistingDisk||IsScriptDisk;IsTargetDisk=IsExistingDisk||IsWipeDisk||IsScriptDisk;IsFormatDisk=IsExistingDisk&&Plan.FormatExistingPartition;IsDestructiveDisk=InstallationSettings.Destructive(Plan)||HasImportedXmlRisk;DiskRisk=InstallationSettings.DiskSummary(Plan)+(HasImportedXmlRisk?"；【危险】原 XML 另含磁盘配置或 Windows PE 命令，须核对完整原文":"");}
  private string pendingRecommendation="wired";
  public string PendingRecommendation {get=>pendingRecommendation;set{
   if(pendingRecommendation==value||!Recommendations.Known(value))return;

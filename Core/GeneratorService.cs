@@ -20,7 +20,10 @@ public class GeneratorService {
   "pro_workstations"=>"专业工作站版（Pro for Workstations）","pro_workstations_n"=>"专业工作站版 N（Pro N for Workstations）",
   "education"=>"教育版（Education）","education_n"=>"教育版 N（Education N）","enterprise"=>"企业版（Enterprise）","enterprise_n"=>"企业版 N（Enterprise N）",_=>label
  };
- public byte[] Generate(InstallPlan p) {
+ public byte[] GenerateStandalone(InstallPlan p)=>GenerateDocument(p,false);
+ public byte[] Generate(InstallPlan p)=>GenerateDocument(p,true);
+ private byte[] GenerateDocument(InstallPlan p,bool includeImport) {
+  if(includeImport)XmlPlanImport.ValidateImported(p);
   InstallationSettings.Validate(p);
   ShellSettings.Validate(p);
   if(!p.InteractiveLanguage&&new[]{p.ImageLanguage,p.Locale,p.Keyboard,p.GeoId}.Any(string.IsNullOrWhiteSpace))throw new ArgumentException("请在基础设置中填写显示语言、区域格式、键盘和国家地区，或选择安装时手动设置语言与区域。");
@@ -50,10 +53,13 @@ public class GeneratorService {
    EnableLongPaths=p.EnableLongPaths,TurnOffSystemSounds=p.TurnOffSystemSounds,
    HideEdgeFre=p.HideEdgeFre,DisableEdgeStartupBoost=p.DisableEdgeStartupBoost,
    DisableWindowsUpdate=p.DisableWindowsUpdate,
+   DisableAppSuggestions=p.DisableAppSuggestions,
    Effects=VisualEffectsSettings.Build(p),
    ColorSettings=ColorSettings.Build(p),
    WallpaperSettings=WallpaperSettings.Build(p),
    LockKeySettings=KeyboardLockSettings.Build(p),
+   StickyKeysSettings=StickyKeySettings.Build(p),
+   DisablePointerPrecision=p.DisablePointerPrecision,
    LockoutSettings=AccountLockoutPolicy.Build(p),
    ScriptSettings=CustomScripts.Build(p),
    TaskbarSearch=ShellSettings.Search(p.TaskbarSearch),
@@ -83,13 +89,16 @@ public class GeneratorService {
   }
   HardwareSettings.Apply(doc,ns,p);
   InstallationSettings.Apply(doc,ns,p);
+  if(includeImport&&p.ImportedXml is {} imported)doc=XmlMerge.Apply(imported.SourceXml,imported.BaselineXml,doc);
   using var schema=typeof(UnattendGenerator).Assembly.GetManifestResourceStream("Schneegans.Unattend.resource.autounattend.xsd")!;
   doc.Schemas.Add("urn:schemas-microsoft-com:unattend",XmlReader.Create(schema));
   doc.Validate((_,e)=>throw new ArgumentException("XML 结构验证失败："+e.Message));
+  if(includeImport)XmlPlanImport.AddSnapshot(doc,p);
   return UnattendGenerator.Serialize(doc);
  }
  public static string Preview(byte[] bytes) {
   var doc=new XmlDocument();doc.LoadXml(Encoding.UTF8.GetString(bytes));
+  foreach(XmlComment comment in doc.SelectNodes("//comment()")!.Cast<XmlComment>().ToArray())comment.ParentNode!.RemoveChild(comment);
   var ns=new XmlNamespaceManager(doc.NameTable);ns.AddNamespace("u","urn:schemas-microsoft-com:unattend");
   foreach(XmlNode n in doc.SelectNodes("//u:Password/u:Value",ns)!)n.InnerText="[密码已遮蔽]";
   foreach(XmlNode n in doc.SelectNodes("//u:ProductKey/u:Key | //u:component[@name='Microsoft-Windows-Shell-Setup']/u:ProductKey",ns)!)n.InnerText="[产品密钥已遮蔽]";
