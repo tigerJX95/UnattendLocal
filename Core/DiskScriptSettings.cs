@@ -1,0 +1,45 @@
+using Schneegans.Unattend;
+namespace UnattendLocal.Core;
+
+public static class DiskScriptSettings {
+ public const string Mode="自定义 DiskPart 脚本";
+ // MIT upstream example: https://schneegans.de/windows/unattend-generator/
+ public const string Example="""
+SELECT DISK=0
+CLEAN
+CONVERT GPT
+CREATE PARTITION EFI SIZE=300
+FORMAT QUICK FS=FAT32 LABEL="System"
+ASSIGN LETTER=S
+CREATE PARTITION MSR SIZE=16
+CREATE PARTITION PRIMARY
+SHRINK MINIMUM=1000
+FORMAT QUICK FS=NTFS LABEL="Windows"
+ASSIGN LETTER=W
+CREATE PARTITION PRIMARY
+FORMAT QUICK FS=NTFS LABEL="Recovery"
+ASSIGN LETTER=R
+SET ID="de94bba4-06d1-4d40-a16a-bfd50179d6ac"
+GPT ATTRIBUTES=0x8000000000000001
+""";
+ public static string[] Lines(string? script){
+  if(string.IsNullOrWhiteSpace(script))throw new ArgumentException("请填写 DiskPart 脚本；淡色示例不会参与生成。");
+  if(script.Length>128*1024)throw new ArgumentException("DiskPart 脚本不能超过 128 Ki 字符。");
+  if(script.Any(c=>c>126||(c<32&&c is not ('\r' or '\n' or '\t'))))throw new ArgumentException("DiskPart 脚本仅支持 ASCII 命令和标签；请勿使用中文、特殊控制字符。");
+  if(script.IndexOfAny("&|<>%^!()".ToCharArray())>=0)throw new ArgumentException("请使用纯 DiskPart 命令，不支持 CMD 运算符、变量或括号。");
+  var lines=script.Replace("\r\n","\n").Replace('\r','\n').Split('\n').Select(s=>s.Trim()).Where(s=>s.Length>0).ToArray();
+  if(lines.Length>512||lines.Any(s=>s.Length>160))throw new ArgumentException("脚本最多 512 行，每行最多 160 字符；请将长命令拆分或缩短。");
+  if(lines.Any(s=>!s.StartsWith("rem ",StringComparison.OrdinalIgnoreCase)&&System.Text.RegularExpressions.Regex.IsMatch(s,@"\bnoerr\b",System.Text.RegularExpressions.RegexOptions.IgnoreCase)))throw new ArgumentException("不支持 noerr 参数；分区出错时必须停止安装，避免继续写入错误目标。");
+  return lines;
+ }
+ public static IReadOnlyList<string> Commands(string script){
+  var builder=new CommandBuilder(false);
+  const string file=@"X:\UnattendLocal-diskpart.txt", runner=@"X:\UnattendLocal-diskpart.cmd";
+  var lines=Lines(script);
+  List<string> result=[builder.ShellCommand($"type nul > {file}"),builder.ShellCommand($"type nul > {runner}")];
+  result.AddRange(builder.WriteToFilePE(file,lines));
+  result.AddRange(builder.WriteToFilePE(runner,new[]{"@echo off",$@"diskpart.exe /s {file} > X:\UnattendLocal-diskpart.log 2>&1","if errorlevel 1 goto fail","exit /b 0",":fail",@"type X:\UnattendLocal-diskpart.log","echo DiskPart failed. Setup is halted. Check the target disk and script.","pause","goto fail"}));
+  result.Add(builder.ShellCommand(runner));
+  return result;
+ }
+}
