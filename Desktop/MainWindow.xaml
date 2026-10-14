@@ -1,4 +1,4 @@
-<Window xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:local="clr-namespace:UnattendLocal.Desktop" xmlns:core="clr-namespace:UnattendLocal.Core;assembly=Core" x:Class="UnattendLocal.Desktop.MainWindow" Icon="Assets/App.ico" Title="Windows 无人值守配置工具 · V0.2" Width="1060" Height="780" MinWidth="850" MinHeight="620" Background="{DynamicResource CanvasBrush}" Foreground="{DynamicResource ForegroundBrush}" FontFamily="Microsoft YaHei UI" FontSize="14">
+<Window xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:local="clr-namespace:UnattendLocal.Desktop" xmlns:core="clr-namespace:UnattendLocal.Core;assembly=Core" x:Class="UnattendLocal.Desktop.MainWindow" Icon="Assets/App.ico" Title="Windows 无人值守配置工具 · V0.3" Width="1060" Height="780" MinWidth="850" MinHeight="620" Background="{DynamicResource CanvasBrush}" Foreground="{DynamicResource ForegroundBrush}" FontFamily="Microsoft YaHei UI" FontSize="14">
   <DockPanel>
     <Border DockPanel.Dock="Top" Background="{DynamicResource SurfaceBrush}" Padding="24,16">
       <DockPanel>
@@ -619,6 +619,14 @@
                 <TextBlock Style="{StaticResource ExplanationText}" Text="　　新建推荐与自定义配置默认勾选，阻止 Windows 自动启用设备加密。取消后遵循 Windows 默认行为；已有加密卷不会因此解密，安装后仍可手动配置 BitLocker。" TextWrapping="Wrap" Foreground="{DynamicResource SecondaryBrush}" />
               </StackPanel>
             </Border>
+            <Border Style="{StaticResource Card}"><StackPanel>
+              <TextBlock Text="进程创建审计（高级）" FontSize="20" FontWeight="SemiBold" Margin="0,0,0,16"/>
+              <ComboBox ItemsSource="{Binding ProcessAuditModes}" SelectedItem="{Binding Plan.ProcessAuditMode}" ToolTip="{Binding DataContext.HelpTips[processaudit],RelativeSource={RelativeSource AncestorType=Window}}"/>
+              <TextBlock Style="{StaticResource ExplanationText}" Text="　　启用后在目标 Windows 安全日志中记录进程创建事件（4688），便于排查程序启动行为；不记录程序的屏幕或文件内容，也不生成程序运行报告。默认不配置。" Foreground="{DynamicResource SecondaryBrush}"/>
+              <TextBlock Style="{StaticResource ExplanationText}" Text="　　“启用审计”只设置审计策略，不强制关闭已有命令行记录策略。实际行为可能受组织策略覆盖。" Foreground="{DynamicResource SecondaryBrush}"/>
+              <TextBlock Style="{StaticResource ExplanationText}" Text="　　记录命令行会将参数明文写入安全日志，可能包含密码、密钥或令牌；有权读取安全日志的人可以查看。请结合用途选择。" Foreground="{DynamicResource WarningBrush}" Visibility="{Binding IsAuditCommandLine,Converter={StaticResource VisibleWhen}}"/>
+              <TextBlock Style="{StaticResource ExplanationText}" Text="　　只在目标安装阶段设置，不修改当前电脑；切回默认仅影响新配置，不关闭已安装系统的审计或删除已有日志。" Foreground="{DynamicResource SecondaryBrush}"/>
+            </StackPanel></Border>
             <Border Style="{StaticResource Card}"><StackPanel>
               <TextBlock Text="远程与脚本管理（高级）" FontSize="20" FontWeight="SemiBold" Margin="0,0,0,16"/>
               <CheckBox Content="启用远程桌面接入（RDP）" IsChecked="{Binding Plan.EnableRemoteDesktop}" ToolTip="{Binding DataContext.HelpTips[remotedesktop],RelativeSource={RelativeSource AncestorType=Window}}"/>

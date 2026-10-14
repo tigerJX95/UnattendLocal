@@ -39,8 +39,8 @@ public static class SystemMaintenanceSettings
         return new(Skeleton(files.Single(f => f.GetAttribute("path") == StagePath).InnerText),
             Normal(files.Single(f => f.GetAttribute("path") == TaskPath).InnerText), Normal(extraction), extractionCommand);
     });
-    public record State(bool Enabled, bool Ambiguous);
-    public static Dictionary<string, State> Inspect(XmlDocument doc)
+    // Shared by the audit reader; rejects altered, duplicated, or inactive native execution pipelines.
+    internal static string[] KnownSpecializeBlocks(XmlDocument doc)
     {
         var expected = Expected.Value;
         var files = doc.SelectNodes("//*[local-name()='File']")!.Cast<XmlElement>().ToArray();
@@ -51,7 +51,16 @@ public static class SystemMaintenanceSettings
         bool extracted = extraction.Length == 1 && Normal(extraction[0].InnerText) == expected.Extraction && paths.Count(p => WindowStyle(p.InnerText) == WindowStyle(expected.ExtractionCommand)) == 1;
         bool active = paths.Count(p => Regex.IsMatch(p.InnerText, "^powershell\\.exe -WindowStyle \"(?:Hidden|Normal)\" -ExecutionPolicy \"Unrestricted\" -NoProfile -File \"" + Regex.Escape(StagePath) + "\"$", RegexOptions.IgnoreCase, TimeSpan.FromSeconds(1))) == 1;
         bool knownStage = extracted && stage.Length == 1 && active && Skeleton(stage[0].InnerText) == expected.Wrapper;
-        var blocks = knownStage ? Regex.Matches(stage[0].InnerText.Replace("\r\n", "\n"), BlockPattern, RegexOptions.None, TimeSpan.FromSeconds(1)).Select(m => Normal(m.Groups["body"].Value)).ToArray() : [];
+        return knownStage ? Regex.Matches(stage[0].InnerText.Replace("\r\n", "\n"), BlockPattern, RegexOptions.None, TimeSpan.FromSeconds(1)).Select(m => Normal(m.Groups["body"].Value)).ToArray() : [];
+    }
+    public record State(bool Enabled, bool Ambiguous);
+    public static Dictionary<string, State> Inspect(XmlDocument doc)
+    {
+        var expected = Expected.Value;
+        var files = doc.SelectNodes("//*[local-name()='File']")!.Cast<XmlElement>().ToArray();
+        var ns = new XmlNamespaceManager(doc.NameTable); ns.AddNamespace("u", XmlMerge.Namespace);
+        var paths = doc.SelectNodes("//u:settings[@pass='specialize']//u:Path", ns)!.Cast<XmlElement>().ToArray();
+        var blocks = KnownSpecializeBlocks(doc);
         var result = new Dictionary<string, State>();
         foreach (var item in Items)
         {
@@ -61,7 +70,7 @@ public static class SystemMaintenanceSettings
             bool mentioned = relevant.Length > 0 || auxiliary.Length > 0;
             // Upstream appends the two restart policies as one block, then task registration as another.
             var commandGroups = item.AuxiliaryPath == null ? new[] { item.Commands } : new[] { item.Commands[..2], item.Commands[2..] };
-            bool enabled = knownStage && validAuxiliary && commandGroups.All(group => blocks.Count(b => b == Normal(string.Join('\n', group))) == 1) && relevant.Length == item.Commands.Length && item.Commands.All(c => relevant.Count(line => line == Normal(c)) == 1);
+            bool enabled = validAuxiliary && commandGroups.All(group => blocks.Count(b => b == Normal(string.Join('\n', group))) == 1) && relevant.Length == item.Commands.Length && item.Commands.All(c => relevant.Count(line => line == Normal(c)) == 1);
             result[item.Property] = new(enabled, mentioned && !enabled);
         }
         return result;

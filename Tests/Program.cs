@@ -1311,5 +1311,67 @@ p=Plan();Recommendations.Apply(p,"wired");p.PreventAutomaticReboot=true;p.Disabl
 Check(Recommendations.Differences(p).Any(d=>d.Property==nameof(InstallPlan.PreventAutomaticReboot))&&Recommendations.Differences(p).Any(d=>d.Property==nameof(InstallPlan.DisableLastAccess)),"maintenance options appear in recommendation differences");Recommendations.SelectNetworkScene(p,"wifi");Check(p.PreventAutomaticReboot&&p.DisableLastAccess,"network scene retains maintenance choices");Recommendations.Restore(p,nameof(InstallPlan.PreventAutomaticReboot));Check(!p.PreventAutomaticReboot&&p.DisableLastAccess,"maintenance individual restore retains other choice");Recommendations.Apply(p,"wired");Check(!p.PreventAutomaticReboot&&!p.DisableLastAccess,"maintenance full restore returns to default");
 viewModel.Plan=Plan();viewModel.Preview="stale02";viewModel.Plan.PreventAutomaticReboot=true;viewModel.Plan.DisableLastAccess=true;
 Check(viewModel.Preview!="stale02"&&viewModel.ConfigurationSummary.Contains("MoveActiveHours")&&viewModel.ConfigurationSummary.Contains("NTFS 最后访问时间：禁用")&&viewModel.HelpTips["updaterestart"].Body.StartsWith("当前：添加")&&viewModel.HelpTips["lastaccess"].Body.StartsWith("当前：禁用"),"maintenance changes refresh help/summary and invalidate preview");
-Console.WriteLine($"Final V0.2 total: {count} tests passed.");
+// V0.3 process audit: native payloads, privacy semantics, and conservative editing.
+p=Plan();Check(p.ProcessAuditMode==ProcessAuditSettings.Default&&!DecodedXml(Xml(p)).Contains("0CCE922B-69AE-11D9-BED3-505054503030"),"V0.3 audit defaults do not change target policies");
+p.ProcessAuditMode="unknown mode";Reject(p,"unknown audit mode cannot export");
+foreach(var arch03 in new[]{"amd64","arm64","x86"})
+foreach(var mode03 in ProcessAuditSettings.Modes)
+foreach(bool hidden03 in new[]{false,true}){
+ p=Plan();p.Architecture=arch03;p.ProcessAuditMode=mode03;p.HidePowerShellWindows=hidden03;
+ var xml03=Xml(p);var doc03=XmlMerge.Read(xml03);var source03=ProcessAuditSettings.Inspect(doc03);
+ Check(source03.Mode==mode03&&!source03.Ambiguous,"audit mode recognized for architecture and script window style "+arch03+mode03+hidden03);
+ var text03=DecodedXml(xml03);
+ Check(text03.Contains(ProcessAuditSettings.AuditCommand)==(mode03!=ProcessAuditSettings.Default)&&text03.Contains(ProcessAuditSettings.CommandLineCommand)==(mode03==ProcessAuditSettings.WithCommandLine),"audit mode writes only exact intended native commands");
+ Check(!text03.Contains("/success:disable")&&!text03.Contains("ProcessCreationIncludeCmdLine_Enabled /t REG_DWORD /d 0"),"default/plain audit modes do not invent explicit policy disabling");
+ foreach(bool metadata03 in new[]{false,true}){
+  var input03=metadata03?xml03:WithoutSnapshot(xml03);var imported03=XmlPlanImport.Import(input03,g);
+  Check(imported03.ProcessAuditMode==mode03&&SameXml(input03,Xml(imported03)),"audit import with and without metadata roundtrips unchanged");
+  foreach(var target03 in ProcessAuditSettings.Modes){
+   var changed03=XmlPlanImport.Import(input03,g);changed03.ProcessAuditMode=target03;
+   var changedXml03=Xml(changed03);var reparsed03=XmlPlanImport.Import(changedXml03,g);
+   Check(reparsed03.ProcessAuditMode==target03,"all imported audit transitions are editable: "+mode03+" -> "+target03);
+  }
+ }
+ foreach(bool credentials03 in new[]{false,true}){
+  var saved03=PlanStore.Deserialize(PlanStore.Serialize(p,credentials03));
+  Check(saved03.ProcessAuditMode==mode03,"audit selection survives either JSON credential save mode");
+ }
+}
+p=Plan();p.ProcessAuditMode=ProcessAuditSettings.WithCommandLine;
+var original03=Xml(p);
+var alteredAudit03=original03.Replace("/success:enable /failure:enable","/success:disable /failure:disable");
+var alteredCommand03=original03.Replace("ProcessCreationIncludeCmdLine_Enabled /t REG_DWORD /d 1","ProcessCreationIncludeCmdLine_Enabled /t REG_DWORD /d 0");
+// Edit embedded text through XML to test removed/duplicate/conditional commands without serialization assumptions.
+XmlDocument AuditDoc03()=>XmlMerge.Read(original03);
+var noAuditDoc03=AuditDoc03();var specialize03=noAuditDoc03.SelectNodes("//*[local-name()='File']")!.Cast<XmlElement>().Single(f=>f.GetAttribute("path").EndsWith("Specialize.ps1"));specialize03.InnerText=specialize03.InnerText.Replace(ProcessAuditSettings.AuditCommand,"Write-Output 'audit removed';");
+var duplicateAuditDoc03=AuditDoc03();specialize03=duplicateAuditDoc03.SelectNodes("//*[local-name()='File']")!.Cast<XmlElement>().Single(f=>f.GetAttribute("path").EndsWith("Specialize.ps1"));specialize03.InnerText=specialize03.InnerText.Replace(ProcessAuditSettings.AuditCommand,ProcessAuditSettings.AuditCommand+"\n\t\t"+ProcessAuditSettings.AuditCommand);
+var conditionAuditDoc03=AuditDoc03();specialize03=conditionAuditDoc03.SelectNodes("//*[local-name()='File']")!.Cast<XmlElement>().Single(f=>f.GetAttribute("path").EndsWith("Specialize.ps1"));specialize03.InnerText=specialize03.InnerText.Replace(ProcessAuditSettings.AuditCommand,"if ($false) { "+ProcessAuditSettings.AuditCommand+" }");
+var noExtraction03=AuditDoc03();noExtraction03.SelectSingleNode("//*[local-name()='ExtractScript']")!.InnerText="Write-Output 'do not extract';";
+var noInvocation03=AuditDoc03();foreach(XmlElement path03 in noInvocation03.SelectNodes("//*[local-name()='Path']")!)if(path03.InnerText.Contains("-File")&&path03.InnerText.Contains("Specialize.ps1"))path03.InnerText=path03.InnerText.Replace("Specialize.ps1","Uncalled.ps1");
+var extraAudit03=AuditDoc03();var extraFile03=extraAudit03.CreateElement("File",extraAudit03.SelectSingleNode("//*[local-name()='Extensions']")!.NamespaceURI);extraFile03.SetAttribute("path",@"C:\Windows\Setup\Scripts\ForeignAudit.ps1");extraFile03.InnerText=ProcessAuditSettings.AuditCommand;extraAudit03.SelectSingleNode("//*[local-name()='Extensions']")!.AppendChild(extraFile03);
+foreach(var altered03 in new[]{alteredAudit03,alteredCommand03,noAuditDoc03.OuterXml,duplicateAuditDoc03.OuterXml,conditionAuditDoc03.OuterXml,noExtraction03.OuterXml,noInvocation03.OuterXml,extraAudit03.OuterXml}){
+ var loaded03=XmlPlanImport.Import(altered03,g);
+ Check(loaded03.ProcessAuditMode==ProcessAuditSettings.Default&&loaded03.ImportedXml!.Notices.Any(n=>n.Contains("进程创建审计"))&&SameXml(altered03,Xml(loaded03)),"unknown/partial/duplicate/inactive audit is retained with default selection");
+ foreach(var desired03 in new[]{ProcessAuditSettings.Enabled,ProcessAuditSettings.WithCommandLine}){loaded03.ProcessAuditMode=desired03;Reject(loaded03,"ambiguous audit payload blocks both opt-in modes");}
+}
+var keepDoc03=AuditDoc03();var auditExt03=keepDoc03.SelectSingleNode("//*[local-name()='Extensions']")!;auditExt03.AppendChild(keepDoc03.CreateComment("keep foreign audit content"));var keepFile03=keepDoc03.CreateElement("File",auditExt03.NamespaceURI);keepFile03.SetAttribute("path",@"C:\Windows\Setup\Scripts\Other03.ps1");keepFile03.InnerText="Write-Output 'retain other script';";auditExt03.AppendChild(keepFile03);
+var keep03=XmlPlanImport.Import(keepDoc03.OuterXml,g);keep03.ProcessAuditMode=ProcessAuditSettings.Default;var kept03=Xml(keep03);
+Check(kept03.Contains("keep foreign audit content")&&kept03.Contains("retain other script")&&!DecodedXml(kept03).Contains(ProcessAuditSettings.AuditCommand)&&!DecodedXml(kept03).Contains(ProcessAuditSettings.CommandLineCommand),"canceling known audit removes only its own commands");
+p=Plan();p.ProcessAuditMode=ProcessAuditSettings.WithCommandLine;p.PreventAutomaticReboot=true;p.DisableLastAccess=true;p.EnableRemoteDesktop=true;p.AllowPowerShellScripts=true;var together03=Xml(p);
+Check(ProcessAuditSettings.Inspect(XmlMerge.Read(together03)).Mode==ProcessAuditSettings.WithCommandLine&&SystemMaintenanceSettings.Inspect(XmlMerge.Read(together03)).Values.All(s=>s.Enabled)&&AdvancedSystemSettings.Inspect(XmlMerge.Read(together03)).Values.All(s=>s.Enabled),"audit coexists with maintenance and remote settings");
+var oldAudit03=XmlPlanImport.Import(original03,g);oldAudit03.ProcessAuditMode=ProcessAuditSettings.Default;var oldBaseline03=PlanStore.Deserialize(PlanStore.Serialize(oldAudit03,true));oldBaseline03.ImportedXml=null;oldAudit03.ImportedXml!.BaselineXml=Encoding.UTF8.GetString(g.GenerateStandalone(oldBaseline03));oldAudit03.ComputerName="PENDING03";
+var oldJson03=System.Text.Json.Nodes.JsonNode.Parse(PlanStore.Serialize(oldAudit03,true))!.AsObject();oldJson03.Remove(nameof(InstallPlan.ProcessAuditMode));var migrated03=PlanStore.Deserialize(oldJson03.ToJsonString());
+Check(migrated03.ProcessAuditMode==ProcessAuditSettings.WithCommandLine&&migrated03.ComputerName=="PENDING03"&&migrated03.ImportedXml!.Blockers.Length==0,"old imported JSON restores actual audit mode while retaining pending changes");
+Check(Node(Xml(migrated03),"//u:ComputerName")=="PENDING03"&&XmlPlanImport.Import(Xml(migrated03),g).ProcessAuditMode==ProcessAuditSettings.WithCommandLine,"audit migration baseline remains editable");
+migrated03.ProcessAuditMode=ProcessAuditSettings.Default;var explicitAuditDefault03=PlanStore.Deserialize(PlanStore.Serialize(migrated03,true));Check(explicitAuditDefault03.ProcessAuditMode==ProcessAuditSettings.Default&&!DecodedXml(Xml(explicitAuditDefault03)).Contains(ProcessAuditSettings.AuditCommand),"explicit saved default is not overwritten during audit migration");
+p=Plan();Recommendations.Apply(p,"wired");p.ProcessAuditMode=ProcessAuditSettings.WithCommandLine;Check(Recommendations.Differences(p).Any(d=>d.Property==nameof(InstallPlan.ProcessAuditMode)),"audit appears in recommendation differences");Recommendations.SelectNetworkScene(p,"wifi");Check(p.ProcessAuditMode==ProcessAuditSettings.WithCommandLine,"network scene retains audit selection");Recommendations.Restore(p,nameof(InstallPlan.ProcessAuditMode));Check(p.ProcessAuditMode==ProcessAuditSettings.Default,"individual recommendation restore clears audit opt-in");
+viewModel.Plan=Plan();viewModel.Preview="stale03";viewModel.Plan.ProcessAuditMode=ProcessAuditSettings.WithCommandLine;
+Check(viewModel.IsAuditCommandLine&&viewModel.Preview!="stale03"&&viewModel.ConfigurationSummary.Contains("明文记录命令行")&&viewModel.HelpTips["processaudit"].Body.Contains("明文"),"audit changes refresh summary/help/privacy warning and invalidate preview");viewModel.Plan.ProcessAuditMode=ProcessAuditSettings.Enabled;Check(!viewModel.IsAuditCommandLine&&viewModel.ConfigurationSummary.Contains("遵循已有策略"),"plain audit mode hides command-line opt-in warning without claiming it disables existing policy");
+foreach(bool nativeLine03 in new[]{false,true}){
+ var nativeAudit03=new Schneegans.Unattend.UnattendGenerator().GenerateXml(Schneegans.Unattend.Configuration.Default with{ProcessAuditSettings=new Schneegans.Unattend.EnabledProcessAuditSettings(nativeLine03)}).OuterXml;
+ var nativePlan03=XmlPlanImport.Import(nativeAudit03,g);
+ Check(nativePlan03.ProcessAuditMode==(nativeLine03?ProcessAuditSettings.WithCommandLine:ProcessAuditSettings.Enabled)&&SameXml(nativeAudit03,Xml(nativePlan03)),"unmodified upstream audit XML recognizes and roundtrips without app metadata");nativePlan03.ProcessAuditMode=ProcessAuditSettings.Default;Check(!DecodedXml(Xml(nativePlan03)).Contains(ProcessAuditSettings.AuditCommand),"native upstream audit can be canceled");
+}
+Console.WriteLine($"Final V0.3 total: {count} tests passed.");
+
 

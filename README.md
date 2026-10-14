@@ -4,7 +4,7 @@
 
 UnattendLocal 是基于 [Christoph Schneegans 的 UnattendGenerator](https://github.com/cschneegans/unattend-generator) 开发的中文 Windows 桌面配置工具，用于在本地编辑、检查和生成 Windows 10 / 11 的 `autounattend.xml`。
 
-当前版本：**V0.2**。本版以 pre45 为基线，补齐更新重启与 NTFS 设置，延续原有生成核心和脚本执行阶段。工具用于准备安装配置，不会在当前电脑执行生成的安装脚本。
+当前版本：**V0.3**。本版以 V0.2 为基线，新增进程创建审计，延续原有生成核心和脚本执行阶段。工具用于准备安装配置，不会在当前电脑执行生成的安装脚本。
 
 ## 初衷
 
@@ -24,7 +24,7 @@ UnattendLocal 是基于 [Christoph Schneegans 的 UnattendGenerator](https://git
 | :---: | :---: |
 | ![配置方案：浅色主题](docs/images/overview.png) | ![版本与密钥：深色主题](docs/images/edition-and-key-dark.png) |
 
-截图来自 V0.1 pre41 的实际运行界面，用于展示浅色与深色主题；当前 V0.2 已调整导航顺序并新增部分设置，实际界面以当前版本为准。
+截图来自 V0.1 pre41 的实际运行界面，用于展示浅色与深色主题；当前 V0.3 已调整导航顺序并新增部分设置，实际界面以当前版本为准。
 
 ## 主要功能
 
@@ -33,28 +33,27 @@ UnattendLocal 是基于 [Christoph Schneegans 的 UnattendGenerator](https://git
 - 配置本地账户、密码、首次登录、密码到期与锁定策略，以及 Wi-Fi、离线安装和 OOBE。
 - 配置资源管理器、开始菜单、任务栏、系统桌面图标、视觉效果、配色、纯色或图片背景及锁屏图片。
 - 按项选择 60 个应用与系统能力移除项目，提供中文影响说明、关键词搜索和选择摘要，默认不勾选。
-- 配置常用系统行为，包括快速启动、长路径、系统声音、设备自动加密、硬件关联应用、更新自动重启、NTFS 最后访问时间及远程桌面 / PowerShell 执行策略等选项。
+- 配置常用系统行为，包括快速启动、长路径、系统声音、设备自动加密、硬件关联应用、更新自动重启、NTFS 最后访问时间、进程创建审计及远程桌面 / PowerShell 执行策略等选项。
 - 按原设计管理 System、DefaultUser、FirstLogon、UserOnce 自定义脚本，提供示例与执行范围说明。
 - 保存和恢复 JSON 方案，提供配置摘要、推荐差异、检查、脱敏预览和 XML 导出。
 - 导入已有 XML 后编辑已支持设置，保留未知内容；遇到无法可靠合并的修改时停止导出并说明原因。
 
-## V0.2 更新
+## V0.3 更新
 
-- 新增“减少 Windows 更新自动重启”，沿用上游重启策略与 MoveActiveHours 计划任务；与循环暂停更新独立，默认不勾选。
-- 新增“禁用 NTFS 最后访问时间更新”，创建时间、修改时间与文件内容保持，默认不勾选。
-- 两项补齐 JSON 保存、推荐差异与单项恢复、摘要、帮助及预览联动。
-- XML 导入以实际命令、任务内容和执行管线为准；修改、缺失、重复或停用的内容保留原文，拒绝不可靠覆盖；兼容旧导入方案。
-- 统一程序和发布版本为 V0.2，后续按 V0.3、V0.4……V0.10 递增，均使用普通 Release。
-- 补齐中英文 README、真实运行截图和双版本打包脚本。
+- 新增进程创建审计：遵循默认、启用审计（不配置命令行记录）、启用审计并记录命令行三个模式，默认不配置。
+- 补齐方案保存、配置摘要、推荐差异/恢复、动态帮助和预览联动。
+- 导入 XML 以实际审计命令和有效执行管线为准；修改、重复、缺失或停用的相关内容保留原文，拒绝覆盖；兼容旧导入方案。
+- 按选定格式命名发布 EXE：程序名_版本_架构_运行时类型，双版本发布脚本同步更新。
+- 保留 V0.2 的更新重启、NTFS、应用移除等已有功能，以及固定上游核心和原始脚本阶段。
 
 ## 使用
 
-从仓库的 **Releases** 页面选择 Windows x64 程序包，完整解压后运行 `UnattendLocal.exe`：
+从仓库的 **Releases** 页面选择 Windows x64 程序包，完整解压后运行对应的 `UnattendLocal_V0.3_x64_SelfContained.exe` 或 `UnattendLocal_V0.3_x64_FrameworkDependent.exe`：
 
 | 程序包 | 运行要求 |
 | --- | --- |
-| `UnattendLocal_V0.2_win-x64_SelfContained.zip` | 集成 .NET 运行时，无需单独安装；通常选择此版。 |
-| `UnattendLocal_V0.2_win-x64_FrameworkDependent.zip` | 文件较小，需安装 .NET 10 Desktop Runtime x64。 |
+| `UnattendLocal_V0.3_x64_SelfContained.zip` | 集成 .NET 运行时，无需单独安装；通常选择此版。 |
+| `UnattendLocal_V0.3_x64_FrameworkDependent.zip` | 文件较小，需安装 .NET 10 Desktop Runtime x64。 |
 
 两版功能相同。首次安装测试建议使用虚拟机。
 
@@ -69,7 +68,7 @@ UnattendLocal 是基于 [Christoph Schneegans 的 UnattendGenerator](https://git
 
 当前属于 V0.x 开发阶段，使用普通 Release 发布；允许部分非核心上游设置留待后续实现，尚未达到 V1.0 的完整验收要求。当前使用固定生成核心及选择性同步，未宣称与上游最新功能完全对齐。
 
-XML 结构检查不能代替完整 Windows 安装验证。更新重启策略受 Windows 版本、组织策略、截止期限或用户安排的重启影响，不保证阻止全部重启；启用后需自行安排重启完成更新。NTFS 最后访问时间设置可能影响依赖此时间的归档、备份或清理规则。桌面图片脚本必须返回图片原始字节，安装时需能访问图片；锁屏效果受版本和策略限制。应用移除可能影响相关功能，取消勾选不恢复已安装系统的应用。远程桌面需要目标版本支持，RemoteSigned 的有效策略可能被更高优先级策略覆盖。
+XML 结构检查不能代替完整 Windows 安装验证。命令行审计会将参数明文写入安全日志，可能含凭据；仅启用审计时不会强制关闭已有命令行记录策略。更新重启策略受 Windows 版本、组织策略、截止期限或用户安排的重启影响，不保证阻止全部重启；启用后需自行安排重启完成更新。NTFS 最后访问时间设置可能影响依赖此时间的归档、备份或清理规则。桌面图片脚本必须返回图片原始字节，安装时需能访问图片；锁屏效果受版本和策略限制。应用移除可能影响相关功能，取消勾选不恢复已安装系统的应用。远程桌面需要目标版本支持，RemoteSigned 的有效策略可能被更高优先级策略覆盖。
 
 导出的 XML、包含凭据的 JSON 和自定义脚本可能含敏感内容。分享前自行移除密码、密钥和令牌；预览不会自动识别任意脚本中的敏感信息。磁盘清空 / 格式化可能删除数据，请核对目标磁盘并完成备份。
 
@@ -86,9 +85,9 @@ dotnet run --project Tests/Tests.csproj -c Release --no-build
 dotnet publish Desktop/Desktop.csproj -c Release -m:1 -nr:false -r win-x64 --self-contained true -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true -o publish/win-x64
 ```
 
-也可运行 `test.cmd`；`build.cmd` 调用 `publish.ps1`，在源码目录旁的 `UnattendLocal-release/v0.2` 下生成集成和不集成运行时的两个 ZIP。两版程序作为同一个 `v0.2` Release 的附件上传，不勾选 pre-release；编译缓存和程序包不提交到源码仓库。
+也可运行 `test.cmd`；`build.cmd` 调用 `publish.ps1`，在源码目录旁的 `UnattendLocal-release/v0.3` 下生成集成和不集成运行时的两个 ZIP。两版程序作为同一个 `v0.3` Release 的附件上传，不勾选 pre-release；编译缓存和程序包不提交到源码仓库。
 
-本版验证结果见随源码交付的验证记录。已完成自动化配置检查及 Windows 目标交叉编译；V0.2 的 Windows 界面运行、实际安装及两版发布程序仍需本地验收。
+本版 3366 项自动化检查通过，四项目 Release 编译零警告、零错误，已完成两个 Windows x64 单文件程序的发布；V0.3 的 Windows 界面运行、实际安装及两版发布程序仍需本地验收。
 
 ## 引用与鸣谢
 

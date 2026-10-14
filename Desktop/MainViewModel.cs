@@ -35,10 +35,12 @@ public class MainViewModel : Observable {
   ObserveUsers();SelectedUser=plan.Users.FirstOrDefault();RefreshAll();InvalidatePreview();
  }}
  private UserEntry? selected;public UserEntry? SelectedUser {get=>selected;set{Set(ref selected,value);RefreshHelp();}}
- private string preview="配置完成后，点击“检查与预览”。",status="就绪 · V0.2";
+ private string preview="配置完成后，点击“检查与预览”。",status="就绪 · V0.3";
  public string Preview {get=>preview;set=>Set(ref preview,value);} public string Status {get=>status;set=>Set(ref status,value);}
  public GeneratorService Service {get;}=new();
  public List<GeneratorService.Choice> Editions=>Service.Editions;
+ public IReadOnlyList<string> ProcessAuditModes=>ProcessAuditSettings.Modes;
+ public bool IsAuditCommandLine=>Plan.ProcessAuditMode==ProcessAuditSettings.WithCommandLine;
  private bool isGenericEdition,isCustomEdition,isPresetWifi;private string selectedEditionKey="",editionHint="";
  public bool IsPresetWifi {get=>isPresetWifi;private set=>Set(ref isPresetWifi,value);}
  private void RefreshNetwork()=>IsPresetWifi=Plan.WifiMode=="预设 WPA2 Wi-Fi";
@@ -80,7 +82,7 @@ public class MainViewModel : Observable {
   }finally{updating=false;}
   RefreshAll();InvalidatePreview();
  }
- private void RefreshAll(){RefreshRecommendations();RefreshEdition();RefreshNetwork();RefreshShell();RefreshDesktop();RefreshVisualEffects();RefreshColors();RefreshWallpaper();RefreshLockKeys();RefreshStickyKeys();RefreshAccountLockout();RefreshXmlImport();RefreshCompactOs();RefreshHelp();}
+ private void RefreshAll(){Notify(nameof(IsAuditCommandLine));RefreshRecommendations();RefreshEdition();RefreshNetwork();RefreshShell();RefreshDesktop();RefreshVisualEffects();RefreshColors();RefreshWallpaper();RefreshLockKeys();RefreshStickyKeys();RefreshAccountLockout();RefreshXmlImport();RefreshCompactOs();RefreshHelp();}
  public bool IsCustomAccountLockout=>Plan.AccountLockoutMode==AccountLockoutPolicy.Custom;
  public bool IsAccountLockoutDisabled=>AccountLockoutPolicy.IsDisabled(Plan);
  public string AccountLockoutSummary=>AccountLockoutPolicy.ModeSummary(Plan);
