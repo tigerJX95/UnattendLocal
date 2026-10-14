@@ -1,4 +1,4 @@
-<Window xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:local="clr-namespace:UnattendLocal.Desktop" xmlns:core="clr-namespace:UnattendLocal.Core;assembly=Core" x:Class="UnattendLocal.Desktop.MainWindow" Icon="Assets/App.ico" Title="Windows 无人值守配置工具 · V0.1 pre45" Width="1060" Height="780" MinWidth="850" MinHeight="620" Background="{DynamicResource CanvasBrush}" Foreground="{DynamicResource ForegroundBrush}" FontFamily="Microsoft YaHei UI" FontSize="14">
+<Window xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:local="clr-namespace:UnattendLocal.Desktop" xmlns:core="clr-namespace:UnattendLocal.Core;assembly=Core" x:Class="UnattendLocal.Desktop.MainWindow" Icon="Assets/App.ico" Title="Windows 无人值守配置工具 · V0.2" Width="1060" Height="780" MinWidth="850" MinHeight="620" Background="{DynamicResource CanvasBrush}" Foreground="{DynamicResource ForegroundBrush}" FontFamily="Microsoft YaHei UI" FontSize="14">
   <DockPanel>
     <Border DockPanel.Dock="Top" Background="{DynamicResource SurfaceBrush}" Padding="24,16">
       <DockPanel>
@@ -630,6 +630,9 @@
               <TextBlock Text="系统常用设置" FontSize="20" FontWeight="SemiBold" Margin="0,0,0,16"/>
               <CheckBox Content="禁用快速启动" IsChecked="{Binding Plan.DisableFastStartup}" ToolTip="{Binding DataContext.HelpTips[faststartup],RelativeSource={RelativeSource AncestorType=Window}}"/>
               <TextBlock Style="{StaticResource ExplanationText}" Text="　　默认遵循 Windows；勾选后关闭目标系统的快速启动，关机后的开机可能变慢。休眠功能保持原有设置。" TextWrapping="Wrap" Foreground="{DynamicResource SecondaryBrush}"/>
+              <CheckBox Content="禁用 NTFS 最后访问时间更新" IsChecked="{Binding Plan.DisableLastAccess}" Margin="0,14,0,0" ToolTip="{Binding DataContext.HelpTips[lastaccess],RelativeSource={RelativeSource AncestorType=Window}}"/>
+              <TextBlock Style="{StaticResource ExplanationText}" Text="　　沿用原生成器的 fsutil 设置，停止 NTFS 最后访问时间更新；创建时间和修改时间保持。默认不勾选，不修改当前电脑。" Foreground="{DynamicResource SecondaryBrush}"/>
+              <TextBlock Style="{StaticResource ExplanationText}" Text="　　依赖最后访问时间的归档、备份或清理规则可能受影响；不会删除文件。" Foreground="{DynamicResource WarningBrush}" Visibility="{Binding Plan.DisableLastAccess,Converter={StaticResource VisibleWhen}}"/>
               <CheckBox Content="启用长路径支持" IsChecked="{Binding Plan.EnableLongPaths}" Margin="0,14,0,0" ToolTip="{Binding DataContext.HelpTips[longpaths],RelativeSource={RelativeSource AncestorType=Window}}"/>
               <TextBlock Style="{StaticResource ExplanationText}" Text="　　允许支持长路径的应用处理较深的目录；旧程序仍可能受限制，单个文件名长度限制不变。" TextWrapping="Wrap" Foreground="{DynamicResource SecondaryBrush}"/>
               <CheckBox Content="关闭系统声音" IsChecked="{Binding Plan.TurnOffSystemSounds}" Margin="0,14,0,0" ToolTip="{Binding DataContext.HelpTips[systemsounds],RelativeSource={RelativeSource AncestorType=Window}}"/>
@@ -647,7 +650,11 @@
             </StackPanel></Border>
             <Border Style="{StaticResource Card}"><StackPanel>
               <TextBlock Text="Windows 更新" FontSize="20" FontWeight="SemiBold" Margin="0,0,0,16"/>
-              <CheckBox Content="循环暂停 Windows 更新（每次暂停 7 天）" IsChecked="{Binding Plan.DisableWindowsUpdate}" ToolTip="{Binding DataContext.HelpTips[windowsupdate],RelativeSource={RelativeSource AncestorType=Window}}"/>
+              <CheckBox Content="减少 Windows 更新自动重启" IsChecked="{Binding Plan.PreventAutomaticReboot}" ToolTip="{Binding DataContext.HelpTips[updaterestart],RelativeSource={RelativeSource AncestorType=Window}}"/>
+              <TextBlock Style="{StaticResource ExplanationText}" Text="　　沿用原生成器的更新重启策略和 MoveActiveHours 计划任务，定期调整活动时间。更新仍可下载与安装，与下方循环暂停独立。默认不勾选。" Foreground="{DynamicResource SecondaryBrush}"/>
+              <TextBlock Style="{StaticResource ExplanationText}" Text="　　不同 Windows 版本、组织策略、更新截止期限或手动安排重启可能覆盖；不保证阻止全部重启。请自行安排重启完成更新。" Foreground="{DynamicResource WarningBrush}" Visibility="{Binding Plan.PreventAutomaticReboot,Converter={StaticResource VisibleWhen}}"/>
+              <TextBlock Style="{StaticResource ExplanationText}" Text="　　取消勾选只影响新生成的配置，不移除已安装系统的任务或策略。" Foreground="{DynamicResource SecondaryBrush}"/>
+              <CheckBox Margin="0,14,0,0" Content="循环暂停 Windows 更新（每次暂停 7 天）" IsChecked="{Binding Plan.DisableWindowsUpdate}" ToolTip="{Binding DataContext.HelpTips[windowsupdate],RelativeSource={RelativeSource AncestorType=Window}}"/>
               <TextBlock Style="{StaticResource ExplanationText}" Text="　　默认不勾选，遵循 Windows 与组织策略。启用后通过计划任务反复延长暂停期，不会停用更新服务。" Foreground="{DynamicResource SecondaryBrush}"/>
               <TextBlock Style="{StaticResource ExplanationText}" Text="　　长期暂停会延迟安全补丁和质量更新，请结合设备用途安排更新维护。" Foreground="{DynamicResource WarningBrush}" Visibility="{Binding Plan.DisableWindowsUpdate,Converter={StaticResource VisibleWhen}}"/>
               <TextBlock Style="{StaticResource ExplanationText}" Text="　　临时更新可在 Windows 更新设置中选择“恢复更新”；要永久恢复，请先在任务计划程序中禁用或删除 PauseWindowsUpdate，再恢复更新。" Foreground="{DynamicResource SecondaryBrush}"/>

@@ -16,6 +16,8 @@ public class UserEntry : Observable {
  private bool _NeedsPassword = false; public bool NeedsPassword {get=>_NeedsPassword;set=>Set(ref _NeedsPassword,value);}
 }
 public class InstallPlan : Observable {
+ private bool _PreventAutomaticReboot;public bool PreventAutomaticReboot {get=>_PreventAutomaticReboot;set=>Set(ref _PreventAutomaticReboot,value);}
+ private bool _DisableLastAccess;public bool DisableLastAccess {get=>_DisableLastAccess;set=>Set(ref _DisableLastAccess,value);}
  private bool _EnableRemoteDesktop;public bool EnableRemoteDesktop {get=>_EnableRemoteDesktop;set=>Set(ref _EnableRemoteDesktop,value);}
  private bool _AllowPowerShellScripts;public bool AllowPowerShellScripts {get=>_AllowPowerShellScripts;set=>Set(ref _AllowPowerShellScripts,value);}
  private ObservableCollection<string> _RemovedApps=new();public ObservableCollection<string> RemovedApps {get=>_RemovedApps;set=>Set(ref _RemovedApps,value);}

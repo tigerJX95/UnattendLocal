@@ -60,6 +60,8 @@ public static class HelpCatalog
             new("edgebackground", "Edge 启动加速及后台运行", "勾选后将目标系统 Edge 的启动加速与关闭窗口后继续后台运行两项默认设为关闭；浏览器启动速度可能变慢。安装后用户仍可在 Edge 系统设置中调整，组织的强制策略可能覆盖此默认值。不卸载 Edge、不删除浏览数据，也不保证系统组件调用时没有 Edge 进程。未勾选时不写入覆盖，遵循 Edge 默认行为。需目标 Edge 版本支持，不会修改当前电脑。"),
             new("longpaths", "长路径支持", "勾选后在安装时启用 Windows 长路径支持，适用于 Windows 10 1607 及以后版本和 Windows 11。应用本身也须支持长路径；旧程序和资源管理器的部分操作仍可能受限制，单个文件名长度限制不变。未勾选时不写入覆盖，遵循 Windows 默认行为。不会修改当前电脑。"),
             new("systemsounds", "系统声音", "勾选后为目标系统的用户配置关闭系统提示音方案，同时关闭系统启动声音。不会静音扬声器，不影响音乐、视频和应用自行播放的音频；系统不在声音控制面板中展示的个别事件可能保留。安装后可在 Windows 声音设置中自行调整。未勾选时不写入此项覆盖，遵循 Windows 默认行为；不会修改当前电脑。"),
+            new("updaterestart","减少 Windows 更新自动重启",SystemMaintenanceSettings.RestartDescription),
+            new("lastaccess","NTFS 最后访问时间",SystemMaintenanceSettings.LastAccessDescription),
             new("remotedesktop","启用远程桌面",AdvancedSystemSettings.RdpDescription),
             new("pspolicy","Windows PowerShell 执行策略",AdvancedSystemSettings.ScriptDescription),
             new("faststartup", "快速启动", "勾选后在安装时关闭目标系统的快速启动；关机后的开机可能变慢。未勾选时不写入此项覆盖，遵循 Windows 默认行为，并非强制开启。此设置不关闭休眠功能，也不修改当前电脑。"),
@@ -154,6 +156,8 @@ public static class HelpCatalog
         var topic = topics.FirstOrDefault(t => t.Id == id) ?? topics[0];
         string state = topic.Id switch
         {
+            "updaterestart"=>plan.PreventAutomaticReboot?"当前：添加更新重启策略及 MoveActiveHours 计划任务；不阻止所有重启。":"当前：遵循 Windows 默认重启行为。",
+            "lastaccess"=>plan.DisableLastAccess?"当前：禁用 NTFS 最后访问时间更新；创建与修改时间不变。":"当前：遵循 Windows 默认行为。",
             "remotedesktop"=>plan.EnableRemoteDesktop?"当前：启用目标系统的远程桌面接入及内置防火墙规则；需版本支持。":"当前：遵循 Windows 默认行为。",
             "pspolicy"=>plan.AllowPowerShellScripts?"当前：Windows PowerShell / LocalMachine / RemoteSigned；更高优先级策略可覆盖。":"当前：不写入执行策略覆盖。",
             "appremoval"=>AppRemovalSettings.Selection(plan),

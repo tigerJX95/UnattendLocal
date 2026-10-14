@@ -31,6 +31,7 @@ public static class XmlPlanImport {
   ImageBackgroundSettings.ReadIntoPlan(doc,p,notes);
   AppRemovalSettings.ReadIntoPlan(doc,p,notes);
   AdvancedSystemSettings.ReadIntoPlan(doc,p,notes);
+  SystemMaintenanceSettings.ReadIntoPlan(doc,p,notes);
   var compactState=CompactOsSettings.ReadIntoPlan(doc,p,notes);
   p.Architecture=arches.FirstOrDefault()??"amd64";
   p.ConfigurationMode="自定义配置";p.CustomStartingPoint="保留当前设置";p.RecommendationId="";p.RecommendationVersion=0;p.RecommendationWindows="";
@@ -263,6 +264,7 @@ public static class XmlPlanImport {
   ImageBackgroundSettings.ValidateImported(p,source);
   AppRemovalSettings.ValidateImported(p,source);
   AdvancedSystemSettings.ValidateImported(p,source);
+  SystemMaintenanceSettings.ValidateImported(p,source);
   if(HasRemovedScript(source))throw new ArgumentException("原 XML 仍含已移除支持的 JScript，不能再导出。");
   if((data.RequiresDiskReview||NeedsDiskReview(source))&&!p.ConfirmImportedXmlRisk)throw new ArgumentException("导入的 XML 含磁盘配置或 Windows PE 命令，请在配置方案页重新核对原文操作范围并勾选风险确认。");
  }

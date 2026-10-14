@@ -4,7 +4,7 @@
 
 UnattendLocal is a Chinese-language Windows desktop tool based on [Christoph Schneegans’ UnattendGenerator](https://github.com/cschneegans/unattend-generator). It lets you edit, check, and generate `autounattend.xml` for Windows 10 / 11 locally.
 
-Current version: **V0.1 pre45 (prerelease)**. This release brings together the pre41–pre44 updates while retaining the original generation core and script execution stages. The tool prepares installation configuration; it does not execute the generated installation scripts on your current computer.
+Current version: **V0.2**. This release builds on pre45, adds Windows Update restart and NTFS last-access settings, and retains the original generation core and script execution stages. The tool prepares installation configuration; it does not execute the generated installation scripts on your current computer.
 
 ## Why this project exists
 
@@ -24,7 +24,7 @@ Offline use means editing, saving, and generating configuration locally. Microso
 | :---: | :---: |
 | ![Configuration plans in the light theme](docs/images/overview.png) | ![Edition and product key in the dark theme](docs/images/edition-and-key-dark.png) |
 
-These are actual V0.1 pre41 screenshots showing the light and dark themes. The current pre45 release includes navigation changes and additional settings; refer to the current application for the latest interface. The application interface is currently in Chinese.
+These are actual V0.1 pre41 screenshots showing the light and dark themes. The current V0.2 release includes navigation changes and additional settings; refer to the current application for the latest interface. The application interface is currently in Chinese.
 
 ## Main features
 
@@ -33,25 +33,23 @@ These are actual V0.1 pre41 screenshots showing the light and dark themes. The c
 - Configure local accounts, passwords, initial sign-in, password expiration and lockout policies, Wi-Fi, offline installation, and OOBE.
 - Configure File Explorer, the Start menu, taskbar, desktop icons, visual effects, colors, backgrounds, and lock-screen images.
 - Select among 60 application and system capability removal items, with Chinese impact descriptions, keyword search, and a selection summary. Items are unchecked by default.
-- Configure common system behavior, including Fast Startup, long paths, system sounds, automatic device encryption, device-associated apps, Remote Desktop, and Windows PowerShell execution policy.
+- Configure common system behavior, including Fast Startup, long paths, system sounds, automatic device encryption, device-associated apps, Windows Update restart behavior, NTFS last-access timestamps, Remote Desktop, and Windows PowerShell execution policy.
 - Manage System, DefaultUser, FirstLogon, and UserOnce custom scripts using the original execution-stage design, with examples and scope explanations.
 - Save and restore JSON plans; review summaries, recommended-setting differences, checks, redacted previews, and XML exports.
 - Import existing XML and edit supported settings while preserving unknown content. Export stops with an explanation when changes cannot be merged reliably.
 
-## Updates in this release
+## V0.2 updates
 
-- Added automatic sign-in after restart, device-associated application settings, and handling of empty Windows.old directories.
-- Added script-based loading for desktop and lock-screen images, retaining default and solid-color backgrounds.
-- Added application removal lists, search, individual impact descriptions, and save/import integration.
-- Added Remote Desktop and Windows PowerShell RemoteSigned options, disabled by default.
-- Moved application removal after OOBE and custom scripts before checks and export.
-- Standardized interface example labels to “示例” and retained upstream compatibility and configuration-restoration information.
-
-See [CHANGELOG.md](CHANGELOG.md) for the consolidated update record.
+- Added an opt-in to reduce automatic Windows Update restarts using the upstream policies and MoveActiveHours task. This is independent of update pausing and is disabled by default.
+- Added an opt-in to disable NTFS last-access timestamp updates while retaining creation and modification timestamps. It is disabled by default.
+- Integrated both options with JSON plans, recommendation differences and individual restoration, summaries, help, and previews.
+- XML import verifies the actual commands, task payload, and execution pipeline. Altered, missing, duplicated, or inactive payloads remain untouched and cannot be overwritten using these options. Older imported JSON plans can migrate.
+- Adopted V0.2, V0.3, V0.4…V0.10 version numbering with ordinary GitHub Releases.
+- Added actual screenshots, language switching, and scripts for packaging both runtime variants.
 
 ## Usage
 
-Download the Windows x64 application package from the repository’s **Releases** page, extract it completely, and run `UnattendLocal.exe`. The self-contained application does not require a separate .NET runtime installation. Use a virtual machine for initial testing.
+Download the Windows x64 application package from the repository’s **Releases** page, extract it completely, and run `UnattendLocal.exe`. Choose `UnattendLocal_V0.2_win-x64_SelfContained.zip` for a bundled .NET runtime, or `UnattendLocal_V0.2_win-x64_FrameworkDependent.zip` if .NET 10 Desktop Runtime x64 is already installed. Both have the same features. Use a virtual machine for initial testing.
 
 1. Choose a recommended scenario or a custom configuration and enter the required account and image settings.
 2. Adjust system, appearance, and application removal options as needed.
@@ -62,9 +60,9 @@ Open a JSON plan to restore saved settings, or import an answer XML to continue 
 
 ## Scope and limitations
 
-This is a prerelease. Some non-core upstream settings may be implemented later. The project uses a fixed generation core with selective synchronization and does not claim complete parity with the latest upstream features.
+This is a V0.x development release, published as an ordinary GitHub Release. It has not yet met the complete V1.0 acceptance requirements. Some non-core upstream settings may be implemented later. The project uses a fixed generation core with selective synchronization and does not claim complete parity with the latest upstream features.
 
-XML structure checks do not replace complete Windows installation testing. Desktop image scripts must return raw image bytes, and the image must be accessible during installation. Lock-screen behavior depends on Windows edition and policies. Removing applications may affect related features; clearing a removal selection does not restore applications on an already installed system. Remote Desktop requires a supported target edition. Higher-priority policies may override RemoteSigned.
+XML structure checks do not replace complete Windows installation testing. Restart behavior depends on Windows version, organization policies, update deadlines, and user-scheduled restarts; this option does not guarantee preventing every restart. Schedule restarts yourself to complete updates. Disabling NTFS last-access updates may affect archival, backup, or cleanup rules that depend on those timestamps. Desktop image scripts must return raw image bytes, and the image must be accessible during installation. Lock-screen behavior depends on Windows edition and policies. Removing applications may affect related features; clearing a removal selection does not restore applications on an already installed system. Remote Desktop requires a supported target edition. Higher-priority policies may override RemoteSigned.
 
 Exported XML, JSON plans containing credentials, and custom scripts may contain sensitive data. Remove passwords, keys, and tokens before sharing. The preview does not automatically identify secrets inside arbitrary scripts. Disk wiping and formatting may delete data; verify the target disk and back up first.
 
@@ -81,9 +79,9 @@ dotnet run --project Tests/Tests.csproj -c Release --no-build
 dotnet publish Desktop/Desktop.csproj -c Release -m:1 -nr:false -r win-x64 --self-contained true -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true -o publish/win-x64
 ```
 
-Alternatively, run `test.cmd` / `build.cmd`. The published executable is `publish/win-x64/UnattendLocal.exe`. Upload the application as a Release asset; do not commit build caches or binaries to the source repository.
+Alternatively, run `test.cmd` for checks. `build.cmd` invokes `publish.ps1` to produce both ZIP variants in `UnattendLocal-release/v0.2` next to the source directory. Upload both as assets of the same `v0.2` Release, with pre-release unchecked. Do not commit build caches or release binaries to the source repository.
 
-The pre45 baseline reports 2,841 passing data, generation, and import-integration checks, with zero warnings or errors in the four-project Release build. User desktop tests passed for pre41–pre44. Actual Windows 10 / 11 installation testing, edition coverage, and some system effects still require further verification. The delivered executable was bundled using offline Windows references and runtime files with GenerateBundle; this does not mean an online `dotnet publish` was completed in the build environment. This README update changes documentation and screenshots only.
+Validation results are provided with the full source package. Automated configuration checks and Windows-target cross-compilation have been performed. V0.2 UI execution, actual Windows installation, and both published variants still require local Windows acceptance testing.
 
 ## Credits
 
@@ -91,7 +89,7 @@ The pre45 baseline reports 2,841 passing data, generation, and import-integratio
 - **James Newton-King and Newtonsoft.Json contributors**: [Newtonsoft.Json](https://github.com/JamesNK/Newtonsoft.Json), used by the upstream generation core for data processing.
 - **Microsoft / .NET and WPF contributors**: [.NET](https://github.com/dotnet/runtime) · [WPF](https://github.com/dotnet/wpf), providing the desktop and runtime infrastructure.
 
-Upstream copyright and the MIT license are retained in [vendor/UnattendGenerator/LICENSE.txt](vendor/UnattendGenerator/LICENSE.txt). See [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md) for third-party notices and [UPSTREAM.md](UPSTREAM.md) for the fixed baseline and selective synchronization record. This tool is not the original author’s official desktop distribution.
+Upstream copyright and the MIT license are retained in [vendor/UnattendGenerator/LICENSE.txt](vendor/UnattendGenerator/LICENSE.txt). Third-party notices and fixed-baseline details are included in the full source package. This tool is not the original author’s official desktop distribution.
 
 ## Feedback
 

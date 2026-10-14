@@ -1242,4 +1242,74 @@ var fixtureName44=typeof(Program).Assembly.GetManifestResourceNames().Single(n=>
 Console.WriteLine($"Final pre44 total: {count} tests passed.");
 
 var duplicatedCallDoc44=XmlMerge.Read(originalAdvanced44);var duplicateNode44=duplicatedCallDoc44.SelectNodes("//*[local-name()='RunSynchronousCommand']")!.Cast<XmlElement>().Single(node=>node.SelectNodes("*[local-name()='Path']")!.Cast<XmlElement>().Any(path=>path.InnerText.Contains("-File")&&path.InnerText.Contains("Specialize.ps1")));var callCopy44=(XmlElement)duplicateNode44.CloneNode(true);callCopy44.SelectSingleNode("*[local-name()='Order']")!.InnerText="999";duplicateNode44.ParentNode!.AppendChild(callCopy44);var duplicatedCallPlan44=XmlPlanImport.Import(duplicatedCallDoc44.OuterXml,g);Check(!duplicatedCallPlan44.EnableRemoteDesktop&&!duplicatedCallPlan44.AllowPowerShellScripts&&SameXml(duplicatedCallDoc44.OuterXml,Xml(duplicatedCallPlan44)),"duplicate specialize invocation retained without representing a simple opt-in");duplicatedCallPlan44.EnableRemoteDesktop=true;Reject(duplicatedCallPlan44,"duplicate specialize invocation blocks RDP override");
-Console.WriteLine($"Final pre45 total: {count} tests passed.");
+// V0.2: native maintenance settings and conservative XML editing.
+p=Plan();Check(!p.PreventAutomaticReboot&&!p.DisableLastAccess,"V0.2 defaults retain Windows maintenance behavior");
+Check(!DecodedXml(Xml(p)).Contains("MoveActiveHours")&&!DecodedXml(Xml(p)).Contains("disableLastAccess"),"V0.2 defaults do not emit maintenance payloads");
+foreach(var arch02 in new[]{"amd64","arm64","x86"})
+foreach(bool restart02 in new[]{false,true})
+foreach(bool access02 in new[]{false,true})
+foreach(bool hidden02 in new[]{false,true}){
+ p=Plan();p.Architecture=arch02;p.PreventAutomaticReboot=restart02;p.DisableLastAccess=access02;p.HidePowerShellWindows=hidden02;
+ var xml02=Xml(p);var doc02=XmlMerge.Read(xml02);var state02=SystemMaintenanceSettings.Inspect(doc02);
+ Check(state02[nameof(InstallPlan.PreventAutomaticReboot)].Enabled==restart02&&state02[nameof(InstallPlan.DisableLastAccess)].Enabled==access02&&state02.Values.All(s=>!s.Ambiguous),"maintenance payloads recognized across architecture/options/window styles "+arch02+restart02+access02+hidden02);
+ var plain02=DecodedXml(xml02);
+ Check(plain02.Contains("NoAutoRebootWithLoggedOnUsers")==restart02&&plain02.Contains("disableLastAccess 1")==access02,"maintenance choices independently reach generated XML");
+ Check(doc02.SelectNodes("//*[local-name()='File']")!.Cast<XmlElement>().Count(f=>f.GetAttribute("path").EndsWith("MoveActiveHours.xml",StringComparison.Ordinal))==(restart02?1:0),"restart choice controls native task embedding");
+ foreach(bool meta02 in new[]{false,true}){
+  var input02=meta02?xml02:WithoutSnapshot(xml02);var imported02=XmlPlanImport.Import(input02,g);
+  Check(imported02.PreventAutomaticReboot==restart02&&imported02.DisableLastAccess==access02&&SameXml(input02,Xml(imported02)),"maintenance XML imports actual choices and roundtrips with/without metadata");
+  imported02.PreventAutomaticReboot=!restart02;imported02.DisableLastAccess=!access02;
+  var editedXml02=Xml(imported02);var edited02=XmlPlanImport.Import(editedXml02,g);
+  Check(edited02.PreventAutomaticReboot==!restart02&&edited02.DisableLastAccess==!access02,"maintenance XML choices can be added/canceled independently");
+ }
+ foreach(bool secrets02 in new[]{false,true}){
+  var saved02=PlanStore.Deserialize(PlanStore.Serialize(p,secrets02));
+  Check(saved02.PreventAutomaticReboot==restart02&&saved02.DisableLastAccess==access02,"maintenance JSON choices survive either credential save mode");
+ }
+}
+p=Plan();p.PreventAutomaticReboot=true;p.DisableLastAccess=true;p.DisableWindowsUpdate=true;
+var original02=Xml(p);
+Check(DecodedXml(original02).Contains("PauseWindowsUpdate")&&DecodedXml(original02).Contains("MoveActiveHours"),"pause and restart options remain independent and can coexist");
+p.DisableWindowsUpdate=false;original02=Xml(p);
+var mutations02=new[]{
+ original02.Replace("disableLastAccess 1;","disableLastAccess 0;"),
+ original02.Replace("/v AUOptions /t REG_DWORD /d 4","/v AUOptions /t REG_DWORD /d 3"),
+ original02.Replace("PT4H","PT8H"),
+ original02.Replace("-TaskName 'MoveActiveHours'","-TaskName 'OtherTask'"),
+ original02.Replace("foreach( $script in $scripts ) {","foreach( $script in @() ) {")
+};
+foreach(var modified02 in mutations02){
+ var parsed02=XmlPlanImport.Import(modified02,g);var states02=SystemMaintenanceSettings.Inspect(XmlMerge.Read(modified02));
+ Check(states02.Values.Any(s=>s.Ambiguous)&&SameXml(modified02,Xml(parsed02)),"modified maintenance payload is retained without silent normalization");
+ foreach(var item02 in SystemMaintenanceSettings.Items.Where(i=>states02[i.Property].Ambiguous)){
+  var attempt02=XmlPlanImport.Import(modified02,g);typeof(InstallPlan).GetProperty(item02.Property)!.SetValue(attempt02,true);
+  Reject(attempt02,"ambiguous maintenance payload cannot be overlaid: "+item02.Property);
+ }
+}
+XmlDocument ModifiedDoc02()=>XmlMerge.Read(original02);
+var missingTask02=ModifiedDoc02();var task02=missingTask02.SelectNodes("//*[local-name()='File']")!.Cast<XmlElement>().Single(f=>f.GetAttribute("path").EndsWith("MoveActiveHours.xml"));task02.ParentNode!.RemoveChild(task02);
+var duplicateTask02=ModifiedDoc02();task02=duplicateTask02.SelectNodes("//*[local-name()='File']")!.Cast<XmlElement>().Single(f=>f.GetAttribute("path").EndsWith("MoveActiveHours.xml"));task02.ParentNode!.AppendChild(task02.CloneNode(true));
+var disabledExtraction02=ModifiedDoc02();disabledExtraction02.SelectSingleNode("//*[local-name()='ExtractScript']")!.InnerText="Write-Output 'do not extract';";
+var stoppedCall02=ModifiedDoc02();foreach(XmlElement path02 in stoppedCall02.SelectNodes("//*[local-name()='Path']")!)if(path02.InnerText.Contains("-File")&&path02.InnerText.Contains("Specialize.ps1"))path02.InnerText=path02.InnerText.Replace("Specialize.ps1","Uncalled.ps1");
+var duplicateCall02=ModifiedDoc02();var call02=duplicateCall02.SelectNodes("//*[local-name()='RunSynchronousCommand']")!.Cast<XmlElement>().Single(node=>node.SelectNodes("*[local-name()='Path']")!.Cast<XmlElement>().Any(path=>path.InnerText.Contains("-File")&&path.InnerText.Contains("Specialize.ps1")));var copyCall02=call02.CloneNode(true);copyCall02.SelectSingleNode("*[local-name()='Order']")!.InnerText="999";call02.ParentNode!.AppendChild(copyCall02);
+var foreignCommandDoc02=ModifiedDoc02();var foreignCommand02=foreignCommandDoc02.CreateElement("RunSynchronousCommand",XmlMerge.Namespace);var foreignOrder02=foreignCommandDoc02.CreateElement("Order",XmlMerge.Namespace);foreignOrder02.InnerText="998";foreignCommand02.AppendChild(foreignOrder02);var foreignPath02=foreignCommandDoc02.CreateElement("Path",XmlMerge.Namespace);foreignPath02.InnerText="reg.exe add HKLM\\SOFTWARE\\Policies\\Microsoft\\Windows\\WindowsUpdate\\AU /v NoAutoRebootWithLoggedOnUsers /t REG_DWORD /d 0 /f";foreignCommand02.AppendChild(foreignPath02);foreignCommandDoc02.SelectSingleNode("//*[local-name()='settings' and @pass='specialize']/*[local-name()='component']/*[local-name()='RunSynchronous']")!.AppendChild(foreignCommand02);
+foreach(var modifiedDoc02 in new[]{missingTask02,duplicateTask02,disabledExtraction02,stoppedCall02,duplicateCall02,foreignCommandDoc02}){
+ var loaded02=XmlPlanImport.Import(modifiedDoc02.OuterXml,g);
+ Check(!loaded02.PreventAutomaticReboot&&SameXml(modifiedDoc02.OuterXml,Xml(loaded02)),"missing/duplicate/uncalled maintenance task retained with opt-in disabled");
+ loaded02.PreventAutomaticReboot=true;Reject(loaded02,"missing/duplicate/uncalled maintenance pipeline blocks overlay");
+}
+var extraDoc02=ModifiedDoc02();var ext02=extraDoc02.SelectSingleNode("//*[local-name()='Extensions']")!;ext02.AppendChild(extraDoc02.CreateComment("keep foreign v02 content"));var foreignFile02=extraDoc02.CreateElement("File",ext02.NamespaceURI);foreignFile02.SetAttribute("path",@"C:\Windows\Setup\Scripts\Private02.ps1");foreignFile02.InnerText="Write-Output 'private v02 payload';";ext02.AppendChild(foreignFile02);
+var cancel02=XmlPlanImport.Import(extraDoc02.OuterXml,g);cancel02.PreventAutomaticReboot=false;cancel02.DisableLastAccess=false;var canceled02=Xml(cancel02);
+Check(canceled02.Contains("keep foreign v02 content")&&canceled02.Contains("private v02 payload")&&!DecodedXml(canceled02).Contains("MoveActiveHours")&&!DecodedXml(canceled02).Contains("disableLastAccess"),"canceling native maintenance settings preserves unknown files/comments");
+var old02=XmlPlanImport.Import(original02,g);old02.PreventAutomaticReboot=false;old02.DisableLastAccess=false;var baseline02=PlanStore.Deserialize(PlanStore.Serialize(old02,true));baseline02.ImportedXml=null;old02.ImportedXml!.BaselineXml=Encoding.UTF8.GetString(g.GenerateStandalone(baseline02));old02.ComputerName="PENDING02";
+var json02=System.Text.Json.Nodes.JsonNode.Parse(PlanStore.Serialize(old02,true))!.AsObject();json02.Remove(nameof(InstallPlan.PreventAutomaticReboot));json02.Remove(nameof(InstallPlan.DisableLastAccess));
+var migrated02=PlanStore.Deserialize(json02.ToJsonString());
+Check(migrated02.PreventAutomaticReboot&&migrated02.DisableLastAccess&&migrated02.ComputerName=="PENDING02"&&migrated02.ImportedXml!.Blockers.Length==0,"old imported JSON restores actual maintenance state and pending edits");
+Check(Node(Xml(migrated02),"//u:ComputerName")=="PENDING02"&&XmlPlanImport.Import(Xml(migrated02),g).PreventAutomaticReboot,"old maintenance baseline migration remains exportable");
+migrated02.PreventAutomaticReboot=false;migrated02.DisableLastAccess=false;var explicitFalse02=PlanStore.Deserialize(PlanStore.Serialize(migrated02,true));Check(!explicitFalse02.PreventAutomaticReboot&&!explicitFalse02.DisableLastAccess&&!DecodedXml(Xml(explicitFalse02)).Contains("MoveActiveHours"),"explicit saved false choices remain editable after migration");
+p=Plan();Recommendations.Apply(p,"wired");p.PreventAutomaticReboot=true;p.DisableLastAccess=true;
+Check(Recommendations.Differences(p).Any(d=>d.Property==nameof(InstallPlan.PreventAutomaticReboot))&&Recommendations.Differences(p).Any(d=>d.Property==nameof(InstallPlan.DisableLastAccess)),"maintenance options appear in recommendation differences");Recommendations.SelectNetworkScene(p,"wifi");Check(p.PreventAutomaticReboot&&p.DisableLastAccess,"network scene retains maintenance choices");Recommendations.Restore(p,nameof(InstallPlan.PreventAutomaticReboot));Check(!p.PreventAutomaticReboot&&p.DisableLastAccess,"maintenance individual restore retains other choice");Recommendations.Apply(p,"wired");Check(!p.PreventAutomaticReboot&&!p.DisableLastAccess,"maintenance full restore returns to default");
+viewModel.Plan=Plan();viewModel.Preview="stale02";viewModel.Plan.PreventAutomaticReboot=true;viewModel.Plan.DisableLastAccess=true;
+Check(viewModel.Preview!="stale02"&&viewModel.ConfigurationSummary.Contains("MoveActiveHours")&&viewModel.ConfigurationSummary.Contains("NTFS 最后访问时间：禁用")&&viewModel.HelpTips["updaterestart"].Body.StartsWith("当前：添加")&&viewModel.HelpTips["lastaccess"].Body.StartsWith("当前：禁用"),"maintenance changes refresh help/summary and invalidate preview");
+Console.WriteLine($"Final V0.2 total: {count} tests passed.");
+
