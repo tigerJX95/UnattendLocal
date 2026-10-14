@@ -60,6 +60,8 @@ public static class HelpCatalog
             new("edgebackground", "Edge 启动加速及后台运行", "勾选后将目标系统 Edge 的启动加速与关闭窗口后继续后台运行两项默认设为关闭；浏览器启动速度可能变慢。安装后用户仍可在 Edge 系统设置中调整，组织的强制策略可能覆盖此默认值。不卸载 Edge、不删除浏览数据，也不保证系统组件调用时没有 Edge 进程。未勾选时不写入覆盖，遵循 Edge 默认行为。需目标 Edge 版本支持，不会修改当前电脑。"),
             new("longpaths", "长路径支持", "勾选后在安装时启用 Windows 长路径支持，适用于 Windows 10 1607 及以后版本和 Windows 11。应用本身也须支持长路径；旧程序和资源管理器的部分操作仍可能受限制，单个文件名长度限制不变。未勾选时不写入覆盖，遵循 Windows 默认行为。不会修改当前电脑。"),
             new("systemsounds", "系统声音", "勾选后为目标系统的用户配置关闭系统提示音方案，同时关闭系统启动声音。不会静音扬声器，不影响音乐、视频和应用自行播放的音频；系统不在声音控制面板中展示的个别事件可能保留。安装后可在 Windows 声音设置中自行调整。未勾选时不写入此项覆盖，遵循 Windows 默认行为；不会修改当前电脑。"),
+            new("remotedesktop","启用远程桌面",AdvancedSystemSettings.RdpDescription),
+            new("pspolicy","Windows PowerShell 执行策略",AdvancedSystemSettings.ScriptDescription),
             new("faststartup", "快速启动", "勾选后在安装时关闭目标系统的快速启动；关机后的开机可能变慢。未勾选时不写入此项覆盖，遵循 Windows 默认行为，并非强制开启。此设置不关闭休眠功能，也不修改当前电脑。"),
             new("deviceencryption", "禁止 BitLocker 自动设备加密", "启用后，在目标 Windows 安装阶段阻止自动启用设备加密。新建推荐与自定义配置默认启用；可取消勾选以遵循 Windows 默认行为。这不会解密已有加密卷，也不会禁用 BitLocker 功能或阻止安装后手动配置加密。效果需在目标 Windows 版本与硬件上验证。"),
             new("hardware", "Windows 11 安装检查", "在版本与密钥页分别选择绕过 TPM 2.0、安全启动或内存容量检查。默认全部关闭，按 Windows 默认要求检查。设置在 Windows PE 安装阶段应用；不关闭固件中的 TPM 或安全启动，也不提升硬件能力。只配置这三项，不保证绕过 CPU 指令集或其他版本要求；须以目标安装镜像实测为准。"),
@@ -78,6 +80,9 @@ public static class HelpCatalog
         [
             new("custom", "新建自定义配置", "从独立基础值开始，不沿用推荐策略或预填账户。默认预设语言、自动创建本地账户、有线网络和关闭快捷隐私；语言区域、SKU、账户及凭据需在工具内填写。密码到期使用 Windows 默认策略，时区由 Windows 决定；磁盘保持手动，避免误删数据。切换模式时可重新开始或保留当前设置，重新开始会清空已有配置。"),
             new("timezone", "时区设置", "由 Windows 决定时不写入固定时区；指定时区时必须选择目标时区。自定义基础配置默认由 Windows 决定，推荐配置默认使用所选固定时区。"),
+            new("restartsignon", "禁用重启后的最后用户自动登录", "默认不勾选。启用后禁止 Windows 在重启后使用最后用户的登录信息自动登录并锁定会话，不关闭正常的手动登录。此策略与本工具配置的安装后首次自动登录不同：首次自动登录仍按“用户与密码”页设置执行。作用于目标系统，组织策略及系统版本可能影响实际表现。取消仅从新生成配置中移除此项，不自动撤销已安装系统的策略。"),
+            new("deviceapps", "阻止硬件关联应用自动安装", "默认不勾选。阻止从网络获取设备元数据，并禁用设备协同安装程序，减少硬件关联应用和厂商附加软件的自动安装。不会卸载已有软件，不等于关闭 Windows Update 或全面禁止驱动安装；部分厂商附加功能或协同安装流程可能受影响，仍需自行安装所需驱动和软件。取消仅影响新生成配置。"),
+            new("windowsold", "清理空 Windows.old 文件夹", "默认不勾选。在首次登录阶段仅尝试删除 C:\\Windows.old 空目录。目录非空时保留其中所有内容，不清理旧系统文件，也不递归删除。首次登录阶段未执行时此项不会执行；不需要为它强制开启自动登录。作用于目标系统，不删除当前电脑目录。"),
             new("compactos", "CompactOS 系统文件压缩", "默认模式不写入压缩覆盖，由 Windows 安装程序决定；启用或禁用分别写入安装阶段的 Compact=true 或 false。CompactOS 通过压缩 Windows 系统文件减少磁盘占用，不压缩整个磁盘，不调整分区或镜像来源。压缩节省的空间和读取时的解压开销受系统版本、镜像内容、处理器及存储性能影响，不保证固定节省量或性能提升。设置作用于即将安装的 Windows，不修改当前电脑，也不依赖首次自动登录。默认只影响新生成的配置，不自动解压已安装系统。导入的自定义镜像应用/Compact 脚本由原脚本控制，当前只能识别并保留，不能在界面修改其压缩参数。"),
             new("image", "镜像选择", "按名称或索引选择安装介质中的镜像。索引从 1 开始，可使用 DISM /Get-ImageInfo 核对；镜像必须与产品密钥、SKU、语言和架构匹配。此工具不读取实际镜像内容。"),
             new("customscripts", "按阶段执行自定义脚本", "System 在 specialize 阶段以 SYSTEM 身份执行；DefaultUser 随后修改默认用户注册表模板；FirstLogon 在全机首个用户登录时执行；UserOnce 在每个用户首次登录时执行，不保证桌面已加载完成。支持 CMD、PowerShell、REG、VBScript，DefaultUser 仅支持前三种。同阶段按列表顺序；必须自行处理等待与错误。空白启用脚本不能导出，淡色示例仅供参考。JScript（.js）已停止支持；旧方案内容保留但自动停用，请移除或手动改写。"),
@@ -123,7 +128,11 @@ public static class HelpCatalog
             ..VisualEffectsSettings.Items.Select(item=>new HelpTopic(item.HelpId,item.Label,item.Description+" 仅自定义模式可逐项调整；最佳外观统一开启，最佳性能统一关闭，Windows 默认由系统决定。设置应用于目标 Windows，不改变本工具界面。"))
         ]
         ,[
-            new("wallpaper", "桌面背景设置方式", "使用 Windows 默认背景时，不写入本组覆盖。纯色背景在每位用户首次登录时应用，并替换背景图片的显示方式，不删除图片文件。背景与系统/应用颜色模式、强调色独立配置。切回默认或恢复推荐会保留选色，但不参与生成；安装后仍可自行更改背景。"),
+            new("wallpaper", "桌面背景设置方式", "使用 Windows 默认背景时，不写入本组覆盖。图片模式使用 PowerShell 脚本返回图片原始字节，在安装时读取，并在每位用户首次登录时应用。纯色背景在每位用户首次登录时应用，并替换背景图片的显示方式，不删除图片文件。背景与系统/应用颜色模式、强调色独立配置。切回默认或恢复推荐会保留选色，但不参与生成；安装后仍可自行更改背景。"),
+            new("wallpaperimage", "桌面图片加载脚本", "脚本需要返回 JPG、JPEG 或 PNG 图片的原始字节 byte[]，不能只返回图片路径。可从安装时能访问的文件、介质、网络地址或嵌入数据读取；本工具不读取图片或执行脚本。示例从可访问盘符根目录寻找 wallpaper.jpg，请避免存在多个同名图片并确认安装阶段可访问。空白示例不参与生成，点击载入图标才写入。网络来源需要安装时已有可用网络；Read-Host 等交互输入应避免使用。脚本会原文保存，密码、令牌不会被凭据省略或预览功能自动识别。"),
+            new("lockscreen", "锁屏图片", "默认不写入图片覆盖。启用后在安装 specialize 阶段执行图片加载脚本并配置锁屏路径，与桌面图片独立，不依赖首次自动登录。此方式的支持及效果取决于 Windows 版本、版本类型和组织策略，不能保证家庭版或普通专业版生效；部分策略可能限制用户更换锁屏。不会为了此功能自动开启共享电脑或教育策略。切回默认只停止新配置的覆盖，不自动撤销已安装系统的设置。"),
+            new("lockscreenimage", "锁屏图片加载脚本", "脚本需返回 JPG、JPEG 或 PNG 图片的原始字节 byte[]，而不是路径或提示文字。示例从可访问盘符根目录读取 lockscreen.jpg，请确认安装阶段可访问，并避免多处存在同名文件。脚本只在目标安装环境执行，工具不在本机执行；联网下载需要安装时可用网络。方案会保留脚本内容，其中的凭据需自行核对。"),
+            new("imageexample", "载入图片脚本示例", "点击后将示例写入当前图片脚本编辑框；已有内容时先确认替换。淡色示例与复制操作不会覆盖当前输入，也不参与生成。请按目标安装环境准备对应图片或修改脚本。"),
             new("wallpapercolor", "纯色桌面背景", "可以选择常用色，或输入六位十六进制 #RRGGBB，例如 #003366。输入大小写与首尾空格均可，生成时规范为大写。只接受不透明 RGB 颜色，不接受颜色名称、缩写、透明度或脚本。色块仅预览选色，不会修改当前电脑的背景，也不显示目标 Windows 的实际桌面。"),
             new("windowscolors", "Windows 配色设置方式", "默认沿用目标 Windows 配色，不写入本组覆盖。自定义时设置系统与应用的浅深模式、强调色和三项开关；关闭的开关会明确写为关闭。切回默认或恢复推荐时保留个人填写内容，但不参与生成。本页设置目标 Windows 的初始外观，独立于顶部月亮/太阳切换的工具主题。"),
             new("systemcolortheme", "系统颜色模式", "选择开始菜单、任务栏等系统界面的浅色或深色模式。系统浅色时不应用开始菜单和任务栏强调色；相关勾选会保留，切回深色时恢复。应用颜色模式单独选择，不必与系统相同。"),
@@ -135,8 +144,9 @@ public static class HelpCatalog
         ]
     ];
 
-    public static int PageCount => Pages.Length;
-    public static IReadOnlyList<HelpTopic> ForPage(int page) => Pages[Math.Clamp(page, 0, Pages.Length - 1)];
+    private static readonly HelpTopic[] RemovalTopics=[new("appremoval","应用移除","默认不勾选。仅在目标 Windows 安装时执行，不卸载本机应用；不存在的项跳过，实际效果由介质、版本和安装日志决定。应用包主要移除预配包，可选功能可能移除其有效载荷。部分选项还有额外用户策略，影响说明见各项。取消勾选只影响新生成的配置，不会恢复已经安装的应用。")];
+    public static int PageCount => Pages.Length+1;
+    public static IReadOnlyList<HelpTopic> ForPage(int page) => page>=Pages.Length?RemovalTopics:Pages[Math.Clamp(page, 0, Pages.Length - 1)];
 
     public static HelpTopic Current(int page, string? id, InstallPlan plan, UserEntry? user)
     {
@@ -144,6 +154,9 @@ public static class HelpCatalog
         var topic = topics.FirstOrDefault(t => t.Id == id) ?? topics[0];
         string state = topic.Id switch
         {
+            "remotedesktop"=>plan.EnableRemoteDesktop?"当前：启用目标系统的远程桌面接入及内置防火墙规则；需版本支持。":"当前：遵循 Windows 默认行为。",
+            "pspolicy"=>plan.AllowPowerShellScripts?"当前：Windows PowerShell / LocalMachine / RemoteSigned；更高优先级策略可覆盖。":"当前：不写入执行策略覆盖。",
+            "appremoval"=>AppRemovalSettings.Selection(plan),
             "accountlockout" => $"当前：{AccountLockoutPolicy.ModeSummary(plan)}。",
             "lockoutthreshold" or "lockoutreset" or "lockoutduration" => plan.AccountLockoutMode!=AccountLockoutPolicy.Custom?"当前：非自定义模式，保留的参数不参与生成。":$"当前：{AccountLockoutPolicy.ModeSummary(plan)}。",
             "pointerprecision" => plan.DisablePointerPrecision?"当前：关闭提高指针精确度。":"当前：遵循 Windows 默认行为。",
@@ -155,7 +168,9 @@ public static class HelpCatalog
             "capslock" => KeyboardLockSettings.CurrentKey(plan, plan.InitialCapsLockOn,plan.IgnoreCapsLock),
             "scrolllock" => KeyboardLockSettings.CurrentKey(plan, plan.InitialScrollLockOn,plan.IgnoreScrollLock),
             "wallpaper" => $"当前：{WallpaperSettings.ModeSummary(plan)}。",
-            "wallpapercolor" => !WallpaperSettings.IsSolid(plan)?"当前：Windows 默认背景，保留的颜色不参与生成。":ColorSettings.TryNormalize(plan.WallpaperColorHex,out var backgroundColor)?$"当前：纯色背景 {backgroundColor}。":"当前：背景颜色无效，请输入 #RRGGBB。",
+            "wallpaperimage" => WallpaperSettings.IsScript(plan)?$"当前：{WallpaperSettings.ModeSummary(plan)}。":"当前：非图片模式，保留的脚本不参与生成。",
+            "lockscreen" or "lockscreenimage" => $"当前：{ImageBackgroundSettings.LockSummary(plan)}。",
+            "wallpapercolor" => !WallpaperSettings.IsSolid(plan)?"当前：非纯色模式，保留的颜色不参与生成。":ColorSettings.TryNormalize(plan.WallpaperColorHex,out var backgroundColor)?$"当前：纯色背景 {backgroundColor}。":"当前：背景颜色无效，请输入 #RRGGBB。",
             "windowscolors" => $"当前：{ColorSettings.ModeSummary(plan)}。",
             "systemcolortheme" => ColorSettings.IsCustom(plan)?$"当前：系统{plan.WindowsColorTheme}。":"当前：由 Windows 决定，保留的系统模式不参与生成。",
             "appscolortheme" => ColorSettings.IsCustom(plan)?$"当前：应用{plan.AppsColorTheme}。":"当前：由 Windows 决定，保留的应用模式不参与生成。",
@@ -204,6 +219,9 @@ public static class HelpCatalog
             "hidden" => plan.WifiMode!="预设 WPA2 Wi-Fi" ? "当前未启用预设 Wi-Fi，这些选项不生效。" : $"当前：隐藏网络{(plan.HiddenWifi?"开启":"关闭")}；自动连接{(plan.ConnectWifi?"开启":"关闭")}。",
             "eula" => $"当前：{(plan.HideEula?"隐藏":"显示")}许可协议页面。",
             "oem" => $"当前：{(plan.HideOEMRegistration?"隐藏":"显示")} OEM 注册页面。",
+            "restartsignon" => plan.DisableAutomaticRestartSignOn?"当前：禁用重启后的最后用户自动登录；安装后首次自动登录独立配置。":"当前：遵循 Windows 默认行为。",
+            "deviceapps" => plan.PreventDeviceApps?"当前：阻止自动获取设备元数据及协同安装程序。":"当前：遵循 Windows 默认行为。",
+            "windowsold" => plan.DeleteWindowsOld?"当前：首次登录时尝试删除空目录；非空目录保留。":"当前：不添加 Windows.old 清理命令。",
             "appsuggestions" => plan.DisableAppSuggestions?"当前：禁用应用建议和自动推广；移动设备管理入口可能受影响。":"当前：遵循 Windows 默认行为。",
             "windowsupdate" => plan.DisableWindowsUpdate?"当前：循环暂停更新；永久恢复需停用 PauseWindowsUpdate 任务。":"当前：遵循 Windows 默认行为。",
             "edgefre" => plan.HideEdgeFre?"当前：跳过 Edge 首次运行引导。":"当前：遵循 Edge 默认行为。",

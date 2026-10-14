@@ -23,6 +23,7 @@ public class GeneratorService {
  public byte[] GenerateStandalone(InstallPlan p)=>GenerateDocument(p,false);
  public byte[] Generate(InstallPlan p)=>GenerateDocument(p,true);
  private byte[] GenerateDocument(InstallPlan p,bool includeImport) {
+  AppRemovalSettings.Validate(p);
   if(includeImport)XmlPlanImport.ValidateImported(p);
   CompactOsSettings.Validate(p);
   InstallationSettings.Validate(p);
@@ -46,6 +47,8 @@ public class GeneratorService {
   if(p.AccountMode=="自动创建本地账户"&&p.PasswordExpiration=="指定天数"&&(p.PasswordDays<1||p.PasswordDays>999))throw new ArgumentException("密码到期天数应为 1–999。");
   if(p.AccountMode=="自动创建本地账户"&&!p.AutoLogon&&!p.KeepSensitiveFiles)throw new ArgumentException("关闭首次自动登录时，无法自动清理安装隐私文件。请启用首次自动登录，或在 OOBE 页的“安装脚本与隐私文件”中明确勾选“保留安装隐私文件”。");
   var config=Configuration.Default with {
+   Bloatwares=AppRemovalSettings.Build(generator,p),
+   EnableRemoteDesktop=p.EnableRemoteDesktop,AllowPowerShellScripts=p.AllowPowerShellScripts,
    ActivationKey=p.UseActivationKey?ValidateProductKey(p.ActivationProductKey,"单独指定的激活密钥"):null,
    KeepSensitiveFiles=p.KeepSensitiveFiles,
    HidePowerShellWindows=p.HidePowerShellWindows,
@@ -55,9 +58,11 @@ public class GeneratorService {
    HideEdgeFre=p.HideEdgeFre,DisableEdgeStartupBoost=p.DisableEdgeStartupBoost,
    DisableWindowsUpdate=p.DisableWindowsUpdate,
    DisableAppSuggestions=p.DisableAppSuggestions,
+   DisableAutomaticRestartSignOn=p.DisableAutomaticRestartSignOn,PreventDeviceApps=p.PreventDeviceApps,DeleteWindowsOld=p.DeleteWindowsOld,
    Effects=VisualEffectsSettings.Build(p),
    ColorSettings=ColorSettings.Build(p),
    WallpaperSettings=WallpaperSettings.Build(p),
+   LockScreenSettings=ImageBackgroundSettings.BuildLockScreen(p),
    LockKeySettings=KeyboardLockSettings.Build(p),
    StickyKeysSettings=StickyKeySettings.Build(p),
    DisablePointerPrecision=p.DisablePointerPrecision,

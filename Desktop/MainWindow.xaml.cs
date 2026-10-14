@@ -73,6 +73,14 @@ public partial class MainWindow : Window {
  private void RemoveScriptClick(object s,RoutedEventArgs e){if(vm.SelectedScript is {} row)vm.Plan.Scripts.Remove(row);}
  private void MoveScriptClick(object s,RoutedEventArgs e){if(vm.SelectedScript is {} row&&s is Button {Tag:string direction}){var index=vm.Plan.Scripts.IndexOf(row);var target=index+(direction=="up"?-1:1);if(target>=0&&target<vm.Plan.Scripts.Count)vm.Plan.Scripts.Move(index,target);vm.SelectedScript=row;}}
  private void CustomScriptExampleClick(object s,RoutedEventArgs e)=>Run(()=>{if(vm.Plan.Scripts.Count>=60)throw new ArgumentException("最多 60 条脚本。");var network=s is Button {Tag:"network"};var row=new ScriptEntry{Enabled=false,Phase=network?"FirstLogon":"System",Type=network?"Ps1":"Cmd",Content=network?CustomScripts.NetworkExample:CustomScripts.DirectoryExample};vm.Plan.Scripts.Add(row);vm.SelectedScript=row;vm.Status="示例已新增，默认关闭；核对脚本后启用";});
+ private void ImageScriptExampleClick(object s,RoutedEventArgs e)=>Run(()=>{
+  if(s is not Button {Tag:string kind}||kind is not ("wallpaper" or "lockscreen"))return;
+  string current=kind=="wallpaper"?vm.Plan.WallpaperImageScript:vm.Plan.LockScreenImageScript;
+  if(!string.IsNullOrWhiteSpace(current)&&MessageBox.Show(this,"载入示例将替换当前图片加载脚本，是否继续？","载入示例",MessageBoxButton.YesNo,MessageBoxImage.Question)!=MessageBoxResult.Yes)return;
+  if(kind=="wallpaper")vm.Plan.WallpaperImageScript=ImageBackgroundSettings.DesktopExample;
+  else vm.Plan.LockScreenImageScript=ImageBackgroundSettings.LockExample;
+  vm.Status="示例已载入，请准备安装时可读取的对应图片，或修改脚本";
+ });
  private void DiskScriptExampleClick(object s,RoutedEventArgs e)=>Run(()=>{
   if(!string.IsNullOrWhiteSpace(vm.Plan.DiskPartScript)&&MessageBox.Show(this,"载入示例将替换当前分区脚本，是否继续？","载入分区示例",MessageBoxButton.YesNo,MessageBoxImage.Question)!=MessageBoxResult.Yes)return;
   vm.Plan.DiskPartScript=DiskScriptSettings.Example;vm.Plan.ClearDiskConsent();vm.Status="分区示例已载入：清空磁盘 0；请修改脚本并单独核对安装目标（示例为磁盘 0 / 分区 3）";

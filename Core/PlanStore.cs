@@ -17,8 +17,15 @@ public static class PlanStore {
   if(p.Scripts==null||p.Scripts.Any(s=>s==null)||p.Scripts.Count>60)throw new ArgumentException("脚本列表无效。最多 60 条。 ");
   foreach(var script in p.Scripts.Where(s=>s.IsRemovedType))script.Enabled=false;
   HardwareSettings.NormalizeLegacy(p);
+  AppRemovalSettings.Validate(p);
   if(p.ImportedXml is {} imported&&(imported.SourceXml==null||imported.BaselineXml==null||imported.SourceXml.Length>XmlMerge.MaxLength||imported.BaselineXml.Length>XmlMerge.MaxLength||imported.Notices==null||imported.Blockers==null))throw new ArgumentException("方案中的 XML 导入记录无效。");
-  using(var document=JsonDocument.Parse(json))CompactOsSettings.NormalizeLoaded(p,document.RootElement.TryGetProperty(nameof(InstallPlan.CompactOsMode),out _));
+  using(var document=JsonDocument.Parse(json)){
+   CompactOsSettings.NormalizeLoaded(p,document.RootElement.TryGetProperty(nameof(InstallPlan.CompactOsMode),out _));
+   CommonSystemSettings.NormalizeLoaded(p,document.RootElement);
+   ImageBackgroundSettings.NormalizeLoaded(p,document.RootElement);
+   AppRemovalSettings.NormalizeLoaded(p,document.RootElement);
+   AdvancedSystemSettings.NormalizeLoaded(p,document.RootElement);
+  }
   p.ClearDiskConsent();
   return p;
  }

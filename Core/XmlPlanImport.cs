@@ -27,6 +27,10 @@ public static class XmlPlanImport {
   }
   // Credentials come from actual XML, never from form comments or the reversible settings note.
   ReadCredentials(doc,ns,p,notes);
+  CommonSystemSettings.ReadIntoPlan(doc,p,notes);
+  ImageBackgroundSettings.ReadIntoPlan(doc,p,notes);
+  AppRemovalSettings.ReadIntoPlan(doc,p,notes);
+  AdvancedSystemSettings.ReadIntoPlan(doc,p,notes);
   var compactState=CompactOsSettings.ReadIntoPlan(doc,p,notes);
   p.Architecture=arches.FirstOrDefault()??"amd64";
   p.ConfigurationMode="自定义配置";p.CustomStartingPoint="保留当前设置";p.RecommendationId="";p.RecommendationVersion=0;p.RecommendationWindows="";
@@ -215,7 +219,7 @@ public static class XmlPlanImport {
   }
   p.RestartExplorerAfterScripts=Checked("RestartExplorer");known.Add("RestartExplorer");
   // Native XML and payload readers handle these; credentials are never accepted from comments.
-  foreach(var key in new[]{"LanguageMode","UILanguage","Locale","Keyboard","GeoLocation","ComputerNameMode","ComputerName","TimeZoneMode","TimeZone","WindowsEditionMode","WindowsEdition","ProductKey","UseActivationKey","ActivationKey","UserAccountMode","AutoLogonMode","ObscurePasswords","PasswordExpirationMode","PasswordMaxAge","LockoutMode","LockoutThreshold","LockoutWindow","LockoutDuration","WifiMode","WifiName","WifiPassword","WifiAuthentication","WifiNonBroadcast","ExpressSettings","TaskbarSearch","HideFiles","TaskbarIconsMode","TaskbarIconsXml","StartTilesMode","StartTilesXml","StartPinsMode","StartPinsJson","ColorMode","SystemColorTheme","AppsColorTheme","AccentColor","AccentColorOnStart","AccentColorOnBorders","EnableTransparency","WallpaperMode","WallpaperColor","LockKeysMode","ProcessorArchitecture","BypassRequirementsCheck","BypassNetworkCheck","StickyKeysHotKeyActive","StickyKeysHotKeySound","StickyKeysIndicator","StickyKeysAudibleFeedback","StickyKeysTriState","StickyKeysTwoKeysOff","NotFilename","CompactOs"})known.Add(key);
+  foreach(var key in new[]{"LanguageMode","UILanguage","Locale","Keyboard","GeoLocation","ComputerNameMode","ComputerName","TimeZoneMode","TimeZone","WindowsEditionMode","WindowsEdition","ProductKey","UseActivationKey","ActivationKey","UserAccountMode","AutoLogonMode","ObscurePasswords","PasswordExpirationMode","PasswordMaxAge","LockoutMode","LockoutThreshold","LockoutWindow","LockoutDuration","WifiMode","WifiName","WifiPassword","WifiAuthentication","WifiNonBroadcast","ExpressSettings","TaskbarSearch","HideFiles","TaskbarIconsMode","TaskbarIconsXml","StartTilesMode","StartTilesXml","StartPinsMode","StartPinsJson","ColorMode","SystemColorTheme","AppsColorTheme","AccentColor","AccentColorOnStart","AccentColorOnBorders","EnableTransparency","WallpaperMode","WallpaperColor","WallpaperScript","LockScreenMode","LockScreenScript","LockKeysMode","ProcessorArchitecture","BypassRequirementsCheck","BypassNetworkCheck","StickyKeysHotKeyActive","StickyKeysHotKeySound","StickyKeysIndicator","StickyKeysAudibleFeedback","StickyKeysTriState","StickyKeysTwoKeysOff","NotFilename","CompactOs"})known.Add(key);
   foreach(var pair in values){
    if(known.Contains(pair.Key)||Match(pair.Key,@"^(Account(Name|DisplayName|Password|Group)|(?:System|DefaultUser|FirstLogon|UserOnce)Script(?:Type)?)[0-9]+$").Success)continue;
    if(pair.Value is "false" or "Default" or "" or "Implicit")continue;
@@ -243,6 +247,8 @@ public static class XmlPlanImport {
   if(copy.StartTilesMode!=ShellSettings.CustomXml)copy.StartTilesXml="";
   if(copy.StartPinsMode!=ShellSettings.CustomJson)copy.StartPinsJson="";
   if(copy.DiskMode!=DiskScriptSettings.Mode)copy.DiskPartScript="";
+  if(!WallpaperSettings.IsScript(copy))copy.WallpaperImageScript="";
+  if(!ImageBackgroundSettings.IsLockScript(copy))copy.LockScreenImageScript="";
   var payload=Convert.ToBase64String(Encoding.UTF8.GetBytes(PlanStore.Serialize(copy,false)));
   doc.DocumentElement!.PrependChild(doc.CreateComment(Marker+Digest(doc)+" "+payload));
  }
@@ -253,6 +259,10 @@ public static class XmlPlanImport {
   if(data.Blockers.Length>0)throw new ArgumentException(string.Join("\n",data.Blockers));
   var source=XmlMerge.Read(data.SourceXml);
   CompactOsSettings.ValidateImported(p,source);
+  CommonSystemSettings.ValidateImported(p,source);
+  ImageBackgroundSettings.ValidateImported(p,source);
+  AppRemovalSettings.ValidateImported(p,source);
+  AdvancedSystemSettings.ValidateImported(p,source);
   if(HasRemovedScript(source))throw new ArgumentException("原 XML 仍含已移除支持的 JScript，不能再导出。");
   if((data.RequiresDiskReview||NeedsDiskReview(source))&&!p.ConfirmImportedXmlRisk)throw new ArgumentException("导入的 XML 含磁盘配置或 Windows PE 命令，请在配置方案页重新核对原文操作范围并勾选风险确认。");
  }

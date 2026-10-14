@@ -1,6 +1,21 @@
 using UnattendLocal.Core;
 namespace UnattendLocal.Desktop;
+public class AppRemovalChoice(AppRemovalSettings.Item item, Func<InstallPlan> current) : Observable {
+ public string Id=>item.Id;public string Label=>item.Label;public string Group=>item.Group;public string Description=>item.Description;
+ public bool IsSelected {get=>current().RemovedApps.Contains(Id);set{var list=current().RemovedApps;if(value&&!list.Contains(Id))list.Add(Id);else if(!value)list.Remove(Id);Notify(nameof(IsSelected));}}
+ public void Refresh()=>Notify(nameof(IsSelected));
+}
 public class MainViewModel : Observable {
+ private System.Collections.ObjectModel.ObservableCollection<string>? observedApps;
+ public List<AppRemovalChoice> AppRemovalChoices {get;private set;}=new();
+ private string appRemovalFilter="";public string AppRemovalFilter {get=>appRemovalFilter;set{Set(ref appRemovalFilter,value);Notify(nameof(FilteredAppRemovalChoices));Notify(nameof(AppRemovalFilterSummary));}}
+ public List<AppRemovalChoice> FilteredAppRemovalChoices=>AppRemovalChoices.Where(i=>SearchTextMatcher.Matches(i.Label+" "+i.Id+" "+i.Group+" "+i.Description,AppRemovalFilter)).ToList();
+ public string AppRemovalFilterSummary=>$"显示 {FilteredAppRemovalChoices.Count} / {AppRemovalChoices.Count} 项；搜索不会改变勾选。";
+ public string AppRemovalSummary=>AppRemovalSettings.Selection(Plan);
+ private void ObserveApps(){if(ReferenceEquals(observedApps,Plan.RemovedApps))return;if(observedApps!=null)observedApps.CollectionChanged-=AppsChanged;observedApps=Plan.RemovedApps;observedApps.CollectionChanged+=AppsChanged;}
+ private void RefreshApps(){ObserveApps();foreach(var choice in AppRemovalChoices)choice.Refresh();Notify(nameof(AppRemovalSummary));}
+ private void AppsChanged(object? sender,System.Collections.Specialized.NotifyCollectionChangedEventArgs e){RefreshApps();RefreshAll();InvalidatePreview();}
+
  private InstallPlan plan=InstallPlan.New();
  private readonly HashSet<UserEntry> observedUsers=new();
  private readonly HashSet<ScriptEntry> observedScripts=new();
@@ -20,7 +35,7 @@ public class MainViewModel : Observable {
   ObserveUsers();SelectedUser=plan.Users.FirstOrDefault();RefreshAll();InvalidatePreview();
  }}
  private UserEntry? selected;public UserEntry? SelectedUser {get=>selected;set{Set(ref selected,value);RefreshHelp();}}
- private string preview="配置完成后，点击“检查与预览”。",status="就绪 · V0.1 pre40";
+ private string preview="配置完成后，点击“检查与预览”。",status="就绪 · V0.1 pre45";
  public string Preview {get=>preview;set=>Set(ref preview,value);} public string Status {get=>status;set=>Set(ref status,value);}
  public GeneratorService Service {get;}=new();
  public List<GeneratorService.Choice> Editions=>Service.Editions;
@@ -86,12 +101,17 @@ public class MainViewModel : Observable {
  public string LockKeyStateSummary=>KeyboardLockSettings.ModeSummary(Plan);
  private void RefreshLockKeys(){Notify(nameof(IsCustomLockKeys));Notify(nameof(LockKeyStateSummary));}
  public bool IsSolidWallpaper=>WallpaperSettings.IsSolid(Plan);
+ public bool IsScriptWallpaper=>WallpaperSettings.IsScript(Plan);
+ public bool IsScriptLockScreen=>ImageBackgroundSettings.IsLockScript(Plan);
+ public string LockScreenSummary=>ImageBackgroundSettings.LockSummary(Plan);
+ public string DesktopImageExample=>ImageBackgroundSettings.DesktopExample;
+ public string LockScreenImageExample=>ImageBackgroundSettings.LockExample;
  public string DesktopWallpaperSummary=>WallpaperSettings.ModeSummary(Plan);
  public List<GeneratorService.Choice> WallpaperColorChoices {get;}=new(){new("#000000","黑色"),new("#202020","深灰"),new("#E5E5E5","浅灰"),new("#FFFFFF","白色"),new("#003366","藏蓝"),new("#0078D4","蓝色"),new("#008272","青绿"),new("#744DA9","紫色"),new("#6B4F3B","暖棕")};
  public string? WallpaperColorPreset {get=>ColorSettings.TryNormalize(Plan.WallpaperColorHex,out var hex)&&WallpaperColorChoices.Any(c=>c.Id==hex)?hex:null;set{if(WallpaperColorChoices.Any(c=>c.Id==value))Plan.WallpaperColorHex=value!;}}
  public string WallpaperColorPreview=>ColorSettings.TryNormalize(Plan.WallpaperColorHex,out var hex)?hex:"Transparent";
  public string WallpaperColorHint=>ColorSettings.TryNormalize(Plan.WallpaperColorHex,out var hex)?"当前颜色："+hex:"请输入 #RRGGBB，例如 #003366。";
- private void RefreshWallpaper(){foreach(var name in new[]{nameof(IsSolidWallpaper),nameof(DesktopWallpaperSummary),nameof(WallpaperColorPreset),nameof(WallpaperColorPreview),nameof(WallpaperColorHint)})Notify(name);}
+ private void RefreshWallpaper(){foreach(var name in new[]{nameof(IsSolidWallpaper),nameof(IsScriptWallpaper),nameof(IsScriptLockScreen),nameof(LockScreenSummary),nameof(DesktopWallpaperSummary),nameof(WallpaperColorPreset),nameof(WallpaperColorPreview),nameof(WallpaperColorHint)})Notify(name);}
  public bool IsCustomColors=>ColorSettings.IsCustom(Plan);
  public bool CanUseStartAccent=>IsCustomColors&&Plan.WindowsColorTheme==ColorSettings.Dark;
  public bool StartAccentChecked {get=>ColorSettings.StartAccentEnabled(Plan);set{if(CanUseStartAccent)Plan.AccentColorOnStart=value;}}
@@ -121,7 +141,7 @@ public class MainViewModel : Observable {
   foreach(var user in observedUsers.Where(u=>!Plan.Users.Contains(u)).ToList()){user.PropertyChanged-=HelpSettingChanged;observedUsers.Remove(user);}
   foreach(var user in Plan.Users)if(observedUsers.Add(user))user.PropertyChanged+=HelpSettingChanged;
  }
- private void RefreshHelp(){HelpTips=Enumerable.Range(0,HelpCatalog.PageCount).SelectMany(page=>HelpCatalog.ForPage(page).Select(topic=>HelpCatalog.Current(page,topic.Id,Plan,SelectedUser))).ToDictionary(topic=>topic.Id);}
+ private void RefreshHelp(){RefreshApps();HelpTips=Enumerable.Range(0,HelpCatalog.PageCount).SelectMany(page=>HelpCatalog.ForPage(page).Select(topic=>HelpCatalog.Current(page,topic.Id,Plan,SelectedUser))).ToDictionary(topic=>topic.Id);}
  private bool isCustomConfiguration,isFixedLanguage,isFixedTimeZone,isAutomaticAccounts,isPasswordDays,canBypassNetwork,needsRetentionConsent;
  public bool NeedsRetentionConsent {get=>needsRetentionConsent;private set=>Set(ref needsRetentionConsent,value);}
  public bool IsAutomaticAccounts {get=>isAutomaticAccounts;private set=>Set(ref isAutomaticAccounts,value);}
@@ -156,5 +176,5 @@ public class MainViewModel : Observable {
  public List<Recommendations.Difference> RecommendationDifferences {get=>differences;private set=>Set(ref differences,value);}
  private void UsersChanged(object? sender,System.Collections.Specialized.NotifyCollectionChangedEventArgs e){ObserveUsers();if(SelectedUser==null||!Plan.Users.Contains(SelectedUser))SelectedUser=Plan.Users.FirstOrDefault();RefreshAll();InvalidatePreview();}
  private void RefreshRecommendations(){if(Recommendations.Known(Plan.RecommendationId))Set(ref pendingRecommendation,Plan.RecommendationId,nameof(PendingRecommendation));RefreshInstallation();IsRecommended=Plan.ConfigurationMode=="推荐配置";RecommendationState=Recommendations.State(Plan);ConfigurationSummary=Recommendations.Summary(Plan);RecommendationDifferences=Recommendations.Differences(Plan);DifferenceHint=!Recommendations.HasBaseline(Plan)?"此配置没有推荐基准，可选择推荐场景并应用。":RecommendationDifferences.Count==0?"推荐涉及的设置均与基准一致；账户、镜像和凭据仍需核对。":$"共 {RecommendationDifferences.Count} 项与推荐值不同。";}
- public MainViewModel(){Plan.Scripts.CollectionChanged+=ScriptsChanged;ObserveScripts();Plan.PropertyChanged+=HelpSettingChanged;Plan.Users.CollectionChanged+=UsersChanged;ObserveUsers();SelectedUser=Plan.Users.FirstOrDefault();RefreshAll();}
+ public MainViewModel(){AppRemovalChoices=AppRemovalSettings.Items.Select(i=>new AppRemovalChoice(i,()=>Plan)).ToList();ObserveApps();Plan.Scripts.CollectionChanged+=ScriptsChanged;ObserveScripts();Plan.PropertyChanged+=HelpSettingChanged;Plan.Users.CollectionChanged+=UsersChanged;ObserveUsers();SelectedUser=Plan.Users.FirstOrDefault();RefreshAll();}
 }

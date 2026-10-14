@@ -1,4 +1,4 @@
-<Window xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:local="clr-namespace:UnattendLocal.Desktop" xmlns:core="clr-namespace:UnattendLocal.Core;assembly=Core" x:Class="UnattendLocal.Desktop.MainWindow" Icon="Assets/App.ico" Title="Windows 无人值守配置工具 · V0.1 pre40" Width="1060" Height="780" MinWidth="850" MinHeight="620" Background="{DynamicResource CanvasBrush}" Foreground="{DynamicResource ForegroundBrush}" FontFamily="Microsoft YaHei UI" FontSize="14">
+<Window xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:local="clr-namespace:UnattendLocal.Desktop" xmlns:core="clr-namespace:UnattendLocal.Core;assembly=Core" x:Class="UnattendLocal.Desktop.MainWindow" Icon="Assets/App.ico" Title="Windows 无人值守配置工具 · V0.1 pre45" Width="1060" Height="780" MinWidth="850" MinHeight="620" Background="{DynamicResource CanvasBrush}" Foreground="{DynamicResource ForegroundBrush}" FontFamily="Microsoft YaHei UI" FontSize="14">
   <DockPanel>
     <Border DockPanel.Dock="Top" Background="{DynamicResource SurfaceBrush}" Padding="24,16">
       <DockPanel>
@@ -339,7 +339,7 @@
             </StackPanel>
             <StackPanel IsEnabled="{Binding IsScriptDisk}" Visibility="{Binding IsScriptDisk,Converter={StaticResource VisibleWhen}}">
               <TextBlock Text="自定义分区脚本（Windows PE / DiskPart）" FontSize="16" Margin="0,12,0,6"/>
-              <TextBlock Style="{StaticResource ExplanationText}" Text="　　下方淡色内容是原作者的 UEFI/GPT 示例，尚未填入，不参与生成。示例会清空磁盘 0，Windows 分区编号为 3；恢复分区 1000 MB，需按实际 WinRE 镜像调整。脚本可操作任意磁盘，上方安装目标不会限制脚本中的 SELECT DISK。" TextWrapping="Wrap" Foreground="{DynamicResource DangerBrush}"/>
+              <TextBlock Style="{StaticResource ExplanationText}" Text="　　下方淡色内容是UEFI/GPT 示例，尚未填入，不参与生成。示例会清空磁盘 0，Windows 分区编号为 3；恢复分区 1000 MB，需按实际 WinRE 镜像调整。脚本可操作任意磁盘，上方安装目标不会限制脚本中的 SELECT DISK。" TextWrapping="Wrap" Foreground="{DynamicResource DangerBrush}"/>
               <DockPanel LastChildFill="True" Margin="0,4,0,4">
                 <Button DockPanel.Dock="Right" VerticalAlignment="Center" Content="复制示例" Command="{x:Static local:ExampleText.CopyCommand}" CommandParameter="{Binding ElementName=DiskPartExampleEditor}"/>
                 <TextBlock DockPanel.Dock="Right" Text="{Binding ElementName=DiskPartExampleEditor,Path=(local:ExampleText.CopyStatus)}" VerticalAlignment="Center" Margin="8,0" MaxWidth="220" TextWrapping="Wrap" Foreground="{DynamicResource SecondaryBrush}"/>
@@ -361,36 +361,6 @@
             <TextBlock Text="危险：安装时可能删除数据" Foreground="{DynamicResource DangerBrush}" FontSize="20" FontWeight="Bold"/>
             <TextBlock Text="{Binding DiskRisk}" Foreground="{DynamicResource DangerBrush}" TextWrapping="Wrap" Margin="0,8,0,0"/>
             <TextBlock Style="{StaticResource ExplanationText}" Text="　　请先备份并核对目标电脑的磁盘编号。确认不会保存到方案；修改脚本、目标或重新打开方案后需再次勾选。导出时还会再次核对此操作。" Foreground="{DynamicResource DangerBrush}" TextWrapping="Wrap"/>
-          </StackPanel></Border>
-        </StackPanel></ScrollViewer>
-      </TabItem>
-      <TabItem Header="自定义脚本" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch">
-        <ScrollViewer VerticalScrollBarVisibility="Auto"><StackPanel Margin="24">
-          <Border Style="{StaticResource Card}"><StackPanel>
-            <TextBlock Text="按安装阶段执行脚本" FontSize="20" FontWeight="SemiBold"/>
-            <TextBlock Style="{StaticResource ExplanationText}" Text="　　System → DefaultUser → FirstLogon；UserOnce 在每个用户首次登录时运行。同阶段按下方列表顺序执行。各阶段包含工具生成的其他命令，自定义脚本不能替代其执行流程。" TextWrapping="Wrap"/>
-            <TextBlock Style="{StaticResource ExplanationText}" Text="　　这些是 Windows 安装与登录阶段，不是 Sysprep 封装前后的钩子。首次登录不保证桌面已加载完成。脚本按原样嵌入应答文件；请自行核对权限、路径、网络、等待安装程序结束以及错误处理。" TextWrapping="Wrap" Foreground="{DynamicResource WarningBrush}"/>
-            <WrapPanel><Button Content="添加脚本" Click="AddScriptClick"/><Button Content="删除脚本" Click="RemoveScriptClick"/><Button Content="上移脚本" Tag="up" Click="MoveScriptClick"/><Button Content="下移脚本" Tag="down" Click="MoveScriptClick"/></WrapPanel>
-            <ListBox ItemsSource="{Binding Plan.Scripts}" SelectedItem="{Binding SelectedScript}" DisplayMemberPath="Label" MaxHeight="170" MinHeight="65"/>
-            <StackPanel DataContext="{Binding SelectedScript}" Margin="0,12,0,0">
-              <CheckBox Content="启用此脚本（关闭时保留内容，不参与生成）" IsChecked="{Binding Enabled}"/>
-              <TextBlock Text="执行阶段"/>
-              <ComboBox ToolTip="{Binding DataContext.HelpTips[customscripts],RelativeSource={RelativeSource AncestorType=Window}}" SelectedValue="{Binding Phase}" SelectedValuePath="Tag"><ComboBoxItem Content="系统安装时（System）" Tag="System"/><ComboBoxItem Content="默认用户配置（DefaultUser）" Tag="DefaultUser"/><ComboBoxItem Content="全机首次登录（FirstLogon）" Tag="FirstLogon"/><ComboBoxItem Content="每个用户首次登录（UserOnce）" Tag="UserOnce"/></ComboBox>
-              <TextBlock Text="{Binding Hint}" TextWrapping="Wrap" Foreground="{DynamicResource SecondaryBrush}"/>
-              <TextBlock Text="脚本格式（DefaultUser 仅支持 CMD / PowerShell / REG）" Margin="0,8,0,0"/>
-              <ComboBox ToolTip="{Binding DataContext.HelpTips[customscripts],RelativeSource={RelativeSource AncestorType=Window}}" SelectedValue="{Binding Type}" SelectedValuePath="Tag"><ComboBoxItem Content="PowerShell（.ps1）" Tag="Ps1"/><ComboBoxItem Content="命令脚本（.cmd）" Tag="Cmd"/><ComboBoxItem Content="注册表（.reg）" Tag="Reg"/><ComboBoxItem Content="VBScript（.vbs）" Tag="Vbs"/></ComboBox>
-              <TextBlock Style="{StaticResource ExplanationText}" Text="　　脚本内容：淡色内容只作参考，不参与生成。支持每个阶段最多 15 条，总计最多 60 条。" TextWrapping="Wrap" Foreground="{DynamicResource SecondaryBrush}"/>
-              <DockPanel LastChildFill="True" Margin="0,4,0,4">
-                <Button DockPanel.Dock="Right" VerticalAlignment="Center" Content="复制示例" Command="{x:Static local:ExampleText.CopyCommand}" CommandParameter="{Binding ElementName=ScriptExampleEditor}"/>
-                <TextBlock DockPanel.Dock="Right" Text="{Binding ElementName=ScriptExampleEditor,Path=(local:ExampleText.CopyStatus)}" VerticalAlignment="Center" Margin="8,0" MaxWidth="220" TextWrapping="Wrap" Foreground="{DynamicResource SecondaryBrush}"/>
-                <TextBlock Text="脚本内容" VerticalAlignment="Center"/>
-              </DockPanel>
-              <TextBox x:Name="ScriptExampleEditor" ToolTip="{Binding DataContext.HelpTips[scriptcontent],RelativeSource={RelativeSource AncestorType=Window}}" Text="{Binding Content,UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource ExampleEditor}" local:ExampleText.Value="{Binding Example}" AcceptsReturn="True" AcceptsTab="True" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto" Height="260" FontFamily="Consolas" FontSize="13" SpellCheck.IsEnabled="False"/>
-            </StackPanel>
-            <CheckBox Content="每个用户首次登录脚本结束后，重启资源管理器" IsChecked="{Binding Plan.RestartExplorerAfterScripts}"/>
-            <TextBlock Style="{StaticResource ExplanationText}" Text="　　原作者示例：点击后新增一条对应阶段的脚本，默认关闭，请核对效果后启用。" TextWrapping="Wrap" Foreground="{DynamicResource SecondaryBrush}"/>
-            <WrapPanel><Button Content="目录命令示例" Tag="directory" Click="CustomScriptExampleClick"/><Button Content="网络配置示例" Tag="network" Click="CustomScriptExampleClick"/></WrapPanel>
-            <TextBlock Style="{StaticResource ExplanationText}" Text="　　目录示例：System / CMD，设置 DIRCMD 默认参数。网络示例：FirstLogon / PowerShell，将 Ethernet* 的网络类型改为专用；需核对网卡名称。脚本中的密码、令牌也会随方案与 XML 明文保存，凭据省略功能不解析脚本，预览不保证遮蔽脚本中的秘密。" TextWrapping="Wrap" Foreground="{DynamicResource WarningBrush}"/>
           </StackPanel></Border>
         </StackPanel></ScrollViewer>
       </TabItem>
@@ -650,6 +620,13 @@
               </StackPanel>
             </Border>
             <Border Style="{StaticResource Card}"><StackPanel>
+              <TextBlock Text="远程与脚本管理（高级）" FontSize="20" FontWeight="SemiBold" Margin="0,0,0,16"/>
+              <CheckBox Content="启用远程桌面接入（RDP）" IsChecked="{Binding Plan.EnableRemoteDesktop}" ToolTip="{Binding DataContext.HelpTips[remotedesktop],RelativeSource={RelativeSource AncestorType=Window}}"/>
+              <TextBlock Style="{StaticResource ExplanationText}" Text="　　开启目标 Windows 的远程桌面接入与内置防火墙规则。家庭版不提供接入主机能力，此选项不会绕过版本限制；不自动添加允许用户。默认不勾选。" Foreground="{DynamicResource SecondaryBrush}"/>
+              <TextBlock Style="{StaticResource ExplanationText}" Text="　　其他设备将可尝试远程连接；请使用可信网络、有效账户和强密码。网络级别身份验证保持原有设置，不创建路由器端口转发。" Foreground="{DynamicResource WarningBrush}" Visibility="{Binding Plan.EnableRemoteDesktop,Converter={StaticResource VisibleWhen}}"/>
+              <CheckBox Content="允许 Windows PowerShell 脚本（RemoteSigned）" IsChecked="{Binding Plan.AllowPowerShellScripts}" Margin="0,14,0,0" ToolTip="{Binding DataContext.HelpTips[pspolicy],RelativeSource={RelativeSource AncestorType=Window}}"/>
+              <TextBlock Style="{StaticResource ExplanationText}" Text="　　将 LocalMachine 策略设为 RemoteSigned，允许本地脚本；带互联网来源标记的脚本通常需要可信签名。组织、用户或会话策略可覆盖。与隐藏窗口和自定义脚本开关独立，默认不勾选。" Foreground="{DynamicResource SecondaryBrush}"/>
+              <TextBlock Style="{StaticResource ExplanationText}" Text="　　两项均在目标 Windows 安装时设置，不修改本机。取消勾选只影响新生成配置，不撤销已安装系统上的设置。" Foreground="{DynamicResource SecondaryBrush}"/>
               <TextBlock Text="系统常用设置" FontSize="20" FontWeight="SemiBold" Margin="0,0,0,16"/>
               <CheckBox Content="禁用快速启动" IsChecked="{Binding Plan.DisableFastStartup}" ToolTip="{Binding DataContext.HelpTips[faststartup],RelativeSource={RelativeSource AncestorType=Window}}"/>
               <TextBlock Style="{StaticResource ExplanationText}" Text="　　默认遵循 Windows；勾选后关闭目标系统的快速启动，关机后的开机可能变慢。休眠功能保持原有设置。" TextWrapping="Wrap" Foreground="{DynamicResource SecondaryBrush}"/>
@@ -657,6 +634,13 @@
               <TextBlock Style="{StaticResource ExplanationText}" Text="　　允许支持长路径的应用处理较深的目录；旧程序仍可能受限制，单个文件名长度限制不变。" TextWrapping="Wrap" Foreground="{DynamicResource SecondaryBrush}"/>
               <CheckBox Content="关闭系统声音" IsChecked="{Binding Plan.TurnOffSystemSounds}" Margin="0,14,0,0" ToolTip="{Binding DataContext.HelpTips[systemsounds],RelativeSource={RelativeSource AncestorType=Window}}"/>
               <TextBlock Style="{StaticResource ExplanationText}" Text="　　关闭系统提示音方案与系统启动声音，不影响音乐、视频和应用音频。未勾选时遵循 Windows 默认行为。" TextWrapping="Wrap" Foreground="{DynamicResource SecondaryBrush}"/>
+              <CheckBox Content="禁用重启后的最后用户自动登录" IsChecked="{Binding Plan.DisableAutomaticRestartSignOn}" Margin="0,14,0,0" ToolTip="{Binding DataContext.HelpTips[restartsignon],RelativeSource={RelativeSource AncestorType=Window}}"/>
+              <TextBlock Style="{StaticResource ExplanationText}" Text="　　阻止重启后自动登录最后用户并锁定会话；安装后首次自动登录仍按“用户与密码”页的设置执行。默认遵循 Windows。" Foreground="{DynamicResource SecondaryBrush}"/>
+              <CheckBox Content="阻止硬件关联应用自动安装" IsChecked="{Binding Plan.PreventDeviceApps}" Margin="0,14,0,0" ToolTip="{Binding DataContext.HelpTips[deviceapps],RelativeSource={RelativeSource AncestorType=Window}}"/>
+              <TextBlock Style="{StaticResource ExplanationText}" Text="　　阻止自动获取设备元数据及协同安装程序；不卸载已有软件，不等于全面禁止驱动安装。默认遵循 Windows。" Foreground="{DynamicResource SecondaryBrush}"/>
+              <TextBlock Style="{StaticResource ExplanationText}" Text="　　可能影响厂商附加功能或协同安装流程，请保留所需驱动与软件的安装方式。" Foreground="{DynamicResource WarningBrush}" Visibility="{Binding Plan.PreventDeviceApps,Converter={StaticResource VisibleWhen}}"/>
+              <CheckBox Content="清理空 Windows.old 文件夹" IsChecked="{Binding Plan.DeleteWindowsOld}" Margin="0,14,0,0" ToolTip="{Binding DataContext.HelpTips[windowsold],RelativeSource={RelativeSource AncestorType=Window}}"/>
+              <TextBlock Style="{StaticResource ExplanationText}" Text="　　在首次登录阶段尝试删除 C:\Windows.old 空目录；非空目录保留，不递归删除旧系统文件。默认不添加清理命令。" Foreground="{DynamicResource SecondaryBrush}"/>
               <CheckBox Content="禁用应用建议和自动推广" IsChecked="{Binding Plan.DisableAppSuggestions}" Margin="0,14,0,0" ToolTip="{Binding DataContext.HelpTips[appsuggestions],RelativeSource={RelativeSource AncestorType=Window}}"/>
               <TextBlock Style="{StaticResource ExplanationText}" Text="　　减少系统应用建议与自动推广安装；不卸载已有应用，不阻止主动安装。默认遵循 Windows 与组织策略。" Foreground="{DynamicResource SecondaryBrush}"/>
               <TextBlock Style="{StaticResource ExplanationText}" Text="　　此项可能影响“移动设备”中的“管理设备”入口，需要相关功能时请谨慎选择。" Foreground="{DynamicResource WarningBrush}" Visibility="{Binding Plan.DisableAppSuggestions,Converter={StaticResource VisibleWhen}}"/>
@@ -686,6 +670,31 @@
                 <TextBlock Style="{StaticResource ExplanationText}" Text="　　安装介质上的原始 XML 需另行保管。" Foreground="{DynamicResource SecondaryBrush}" TextWrapping="Wrap" />
               </StackPanel>
             </Border>
+          </StackPanel>
+        </ScrollViewer>
+      </TabItem>
+      <TabItem Header="应用移除" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch">
+        <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+          <StackPanel Margin="20">
+            <TextBlock Text="按项选择要移除的应用与系统能力" FontSize="20" FontWeight="SemiBold" Margin="0,0,0,12"/>
+            <TextBlock Text="默认不勾选；只在目标 Windows 安装时执行。不存在的项目会跳过，取消勾选只影响新生成的配置。请先阅读每项影响说明。" TextWrapping="Wrap" Margin="0,0,0,12" ToolTip="{Binding HelpTips[appremoval]}"/>
+            <TextBlock Text="{Binding AppRemovalSummary}" TextWrapping="Wrap" FontWeight="SemiBold" Margin="0,0,0,16"/>
+            <TextBlock Text="搜索应用或组件" Margin="0,0,0,4"/>
+            <TextBox Text="{Binding AppRemovalFilter,UpdateSourceTrigger=PropertyChanged}" ToolTip="输入中文名称、英文名称或功能关键词筛选；隐藏的选择仍保留。" Margin="0,0,0,6"/>
+            <TextBlock Text="{Binding AppRemovalFilterSummary}" Foreground="{DynamicResource SecondaryBrush}" Margin="0,0,0,10"/>
+            <ItemsControl ItemsSource="{Binding FilteredAppRemovalChoices}">
+              <ItemsControl.ItemTemplate>
+                <DataTemplate>
+                  <Border BorderBrush="{DynamicResource BorderBrush}" BorderThickness="0,0,0,1" Padding="0,10">
+                    <StackPanel>
+                      <CheckBox Content="{Binding Label}" IsChecked="{Binding IsSelected,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}" ToolTip="{Binding Description}"/>
+                      <TextBlock Text="{Binding Group}" Foreground="{DynamicResource SecondaryBrush}" Margin="26,4,0,0" FontSize="12"/>
+                      <TextBlock Text="{Binding Description}" TextWrapping="Wrap" Foreground="{DynamicResource SecondaryBrush}" Margin="26,4,0,0" FontSize="12"/>
+                    </StackPanel>
+                  </Border>
+                </DataTemplate>
+              </ItemsControl.ItemTemplate>
+            </ItemsControl>
           </StackPanel>
         </ScrollViewer>
       </TabItem>
@@ -921,9 +930,9 @@
           </StackPanel></Border>
           <Border Style="{StaticResource Card}"><StackPanel>
             <TextBlock Text="桌面背景" FontSize="20" FontWeight="SemiBold" Margin="0,0,0,16" ToolTip="{Binding DataContext.HelpTips[wallpaper],RelativeSource={RelativeSource AncestorType=Window}}"/>
-            <TextBlock Style="{StaticResource ExplanationText}" Text="　　默认沿用目标 Windows 背景。需要纯色背景时选择下方模式并指定颜色，与上方配色独立。" TextWrapping="Wrap" Foreground="{DynamicResource SecondaryBrush}"/>
+            <TextBlock Style="{StaticResource ExplanationText}" Text="　　默认沿用目标 Windows 背景，可选择纯色或通过脚本读取图片，与上方配色独立。" TextWrapping="Wrap" Foreground="{DynamicResource SecondaryBrush}"/>
             <ComboBox SelectedValue="{Binding Plan.WallpaperMode}" SelectedValuePath="Content" ToolTip="{Binding DataContext.HelpTips[wallpaper],RelativeSource={RelativeSource AncestorType=Window}}">
-              <ComboBoxItem Content="使用 Windows 默认背景"/><ComboBoxItem Content="使用纯色背景"/>
+              <ComboBoxItem Content="使用 Windows 默认背景"/><ComboBoxItem Content="使用纯色背景"/><ComboBoxItem Content="使用图片背景（脚本加载）"/>
             </ComboBox>
             <TextBlock Text="{Binding DesktopWallpaperSummary}" TextWrapping="Wrap" Margin="0,8,0,12"/>
             <StackPanel Visibility="{Binding IsSolidWallpaper,Converter={StaticResource VisibleWhen}}">
@@ -939,7 +948,63 @@
               </DockPanel>
               <TextBlock Style="{StaticResource ExplanationText}" Text="　　直接输入其他颜色时，常用色列表不选中。纯色背景会替换背景图片的显示方式，不删除图片文件。" TextWrapping="Wrap" Foreground="{DynamicResource SecondaryBrush}"/>
             </StackPanel>
-            <TextBlock Style="{StaticResource ExplanationText}" Text="　　背景在每位用户首次登录时应用。切回默认时保留选色，停止写入本组覆盖；不会更改本工具的浅深主题。" TextWrapping="Wrap" Foreground="{DynamicResource SecondaryBrush}"/>
+            <StackPanel Visibility="{Binding IsScriptWallpaper,Converter={StaticResource VisibleWhen}}">
+              <TextBlock Style="{StaticResource ExplanationText}" Text="　　脚本需返回图片原始字节，不是图片路径。本工具不执行脚本；示例需要安装时可读取的 wallpaper.jpg。" Foreground="{DynamicResource SecondaryBrush}"/>
+              <DockPanel LastChildFill="True" Margin="0,4,0,4">
+                <Button DockPanel.Dock="Right" Content="复制示例" Command="{x:Static local:ExampleText.CopyCommand}" CommandParameter="{Binding ElementName=WallpaperImageEditor}"/>
+                <TextBlock DockPanel.Dock="Right" Text="{Binding ElementName=WallpaperImageEditor,Path=(local:ExampleText.CopyStatus)}" VerticalAlignment="Center" Margin="8,0" Foreground="{DynamicResource SecondaryBrush}"/>
+                <WrapPanel><Button Content="载入示例" Tag="wallpaper" Click="ImageScriptExampleClick" ToolTip="{Binding DataContext.HelpTips[imageexample],RelativeSource={RelativeSource AncestorType=Window}}"/></WrapPanel>
+              </DockPanel>
+              <TextBox x:Name="WallpaperImageEditor" Text="{Binding Plan.WallpaperImageScript,UpdateSourceTrigger=PropertyChanged}" local:ExampleText.Value="{Binding DesktopImageExample}" Style="{StaticResource ExampleEditor}" AcceptsReturn="True" AcceptsTab="True" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto" Height="260" FontFamily="Consolas" FontSize="13" SpellCheck.IsEnabled="False" ToolTip="{Binding DataContext.HelpTips[wallpaperimage],RelativeSource={RelativeSource AncestorType=Window}}"/>
+              <TextBlock Style="{StaticResource ExplanationText}" Text="　　淡色示例不参与生成。切换模式保留脚本；网络下载需要安装时已有可用网络，脚本中的凭据需自行核对。" Foreground="{DynamicResource SecondaryBrush}"/>
+            </StackPanel>
+            <TextBlock Style="{StaticResource ExplanationText}" Text="　　背景在每位用户首次登录时应用。切回默认时保留选色和脚本，停止写入本组覆盖；不会更改本工具的浅深主题。" TextWrapping="Wrap" Foreground="{DynamicResource SecondaryBrush}"/>
+          </StackPanel></Border>
+          <Border Style="{StaticResource Card}"><StackPanel>
+            <TextBlock Text="锁屏图片" FontSize="20" FontWeight="SemiBold" Margin="0,0,0,16" ToolTip="{Binding DataContext.HelpTips[lockscreen],RelativeSource={RelativeSource AncestorType=Window}}"/>
+            <ComboBox SelectedValue="{Binding Plan.LockScreenMode}" SelectedValuePath="Content" ToolTip="{Binding DataContext.HelpTips[lockscreen],RelativeSource={RelativeSource AncestorType=Window}}"><ComboBoxItem Content="使用 Windows 默认锁屏"/><ComboBoxItem Content="使用锁屏图片（脚本加载）"/></ComboBox>
+            <TextBlock Style="{StaticResource ExplanationText}" Text="{Binding LockScreenSummary,StringFormat='　　{0}'}" Foreground="{DynamicResource SecondaryBrush}"/>
+            <StackPanel Visibility="{Binding IsScriptLockScreen,Converter={StaticResource VisibleWhen}}">
+              <TextBlock Style="{StaticResource ExplanationText}" Text="　　在安装阶段读取图片，脚本需返回原始字节，不是路径。示例需要安装时可读取的 lockscreen.jpg。" Foreground="{DynamicResource SecondaryBrush}"/>
+              <DockPanel LastChildFill="True" Margin="0,4,0,4">
+                <Button DockPanel.Dock="Right" Content="复制示例" Command="{x:Static local:ExampleText.CopyCommand}" CommandParameter="{Binding ElementName=LockScreenImageEditor}"/>
+                <TextBlock DockPanel.Dock="Right" Text="{Binding ElementName=LockScreenImageEditor,Path=(local:ExampleText.CopyStatus)}" VerticalAlignment="Center" Margin="8,0" Foreground="{DynamicResource SecondaryBrush}"/>
+                <WrapPanel><Button Content="载入示例" Tag="lockscreen" Click="ImageScriptExampleClick" ToolTip="{Binding DataContext.HelpTips[imageexample],RelativeSource={RelativeSource AncestorType=Window}}"/></WrapPanel>
+              </DockPanel>
+              <TextBox x:Name="LockScreenImageEditor" Text="{Binding Plan.LockScreenImageScript,UpdateSourceTrigger=PropertyChanged}" local:ExampleText.Value="{Binding LockScreenImageExample}" Style="{StaticResource ExampleEditor}" AcceptsReturn="True" AcceptsTab="True" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto" Height="260" FontFamily="Consolas" FontSize="13" SpellCheck.IsEnabled="False" ToolTip="{Binding DataContext.HelpTips[lockscreenimage],RelativeSource={RelativeSource AncestorType=Window}}"/>
+              <TextBlock Style="{StaticResource ExplanationText}" Text="　　锁屏效果受 Windows 版本、版本类型及策略影响，不能保证家庭版或普通专业版生效，部分策略可能限制用户更换锁屏。" Foreground="{DynamicResource WarningBrush}"/>
+              <TextBlock Style="{StaticResource ExplanationText}" Text="　　切回默认会保留脚本，但不写入新的图片覆盖；不会自动撤销已安装系统的设置。" Foreground="{DynamicResource SecondaryBrush}"/>
+            </StackPanel>
+          </StackPanel></Border>
+        </StackPanel></ScrollViewer>
+      </TabItem>
+      <TabItem Header="自定义脚本" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch">
+        <ScrollViewer VerticalScrollBarVisibility="Auto"><StackPanel Margin="24">
+          <Border Style="{StaticResource Card}"><StackPanel>
+            <TextBlock Text="按安装阶段执行脚本" FontSize="20" FontWeight="SemiBold"/>
+            <TextBlock Style="{StaticResource ExplanationText}" Text="　　System → DefaultUser → FirstLogon；UserOnce 在每个用户首次登录时运行。同阶段按下方列表顺序执行。各阶段包含工具生成的其他命令，自定义脚本不能替代其执行流程。" TextWrapping="Wrap"/>
+            <TextBlock Style="{StaticResource ExplanationText}" Text="　　这些是 Windows 安装与登录阶段，不是 Sysprep 封装前后的钩子。首次登录不保证桌面已加载完成。脚本按原样嵌入应答文件；请自行核对权限、路径、网络、等待安装程序结束以及错误处理。" TextWrapping="Wrap" Foreground="{DynamicResource WarningBrush}"/>
+            <WrapPanel><Button Content="添加脚本" Click="AddScriptClick"/><Button Content="删除脚本" Click="RemoveScriptClick"/><Button Content="上移脚本" Tag="up" Click="MoveScriptClick"/><Button Content="下移脚本" Tag="down" Click="MoveScriptClick"/></WrapPanel>
+            <ListBox ItemsSource="{Binding Plan.Scripts}" SelectedItem="{Binding SelectedScript}" DisplayMemberPath="Label" MaxHeight="170" MinHeight="65"/>
+            <StackPanel DataContext="{Binding SelectedScript}" Margin="0,12,0,0">
+              <CheckBox Content="启用此脚本（关闭时保留内容，不参与生成）" IsChecked="{Binding Enabled}"/>
+              <TextBlock Text="执行阶段"/>
+              <ComboBox ToolTip="{Binding DataContext.HelpTips[customscripts],RelativeSource={RelativeSource AncestorType=Window}}" SelectedValue="{Binding Phase}" SelectedValuePath="Tag"><ComboBoxItem Content="系统安装时（System）" Tag="System"/><ComboBoxItem Content="默认用户配置（DefaultUser）" Tag="DefaultUser"/><ComboBoxItem Content="全机首次登录（FirstLogon）" Tag="FirstLogon"/><ComboBoxItem Content="每个用户首次登录（UserOnce）" Tag="UserOnce"/></ComboBox>
+              <TextBlock Text="{Binding Hint}" TextWrapping="Wrap" Foreground="{DynamicResource SecondaryBrush}"/>
+              <TextBlock Text="脚本格式（DefaultUser 仅支持 CMD / PowerShell / REG）" Margin="0,8,0,0"/>
+              <ComboBox ToolTip="{Binding DataContext.HelpTips[customscripts],RelativeSource={RelativeSource AncestorType=Window}}" SelectedValue="{Binding Type}" SelectedValuePath="Tag"><ComboBoxItem Content="PowerShell（.ps1）" Tag="Ps1"/><ComboBoxItem Content="命令脚本（.cmd）" Tag="Cmd"/><ComboBoxItem Content="注册表（.reg）" Tag="Reg"/><ComboBoxItem Content="VBScript（.vbs）" Tag="Vbs"/></ComboBox>
+              <TextBlock Style="{StaticResource ExplanationText}" Text="　　脚本内容：淡色内容只作参考，不参与生成。支持每个阶段最多 15 条，总计最多 60 条。" TextWrapping="Wrap" Foreground="{DynamicResource SecondaryBrush}"/>
+              <DockPanel LastChildFill="True" Margin="0,4,0,4">
+                <Button DockPanel.Dock="Right" VerticalAlignment="Center" Content="复制示例" Command="{x:Static local:ExampleText.CopyCommand}" CommandParameter="{Binding ElementName=ScriptExampleEditor}"/>
+                <TextBlock DockPanel.Dock="Right" Text="{Binding ElementName=ScriptExampleEditor,Path=(local:ExampleText.CopyStatus)}" VerticalAlignment="Center" Margin="8,0" MaxWidth="220" TextWrapping="Wrap" Foreground="{DynamicResource SecondaryBrush}"/>
+                <TextBlock Text="脚本内容" VerticalAlignment="Center"/>
+              </DockPanel>
+              <TextBox x:Name="ScriptExampleEditor" ToolTip="{Binding DataContext.HelpTips[scriptcontent],RelativeSource={RelativeSource AncestorType=Window}}" Text="{Binding Content,UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource ExampleEditor}" local:ExampleText.Value="{Binding Example}" AcceptsReturn="True" AcceptsTab="True" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto" Height="260" FontFamily="Consolas" FontSize="13" SpellCheck.IsEnabled="False"/>
+            </StackPanel>
+            <CheckBox Content="每个用户首次登录脚本结束后，重启资源管理器" IsChecked="{Binding Plan.RestartExplorerAfterScripts}"/>
+            <TextBlock Style="{StaticResource ExplanationText}" Text="　　示例：点击后新增一条对应阶段的脚本，默认关闭，请核对效果后启用。" TextWrapping="Wrap" Foreground="{DynamicResource SecondaryBrush}"/>
+            <WrapPanel><Button Content="目录命令示例" Tag="directory" Click="CustomScriptExampleClick"/><Button Content="网络配置示例" Tag="network" Click="CustomScriptExampleClick"/></WrapPanel>
+            <TextBlock Style="{StaticResource ExplanationText}" Text="　　目录示例：System / CMD，设置 DIRCMD 默认参数。网络示例：FirstLogon / PowerShell，将 Ethernet* 的网络类型改为专用；需核对网卡名称。脚本中的密码、令牌也会随方案与 XML 明文保存，凭据省略功能不解析脚本，预览不保证遮蔽脚本中的秘密。" TextWrapping="Wrap" Foreground="{DynamicResource WarningBrush}"/>
           </StackPanel></Border>
         </StackPanel></ScrollViewer>
       </TabItem>

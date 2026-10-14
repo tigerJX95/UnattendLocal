@@ -16,6 +16,15 @@ public class UserEntry : Observable {
  private bool _NeedsPassword = false; public bool NeedsPassword {get=>_NeedsPassword;set=>Set(ref _NeedsPassword,value);}
 }
 public class InstallPlan : Observable {
+ private bool _EnableRemoteDesktop;public bool EnableRemoteDesktop {get=>_EnableRemoteDesktop;set=>Set(ref _EnableRemoteDesktop,value);}
+ private bool _AllowPowerShellScripts;public bool AllowPowerShellScripts {get=>_AllowPowerShellScripts;set=>Set(ref _AllowPowerShellScripts,value);}
+ private ObservableCollection<string> _RemovedApps=new();public ObservableCollection<string> RemovedApps {get=>_RemovedApps;set=>Set(ref _RemovedApps,value);}
+ private string _WallpaperImageScript="";public string WallpaperImageScript {get=>_WallpaperImageScript;set=>Set(ref _WallpaperImageScript,value);}
+ private string _LockScreenMode=ImageBackgroundSettings.LockDefault;public string LockScreenMode {get=>_LockScreenMode;set=>Set(ref _LockScreenMode,value);}
+ private string _LockScreenImageScript="";public string LockScreenImageScript {get=>_LockScreenImageScript;set=>Set(ref _LockScreenImageScript,value);}
+ private bool _DisableAutomaticRestartSignOn; public bool DisableAutomaticRestartSignOn {get=>_DisableAutomaticRestartSignOn;set=>Set(ref _DisableAutomaticRestartSignOn,value);}
+ private bool _PreventDeviceApps; public bool PreventDeviceApps {get=>_PreventDeviceApps;set=>Set(ref _PreventDeviceApps,value);}
+ private bool _DeleteWindowsOld; public bool DeleteWindowsOld {get=>_DeleteWindowsOld;set=>Set(ref _DeleteWindowsOld,value);}
  private string _CompactOsMode=CompactOsSettings.Default; public string CompactOsMode {get=>_CompactOsMode;set=>Set(ref _CompactOsMode,value);}
  private ImportedXml? _ImportedXml; public ImportedXml? ImportedXml {get=>_ImportedXml;set=>Set(ref _ImportedXml,value);}
  private bool _ConfirmImportedXmlRisk; public bool ConfirmImportedXmlRisk {get=>_ConfirmImportedXmlRisk;set=>Set(ref _ConfirmImportedXmlRisk,value);}
