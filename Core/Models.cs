@@ -16,6 +16,8 @@ public class UserEntry : Observable {
  private bool _NeedsPassword = false; public bool NeedsPassword {get=>_NeedsPassword;set=>Set(ref _NeedsPassword,value);}
 }
 public class InstallPlan : Observable {
+ private bool _DisableUac;public bool DisableUac {get=>_DisableUac;set=>Set(ref _DisableUac,value);}
+ private bool _DisableWpbt;public bool DisableWpbt {get=>_DisableWpbt;set=>Set(ref _DisableWpbt,value);}
  private string _ProcessAuditMode=ProcessAuditSettings.Default;public string ProcessAuditMode {get=>_ProcessAuditMode;set=>Set(ref _ProcessAuditMode,value);}
  private bool _PreventAutomaticReboot;public bool PreventAutomaticReboot {get=>_PreventAutomaticReboot;set=>Set(ref _PreventAutomaticReboot,value);}
  private bool _DisableLastAccess;public bool DisableLastAccess {get=>_DisableLastAccess;set=>Set(ref _DisableLastAccess,value);}

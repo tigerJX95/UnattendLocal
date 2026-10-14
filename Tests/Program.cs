@@ -936,8 +936,8 @@ Check(SameXml(Xml(p),Xml(oldAppearance)),"legacy complex appearance XML unchange
 p=Plan();p.WifiMode="预设 WPA2 Wi-Fi";p.Ssid="ImportWifi";p.WifiPassword="SecretWifi123";p.HiddenWifi=true;p.UseActivationKey=true;p.ActivationProductKey="AAAAA-BBBBB-CCCCC-DDDDD-EEEEE";
 var readWifi=XmlPlanImport.Import(WithoutSnapshot(Xml(p)),g);Check(readWifi.WifiMode=="预设 WPA2 Wi-Fi"&&readWifi.WifiPassword=="SecretWifi123"&&readWifi.HiddenWifi&&readWifi.UseActivationKey&&readWifi.ActivationProductKey==p.ActivationProductKey,"legacy Wi-Fi actual credentials and independent activation key restored");
 Check(SameXml(Xml(p),Xml(readWifi)),"legacy Wi-Fi roundtrip preserves XML content");
-var webXml=XmlMerge.Read(WithoutSnapshot(Xml(Plan())));webXml.DocumentElement!.PrependChild(webXml.CreateComment("https://schneegans.de/windows/unattend-generator/?EffectsMode=Custom&FontSmoothing=true&DisableUac=true&AccountPassword0=do-not-show-this&WallpaperMode=Default"));
-var webPlan=XmlPlanImport.Import(webXml.OuterXml,g);Check(webPlan.ImportedXml!.Notices.Any(n=>n.Contains("DisableUac"))&&webPlan.ImportedXml.Notices.All(n=>!n.Contains("do-not-show-this")),"website unimplemented parameters identified by name only");
+var webXml=XmlMerge.Read(WithoutSnapshot(Xml(Plan())));webXml.DocumentElement!.PrependChild(webXml.CreateComment("https://schneegans.de/windows/unattend-generator/?EffectsMode=Custom&FontSmoothing=true&DisableSac=true&AccountPassword0=do-not-show-this&WallpaperMode=Default"));
+var webPlan=XmlPlanImport.Import(webXml.OuterXml,g);Check(webPlan.ImportedXml!.Notices.Any(n=>n.Contains("DisableSac"))&&webPlan.ImportedXml.Notices.All(n=>!n.Contains("do-not-show-this")),"website unimplemented parameters identified by name only");
 Check(!GeneratorService.Preview(Encoding.UTF8.GetBytes(webXml.OuterXml)).Contains("do-not-show-this"),"preview removes website URL comment credentials");
 Check(!Xml(webPlan).Contains("do-not-show-this"),"export removes stale website parameter comment");
 var peSource=XmlMerge.Read(WithoutSnapshot(Xml(Plan())));var peNs=new XmlNamespaceManager(peSource.NameTable);peNs.AddNamespace("u",XmlMerge.Namespace);var peSetup=(XmlElement)peSource.SelectSingleNode("//u:settings[@pass='windowsPE']/u:component[@name='Microsoft-Windows-Setup']",peNs)!;
@@ -949,10 +949,10 @@ var importAssembly=System.Reflection.Assembly.GetExecutingAssembly();var fixture
 using(var fixtureStream=importAssembly.GetManifestResourceStream(fixtureName)!)using(var fixtureReader=new StreamReader(fixtureStream)){
  var officialXml=fixtureReader.ReadToEnd();var officialPlan=XmlPlanImport.Import(officialXml,g);
  Check(officialPlan.Users.Single().Name=="ImportFixture"&&officialPlan.Users.Single().Password=="FixtureOnly123"&&officialPlan.EnableLongPaths,"official website XML fixture restores actual fields");
- Check(officialPlan.ImportedXml!.Notices.Any(n=>n.Contains("DisableUac"))&&officialPlan.ImportedXml.Blockers.Length==0,"official unimplemented UAC setting is reported and retained");
- Check(SameXml(officialXml,Xml(officialPlan)),"official website XML unchanged roundtrip preserves unknown UAC command");
+ Check(officialPlan.DisableUac&&officialPlan.ImportedXml!.Blockers.Length==0,"official native UAC setting is restored and retained");
+ Check(SameXml(officialXml,Xml(officialPlan)),"official website XML unchanged roundtrip preserves native UAC command");
  officialPlan.ComputerName="OfficialEdit";var officialEdited=Xml(officialPlan);
- Check(officialEdited.Contains("OfficialEdit")&&DecodedXml(officialEdited).Contains("EnableLUA")&&DecodedXml(officialEdited).Contains("LongPathsEnabled"),"official XML supported edit retains unimplemented protection command");
+ Check(officialEdited.Contains("OfficialEdit")&&DecodedXml(officialEdited).Contains("EnableLUA")&&DecodedXml(officialEdited).Contains("LongPathsEnabled"),"official XML supported edit retains native protection command");
 }
 Check(!SameXml("<unattend xmlns='urn:schemas-microsoft-com:unattend'><A><B><C/><D/></B></A></unattend>","<unattend xmlns='urn:schemas-microsoft-com:unattend'><A><B><C/></B><D/></A></unattend>"),"XML integrity distinguishes different parent relationships");
 
@@ -1372,6 +1372,53 @@ foreach(bool nativeLine03 in new[]{false,true}){
  var nativePlan03=XmlPlanImport.Import(nativeAudit03,g);
  Check(nativePlan03.ProcessAuditMode==(nativeLine03?ProcessAuditSettings.WithCommandLine:ProcessAuditSettings.Enabled)&&SameXml(nativeAudit03,Xml(nativePlan03)),"unmodified upstream audit XML recognizes and roundtrips without app metadata");nativePlan03.ProcessAuditMode=ProcessAuditSettings.Default;Check(!DecodedXml(Xml(nativePlan03)).Contains(ProcessAuditSettings.AuditCommand),"native upstream audit can be canceled");
 }
-Console.WriteLine($"Final V0.3 total: {count} tests passed.");
+// V0.5: conservative UAC/WPBT opt-ins and native compatibility.
+p=Plan();Check(!p.DisableUac&&!p.DisableWpbt&&!DecodedXml(Xml(p)).Contains("EnableLUA")&&!DecodedXml(Xml(p)).Contains("DisableWpbtExecution"),"V0.5 defaults retain Windows protection policies");
+foreach(var arch04 in new[]{"amd64","arm64","x86"})
+foreach(bool uac04 in new[]{false,true})
+foreach(bool wpbt04 in new[]{false,true})
+foreach(bool hidden04 in new[]{false,true}){
+ p=Plan();p.Architecture=arch04;p.DisableUac=uac04;p.DisableWpbt=wpbt04;p.HidePowerShellWindows=hidden04;
+ var xml04=Xml(p);var state04=ProtectionSettings.Inspect(XmlMerge.Read(xml04));
+ Check(state04[nameof(InstallPlan.DisableUac)].Enabled==uac04&&state04[nameof(InstallPlan.DisableWpbt)].Enabled==wpbt04&&state04.Values.All(s=>!s.Ambiguous),"native protection payloads recognized across options/architecture/window styles");
+ Check(DecodedXml(xml04).Contains(ProtectionSettings.Items[0].Command)==uac04&&DecodedXml(xml04).Contains(ProtectionSettings.Items[1].Command)==wpbt04,"both protection options independently emit exact original commands");
+ foreach(bool metadata04 in new[]{false,true}){
+  var input04=metadata04?xml04:WithoutSnapshot(xml04);var imported04=XmlPlanImport.Import(input04,g);
+  Check(imported04.DisableUac==uac04&&imported04.DisableWpbt==wpbt04&&SameXml(input04,Xml(imported04)),"protection choices restored from XML with/without app metadata");
+  imported04.DisableUac=!uac04;imported04.DisableWpbt=!wpbt04;var changed04=XmlPlanImport.Import(Xml(imported04),g);
+  Check(changed04.DisableUac==!uac04&&changed04.DisableWpbt==!wpbt04,"imported protection choices can be independently added/canceled");
+ }
+ foreach(bool credentials04 in new[]{false,true}){var loaded04=PlanStore.Deserialize(PlanStore.Serialize(p,credentials04));Check(loaded04.DisableUac==uac04&&loaded04.DisableWpbt==wpbt04,"protection choices survive both JSON credential modes");}
+}
+p=Plan();p.DisableUac=true;p.DisableWpbt=true;var original04=Xml(p);
+foreach(var item04 in ProtectionSettings.Items){
+ var altered04=original04.Replace(item04.Command.Replace("\"","&quot;"),item04.Command.Replace("/d 0","/d 1").Replace("/d 1","/d 2").Replace("\"","&quot;"));
+ var alterationDoc04=XmlMerge.Read(original04);var stage04=alterationDoc04.SelectNodes("//*[local-name()='File']")!.Cast<XmlElement>().Single(f=>f.GetAttribute("path").EndsWith("Specialize.ps1"));stage04.InnerText=stage04.InnerText.Replace(item04.Command,item04.Command.Replace("/d 0","/d 2").Replace("/d 1","/d 2"));altered04=alterationDoc04.OuterXml;
+ var duplicate04=XmlMerge.Read(original04);stage04=duplicate04.SelectNodes("//*[local-name()='File']")!.Cast<XmlElement>().Single(f=>f.GetAttribute("path").EndsWith("Specialize.ps1"));stage04.InnerText=stage04.InnerText.Replace(item04.Command,item04.Command+"\n\t\t"+item04.Command);
+ var conditional04=XmlMerge.Read(original04);stage04=conditional04.SelectNodes("//*[local-name()='File']")!.Cast<XmlElement>().Single(f=>f.GetAttribute("path").EndsWith("Specialize.ps1"));stage04.InnerText=stage04.InnerText.Replace(item04.Command,"if ($false) { "+item04.Command+" }");
+ foreach(var input04 in new[]{altered04,duplicate04.OuterXml,conditional04.OuterXml}){
+  var parsed04=XmlPlanImport.Import(input04,g);
+  Check(!(bool)typeof(InstallPlan).GetProperty(item04.Property)!.GetValue(parsed04)!&&SameXml(input04,Xml(parsed04)),"altered/duplicate/conditional protection command retained without claiming an opt-in");
+  typeof(InstallPlan).GetProperty(item04.Property)!.SetValue(parsed04,true);Reject(parsed04,"unknown protection payload cannot be overlaid");
+ }
+}
+var uncalled04=XmlMerge.Read(original04);foreach(XmlElement path04 in uncalled04.SelectNodes("//*[local-name()='Path']")!)if(path04.InnerText.Contains("-File")&&path04.InnerText.Contains("Specialize.ps1"))path04.InnerText=path04.InnerText.Replace("Specialize.ps1","Uncalled.ps1");
+var noExtract04=XmlMerge.Read(original04);noExtract04.SelectSingleNode("//*[local-name()='ExtractScript']")!.InnerText="Write-Output 'no extraction';";
+foreach(var inactive04 in new[]{uncalled04.OuterXml,noExtract04.OuterXml}){
+ var loaded04=XmlPlanImport.Import(inactive04,g);Check(!loaded04.DisableUac&&!loaded04.DisableWpbt&&SameXml(inactive04,Xml(loaded04)),"inactive protection pipeline preserved");loaded04.DisableUac=true;Reject(loaded04,"inactive pipeline blocks UAC overlay");loaded04.DisableUac=false;loaded04.DisableWpbt=true;Reject(loaded04,"inactive pipeline blocks WPBT overlay");
+}
+var foreign04=XmlMerge.Read(original04);var ext04=foreign04.SelectSingleNode("//*[local-name()='Extensions']")!;ext04.AppendChild(foreign04.CreateComment("preserve foreign protection content"));var f04=foreign04.CreateElement("File",ext04.NamespaceURI);f04.SetAttribute("path",@"C:\Windows\Setup\Scripts\Private04.ps1");f04.InnerText="Write-Output 'keep private script';";ext04.AppendChild(f04);
+var cancel04=XmlPlanImport.Import(foreign04.OuterXml,g);cancel04.DisableUac=false;cancel04.DisableWpbt=false;var canceled04=Xml(cancel04);Check(canceled04.Contains("preserve foreign protection content")&&canceled04.Contains("keep private script")&&!DecodedXml(canceled04).Contains("EnableLUA")&&!DecodedXml(canceled04).Contains("DisableWpbtExecution"),"canceling native protection options keeps unknown XML content");
+var old04=XmlPlanImport.Import(original04,g);old04.DisableUac=false;old04.DisableWpbt=false;var oldBaseline04=PlanStore.Deserialize(PlanStore.Serialize(old04,true));oldBaseline04.ImportedXml=null;old04.ImportedXml!.BaselineXml=Encoding.UTF8.GetString(g.GenerateStandalone(oldBaseline04));old04.ComputerName="PENDING04";old04.ImportedXml.Notices=old04.ImportedXml.Notices.Append("界面尚未实现或无法完整还原的生成参数：DisableUac；原 XML 保留。").ToArray();
+var oldJson04=System.Text.Json.Nodes.JsonNode.Parse(PlanStore.Serialize(old04,true))!.AsObject();oldJson04.Remove(nameof(InstallPlan.DisableUac));oldJson04.Remove(nameof(InstallPlan.DisableWpbt));var migrated04=PlanStore.Deserialize(oldJson04.ToJsonString());
+Check(migrated04.DisableUac&&migrated04.DisableWpbt&&migrated04.ComputerName=="PENDING04"&&migrated04.ImportedXml!.Blockers.Length==0&&!migrated04.ImportedXml.Notices.Any(n=>n.Contains("生成参数：DisableUac；")),"old imported JSON migrates protection state and removes only stale supported-parameter notice");
+Check(Node(Xml(migrated04),"//u:ComputerName")=="PENDING04"&&XmlPlanImport.Import(Xml(migrated04),g).DisableUac,"protection migration retains pending edits and valid baseline");migrated04.DisableUac=false;migrated04.DisableWpbt=false;var explicitFalse04=PlanStore.Deserialize(PlanStore.Serialize(migrated04,true));Check(!explicitFalse04.DisableUac&&!explicitFalse04.DisableWpbt&&!DecodedXml(Xml(explicitFalse04)).Contains("EnableLUA"),"explicit saved false protection choices are preserved");
+p=Plan();Recommendations.Apply(p,"wired");p.DisableUac=true;p.DisableWpbt=true;Check(Recommendations.Differences(p).Any(d=>d.Property==nameof(InstallPlan.DisableUac))&&Recommendations.Differences(p).Any(d=>d.Property==nameof(InstallPlan.DisableWpbt)),"protection settings appear in recommendation differences");Recommendations.SelectNetworkScene(p,"wifi");Check(p.DisableUac&&p.DisableWpbt,"network scene does not alter protection choices");Recommendations.Restore(p,nameof(InstallPlan.DisableUac));Check(!p.DisableUac&&p.DisableWpbt,"single UAC restore retains WPBT choice");Recommendations.Apply(p,"wired");Check(!p.DisableUac&&!p.DisableWpbt,"full recommendation returns both protection opt-ins to defaults");
+viewModel.Plan=Plan();viewModel.Preview="stale04";viewModel.Plan.DisableUac=true;viewModel.Plan.DisableWpbt=true;Check(viewModel.Preview!="stale04"&&viewModel.ConfigurationSummary.Contains("UAC）：关闭")&&viewModel.ConfigurationSummary.Contains("WPBT 固件程序：阻止")&&viewModel.HelpTips["uac"].Body.StartsWith("当前：关闭")&&viewModel.HelpTips["wpbt"].Body.StartsWith("当前：阻止"),"protection opt-ins refresh summary/help and invalidate preview");
+foreach(bool uac04 in new[]{false,true})foreach(bool wpbt04 in new[]{false,true}){
+ var native04=new Schneegans.Unattend.UnattendGenerator().GenerateXml(Schneegans.Unattend.Configuration.Default with{DisableUac=uac04,DisableWpbt=wpbt04}).OuterXml;var loaded04=XmlPlanImport.Import(native04,g);Check(loaded04.DisableUac==uac04&&loaded04.DisableWpbt==wpbt04&&SameXml(native04,Xml(loaded04)),"native upstream protection XML recognizes and roundtrips without app metadata");
+}
+Console.WriteLine($"Final V0.5 total: {count} tests passed.");
+
 
 

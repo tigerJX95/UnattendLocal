@@ -27,6 +27,7 @@ public static class PlanStore {
    AdvancedSystemSettings.NormalizeLoaded(p,document.RootElement);
    SystemMaintenanceSettings.NormalizeLoaded(p,document.RootElement);
    ProcessAuditSettings.NormalizeLoaded(p,document.RootElement);
+   ProtectionSettings.NormalizeLoaded(p,document.RootElement);
   }
   p.ClearDiskConsent();
   return p;
