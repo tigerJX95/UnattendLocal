@@ -1,4 +1,4 @@
-<Window xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:local="clr-namespace:UnattendLocal.Desktop" xmlns:core="clr-namespace:UnattendLocal.Core;assembly=Core" x:Class="UnattendLocal.Desktop.MainWindow" Icon="Assets/App.ico" Title="Windows 无人值守配置工具 · V0.5" Width="1060" Height="780" MinWidth="850" MinHeight="620" Background="{DynamicResource CanvasBrush}" Foreground="{DynamicResource ForegroundBrush}" FontFamily="Microsoft YaHei UI" FontSize="14">
+<Window xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:local="clr-namespace:UnattendLocal.Desktop" xmlns:core="clr-namespace:UnattendLocal.Core;assembly=Core" x:Class="UnattendLocal.Desktop.MainWindow" Icon="Assets/App.ico" Title="Windows 无人值守配置工具 · V0.6" Width="1060" Height="780" MinWidth="850" MinHeight="620" Background="{DynamicResource CanvasBrush}" Foreground="{DynamicResource ForegroundBrush}" FontFamily="Microsoft YaHei UI" FontSize="14">
   <DockPanel>
     <Border DockPanel.Dock="Top" Background="{DynamicResource SurfaceBrush}" Padding="24,16">
       <DockPanel>
@@ -619,6 +619,19 @@
                 <TextBlock Style="{StaticResource ExplanationText}" Text="　　新建推荐与自定义配置默认勾选，阻止 Windows 自动启用设备加密。取消后遵循 Windows 默认行为；已有加密卷不会因此解密，安装后仍可手动配置 BitLocker。" TextWrapping="Wrap" Foreground="{DynamicResource SecondaryBrush}" />
               </StackPanel>
             </Border>
+            <Border Style="{StaticResource Card}"><StackPanel>
+              <TextBlock Text="虚拟机集成工具" FontSize="20" FontWeight="SemiBold" Margin="0,0,0,16"/>
+              <TextBlock Style="{StaticResource ExplanationText}" Text="　　按目标虚拟机平台选择，默认均不勾选。安装前挂载对应的官方工具介质，确保安装器与目标 Windows 及架构兼容；本工具不附带安装器，也不联网下载。" Foreground="{DynamicResource SecondaryBrush}"/>
+              <CheckBox Content="安装 VMware Tools" IsChecked="{Binding Plan.VMwareTools}" Margin="0,10,0,0" ToolTip="{Binding DataContext.HelpTips[vmwaretools],RelativeSource={RelativeSource AncestorType=Window}}"/>
+              <TextBlock Style="{StaticResource ExplanationText}" Text="　　从已挂载的 VMware Tools 光盘查找产品名为 VMware Tools 的 setup.exe，在全机首次登录阶段静默安装。" Foreground="{DynamicResource SecondaryBrush}"/>
+              <CheckBox Content="安装 VirtualBox 增强功能" IsChecked="{Binding Plan.VBoxGuestAdditions}" Margin="0,14,0,0" ToolTip="{Binding DataContext.HelpTips[vboxtools],RelativeSource={RelativeSource AncestorType=Window}}"/>
+              <TextBlock Style="{StaticResource ExplanationText}" Text="　　挂载 VBoxGuestAdditions.iso；从光盘导入工具证书并运行 VBoxWindowsAdditions.exe 静默安装。" Foreground="{DynamicResource SecondaryBrush}"/>
+              <CheckBox Content="安装 VirtIO Guest Tools（KVM / QEMU）" IsChecked="{Binding Plan.VirtIoGuestTools}" Margin="0,14,0,0" ToolTip="{Binding DataContext.HelpTips[virtiotools],RelativeSource={RelativeSource AncestorType=Window}}"/>
+              <TextBlock Style="{StaticResource ExplanationText}" Text="　　挂载 virtio-win 工具介质，在全机首次登录阶段运行 virtio-win-guest-tools.exe。此项不替代 Windows PE 阶段需要的存储或网络驱动。" Foreground="{DynamicResource SecondaryBrush}"/>
+              <CheckBox Content="安装 Parallels Tools" IsChecked="{Binding Plan.ParallelsTools}" Margin="0,14,0,0" ToolTip="{Binding DataContext.HelpTips[parallelstools],RelativeSource={RelativeSource AncestorType=Window}}"/>
+              <TextBlock Style="{StaticResource ExplanationText}" Text="　　挂载 Parallels Tools 光盘，从光盘运行 PTAgent.exe 静默安装；部分集成功能可能需要重启。" Foreground="{DynamicResource SecondaryBrush}"/>
+              <TextBlock Style="{StaticResource ExplanationText}" Text="　　仅在目标安装过程中执行，不修改当前电脑。未找到介质时，安装脚本输出提示而不安装；取消只影响新生成配置，不卸载已安装工具。" Foreground="{DynamicResource SecondaryBrush}"/>
+            </StackPanel></Border>
             <Border Style="{StaticResource Card}"><StackPanel>
               <TextBlock Text="权限与固件程序（高级）" FontSize="20" FontWeight="SemiBold" Margin="0,0,0,16"/>
               <CheckBox Content="关闭用户账户控制（UAC）" IsChecked="{Binding Plan.DisableUac}" ToolTip="{Binding DataContext.HelpTips[uac],RelativeSource={RelativeSource AncestorType=Window}}"/>

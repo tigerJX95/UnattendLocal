@@ -50,6 +50,7 @@ public class GeneratorService {
    Bloatwares=AppRemovalSettings.Build(generator,p),
    ProcessAuditSettings=ProcessAuditSettings.Build(p),
    DisableUac=p.DisableUac,DisableWpbt=p.DisableWpbt,
+   VMwareTools=p.VMwareTools,VBoxGuestAdditions=p.VBoxGuestAdditions,VirtIoGuestTools=p.VirtIoGuestTools,ParallelsTools=p.ParallelsTools,
    EnableRemoteDesktop=p.EnableRemoteDesktop,AllowPowerShellScripts=p.AllowPowerShellScripts,
    PreventAutomaticReboot=p.PreventAutomaticReboot,DisableLastAccess=p.DisableLastAccess,
    ActivationKey=p.UseActivationKey?ValidateProductKey(p.ActivationProductKey,"单独指定的激活密钥"):null,

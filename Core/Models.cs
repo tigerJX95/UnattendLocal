@@ -16,6 +16,10 @@ public class UserEntry : Observable {
  private bool _NeedsPassword = false; public bool NeedsPassword {get=>_NeedsPassword;set=>Set(ref _NeedsPassword,value);}
 }
 public class InstallPlan : Observable {
+ private bool _VMwareTools;public bool VMwareTools {get=>_VMwareTools;set=>Set(ref _VMwareTools,value);}
+ private bool _VBoxGuestAdditions;public bool VBoxGuestAdditions {get=>_VBoxGuestAdditions;set=>Set(ref _VBoxGuestAdditions,value);}
+ private bool _VirtIoGuestTools;public bool VirtIoGuestTools {get=>_VirtIoGuestTools;set=>Set(ref _VirtIoGuestTools,value);}
+ private bool _ParallelsTools;public bool ParallelsTools {get=>_ParallelsTools;set=>Set(ref _ParallelsTools,value);}
  private bool _DisableUac;public bool DisableUac {get=>_DisableUac;set=>Set(ref _DisableUac,value);}
  private bool _DisableWpbt;public bool DisableWpbt {get=>_DisableWpbt;set=>Set(ref _DisableWpbt,value);}
  private string _ProcessAuditMode=ProcessAuditSettings.Default;public string ProcessAuditMode {get=>_ProcessAuditMode;set=>Set(ref _ProcessAuditMode,value);}

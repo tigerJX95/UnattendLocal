@@ -1418,7 +1418,75 @@ viewModel.Plan=Plan();viewModel.Preview="stale04";viewModel.Plan.DisableUac=true
 foreach(bool uac04 in new[]{false,true})foreach(bool wpbt04 in new[]{false,true}){
  var native04=new Schneegans.Unattend.UnattendGenerator().GenerateXml(Schneegans.Unattend.Configuration.Default with{DisableUac=uac04,DisableWpbt=wpbt04}).OuterXml;var loaded04=XmlPlanImport.Import(native04,g);Check(loaded04.DisableUac==uac04&&loaded04.DisableWpbt==wpbt04&&SameXml(native04,Xml(loaded04)),"native upstream protection XML recognizes and roundtrips without app metadata");
 }
-Console.WriteLine($"Final V0.5 total: {count} tests passed.");
+// V0.6: four native VM guest tool installers. Tests do not execute installers.
+p=Plan();Check(VmGuestToolsSettings.Items.All(i=>!VmGuestToolsSettings.Selected(p,i)),"V0.6 all four VM tools default off");
+Check(VmGuestToolsSettings.Items.All(i=>!DecodedXml(Xml(p)).Contains(i.Resource)),"V0.6 default XML does not include guest installers");
+foreach(var arch06 in new[]{"amd64","arm64","x86"})
+foreach(int mask06 in Enumerable.Range(0,16)){
+ p=Plan();p.Architecture=arch06;p.HidePowerShellWindows=(mask06%2)==0;
+ for(int bit06=0;bit06<4;bit06++)typeof(InstallPlan).GetProperty(VmGuestToolsSettings.Items[bit06].Property)!.SetValue(p,(mask06&(1<<bit06))!=0);
+ var xml06=Xml(p);var doc06=XmlMerge.Read(xml06);var states06=VmGuestToolsSettings.Inspect(doc06);
+ foreach(var item06 in VmGuestToolsSettings.Items){
+  bool selected06=VmGuestToolsSettings.Selected(p,item06);
+  Check(states06[item06.Property].Enabled==selected06&&!states06[item06.Property].Ambiguous,"native guest tool option recognized: "+arch06+mask06+item06.Property);
+  var resources06=doc06.SelectNodes("//*[local-name()='File']")!.Cast<XmlElement>().Where(f=>f.GetAttribute("path").EndsWith(item06.Resource,StringComparison.Ordinal)).ToArray();
+  Check(resources06.Length==(selected06?1:0),"tool selection independently embeds native helper");
+ }
+ foreach(bool metadata06 in new[]{false,true}){
+  var input06=metadata06?xml06:WithoutSnapshot(xml06);var loaded06=XmlPlanImport.Import(input06,g);
+  Check(VmGuestToolsSettings.Items.All(i=>VmGuestToolsSettings.Selected(loaded06,i)==VmGuestToolsSettings.Selected(p,i))&&SameXml(input06,Xml(loaded06)),"VM tool XML with/without app metadata roundtrips and restores all flags");
+  foreach(var item06 in VmGuestToolsSettings.Items)typeof(InstallPlan).GetProperty(item06.Property)!.SetValue(loaded06,!VmGuestToolsSettings.Selected(p,item06));
+  var switched06=XmlPlanImport.Import(Xml(loaded06),g);
+  Check(VmGuestToolsSettings.Items.All(i=>VmGuestToolsSettings.Selected(switched06,i)!=VmGuestToolsSettings.Selected(p,i)),"all imported tool choices can add/cancel without changing other source content");
+ }
+ foreach(bool credentials06 in new[]{false,true}){
+  var json06=PlanStore.Deserialize(PlanStore.Serialize(p,credentials06));Check(VmGuestToolsSettings.Items.All(i=>VmGuestToolsSettings.Selected(json06,i)==VmGuestToolsSettings.Selected(p,i)),"four tool flags survive both JSON credential modes");
+ }
+}
+p=Plan();foreach(var item06 in VmGuestToolsSettings.Items)typeof(InstallPlan).GetProperty(item06.Property)!.SetValue(p,true);var allTools06=Xml(p);
+XmlDocument ToolsDoc06()=>XmlMerge.Read(allTools06);
+foreach(var item06 in VmGuestToolsSettings.Items){
+ var changedHelper06=ToolsDoc06();var helper06=changedHelper06.SelectNodes("//*[local-name()='File']")!.Cast<XmlElement>().Single(f=>f.GetAttribute("path").EndsWith(item06.Resource));helper06.InnerText+="\nWrite-Output 'custom installer change';";
+ var missingHelper06=ToolsDoc06();helper06=missingHelper06.SelectNodes("//*[local-name()='File']")!.Cast<XmlElement>().Single(f=>f.GetAttribute("path").EndsWith(item06.Resource));helper06.ParentNode!.RemoveChild(helper06);
+ var duplicateHelper06=ToolsDoc06();helper06=duplicateHelper06.SelectNodes("//*[local-name()='File']")!.Cast<XmlElement>().Single(f=>f.GetAttribute("path").EndsWith(item06.Resource));helper06.ParentNode!.AppendChild(helper06.CloneNode(true));
+ var noCall06=ToolsDoc06();var stage06=noCall06.SelectNodes("//*[local-name()='File']")!.Cast<XmlElement>().Single(f=>f.GetAttribute("path").EndsWith("FirstLogon.ps1"));string call06="& 'C:\\Windows\\Setup\\Scripts\\"+item06.Resource+"';";stage06.InnerText=stage06.InnerText.Replace(call06,"Write-Output 'installer not called';");
+ var conditional06=ToolsDoc06();stage06=conditional06.SelectNodes("//*[local-name()='File']")!.Cast<XmlElement>().Single(f=>f.GetAttribute("path").EndsWith("FirstLogon.ps1"));stage06.InnerText=stage06.InnerText.Replace(call06,"if ($false) { "+call06+" }");
+ var duplicateCall06=ToolsDoc06();stage06=duplicateCall06.SelectNodes("//*[local-name()='File']")!.Cast<XmlElement>().Single(f=>f.GetAttribute("path").EndsWith("FirstLogon.ps1"));stage06.InnerText=stage06.InnerText.Replace(call06,call06+"\n\t\t"+call06);
+ var wrongStage06=ToolsDoc06();stage06=wrongStage06.SelectNodes("//*[local-name()='File']")!.Cast<XmlElement>().Single(f=>f.GetAttribute("path").EndsWith("FirstLogon.ps1"));stage06.InnerText=stage06.InnerText.Replace(call06,"Write-Output 'moved installer';");var foreignStage06=wrongStage06.CreateElement("File",stage06.NamespaceURI);foreignStage06.SetAttribute("path",@"C:\Windows\Setup\Scripts\OtherStage06.ps1");foreignStage06.InnerText=call06;stage06.ParentNode!.AppendChild(foreignStage06);
+ foreach(var inputDoc06 in new[]{changedHelper06,missingHelper06,duplicateHelper06,noCall06,conditional06,duplicateCall06,wrongStage06}){
+  var loaded06=XmlPlanImport.Import(inputDoc06.OuterXml,g);
+  Check(!VmGuestToolsSettings.Selected(loaded06,item06)&&SameXml(inputDoc06.OuterXml,Xml(loaded06)),"modified/missing/duplicate/inactive tool payload preserved: "+item06.Property);
+  Check(VmGuestToolsSettings.Items.Where(i=>i.Property!=item06.Property).All(i=>VmGuestToolsSettings.Selected(loaded06,i)),"one ambiguous tool does not hide the other valid selections");
+  typeof(InstallPlan).GetProperty(item06.Property)!.SetValue(loaded06,true);Reject(loaded06,"ambiguous guest installer cannot be overlaid");
+ }
+ // Cancel a single valid tool while retaining all other valid installer helpers.
+ var cancelOne06=XmlPlanImport.Import(allTools06,g);typeof(InstallPlan).GetProperty(item06.Property)!.SetValue(cancelOne06,false);var canceledOne06=XmlPlanImport.Import(Xml(cancelOne06),g);
+ Check(!VmGuestToolsSettings.Selected(canceledOne06,item06)&&VmGuestToolsSettings.Items.Where(i=>i.Property!=item06.Property).All(i=>VmGuestToolsSettings.Selected(canceledOne06,i)),"canceling one tool preserves all others");
+}
+var noExtractTools06=ToolsDoc06();noExtractTools06.SelectSingleNode("//*[local-name()='ExtractScript']")!.InnerText="Write-Output 'no extraction';";
+var uncalledTools06=ToolsDoc06();foreach(XmlElement path06 in uncalledTools06.SelectNodes("//*[local-name()='CommandLine']")!)if(path06.InnerText.Contains("-File")&&path06.InnerText.Contains("FirstLogon.ps1"))path06.InnerText=path06.InnerText.Replace("FirstLogon.ps1","Uncalled.ps1");
+var duplicateInvocation06=ToolsDoc06();var invoke06=duplicateInvocation06.SelectNodes("//*[local-name()='SynchronousCommand']")!.Cast<XmlElement>().Single(n=>n.SelectNodes("*[local-name()='CommandLine']")!.Cast<XmlElement>().Any(c=>c.InnerText.Contains("-File")&&c.InnerText.Contains("FirstLogon.ps1")));var invokeCopy06=invoke06.CloneNode(true);invokeCopy06.SelectSingleNode("*[local-name()='Order']")!.InnerText="999";invoke06.ParentNode!.AppendChild(invokeCopy06);
+foreach(var inputDoc06 in new[]{noExtractTools06,uncalledTools06,duplicateInvocation06}){
+ var loaded06=XmlPlanImport.Import(inputDoc06.OuterXml,g);Check(VmGuestToolsSettings.Items.All(i=>!VmGuestToolsSettings.Selected(loaded06,i))&&SameXml(inputDoc06.OuterXml,Xml(loaded06)),"inactive/duplicate native pipeline retains all guest payloads unrepresented");
+ foreach(var item06 in VmGuestToolsSettings.Items){typeof(InstallPlan).GetProperty(item06.Property)!.SetValue(loaded06,true);Reject(loaded06,"inactive pipeline blocks guest tool opt-in");typeof(InstallPlan).GetProperty(item06.Property)!.SetValue(loaded06,false);}
+}
+var extrasTools06=ToolsDoc06();var toolsExt06=extrasTools06.SelectSingleNode("//*[local-name()='Extensions']")!;toolsExt06.AppendChild(extrasTools06.CreateComment("retain unrelated VM configuration"));var toolsOther06=extrasTools06.CreateElement("File",toolsExt06.NamespaceURI);toolsOther06.SetAttribute("path",@"C:\Windows\Setup\Scripts\PrivateGuest06.ps1");toolsOther06.InnerText="Write-Output 'retain custom guest payload';";toolsExt06.AppendChild(toolsOther06);
+var cancelAll06=XmlPlanImport.Import(extrasTools06.OuterXml,g);foreach(var item06 in VmGuestToolsSettings.Items)typeof(InstallPlan).GetProperty(item06.Property)!.SetValue(cancelAll06,false);var canceledAll06=Xml(cancelAll06);Check(canceledAll06.Contains("retain unrelated VM configuration")&&canceledAll06.Contains("retain custom guest payload")&&VmGuestToolsSettings.Items.All(i=>!DecodedXml(canceledAll06).Contains(i.Resource)),"canceling all native tools preserves unknown comments/files");
+var legacyTools06=XmlPlanImport.Import(allTools06,g);foreach(var item06 in VmGuestToolsSettings.Items)typeof(InstallPlan).GetProperty(item06.Property)!.SetValue(legacyTools06,false);var legacyBaseline06=PlanStore.Deserialize(PlanStore.Serialize(legacyTools06,true));legacyBaseline06.ImportedXml=null;legacyTools06.ImportedXml!.BaselineXml=Encoding.UTF8.GetString(g.GenerateStandalone(legacyBaseline06));legacyTools06.ComputerName="PENDING06";var legacyJson06=System.Text.Json.Nodes.JsonNode.Parse(PlanStore.Serialize(legacyTools06,true))!.AsObject();foreach(var item06 in VmGuestToolsSettings.Items)legacyJson06.Remove(item06.Property);var migratedTools06=PlanStore.Deserialize(legacyJson06.ToJsonString());
+Check(VmGuestToolsSettings.Items.All(i=>VmGuestToolsSettings.Selected(migratedTools06,i))&&migratedTools06.ComputerName=="PENDING06"&&migratedTools06.ImportedXml!.Blockers.Length==0,"old imported JSON migrates actual guest tool selections and retains pending edits");
+Check(Node(Xml(migratedTools06),"//u:ComputerName")=="PENDING06"&&VmGuestToolsSettings.Items.All(i=>VmGuestToolsSettings.Selected(XmlPlanImport.Import(Xml(migratedTools06),g),i)),"migrated guest baseline remains exportable");foreach(var item06 in VmGuestToolsSettings.Items)typeof(InstallPlan).GetProperty(item06.Property)!.SetValue(migratedTools06,false);var explicitToolsOff06=PlanStore.Deserialize(PlanStore.Serialize(migratedTools06,true));Check(VmGuestToolsSettings.Items.All(i=>!VmGuestToolsSettings.Selected(explicitToolsOff06,i)),"explicit saved guest tool cancellations are not overwritten");
+p=Plan();Recommendations.Apply(p,"wired");foreach(var item06 in VmGuestToolsSettings.Items)typeof(InstallPlan).GetProperty(item06.Property)!.SetValue(p,true);Check(VmGuestToolsSettings.Items.All(i=>Recommendations.Differences(p).Any(d=>d.Property==i.Property)),"all four tools appear in recommendation differences");Recommendations.SelectNetworkScene(p,"wifi");Check(VmGuestToolsSettings.Items.All(i=>VmGuestToolsSettings.Selected(p,i)),"network scene preserves guest choices");Recommendations.Restore(p,nameof(InstallPlan.VMwareTools));Check(!p.VMwareTools&&p.VBoxGuestAdditions&&p.VirtIoGuestTools&&p.ParallelsTools,"individual guest restore is independent");Recommendations.Apply(p,"wired");Check(VmGuestToolsSettings.Items.All(i=>!VmGuestToolsSettings.Selected(p,i)),"full recommendation restore clears guest tool opt-ins");
+viewModel.Plan=Plan();viewModel.Preview="stale06";viewModel.Plan.VMwareTools=true;viewModel.Plan.VirtIoGuestTools=true;Check(viewModel.Preview!="stale06"&&viewModel.ConfigurationSummary.Contains("VMware Tools")&&viewModel.ConfigurationSummary.Contains("VirtIO Guest Tools")&&viewModel.HelpTips["vmwaretools"].Body.StartsWith("当前：安装")&&viewModel.HelpTips["virtiotools"].Body.Contains("Windows PE"),"guest changes refresh summary/help and invalidate preview");
+foreach(bool hidden06 in new[]{false,true}){
+ var native06=new Schneegans.Unattend.UnattendGenerator().GenerateXml(Schneegans.Unattend.Configuration.Default with{VMwareTools=true,VBoxGuestAdditions=true,VirtIoGuestTools=true,ParallelsTools=true,HidePowerShellWindows=hidden06}).OuterXml;var loaded06=XmlPlanImport.Import(native06,g);
+ Check(VmGuestToolsSettings.Items.All(i=>VmGuestToolsSettings.Selected(loaded06,i))&&SameXml(native06,Xml(loaded06)),"unmodified upstream guest-tool XML imports without app metadata");
+}
+foreach(var mode06 in new[]{"安装时创建本地账户","安装时添加微软账户"}){p=Plan();p.AccountMode=mode06;p.BypassNetwork=false;p.VMwareTools=true;p.VBoxGuestAdditions=true;p.VirtIoGuestTools=true;p.ParallelsTools=true;Check(VmGuestToolsSettings.Inspect(XmlMerge.Read(Xml(p))).Values.All(s=>s.Enabled&&!s.Ambiguous),"guest payload generation independent of automatic local account mode");}
+p=Plan();p.AutoLogon=false;p.KeepSensitiveFiles=true;p.VMwareTools=true;Check(VmGuestToolsSettings.Inspect(XmlMerge.Read(Xml(p)))[nameof(InstallPlan.VMwareTools)].Enabled,"VM tools do not require automatic initial login; actual first login still required");
+var retainedPe06=ToolsDoc06();var retainedPeExt06=retainedPe06.SelectSingleNode("//*[local-name()='Extensions']")!;var peCopy06=retainedPe06.CreateElement("PEScriptCopy",retainedPeExt06.NamespaceURI);peCopy06.InnerText="set VIRTIO_DRIVE=E:\r\ndrvload.exe %VIRTIO_DRIVE%\\viostor\\w11\\amd64\\viostor.inf";retainedPeExt06.AppendChild(peCopy06);
+var retainedPePlan06=XmlPlanImport.Import(retainedPe06.OuterXml,g);Check(retainedPePlan06.VirtIoGuestTools&&retainedPePlan06.ImportedXml!.Notices.Any(n=>n.Contains("PE 驱动脚本")),"imported VirtIO PE content is disclosed separately from guest installer");retainedPePlan06.VirtIoGuestTools=false;var peAfterCancel06=Xml(retainedPePlan06);Check(peAfterCancel06.Contains("VIRTIO_DRIVE")&&!DecodedXml(peAfterCancel06).Contains("VirtIoGuestTools.ps1"),"canceling VirtIO guest tools preserves existing PE driver payload");
+Console.WriteLine($"Final V0.6 total: {count} tests passed.");
+
 
 
 
