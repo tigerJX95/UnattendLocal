@@ -60,6 +60,9 @@ public static class HelpCatalog
             new("edgebackground", "Edge 启动加速及后台运行", "勾选后将目标系统 Edge 的启动加速与关闭窗口后继续后台运行两项默认设为关闭；浏览器启动速度可能变慢。安装后用户仍可在 Edge 系统设置中调整，组织的强制策略可能覆盖此默认值。不卸载 Edge、不删除浏览数据，也不保证系统组件调用时没有 Edge 进程。未勾选时不写入覆盖，遵循 Edge 默认行为。需目标 Edge 版本支持，不会修改当前电脑。"),
             new("longpaths", "长路径支持", "勾选后在安装时启用 Windows 长路径支持，适用于 Windows 10 1607 及以后版本和 Windows 11。应用本身也须支持长路径；旧程序和资源管理器的部分操作仍可能受限制，单个文件名长度限制不变。未勾选时不写入覆盖，遵循 Windows 默认行为。不会修改当前电脑。"),
             new("systemsounds", "系统声音", "勾选后为目标系统的用户配置关闭系统提示音方案，同时关闭系统启动声音。不会静音扬声器，不影响音乐、视频和应用自行播放的音频；系统不在声音控制面板中展示的个别事件可能保留。安装后可在 Windows 声音设置中自行调整。未勾选时不写入此项覆盖，遵循 Windows 默认行为；不会修改当前电脑。"),
+            new("narrator","讲述人辅助安装",AdditionalSetupSettings.Description("UseNarrator")),
+            new("edgeuninstall","允许卸载 Edge",AdditionalSetupSettings.Description("MakeEdgeUninstallable")),
+            new("systemrestore","C 盘系统还原",AdditionalSetupSettings.Description("DisableSystemRestore")),
             new("vmwaretools","VMware Tools",VmGuestToolsSettings.Description("VMwareTools")),
             new("vboxtools","VirtualBox 增强功能",VmGuestToolsSettings.Description("VBoxGuestAdditions")),
             new("virtiotools","VirtIO Guest Tools",VmGuestToolsSettings.Description("VirtIoGuestTools")),
@@ -163,6 +166,7 @@ public static class HelpCatalog
         var topic = topics.FirstOrDefault(t => t.Id == id) ?? topics[0];
         string state = topic.Id switch
         {
+            "narrator" or "edgeuninstall" or "systemrestore"=>AdditionalSetupSettings.HelpState(plan,topic.Id),
             "vmwaretools" or "vboxtools" or "virtiotools" or "parallelstools"=>VmGuestToolsSettings.HelpState(plan,topic.Id),
             "uac"=>plan.DisableUac?"当前：关闭目标系统 UAC，权限提升保护降低。":"当前：遵循 Windows 默认 UAC 设置。",
             "wpbt"=>plan.DisableWpbt?"当前：阻止目标系统执行 WPBT 提供的程序。":"当前：遵循 Windows 默认行为。",

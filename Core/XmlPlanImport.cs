@@ -35,6 +35,7 @@ public static class XmlPlanImport {
   ProcessAuditSettings.ReadIntoPlan(doc,p,notes);
   ProtectionSettings.ReadIntoPlan(doc,p,notes);
   VmGuestToolsSettings.ReadIntoPlan(doc,p,notes);
+  AdditionalSetupSettings.ReadIntoPlan(doc,p,notes);
   var compactState=CompactOsSettings.ReadIntoPlan(doc,p,notes);
   p.Architecture=arches.FirstOrDefault()??"amd64";
   p.ConfigurationMode="自定义配置";p.CustomStartingPoint="保留当前设置";p.RecommendationId="";p.RecommendationVersion=0;p.RecommendationWindows="";
@@ -272,12 +273,14 @@ public static class XmlPlanImport {
   ProcessAuditSettings.ValidateImported(p,source);
   ProtectionSettings.ValidateImported(p,source);
   VmGuestToolsSettings.ValidateImported(p,source);
+  AdditionalSetupSettings.ValidateImported(p,source);
   if(HasRemovedScript(source))throw new ArgumentException("原 XML 仍含已移除支持的 JScript，不能再导出。");
   if((data.RequiresDiskReview||NeedsDiskReview(source))&&!p.ConfirmImportedXmlRisk)throw new ArgumentException("导入的 XML 含磁盘配置或 Windows PE 命令，请在配置方案页重新核对原文操作范围并勾选风险确认。");
  }
  private static bool NeedsDiskReview(XmlDocument doc){
   var ns=NamespaceManager(doc);
-  return doc.SelectNodes("//u:DiskConfiguration",ns)!.Count>0||Match(doc.InnerText,@"\b(diskpart(?:\.exe)?|Clear-Disk|Initialize-Disk|Format-Volume|Remove-Partition|New-Partition)\b").Success||doc.SelectNodes("//u:settings[@pass='windowsPE']//u:Path",ns)!.Cast<XmlNode>().Any(n=>!Match(n.InnerText,@"^reg\.exe add .*LabConfig.*Bypass(?:TPM|RAM|SecureBoot)Check").Success);
+  bool knownNarrator=AdditionalSetupSettings.Inspect(doc)[nameof(InstallPlan.UseNarrator)].Enabled;
+  return doc.SelectNodes("//u:DiskConfiguration",ns)!.Count>0||Match(doc.InnerText,@"\b(diskpart(?:\.exe)?|Clear-Disk|Initialize-Disk|Format-Volume|Remove-Partition|New-Partition)\b").Success||doc.SelectNodes("//u:settings[@pass='windowsPE']//u:Path",ns)!.Cast<XmlNode>().Any(n=>!(knownNarrator&&AdditionalSetupSettings.IsNarratorPeCommand(n.InnerText))&&!Match(n.InnerText,@"^reg\.exe add .*LabConfig.*Bypass(?:TPM|RAM|SecureBoot)Check").Success);
  }
  private static bool HasRemovedScript(XmlDocument doc)=>doc.SelectNodes("//*[local-name()='File']")!.Cast<XmlElement>().Any(f=>f.GetAttribute("path").EndsWith(".js",StringComparison.OrdinalIgnoreCase))||Match(doc.InnerText,@"//e:jscript|\bjscript\b|\b(?:cscript|wscript)(?:\.exe)?[^\r\n]*\.js\b").Success;
 }

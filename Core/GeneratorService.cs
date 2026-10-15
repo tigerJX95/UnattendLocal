@@ -49,6 +49,7 @@ public class GeneratorService {
   var config=Configuration.Default with {
    Bloatwares=AppRemovalSettings.Build(generator,p),
    ProcessAuditSettings=ProcessAuditSettings.Build(p),
+   UseNarrator=p.UseNarrator,MakeEdgeUninstallable=p.MakeEdgeUninstallable,DisableSystemRestore=p.DisableSystemRestore,
    DisableUac=p.DisableUac,DisableWpbt=p.DisableWpbt,
    VMwareTools=p.VMwareTools,VBoxGuestAdditions=p.VBoxGuestAdditions,VirtIoGuestTools=p.VirtIoGuestTools,ParallelsTools=p.ParallelsTools,
    EnableRemoteDesktop=p.EnableRemoteDesktop,AllowPowerShellScripts=p.AllowPowerShellScripts,

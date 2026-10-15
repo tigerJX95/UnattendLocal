@@ -1,4 +1,4 @@
-<Window xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:local="clr-namespace:UnattendLocal.Desktop" xmlns:core="clr-namespace:UnattendLocal.Core;assembly=Core" x:Class="UnattendLocal.Desktop.MainWindow" Icon="Assets/App.ico" Title="Windows 无人值守配置工具 · V0.6" Width="1060" Height="780" MinWidth="850" MinHeight="620" Background="{DynamicResource CanvasBrush}" Foreground="{DynamicResource ForegroundBrush}" FontFamily="Microsoft YaHei UI" FontSize="14">
+<Window xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:local="clr-namespace:UnattendLocal.Desktop" xmlns:core="clr-namespace:UnattendLocal.Core;assembly=Core" x:Class="UnattendLocal.Desktop.MainWindow" Icon="Assets/App.ico" Title="Windows 无人值守配置工具 · V0.7" Width="1060" Height="780" MinWidth="850" MinHeight="620" Background="{DynamicResource CanvasBrush}" Foreground="{DynamicResource ForegroundBrush}" FontFamily="Microsoft YaHei UI" FontSize="14">
   <DockPanel>
     <Border DockPanel.Dock="Top" Background="{DynamicResource SurfaceBrush}" Padding="24,16">
       <DockPanel>
@@ -694,8 +694,20 @@
               <TextBlock Text="Microsoft Edge" FontSize="20" FontWeight="SemiBold" Margin="0,0,0,16"/>
               <CheckBox Content="跳过 Edge 首次运行引导" IsChecked="{Binding Plan.HideEdgeFre}" ToolTip="{Binding DataContext.HelpTips[edgefre],RelativeSource={RelativeSource AncestorType=Window}}"/>
               <TextBlock Style="{StaticResource ExplanationText}" Text="　　跳过首次欢迎引导；不阻止账户登录，仍可能出现同步确认等提示。" TextWrapping="Wrap" Foreground="{DynamicResource SecondaryBrush}"/>
+              <CheckBox Content="允许卸载 Edge（不自动卸载）" IsChecked="{Binding Plan.MakeEdgeUninstallable}" ToolTip="{Binding DataContext.HelpTips[edgeuninstall],RelativeSource={RelativeSource AncestorType=Window}}"/>
+              <TextBlock Style="{StaticResource ExplanationText}" Text="　　安装阶段尝试调整系统区域策略文件以提供卸载入口。默认不勾选；受 Windows 版本、权限和更新影响，不能保证生效。" Foreground="{DynamicResource SecondaryBrush}"/>
               <CheckBox Content="关闭 Edge 启动加速及后台运行" IsChecked="{Binding Plan.DisableEdgeStartupBoost}" Margin="0,14,0,0" ToolTip="{Binding DataContext.HelpTips[edgebackground],RelativeSource={RelativeSource AncestorType=Window}}"/>
               <TextBlock Style="{StaticResource ExplanationText}" Text="　　两项默认设为关闭，用户安装后仍可在 Edge 中调整；浏览器启动速度可能变慢。未勾选时遵循 Edge 默认行为。" TextWrapping="Wrap" Foreground="{DynamicResource SecondaryBrush}"/>
+            </StackPanel></Border>
+            <Border Style="{StaticResource Card}"><StackPanel>
+              <TextBlock Text="辅助安装与系统还原" FontSize="20" FontWeight="SemiBold" Margin="0,0,0,16"/>
+              <CheckBox Content="启用讲述人辅助安装" IsChecked="{Binding Plan.UseNarrator}" ToolTip="{Binding DataContext.HelpTips[narrator],RelativeSource={RelativeSource AncestorType=Window}}"/>
+              <TextBlock Style="{StaticResource ExplanationText}" Text="　　在 PE、系统安装阶段及每位用户首次登录时启动讲述人。默认不勾选；需介质支持讲述人、语音和音频。不会自动关闭朗读。" Foreground="{DynamicResource SecondaryBrush}"/>
+              <Separator Margin="0,12"/>
+              <CheckBox Content="关闭 C 盘系统还原" IsChecked="{Binding Plan.DisableSystemRestore}" ToolTip="{Binding DataContext.HelpTips[systemrestore],RelativeSource={RelativeSource AncestorType=Window}}"/>
+              <TextBlock Style="{StaticResource ExplanationText}" Text="　　全机首次登录时执行，只作用于 C 盘。默认不勾选，不强制开启首次自动登录。" Foreground="{DynamicResource SecondaryBrush}"/>
+              <TextBlock Style="{StaticResource ExplanationText}" Text="　　可能删除已有还原点，并失去还原点回退能力。请按需要保留恢复手段。" Foreground="{DynamicResource WarningBrush}" Visibility="{Binding Plan.DisableSystemRestore,Converter={StaticResource VisibleWhen}}"/>
+              <TextBlock Style="{StaticResource ExplanationText}" Text="　　只影响目标安装系统；取消勾选只影响新配置，不撤销已安装系统的设置。" Foreground="{DynamicResource SecondaryBrush}"/>
             </StackPanel></Border>
             <Border x:Name="InstallationOptions" Style="{StaticResource Card}">
               <StackPanel>

@@ -29,6 +29,7 @@ public static class PlanStore {
    ProcessAuditSettings.NormalizeLoaded(p,document.RootElement);
    ProtectionSettings.NormalizeLoaded(p,document.RootElement);
    VmGuestToolsSettings.NormalizeLoaded(p,document.RootElement);
+   AdditionalSetupSettings.NormalizeLoaded(p,document.RootElement);
   }
   p.ClearDiskConsent();
   return p;

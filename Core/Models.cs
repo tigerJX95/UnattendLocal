@@ -16,6 +16,10 @@ public class UserEntry : Observable {
  private bool _NeedsPassword = false; public bool NeedsPassword {get=>_NeedsPassword;set=>Set(ref _NeedsPassword,value);}
 }
 public class InstallPlan : Observable {
+ private bool _UseNarrator;public bool UseNarrator {get=>_UseNarrator;set=>Set(ref _UseNarrator,value);}
+ private bool _MakeEdgeUninstallable;public bool MakeEdgeUninstallable {get=>_MakeEdgeUninstallable;set=>Set(ref _MakeEdgeUninstallable,value);}
+ private bool _DisableSystemRestore;public bool DisableSystemRestore {get=>_DisableSystemRestore;set=>Set(ref _DisableSystemRestore,value);}
+
  private bool _VMwareTools;public bool VMwareTools {get=>_VMwareTools;set=>Set(ref _VMwareTools,value);}
  private bool _VBoxGuestAdditions;public bool VBoxGuestAdditions {get=>_VBoxGuestAdditions;set=>Set(ref _VBoxGuestAdditions,value);}
  private bool _VirtIoGuestTools;public bool VirtIoGuestTools {get=>_VirtIoGuestTools;set=>Set(ref _VirtIoGuestTools,value);}

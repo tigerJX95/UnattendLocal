@@ -1490,3 +1490,98 @@ Console.WriteLine($"Final V0.6 total: {count} tests passed.");
 
 
 
+// V0.7: native accessibility, Edge uninstall permission and system restore choices.
+p=Plan();Check(AdditionalSetupSettings.Items.All(i=>!AdditionalSetupSettings.Selected(p,i)),"V0.7 defaults are all off");
+foreach(var arch07 in new[]{"amd64","arm64","x86"})foreach(int mask07 in Enumerable.Range(0,8)){
+ p=Plan();p.Architecture=arch07;p.HidePowerShellWindows=mask07%2==0;
+ for(int bit07=0;bit07<3;bit07++)typeof(InstallPlan).GetProperty(AdditionalSetupSettings.Items[bit07].Property)!.SetValue(p,(mask07&(1<<bit07))!=0);
+ var xml07=Xml(p);var states07=AdditionalSetupSettings.Inspect(XmlMerge.Read(xml07));
+ foreach(var item07 in AdditionalSetupSettings.Items)Check(states07[item07.Property].Enabled==AdditionalSetupSettings.Selected(p,item07)&&!states07[item07.Property].Ambiguous,"V0.7 native choice recognized: "+arch07+mask07+item07.Property);
+ foreach(bool metadata07 in new[]{false,true}){
+  var input07=metadata07?xml07:WithoutSnapshot(xml07);var loaded07=XmlPlanImport.Import(input07,g);
+  Check(AdditionalSetupSettings.Items.All(i=>AdditionalSetupSettings.Selected(loaded07,i)==AdditionalSetupSettings.Selected(p,i))&&SameXml(input07,Xml(loaded07)),"V0.7 XML with/without snapshot restores selections without drift");
+  foreach(var item07 in AdditionalSetupSettings.Items)typeof(InstallPlan).GetProperty(item07.Property)!.SetValue(loaded07,!AdditionalSetupSettings.Selected(p,item07));
+  var switched07=XmlPlanImport.Import(Xml(loaded07),g);
+  Check(AdditionalSetupSettings.Items.All(i=>AdditionalSetupSettings.Selected(switched07,i)!=AdditionalSetupSettings.Selected(p,i)),"V0.7 imported options can be added and removed");
+ }
+ foreach(bool secrets07 in new[]{false,true}){
+  var json07=PlanStore.Deserialize(PlanStore.Serialize(p,secrets07));Check(AdditionalSetupSettings.Items.All(i=>AdditionalSetupSettings.Selected(json07,i)==AdditionalSetupSettings.Selected(p,i)),"V0.7 flags survive JSON save mode");
+ }
+}
+Console.WriteLine($"Final V0.7 total: {count} tests passed.");
+p=Plan();p.UseNarrator=p.MakeEdgeUninstallable=p.DisableSystemRestore=true;var allSetup07=Xml(p);
+XmlDocument SetupDoc07()=>XmlMerge.Read(allSetup07);
+XmlElement SetupFile07(XmlDocument doc,string name)=>doc.SelectNodes("//*[local-name()='File']")!.Cast<XmlElement>().Single(f=>f.GetAttribute("path").EndsWith(name,StringComparison.Ordinal));
+foreach(var item07 in AdditionalSetupSettings.Items){
+ string stageName07=item07.Property==nameof(InstallPlan.DisableSystemRestore)?"FirstLogon.ps1":"Specialize.ps1";
+ var goodDoc07=SetupDoc07();string stageText07=SetupFile07(goodDoc07,stageName07).InnerText;
+ string command07=stageText07.Replace("\r\n","\n").Split('\n').Select(l=>l.Trim()).First(l=>item07.Markers.Any(m=>l.Contains(m,StringComparison.OrdinalIgnoreCase)));
+ var altered07=SetupDoc07();SetupFile07(altered07,stageName07).InnerText=stageText07.Replace(command07,"if ($false) { "+command07+" }");
+ var duplicate07=SetupDoc07();SetupFile07(duplicate07,stageName07).InnerText=stageText07.Replace(command07,command07+"\n\t\t"+command07);
+ var moved07=SetupDoc07();SetupFile07(moved07,stageName07).InnerText=stageText07.Replace(command07,"Write-Output 'moved';");var movedFile07=moved07.CreateElement("File",SetupFile07(moved07,stageName07).NamespaceURI);movedFile07.SetAttribute("path",@"C:\Windows\Setup\Scripts\Moved07.ps1");movedFile07.InnerText=command07;SetupFile07(moved07,stageName07).ParentNode!.AppendChild(movedFile07);
+ foreach(var inputDoc07 in new[]{altered07,duplicate07,moved07}){
+  var loaded07=XmlPlanImport.Import(inputDoc07.OuterXml,g);loaded07.ConfirmImportedXmlRisk=true;
+  Check(!AdditionalSetupSettings.Selected(loaded07,item07)&&SameXml(inputDoc07.OuterXml,Xml(loaded07)),"altered/conditional/duplicate/wrong-stage setup option retained as unknown: "+item07.Property);
+  Check(AdditionalSetupSettings.Items.Where(i=>i.Property!=item07.Property).All(i=>AdditionalSetupSettings.Selected(loaded07,i)),"other valid setup options remain recognized");
+  typeof(InstallPlan).GetProperty(item07.Property)!.SetValue(loaded07,true);Reject(loaded07,"unknown setup option cannot be overwritten");
+ }
+ var cancelOne07=XmlPlanImport.Import(allSetup07,g);typeof(InstallPlan).GetProperty(item07.Property)!.SetValue(cancelOne07,false);var canceled07=XmlPlanImport.Import(Xml(cancelOne07),g);
+ Check(!AdditionalSetupSettings.Selected(canceled07,item07)&&AdditionalSetupSettings.Items.Where(i=>i.Property!=item07.Property).All(i=>AdditionalSetupSettings.Selected(canceled07,i)),"single setup cancellation is independent");
+}
+// Edge helper content, presence, uniqueness, and stage invocation must all agree.
+foreach(var change07 in new[]{"altered","missing","duplicate"}){
+ var doc07=SetupDoc07();var helper07=SetupFile07(doc07,"MakeEdgeUninstallable.ps1");
+ if(change07=="altered")helper07.InnerText+="\nWrite-Output 'custom edge policy';";
+ else if(change07=="missing")helper07.ParentNode!.RemoveChild(helper07);
+ else helper07.ParentNode!.AppendChild(helper07.CloneNode(true));
+ var loaded07=XmlPlanImport.Import(doc07.OuterXml,g);loaded07.ConfirmImportedXmlRisk=true;Check(!loaded07.MakeEdgeUninstallable&&loaded07.UseNarrator&&loaded07.DisableSystemRestore&&SameXml(doc07.OuterXml,Xml(loaded07)),"unknown Edge helper retained: "+change07);loaded07.MakeEdgeUninstallable=true;Reject(loaded07,"unknown Edge helper blocks overlap");
+}
+// Narrator spans PE, specialize and user-once: each part and the registration pipeline is required.
+foreach(var change07 in new[]{"missingPE","duplicatePE","userOnceConditional","missingRunOnce","missingLoad","duplicateLoad","wrongUserStage"}){
+ var doc07=SetupDoc07();
+ if(change07 is "missingPE" or "duplicatePE"){
+  var command07=doc07.SelectNodes("//*[local-name()='settings'][@pass='windowsPE']//*[local-name()='RunSynchronousCommand']")!.Cast<XmlElement>().Single(n=>n.InnerText.Contains("Narrator.exe"));
+  if(change07=="missingPE")command07.ParentNode!.RemoveChild(command07);else{var copy07=command07.CloneNode(true);copy07.SelectSingleNode("*[local-name()='Order']")!.InnerText="999";command07.ParentNode!.AppendChild(copy07);}
+ }else if(change07=="userOnceConditional"){
+  var stage07=SetupFile07(doc07,"UserOnce.ps1");stage07.InnerText=stage07.InnerText.Replace("& 'C:\\Windows\\System32\\Narrator.exe';","if ($false) { & 'C:\\Windows\\System32\\Narrator.exe'; }");
+ }else if(change07=="missingRunOnce"){
+  var stage07=SetupFile07(doc07,"DefaultUser.ps1");stage07.InnerText=stage07.InnerText.Replace("/v \"UnattendedSetup\"","/v \"OtherSetup\"");
+ }else if(change07 is "missingLoad" or "duplicateLoad"){
+  var command07=doc07.SelectNodes("//*[local-name()='settings'][@pass='specialize']//*[local-name()='RunSynchronousCommand']")!.Cast<XmlElement>().Single(n=>n.InnerText.Contains("reg.exe load \"HKU\\DefaultUser\""));
+  if(change07=="missingLoad")command07.ParentNode!.RemoveChild(command07);else{var copy07=command07.CloneNode(true);copy07.SelectSingleNode("*[local-name()='Order']")!.InnerText="999";command07.ParentNode!.AppendChild(copy07);}
+ }else SetupFile07(doc07,"UserOnce.ps1").SetAttribute("path",@"C:\Windows\Setup\Scripts\OtherOnce.ps1");
+ var loaded07=XmlPlanImport.Import(doc07.OuterXml,g);loaded07.ConfirmImportedXmlRisk=true;Check(!loaded07.UseNarrator&&loaded07.MakeEdgeUninstallable&&loaded07.DisableSystemRestore&&SameXml(doc07.OuterXml,Xml(loaded07)),"incomplete narrator group retained: "+change07);loaded07.UseNarrator=true;Reject(loaded07,"incomplete narrator pipeline blocks overwrite");
+}
+foreach(var change07 in new[]{"extract","firstlogon","specialize","duplicatefirst"}){
+ var doc07=SetupDoc07();
+ if(change07=="extract")doc07.SelectSingleNode("//*[local-name()='ExtractScript']")!.InnerText="Write-Output 'not extracted';";
+ else{
+  string name07=change07=="specialize"?"Specialize.ps1":"FirstLogon.ps1";
+  var call07=doc07.SelectNodes("//*[local-name()='Path']|//*[local-name()='CommandLine']")!.Cast<XmlElement>().Single(n=>n.InnerText.Contains("-File")&&n.InnerText.Contains(name07));
+  if(change07=="duplicatefirst"){var copy07=call07.ParentNode!.CloneNode(true);copy07.SelectSingleNode("*[local-name()='Order']")!.InnerText="999";call07.ParentNode!.ParentNode!.AppendChild(copy07);}else call07.InnerText=call07.InnerText.Replace(name07,"Uncalled07.ps1");
+ }
+ var loaded07=XmlPlanImport.Import(doc07.OuterXml,g);loaded07.ConfirmImportedXmlRisk=true;
+ var blocked07=change07=="extract"?AdditionalSetupSettings.Items:AdditionalSetupSettings.Items.Where(i=>change07=="specialize"?i.Property!=nameof(InstallPlan.DisableSystemRestore):i.Property==nameof(InstallPlan.DisableSystemRestore)).ToArray();
+ Check(blocked07.All(i=>!AdditionalSetupSettings.Selected(loaded07,i))&&SameXml(doc07.OuterXml,Xml(loaded07)),"inactive extraction/stage pipeline retained: "+change07);
+ foreach(var item07 in blocked07){typeof(InstallPlan).GetProperty(item07.Property)!.SetValue(loaded07,true);Reject(loaded07,"inactive setup pipeline blocks overlap");typeof(InstallPlan).GetProperty(item07.Property)!.SetValue(loaded07,false);}
+}
+// Old imported plans gain the actual native state and a matching baseline without losing pending edits.
+var legacy07=XmlPlanImport.Import(allSetup07,g);foreach(var item07 in AdditionalSetupSettings.Items)typeof(InstallPlan).GetProperty(item07.Property)!.SetValue(legacy07,false);var oldBase07=PlanStore.Deserialize(PlanStore.Serialize(legacy07,true));oldBase07.ImportedXml=null;legacy07.ImportedXml!.BaselineXml=Encoding.UTF8.GetString(g.GenerateStandalone(oldBase07));legacy07.ComputerName="PENDING07";legacy07.ImportedXml.Notices=legacy07.ImportedXml.Notices.Append("界面尚未实现或无法完整还原的生成参数：UseNarrator；原 XML 保留。").ToArray();
+var oldJson07=System.Text.Json.Nodes.JsonNode.Parse(PlanStore.Serialize(legacy07,true))!.AsObject();foreach(var item07 in AdditionalSetupSettings.Items)oldJson07.Remove(item07.Property);var migrated07=PlanStore.Deserialize(oldJson07.ToJsonString());
+Check(AdditionalSetupSettings.Items.All(i=>AdditionalSetupSettings.Selected(migrated07,i))&&migrated07.ComputerName=="PENDING07"&&migrated07.ImportedXml!.Blockers.Length==0&&!migrated07.ImportedXml.Notices.Any(n=>n.Contains("生成参数：UseNarrator；")),"V0.7 old JSON migration retains pending edits and removes stale notices");
+Check(Node(Xml(migrated07),"//u:ComputerName")=="PENDING07"&&AdditionalSetupSettings.Items.All(i=>AdditionalSetupSettings.Selected(XmlPlanImport.Import(Xml(migrated07),g),i)),"V0.7 migrated baseline stays editable");
+foreach(var item07 in AdditionalSetupSettings.Items)typeof(InstallPlan).GetProperty(item07.Property)!.SetValue(migrated07,false);var explicit07=PlanStore.Deserialize(PlanStore.Serialize(migrated07,true));Check(AdditionalSetupSettings.Items.All(i=>!AdditionalSetupSettings.Selected(explicit07,i)),"saved explicit false survives V0.7 migration");
+p=Plan();Recommendations.Apply(p,"wired");foreach(var item07 in AdditionalSetupSettings.Items)typeof(InstallPlan).GetProperty(item07.Property)!.SetValue(p,true);Check(AdditionalSetupSettings.Items.All(i=>Recommendations.Differences(p).Any(d=>d.Property==i.Property)),"V0.7 recommendation differences include three choices");Recommendations.SelectNetworkScene(p,"wifi");Check(p.UseNarrator&&p.MakeEdgeUninstallable&&p.DisableSystemRestore,"V0.7 network-only change retains choices");Recommendations.Restore(p,nameof(InstallPlan.DisableSystemRestore));Check(!p.DisableSystemRestore&&p.UseNarrator&&p.MakeEdgeUninstallable,"V0.7 individual restore independent");Recommendations.Apply(p,"wired");Check(!p.UseNarrator&&!p.MakeEdgeUninstallable&&!p.DisableSystemRestore,"V0.7 full recommendation resets all opt-ins");
+viewModel.Plan=Plan();viewModel.Preview="stale07";viewModel.Plan.UseNarrator=viewModel.Plan.MakeEdgeUninstallable=viewModel.Plan.DisableSystemRestore=true;Check(viewModel.Preview!="stale07"&&viewModel.ConfigurationSummary.Contains("不实际卸载")&&AdditionalSetupSettings.Items.All(i=>viewModel.HelpTips[i.HelpId].Body.StartsWith("当前：")&&!viewModel.HelpTips[i.HelpId].Body.StartsWith("当前：不添加")),"V0.7 settings refresh help/summary and invalidate preview");
+foreach(bool hide07 in new[]{false,true}){
+ var native07=new Schneegans.Unattend.UnattendGenerator().GenerateXml(Schneegans.Unattend.Configuration.Default with{UseNarrator=true,MakeEdgeUninstallable=true,DisableSystemRestore=true,HidePowerShellWindows=hide07}).OuterXml;
+ var parsed07=XmlPlanImport.Import(native07,g);Check(AdditionalSetupSettings.Items.All(i=>AdditionalSetupSettings.Selected(parsed07,i))&&SameXml(native07,Xml(parsed07)),"native V0.7 options import independently of app metadata");
+}
+foreach(var mode07 in new[]{"安装时创建本地账户","安装时添加微软账户"}){p=Plan();p.AccountMode=mode07;p.BypassNetwork=false;p.UseNarrator=p.MakeEdgeUninstallable=p.DisableSystemRestore=true;Check(AdditionalSetupSettings.Inspect(XmlMerge.Read(Xml(p))).Values.All(s=>s.Enabled&&!s.Ambiguous),"V0.7 options independent of account mode");}
+p=Plan();p.AutoLogon=false;p.KeepSensitiveFiles=true;p.UseNarrator=p.MakeEdgeUninstallable=p.DisableSystemRestore=true;Check(AdditionalSetupSettings.Inspect(XmlMerge.Read(Xml(p))).Values.All(s=>s.Enabled&&!s.Ambiguous),"V0.7 does not force automatic logon");
+Console.WriteLine($"Final V0.7 total: {count} tests passed.");
+Check(!XmlPlanImport.Import(allSetup07,g).ImportedXml!.RequiresDiskReview,"complete native Narrator PE startup alone does not require disk-risk review");
+var unknownPe07=SetupDoc07();var peParent07=unknownPe07.SelectNodes("//*[local-name()='settings'][@pass='windowsPE']//*[local-name()='RunSynchronous']")!.Cast<XmlElement>().First();var extraPe07=unknownPe07.CreateElement("RunSynchronousCommand",XmlMerge.Namespace);foreach(var pair07 in new[]{("Order","999"),("Path","cmd.exe /c echo unknown PE command")}){var child07=unknownPe07.CreateElement(pair07.Item1,XmlMerge.Namespace);child07.InnerText=pair07.Item2;extraPe07.AppendChild(child07);}peParent07.AppendChild(extraPe07);
+var unknownPePlan07=XmlPlanImport.Import(unknownPe07.OuterXml,g);Check(unknownPePlan07.UseNarrator&&unknownPePlan07.ImportedXml!.RequiresDiskReview,"unknown PE command still needs review alongside recognized Narrator");Reject(unknownPePlan07,"unknown PE commands cannot be exported without review");unknownPePlan07.ConfirmImportedXmlRisk=true;Check(SameXml(unknownPe07.OuterXml,Xml(unknownPePlan07)),"reviewed unknown PE command remains unchanged");
+p=Plan();p.UseNarrator=true;p.DiskMode=InstallationSettings.Wipe;p.TargetDiskId=0;p.ConfirmWipeDisk=true;var diskNarrator07=XmlPlanImport.Import(Xml(p),g);Check(diskNarrator07.UseNarrator&&diskNarrator07.ImportedXml!.RequiresDiskReview,"Narrator does not exempt real disk operations");
+Console.WriteLine($"Final V0.7 total: {count} tests passed.");
