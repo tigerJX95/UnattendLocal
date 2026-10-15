@@ -27,6 +27,7 @@ public static class XmlPlanImport {
   }
   // Credentials come from actual XML, never from form comments or the reversible settings note.
   ReadCredentials(doc,ns,p,notes);
+  WifiSettings.ReadIntoPlan(doc,p,notes);
   CommonSystemSettings.ReadIntoPlan(doc,p,notes);
   ImageBackgroundSettings.ReadIntoPlan(doc,p,notes);
   AppRemovalSettings.ReadIntoPlan(doc,p,notes);
@@ -118,15 +119,6 @@ public static class XmlPlanImport {
   }else p.Users.Clear();
   var install=Text(doc,"//u:UserData/u:ProductKey/u:Key",ns);if(p.EditionMode=="指定自己的产品密钥"&&install!=null)p.CustomProductKey=install;
   if(p.UseActivationKey)p.ActivationProductKey=Text(doc,"//u:component[@name='Microsoft-Windows-Shell-Setup']/u:ProductKey",ns)??"";
-  var file=doc.SelectNodes("//*[local-name()='File']")!.Cast<XmlElement>().FirstOrDefault(f=>f.GetAttribute("path").EndsWith("\\Wifi.xml",StringComparison.OrdinalIgnoreCase));
-  if(file!=null){
-   var wifi=new XmlDocument{XmlResolver=null};using(var reader=XmlReader.Create(new StringReader(file.InnerText),new XmlReaderSettings{DtdProcessing=DtdProcessing.Prohibit,XmlResolver=null,MaxCharactersInDocument=XmlMerge.MaxLength}))wifi.Load(reader);
-   var wn=new XmlNamespaceManager(wifi.NameTable);wn.AddNamespace("w","http://www.microsoft.com/networking/WLAN/profile/v1");
-   if(Text(wifi,"//w:authentication",wn)=="WPA2PSK"&&Text(wifi,"//w:protected",wn)!="true"){
-    p.WifiMode="预设 WPA2 Wi-Fi";var hex=Text(wifi,"//w:SSID/w:hex",wn);p.Ssid=hex==null?Text(wifi,"//w:SSID/w:name",wn)??"":Encoding.UTF8.GetString(Convert.FromHexString(hex));
-    p.WifiPassword=Text(wifi,"//w:keyMaterial",wn)??"";p.NeedsWifiPassword=false;p.HiddenWifi=IsTrue(Text(wifi,"//w:nonBroadcast",wn));p.ConnectWifi=Text(wifi,"//w:connectionMode",wn)=="auto";
-   }else notes.Add("Wi-Fi 配置并非当前支持的未加密 WPA2-Personal 参数格式，原配置保留在 XML 中，网络页仅显示可识别模式。");
-  }
   p.NeedsInstallationKey=false;p.NeedsActivationKey=false;
  }
  private static void ReadGeneratedSettings(XmlDocument doc,XmlNamespaceManager ns,InstallPlan p,List<string> notes){
@@ -248,7 +240,7 @@ public static class XmlPlanImport {
   var copy=PlanStore.Deserialize(PlanStore.Serialize(plan,true));copy.ImportedXml=null;
   copy.Scripts=new(copy.Scripts.Where(s=>s.Enabled&&!s.IsRemovedType));
   if(copy.AccountMode!="自动创建本地账户")copy.Users.Clear();
-  if(copy.WifiMode!="预设 WPA2 Wi-Fi"){copy.Ssid="";copy.WifiPassword="";}
+  if(!WifiSettings.IsPreset(copy)){copy.Ssid="";copy.WifiPassword="";}
   if(copy.TaskbarIconsMode!=ShellSettings.CustomXml)copy.TaskbarIconsXml="";
   if(copy.StartTilesMode!=ShellSettings.CustomXml)copy.StartTilesXml="";
   if(copy.StartPinsMode!=ShellSettings.CustomJson)copy.StartPinsJson="";
@@ -265,6 +257,7 @@ public static class XmlPlanImport {
   if(data.Blockers.Length>0)throw new ArgumentException(string.Join("\n",data.Blockers));
   var source=XmlMerge.Read(data.SourceXml);
   CompactOsSettings.ValidateImported(p,source);
+  WifiSettings.ValidateImported(p,source);
   CommonSystemSettings.ValidateImported(p,source);
   ImageBackgroundSettings.ValidateImported(p,source);
   AppRemovalSettings.ValidateImported(p,source);

@@ -1585,3 +1585,88 @@ var unknownPe07=SetupDoc07();var peParent07=unknownPe07.SelectNodes("//*[local-n
 var unknownPePlan07=XmlPlanImport.Import(unknownPe07.OuterXml,g);Check(unknownPePlan07.UseNarrator&&unknownPePlan07.ImportedXml!.RequiresDiskReview,"unknown PE command still needs review alongside recognized Narrator");Reject(unknownPePlan07,"unknown PE commands cannot be exported without review");unknownPePlan07.ConfirmImportedXmlRisk=true;Check(SameXml(unknownPe07.OuterXml,Xml(unknownPePlan07)),"reviewed unknown PE command remains unchanged");
 p=Plan();p.UseNarrator=true;p.DiskMode=InstallationSettings.Wipe;p.TargetDiskId=0;p.ConfirmWipeDisk=true;var diskNarrator07=XmlPlanImport.Import(Xml(p),g);Check(diskNarrator07.UseNarrator&&diskNarrator07.ImportedXml!.RequiresDiskReview,"Narrator does not exempt real disk operations");
 Console.WriteLine($"Final V0.7 total: {count} tests passed.");
+// V0.8: WPA3-Personal, open Wi-Fi and bounded WLANProfile XML. No network calls.
+string WifiProfile08(string mode=WifiSettings.Wpa3,bool auto=true,bool hidden=false)=>((Schneegans.Unattend.IProfileWifiSettings)WifiSettings.Build(new InstallPlan{WifiMode=mode,Ssid="WifiFixture08",WifiPassword="WirelessSecret08",ConnectWifi=auto,HiddenWifi=hidden})).ProfileXml.OuterXml;
+XmlElement WifiFile08(XmlDocument doc)=>doc.SelectNodes("//*[local-name()='File']")!.Cast<XmlElement>().Single(f=>f.GetAttribute("path").EndsWith("\\Wifi.xml",StringComparison.OrdinalIgnoreCase));
+foreach(var mode08 in new[]{WifiSettings.Wpa2,WifiSettings.Wpa3,WifiSettings.Open})foreach(bool hidden08 in new[]{false,true})foreach(bool connect08 in new[]{false,true})foreach(bool window08 in new[]{false,true}){
+ p=Plan();p.WifiMode=mode08;p.Ssid="WifiFixture08";p.WifiPassword="WirelessSecret08";p.HiddenWifi=hidden08;p.ConnectWifi=connect08;p.HidePowerShellWindows=window08;
+ var xml08=Xml(p);var doc08=XmlMerge.Read(xml08);var profile08=WifiFile08(doc08).InnerText;var state08=WifiSettings.Inspect(doc08);
+ Check(state08.Enabled&&!state08.Ambiguous,"V0.8 complete native Wi-Fi pipeline recognized: "+mode08+hidden08+connect08+window08);
+ Check(profile08.Contains(mode08==WifiSettings.Wpa3?"WPA3SAE":mode08==WifiSettings.Wpa2?"WPA2PSK":"open")&&profile08.Contains("sharedKey")==WifiSettings.NeedsPassword(p),"V0.8 authentication and credential presence match selected mode");
+ Check(profile08.Contains("transitionMode")== (mode08==WifiSettings.Wpa3)&&profile08.Contains("nonBroadcast")==hidden08,"V0.8 native transition and hidden-network fields");
+ Check((DecodedXml(xml08).Contains("netsh.exe wlan connect"))==connect08,"V0.8 explicit connection command follows selection");
+ foreach(bool metadata08 in new[]{false,true}){
+  var input08=metadata08?xml08:WithoutSnapshot(xml08);var parsed08=XmlPlanImport.Import(input08,g);
+  Check(parsed08.WifiMode==mode08&&parsed08.Ssid==p.Ssid&&parsed08.ConnectWifi==connect08&&parsed08.HiddenWifi==hidden08&&SameXml(input08,Xml(parsed08)),"V0.8 actual Wi-Fi data restore with/without snapshot");
+  parsed08.WifiMode="隐藏无线网络选择页";var canceled08=XmlMerge.Read(Xml(parsed08));Check(!canceled08.SelectNodes("//*[local-name()='File']")!.Cast<XmlElement>().Any(f=>f.GetAttribute("path").EndsWith("\\Wifi.xml"))&&!canceled08.InnerText.Contains("netsh.exe wlan add profile"),"V0.8 cancel Wi-Fi removes native profile and install commands");
+ }
+ var saved08=PlanStore.Deserialize(PlanStore.Serialize(p,true));Check(saved08.WifiMode==mode08&&saved08.WifiPassword==p.WifiPassword&&saved08.ConnectWifi==connect08,"V0.8 credential-inclusive JSON preserves Wi-Fi choices");
+ Check(!GeneratorService.Preview(g.Generate(p)).Contains("WirelessSecret08"),"V0.8 preview does not reveal Wi-Fi credentials");
+}
+foreach(var arch08 in new[]{"amd64","arm64","x86"})foreach(var mode08 in new[]{WifiSettings.Wpa3,WifiSettings.Open,WifiSettings.Profile}){
+ p=Plan();p.Architecture=arch08;p.WifiMode=mode08;p.Ssid="Architecture08";p.WifiPassword="ArchitectureSecret08";p.WifiProfileXml=WifiProfile08();var xml08=Xml(p);Check(WifiSettings.Inspect(XmlMerge.Read(xml08)).Enabled,"V0.8 supports each configuration architecture: "+arch08+mode08);
+}
+p=Plan();p.WifiMode=WifiSettings.Open;p.Ssid="PublicWifi08";p.WifiPassword="RetainedButUnused08";p.NeedsWifiPassword=true;Check(!DecodedXml(Xml(p)).Contains("RetainedButUnused08")&&!Recommendations.MissingInputs(p).Contains("Wi-Fi 密码"),"open Wi-Fi ignores retained password and missing-password flag");
+var omittedOpen08=PlanStore.Deserialize(PlanStore.Serialize(p,false));omittedOpen08.Users[0].Password="RestoredUser08";omittedOpen08.Users[0].NeedsPassword=false;Check(WifiSettings.Inspect(XmlMerge.Read(Xml(omittedOpen08))).Enabled,"open network does not require re-entering a Wi-Fi password");
+foreach(var mode08 in new[]{WifiSettings.Wpa2,WifiSettings.Wpa3}){
+ p=Plan();p.WifiMode=mode08;p.Ssid="ProtectedWifi08";
+ foreach(var bad08 in new[]{"", "short",new string('x',64),"密码不可用123456", "1234567\n"}){p.WifiPassword=bad08;Reject(p,"invalid personal Wi-Fi passphrase rejected");}
+ p.WifiPassword="ValidWifiSecret08";var omitted08=PlanStore.Deserialize(PlanStore.Serialize(p,false));Check(!omitted08.WifiPassword.Any()&&omitted08.NeedsWifiPassword,"protected Wi-Fi secret omitted and marked missing");omitted08.Users[0].Password="RestoredUser08";omitted08.Users[0].NeedsPassword=false;Reject(omitted08,"omitted personal Wi-Fi credential blocks export");
+ foreach(var badName08 in new[]{"",new string('x',33),"unsafe$ssid","unsafe`ssid","unsafe\"ssid","line\nssid"}){p.Ssid=badName08;Reject(p,"unsafe Wi-Fi SSID rejected for both authentication modes");}
+}
+foreach(bool connect08 in new[]{false,true})foreach(bool hidden08 in new[]{false,true}){
+ p=Plan();p.WifiMode=WifiSettings.Profile;p.WifiProfileXml=WifiProfile08(WifiSettings.Wpa3,connect08,hidden08);p.Ssid="UnusedParameter08";p.WifiPassword="UnusedPassword08";p.ConnectWifi=!connect08;p.HiddenWifi=!hidden08;
+ var xml08=Xml(p);Check(!DecodedXml(xml08).Contains("UnusedParameter08")&&!DecodedXml(xml08).Contains("UnusedPassword08")&&DecodedXml(xml08).Contains("netsh.exe wlan connect")==connect08,"XML profile owns identity/credentials/connection flags");
+ var parsed08=XmlPlanImport.Import(xml08,g);Check(parsed08.WifiMode==WifiSettings.Profile&&SameXml(xml08,Xml(parsed08))&&WifiSettings.ReadProfile(parsed08.WifiProfileXml).ConnectAutomatically==connect08,"XML mode retained through snapshot import");
+ var saved08=PlanStore.Deserialize(PlanStore.Serialize(p,true));Check(saved08.WifiProfileXml==p.WifiProfileXml&&!saved08.NeedsWifiProfile,"full profile XML survives credential-inclusive JSON");
+ var omitted08=PlanStore.Deserialize(PlanStore.Serialize(p,false));Check(omitted08.WifiProfileXml==""&&omitted08.NeedsWifiProfile&&!PlanStore.Serialize(p,false).Contains("WirelessSecret08"),"credential omission drops entire XML profile");omitted08.Users[0].Password="RestoredUser08";omitted08.Users[0].NeedsPassword=false;Reject(omitted08,"missing XML profile blocks export");omitted08.WifiProfileXml=p.WifiProfileXml;Check(!omitted08.NeedsWifiProfile&&WifiSettings.Inspect(XmlMerge.Read(Xml(omitted08))).Enabled,"re-entered profile clears missing state and restores export");
+ Check(!GeneratorService.Preview(g.Generate(p)).Contains("WirelessSecret08")&&GeneratorService.Preview(g.Generate(p)).Contains("无线配置 XML 已整体遮蔽"),"preview masks whole wireless profile");
+}
+// Namespace-qualified content and opaque extension secrets cannot bypass preview redaction.
+var prefixedProfile08=new XmlDocument();prefixedProfile08.LoadXml(WifiProfile08());foreach(XmlElement element08 in prefixedProfile08.SelectNodes("//*")!)if(element08.NamespaceURI=="http://www.microsoft.com/networking/WLAN/profile/v1")element08.Prefix="w";
+p=Plan();p.WifiMode=WifiSettings.Profile;p.WifiProfileXml=prefixedProfile08.OuterXml;Check(!GeneratorService.Preview(g.Generate(p)).Contains("WirelessSecret08"),"namespace-qualified key material is hidden in preview");
+// Manual profiles may use a distinct profile name; the native automatic connector requires matching names.
+var namedProfile08=WifiProfile08(auto:false).Replace("<name>WifiFixture08</name>","<name>DifferentProfile08</name>");Check(WifiSettings.ReadProfile(namedProfile08).Name=="DifferentProfile08","manual profile accepts a different name");
+try{_=WifiSettings.ReadProfile(namedProfile08.Replace("<connectionMode>manual</connectionMode>","<connectionMode>auto</connectionMode>"));throw new Exception("expected name restriction");}catch(ArgumentException){Check(true,"native automatic profile naming restriction explained");}
+var invalidProfiles08=new[]{"", "<unattend/>","<WLANProfile/>","<!DOCTYPE WLANProfile [<!ENTITY x 'unsafe'>]>"+WifiProfile08(),"<?test unsafe?>"+WifiProfile08(),WifiProfile08().Replace("<protected>false</protected>","<protected>true</protected>"),WifiProfile08().Replace("<name>WifiFixture08</name>","<name>bad$profile</name>"),new string('x',WifiSettings.MaxProfileLength+1),WifiProfile08().Replace("57696669466978747572653038","not-hex")};
+foreach(var invalid08 in invalidProfiles08){p=Plan();p.WifiMode=WifiSettings.Profile;p.WifiProfileXml=invalid08;Reject(p,"invalid/unsafe/nonportable WLAN profile rejected");}
+// Native upstream outputs without app metadata recognize both new parameter modes.
+foreach(var auth08 in new[]{Schneegans.Unattend.WifiAuthentications.WPA3SAE,Schneegans.Unattend.WifiAuthentications.Open}){
+ var native08=new Schneegans.Unattend.UnattendGenerator().GenerateXml(Schneegans.Unattend.Configuration.Default with{WifiSettings=new Schneegans.Unattend.ParameterizedWifiSettings("NativeWifi08","NativeSecret08",true,auth08,true)}).OuterXml;
+ var parsed08=XmlPlanImport.Import(native08,g);Check(parsed08.WifiMode==(auth08==Schneegans.Unattend.WifiAuthentications.Open?WifiSettings.Open:WifiSettings.Wpa3)&&SameXml(native08,Xml(parsed08)),"native new Wi-Fi authentication imports without app metadata");
+}
+Console.WriteLine($"Final V0.8 total: {count} tests passed.");
+// Unknown or inactive wireless payloads must not become an editable switch.
+p=Plan();p.WifiMode=WifiSettings.Wpa3;p.Ssid="WifiFixture08";p.WifiPassword="WirelessSecret08";p.ConnectWifi=true;var originalWifi08=Xml(p);
+foreach(var change08 in new[]{"missingFile","duplicateFile","alteredWait","conditionalAdd","duplicateAdd","missingConnect","wrongStage","uncalled","noExtraction","protectedKey"}){
+ var doc08=XmlMerge.Read(originalWifi08);var stage08=doc08.SelectNodes("//*[local-name()='File']")!.Cast<XmlElement>().Single(f=>f.GetAttribute("path").EndsWith("\\Specialize.ps1"));
+ string add08="netsh.exe wlan add profile filename=\"C:\\Windows\\Setup\\Scripts\\Wifi.xml\" user=all;";
+ if(change08=="missingFile"){var f08=WifiFile08(doc08);f08.ParentNode!.RemoveChild(f08);}
+ else if(change08=="duplicateFile"){var f08=WifiFile08(doc08);f08.ParentNode!.AppendChild(f08.CloneNode(true));}
+ else if(change08=="alteredWait")stage08.InnerText=stage08.InnerText.Replace("$start.AddMinutes( 1 )","$start.AddMinutes( 2 )");
+ else if(change08=="conditionalAdd")stage08.InnerText=stage08.InnerText.Replace(add08,"if ($false) { "+add08+" }");
+ else if(change08=="duplicateAdd")stage08.InnerText=stage08.InnerText.Replace(add08,add08+"\n\t\t"+add08);
+ else if(change08=="missingConnect")stage08.InnerText=stage08.InnerText.Replace("netsh.exe wlan connect name=\"WifiFixture08\" ssid=\"WifiFixture08\";","Write-Output 'not connecting';");
+ else if(change08=="wrongStage"){stage08.InnerText=stage08.InnerText.Replace(add08,"Write-Output 'moved add';");var f08=doc08.CreateElement("File",stage08.NamespaceURI);f08.SetAttribute("path",@"C:\Windows\Setup\Scripts\OtherWifi08.ps1");f08.InnerText=add08;stage08.ParentNode!.AppendChild(f08);}
+ else if(change08=="uncalled"){foreach(XmlElement path08 in doc08.SelectNodes("//*[local-name()='Path']")!)if(path08.InnerText.Contains("-File")&&path08.InnerText.Contains("Specialize.ps1"))path08.InnerText=path08.InnerText.Replace("Specialize.ps1","UncalledWifi08.ps1");}
+ else if(change08=="noExtraction")doc08.SelectSingleNode("//*[local-name()='ExtractScript']")!.InnerText="Write-Output 'not extracting';";
+ else WifiFile08(doc08).InnerText=WifiFile08(doc08).InnerText.Replace("<protected>false</protected>","<protected>true</protected>");
+ var state08=WifiSettings.Inspect(doc08);var parsed08=XmlPlanImport.Import(doc08.OuterXml,g);
+ Check(!state08.Enabled&&state08.Ambiguous&&!WifiSettings.HasProfile(parsed08)&&SameXml(doc08.OuterXml,Xml(parsed08)),"ambiguous Wi-Fi payload preserved and not represented: "+change08);
+ parsed08.WifiMode=WifiSettings.Open;parsed08.Ssid="NewWifi08";Reject(parsed08,"ambiguous wireless payload blocks settings overlay");
+}
+// Adding Wi-Fi to a previously wired import and editing a recognized profile retain unrelated content.
+var foreignWifi08=XmlMerge.Read(Xml(Plan()));var extWifi08=foreignWifi08.SelectSingleNode("//*[local-name()='Extensions']")!;extWifi08.AppendChild(foreignWifi08.CreateComment("retain unrelated Wi-Fi neighbor"));
+var addedWifi08=XmlPlanImport.Import(foreignWifi08.OuterXml,g);addedWifi08.WifiMode=WifiSettings.Wpa3;addedWifi08.Ssid="AddedWifi08";addedWifi08.WifiPassword="AddedSecret08";addedWifi08.ConnectWifi=true;var addedOutput08=Xml(addedWifi08);Check(addedOutput08.Contains("retain unrelated Wi-Fi neighbor")&&XmlPlanImport.Import(addedOutput08,g).WifiMode==WifiSettings.Wpa3,"adding WPA3 to a wired import preserves unrelated XML");
+var editedWifi08=XmlPlanImport.Import(originalWifi08,g);editedWifi08.WifiMode=WifiSettings.Open;editedWifi08.Ssid="RenamedOpen08";editedWifi08.HiddenWifi=true;editedWifi08.ConnectWifi=false;var editedOutput08=XmlPlanImport.Import(Xml(editedWifi08),g);Check(editedOutput08.WifiMode==WifiSettings.Open&&editedOutput08.Ssid=="RenamedOpen08"&&editedOutput08.HiddenWifi&&!editedOutput08.ConnectWifi,"recognized Wi-Fi authentication/name/flags independently editable");
+// Old imported JSON had no fields for XML profiles and could not recognize WPA3.
+var legacyWifi08=XmlPlanImport.Import(originalWifi08,g);legacyWifi08.WifiMode="隐藏无线网络选择页";legacyWifi08.WifiPassword="";legacyWifi08.Ssid="";var legacyWifiBase08=PlanStore.Deserialize(PlanStore.Serialize(legacyWifi08,true));legacyWifiBase08.ImportedXml=null;legacyWifi08.ImportedXml!.BaselineXml=Encoding.UTF8.GetString(g.GenerateStandalone(legacyWifiBase08));legacyWifi08.ComputerName="PENDING08";legacyWifi08.ImportedXml.Notices=legacyWifi08.ImportedXml.Notices.Append("Wi-Fi 配置并非当前支持的未加密 WPA2-Personal 参数格式，原配置保留在 XML 中，网络页仅显示可识别模式。").ToArray();
+var oldWifiJson08=System.Text.Json.Nodes.JsonNode.Parse(PlanStore.Serialize(legacyWifi08,true))!.AsObject();oldWifiJson08.Remove(nameof(InstallPlan.WifiProfileXml));oldWifiJson08.Remove(nameof(InstallPlan.NeedsWifiProfile));var migratedWifi08=PlanStore.Deserialize(oldWifiJson08.ToJsonString());
+Check(migratedWifi08.WifiMode==WifiSettings.Wpa3&&migratedWifi08.ComputerName=="PENDING08"&&migratedWifi08.ImportedXml!.Blockers.Length==0&&!migratedWifi08.ImportedXml.Notices.Any(n=>n.StartsWith("Wi-Fi 配置并非当前支持的")),"old imported JSON migrates actual WPA3 state without losing pending edits");
+Check(Node(Xml(migratedWifi08),"//u:ComputerName")=="PENDING08"&&XmlPlanImport.Import(Xml(migratedWifi08),g).WifiMode==WifiSettings.Wpa3,"migrated wireless baseline remains editable");migratedWifi08.WifiMode="隐藏无线网络选择页";var explicitlyOffWifi08=PlanStore.Deserialize(PlanStore.Serialize(migratedWifi08,true));Check(!WifiSettings.HasProfile(explicitlyOffWifi08)&&!WifiSettings.Inspect(XmlMerge.Read(Xml(explicitlyOffWifi08))).Enabled,"explicit saved Wi-Fi cancellation is not overwritten");
+// Saved pending network edits from an old plan are not replaced by migration.
+oldWifiJson08[nameof(InstallPlan.WifiMode)]="安装时手动选择";var pendingWifi08=PlanStore.Deserialize(oldWifiJson08.ToJsonString());Check(pendingWifi08.WifiMode=="安装时手动选择","legacy pending network-mode edit takes priority over migration");
+viewModel.Plan=Plan();viewModel.Preview="stale08";viewModel.Plan.WifiMode=WifiSettings.Wpa3;Check(viewModel.IsPresetWifi&&viewModel.IsPasswordWifi&&!viewModel.IsXmlWifi&&viewModel.Plan.ConnectWifi&&viewModel.Preview!="stale08","WPA3 mode refreshes controls and invalidates preview");viewModel.Plan.WifiMode=WifiSettings.Open;Check(viewModel.IsPresetWifi&&!viewModel.IsPasswordWifi&&!Recommendations.MissingInputs(viewModel.Plan).Contains("Wi-Fi 密码"),"open mode disables password requirements");viewModel.Plan.WifiMode=WifiSettings.Profile;Check(!viewModel.IsPresetWifi&&viewModel.IsXmlWifi&&viewModel.HelpTips["wifiprofile"].Body.Contains("可能含凭据")&&Recommendations.MissingInputs(viewModel.Plan).Contains("无线配置 XML"),"XML mode refreshes help and missing-input summary");
+p=Plan();Recommendations.Apply(p,"wifi");p.WifiMode=WifiSettings.Wpa3;Check(Recommendations.Differences(p).Any(d=>d.Property==nameof(InstallPlan.WifiMode)),"WPA3 appears as a deliberate recommendation difference");Recommendations.Restore(p,nameof(InstallPlan.WifiMode));Check(p.WifiMode==WifiSettings.Wpa2,"network recommendation remains backward compatible with WPA2");
+p=Plan();p.WifiMode=WifiSettings.Wpa3;p.Ssid="LegacyCompatible08";p.WifiPassword="WirelessSecret08";p.WifiProfileXml=WifiProfile08();Recommendations.SelectNetworkScene(p,"wired");Check(p.WifiProfileXml.Contains("WirelessSecret08")&&p.WifiPassword=="WirelessSecret08","network scene change retains inactive editable data");Check(!PlanStore.Serialize(p,false).Contains("WirelessSecret08"),"secret omission also clears inactive profile XML");
+Console.WriteLine($"Final V0.8 total: {count} tests passed.");

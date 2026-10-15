@@ -43,8 +43,9 @@ public static class HelpCatalog
             new("secrets", "密码编码与隐私文件", "Base64 可还原，不是加密。隐私文件保留选项位于 OOBE 页的“安装脚本与隐私文件”。默认在首次管理员登录阶段清理目标系统的应答文件与 Wi-Fi 文件；自动创建本地账户并关闭首次自动登录时需明确选择保留。安装介质上的原始 XML 需另行保管。")
         ],
         [
-            new("wifi", "无线网络配置方式", "新建推荐与自定义基础配置默认选择有线局域网，跳过 Wi-Fi 配置，有线网络通过 DHCP 获取地址。首页选择推荐场景会立即同步此处的网络模式，切换为预设 Wi-Fi 时默认自动连接。手动选择会保留安装时的无线网络引导。预设模式将 WPA2-Personal 无线配置写入应答文件。若镜像不含无线网卡驱动，需把相应驱动放到安装介质的 $WinPEDriver$ 文件夹。"),
-            new("ssid", "Wi-Fi 名称与密码", "SSID 应为 1–32 字节，中文字符会占多个字节。本版不接受控制字符、双引号、美元符号或反引号。WPA2 密码支持 8–63 位可打印 ASCII 字符。"),
+            new("wifiprofile","WLANProfile 无线配置 XML","支持从 Windows 导出后导入或粘贴完整 WLANProfile XML。可用 netsh wlan export profile key=clear 导出；文件可能含明文密码。认证及自动连接由 XML 决定，上方参数不参与生成；加密密钥不能可靠迁移，自动连接时配置名称需与 SSID 一致。结构检查不保证目标系统具备网卡驱动、证书或认证能力。省略凭据保存时不保存整段无线 XML；重新打开需补充，预览整体遮蔽。"),
+            new("wifi", "无线网络配置方式", "新建推荐与自定义基础配置默认选择有线局域网，跳过 Wi-Fi 配置，有线网络通过 DHCP 获取地址。首页选择推荐场景会立即同步此处的网络模式，切换为预设 Wi-Fi 时默认自动连接。手动选择会保留安装时的无线网络引导。预设支持 WPA2-Personal、WPA3-Personal 或开放网络，也可使用完整 WLANProfile XML。WPA3 需目标系统、驱动和接入点支持；按原生成器生成带 transitionMode 的配置，实际连接取决于目标环境。开放 Wi-Fi（无密码、不加密）不提供无线链路加密。仅在确认网络和用途后使用；个人网络优先选择 WPA2 / WPA3，开放网络可能仍需门户认证。若镜像不含无线网卡驱动，需把相应驱动放到安装介质的 $WinPEDriver$ 文件夹。"),
+            new("ssid", "Wi-Fi 名称与密码", "SSID 应为 1–32 字节，中文字符会占多个字节。本版不接受控制字符、双引号、美元符号或反引号。WPA2 / WPA3 密码支持 8–63 位可打印 ASCII 字符；开放网络不使用密码框保留的内容。"),
             new("hidden", "隐藏网络与自动连接", "只有路由器不广播 SSID 时才需要勾选“隐藏网络”。自动连接选项决定是否自动连接预设 Wi-Fi；这些选项仅在预设 Wi-Fi 模式下生效。"),
             new("offline", "允许无网络安装", "离线安装与本地账户分别配置；隐藏无线页面不等于绕过联网要求。添加微软账户需要网络，不能同时选择允许离线安装。"),
             new("driver", "无线驱动", "若 Windows 安装镜像不包含无线网卡驱动，预设 Wi-Fi 也无法连接。可把相应驱动放在安装介质的 $WinPEDriver$ 文件夹。本版有线网络使用默认 DHCP。")
@@ -229,13 +230,14 @@ public static class HelpCatalog
             },
             "logon" => plan.AccountMode != "自动创建本地账户" ? "当前为手动创建账户模式，此选项不参与账户创建。"
                 : plan.AutoLogon ? "当前：首次自动登录一次。" : "当前：关闭首次自动登录；需勾选保留安装凭据文件。",
-            "wifi" => plan.WifiMode=="隐藏无线网络选择页" ? "当前：有线局域网（跳过 Wi-Fi 配置）。" : $"当前：{plan.WifiMode}。",
+            "wifi" => plan.WifiMode=="隐藏无线网络选择页" ? "当前：有线局域网（跳过 Wi-Fi 配置）。" : $"当前：{(plan.WifiMode==WifiSettings.Open?"开放 Wi-Fi（无密码、不加密）":plan.WifiMode)}。",
             "offline" => plan.BypassNetwork ? "当前已允许无网络安装；微软账户模式与此设置冲突。" : "当前未启用无网络安装绕过。",
             "privacy" => $"当前：{plan.PrivacyMode}。",
             "online" => plan.AccountMode == "安装时添加微软账户" ? "当前为微软账户模式，隐藏选项关闭且不可用。" : $"当前为本地账户流程；隐藏在线账户页面：{(plan.HideOnlineAccount?"开启":"关闭")}。",
             "language" => plan.InteractiveLanguage ? "当前：安装时手动选择语言与区域。" : $"当前：预设语言与区域；{(new[]{plan.ImageLanguage,plan.Locale,plan.Keyboard,plan.GeoId}.Any(string.IsNullOrWhiteSpace)?"请补齐本页的语言、区域、键盘和国家或地区":"已填写，请核对安装镜像")}。",
             "region" or "timezone" => plan.TimeZoneMode=="由 Windows 决定" ? "当前：由 Windows 决定时区。" : $"当前：指定时区；{(string.IsNullOrWhiteSpace(plan.TimeZone)?"尚未选择":ChoiceLocalization.Get("TimeOffset",plan.TimeZone,plan.TimeZone))}。",
-            "hidden" => plan.WifiMode!="预设 WPA2 Wi-Fi" ? "当前未启用预设 Wi-Fi，这些选项不生效。" : $"当前：隐藏网络{(plan.HiddenWifi?"开启":"关闭")}；自动连接{(plan.ConnectWifi?"开启":"关闭")}。",
+            "wifiprofile"=>"当前："+WifiSettings.Summary(plan)+"。",
+            "hidden" => !WifiSettings.IsPreset(plan) ? "当前未启用预设 Wi-Fi，这些选项不生效。" : $"当前：隐藏网络{(plan.HiddenWifi?"开启":"关闭")}；自动连接{(plan.ConnectWifi?"开启":"关闭")}。",
             "eula" => $"当前：{(plan.HideEula?"隐藏":"显示")}许可协议页面。",
             "oem" => $"当前：{(plan.HideOEMRegistration?"隐藏":"显示")} OEM 注册页面。",
             "restartsignon" => plan.DisableAutomaticRestartSignOn?"当前：禁用重启后的最后用户自动登录；安装后首次自动登录独立配置。":"当前：遵循 Windows 默认行为。",

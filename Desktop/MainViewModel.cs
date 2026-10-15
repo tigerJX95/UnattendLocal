@@ -35,7 +35,7 @@ public class MainViewModel : Observable {
   ObserveUsers();SelectedUser=plan.Users.FirstOrDefault();RefreshAll();InvalidatePreview();
  }}
  private UserEntry? selected;public UserEntry? SelectedUser {get=>selected;set{Set(ref selected,value);RefreshHelp();}}
- private string preview="配置完成后，点击“检查与预览”。",status="就绪 · V0.7";
+ private string preview="配置完成后，点击“检查与预览”。",status="就绪 · V0.8";
  public string Preview {get=>preview;set=>Set(ref preview,value);} public string Status {get=>status;set=>Set(ref status,value);}
  public GeneratorService Service {get;}=new();
  public List<GeneratorService.Choice> Editions=>Service.Editions;
@@ -43,7 +43,11 @@ public class MainViewModel : Observable {
  public bool IsAuditCommandLine=>Plan.ProcessAuditMode==ProcessAuditSettings.WithCommandLine;
  private bool isGenericEdition,isCustomEdition,isPresetWifi;private string selectedEditionKey="",editionHint="";
  public bool IsPresetWifi {get=>isPresetWifi;private set=>Set(ref isPresetWifi,value);}
- private void RefreshNetwork()=>IsPresetWifi=Plan.WifiMode=="预设 WPA2 Wi-Fi";
+ public bool IsPasswordWifi=>WifiSettings.NeedsPassword(Plan);
+ public bool IsOpenWifi=>Plan.WifiMode==WifiSettings.Open;
+ public bool IsXmlWifi=>Plan.WifiMode==WifiSettings.Profile;
+ public string WifiSummary=>WifiSettings.Summary(Plan);
+ private void RefreshNetwork(){IsPresetWifi=WifiSettings.IsPreset(Plan);Notify(nameof(IsPasswordWifi));Notify(nameof(IsOpenWifi));Notify(nameof(IsXmlWifi));Notify(nameof(WifiSummary));}
  public bool IsGenericEdition {get=>isGenericEdition;private set=>Set(ref isGenericEdition,value);}
  public bool IsCustomEdition {get=>isCustomEdition;private set=>Set(ref isCustomEdition,value);}
  public string SelectedEditionKey {get=>selectedEditionKey;private set=>Set(ref selectedEditionKey,value);}
@@ -77,7 +81,7 @@ public class MainViewModel : Observable {
     if(Plan.AccountMode=="安装时添加微软账户"&&e.PropertyName is nameof(InstallPlan.BypassNetwork) or nameof(InstallPlan.HideOnlineAccount)){
      Plan.BypassNetwork=false;Plan.HideOnlineAccount=false;
     }
-    if(e.PropertyName==nameof(InstallPlan.WifiMode)&&Plan.WifiMode=="预设 WPA2 Wi-Fi")Plan.ConnectWifi=true;
+    if(e.PropertyName==nameof(InstallPlan.WifiMode)&&WifiSettings.IsPreset(Plan))Plan.ConnectWifi=true;
    }
   }finally{updating=false;}
   RefreshAll();InvalidatePreview();

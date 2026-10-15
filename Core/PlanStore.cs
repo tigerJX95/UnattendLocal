@@ -7,7 +7,7 @@ public static class PlanStore {
   HardwareSettings.NormalizeLegacy(copy);
   copy.ClearDiskConsent();
   if(!includeSecrets&&copy.ImportedXml is {} imported){imported.SourceXml="";imported.BaselineXml="";imported.OriginalOmitted=true;imported.Blockers=["未保存 XML 原文（可能含凭据及其他敏感内容），请重新导入原 XML 后再导出。"];}
-  if(!includeSecrets) {foreach(var u in copy.Users){u.NeedsPassword=u.NeedsPassword||!u.AllowEmptyPassword;u.Password="";}copy.NeedsWifiPassword=copy.NeedsWifiPassword||copy.WifiMode=="预设 WPA2 Wi-Fi";copy.WifiPassword="";copy.NeedsInstallationKey=copy.EditionMode=="指定自己的产品密钥";copy.NeedsActivationKey=copy.UseActivationKey;copy.CustomProductKey="";copy.ActivationProductKey="";}
+  if(!includeSecrets) {foreach(var u in copy.Users){u.NeedsPassword=u.NeedsPassword||!u.AllowEmptyPassword;u.Password="";}copy.NeedsWifiPassword=copy.NeedsWifiPassword||WifiSettings.NeedsPassword(copy);copy.WifiPassword="";copy.NeedsWifiProfile=copy.NeedsWifiProfile||copy.WifiMode==WifiSettings.Profile;copy.WifiProfileXml="";copy.NeedsInstallationKey=copy.EditionMode=="指定自己的产品密钥";copy.NeedsActivationKey=copy.UseActivationKey;copy.CustomProductKey="";copy.ActivationProductKey="";}
   return JsonSerializer.Serialize(copy,Options);
  }
  public static InstallPlan Deserialize(string json) {
@@ -30,6 +30,7 @@ public static class PlanStore {
    ProtectionSettings.NormalizeLoaded(p,document.RootElement);
    VmGuestToolsSettings.NormalizeLoaded(p,document.RootElement);
    AdditionalSetupSettings.NormalizeLoaded(p,document.RootElement);
+   WifiSettings.NormalizeLoaded(p,document.RootElement);
   }
   p.ClearDiskConsent();
   return p;

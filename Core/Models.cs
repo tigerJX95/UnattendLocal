@@ -186,6 +186,8 @@ public class InstallPlan : Observable {
  private bool _AutoLogon = true; public bool AutoLogon {get=>_AutoLogon;set=>Set(ref _AutoLogon,value);}
  private string _PasswordExpiration = "永不过期"; public string PasswordExpiration {get=>_PasswordExpiration;set=>Set(ref _PasswordExpiration,value);}
  private int _PasswordDays = 42; public int PasswordDays {get=>_PasswordDays;set=>Set(ref _PasswordDays,value);}
+ private string _WifiProfileXml=""; public string WifiProfileXml {get=>_WifiProfileXml;set{Set(ref _WifiProfileXml,value);if(!string.IsNullOrWhiteSpace(value))NeedsWifiProfile=false;}}
+ private bool _NeedsWifiProfile;public bool NeedsWifiProfile {get=>_NeedsWifiProfile;set=>Set(ref _NeedsWifiProfile,value);}
  private string _WifiMode = "安装时手动选择"; public string WifiMode {get=>_WifiMode;set=>Set(ref _WifiMode,value);}
  private string _Ssid = ""; public string Ssid {get=>_Ssid;set=>Set(ref _Ssid,value);}
  private string _WifiPassword = ""; public string WifiPassword {get=>_WifiPassword;set=>Set(ref _WifiPassword,value);}

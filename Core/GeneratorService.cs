@@ -37,12 +37,7 @@ public class GeneratorService {
    "自动创建本地账户"=>CreateAccounts(p),
    _=>throw new ArgumentException("请在用户与密码页明确选择账户创建方式。")
   };
-  IWifiSettings wifi=p.WifiMode switch {
-   "安装时手动选择"=>new InteractiveWifiSettings(),
-   "隐藏无线网络选择页"=>new SkipWifiSettings(),
-   "预设 WPA2 Wi-Fi"=>CreateWifi(p),
-   _=>throw new ArgumentException("网络模式无效。")
-  };
+  IWifiSettings wifi=WifiSettings.Build(p);
   if(p.BypassNetwork&&p.AccountMode=="安装时添加微软账户")throw new ArgumentException("微软账户模式需要联网，请关闭允许离线安装。");
   if(p.AccountMode=="自动创建本地账户"&&p.PasswordExpiration=="指定天数"&&(p.PasswordDays<1||p.PasswordDays>999))throw new ArgumentException("密码到期天数应为 1–999。");
   if(p.AccountMode=="自动创建本地账户"&&!p.AutoLogon&&!p.KeepSensitiveFiles)throw new ArgumentException("关闭首次自动登录时，无法自动清理安装隐私文件。请启用首次自动登录，或在 OOBE 页的“安装脚本与隐私文件”中明确勾选“保留安装隐私文件”。");
@@ -116,7 +111,7 @@ public class GeneratorService {
   foreach(XmlNode n in doc.SelectNodes("//u:ProductKey/u:Key | //u:component[@name='Microsoft-Windows-Shell-Setup']/u:ProductKey",ns)!)n.InnerText="[产品密钥已遮蔽]";
   foreach(XmlNode n in doc.SelectNodes("//*[local-name()='File']",ns)!)
    if(n.Attributes?["path"]?.Value.EndsWith("Wifi.xml",StringComparison.OrdinalIgnoreCase)==true)
-    n.InnerText=Regex.Replace(n.InnerText,@"(<keyMaterial>).*?(</keyMaterial>)","$1[密码已遮蔽]$2",RegexOptions.Singleline);
+    n.InnerText="[无线配置 XML 已整体遮蔽，可能含密码及其他认证资料]";
   using var sw=new StringWriter();using(var w=XmlWriter.Create(sw,new XmlWriterSettings{Indent=true,OmitXmlDeclaration=true}))doc.Save(w);
   return "预览（密码和产品密钥已遮蔽，不能用于安装）\n"+sw.ToString();
  }
@@ -137,12 +132,5 @@ public class GeneratorService {
   if(p.Users.Count==0)throw new ArgumentException("请至少添加一个本地账户。");
   foreach(var u in p.Users){if(string.IsNullOrWhiteSpace(u.Name))throw new ArgumentException("请填写每个本地账户的名称。");if(u.NeedsPassword&&!(u.AllowEmptyPassword&&string.IsNullOrEmpty(u.Password)))throw new ArgumentException($"请重新输入账户 {u.Name} 的密码，或明确允许空密码。");if(string.IsNullOrEmpty(u.Password)&&!u.AllowEmptyPassword)throw new ArgumentException($"账户 {u.Name} 未设置密码；如需空密码，请明确勾选允许空密码。");if(u.AllowEmptyPassword&&!string.IsNullOrEmpty(u.Password))throw new ArgumentException($"账户 {u.Name} 同时设置了密码和允许空密码，请选择一种。");}
   return new UnattendedAccountSettings(p.Users.Select(u=>new Account(u.Name,u.DisplayName,u.Password,u.Administrator?Constants.AdministratorsGroup:Constants.UsersGroup)).ToImmutableList(),p.AutoLogon?new OwnAutoLogonSettings():new NoneAutoLogonSettings(),p.ObscurePasswords);
- }
- private static IWifiSettings CreateWifi(InstallPlan p) {
-  if(p.NeedsWifiPassword)throw new ArgumentException("请重新输入 Wi-Fi 密码。");
-  var len=Encoding.UTF8.GetByteCount(p.Ssid);
-  if(len<1||len>32||p.Ssid.Any(char.IsControl)||p.Ssid.Contains('"')||p.Ssid.Contains('$')||p.Ssid.Contains((char)96))throw new ArgumentException("Wi-Fi 名称应为 1–32 字节，且不能包含控制字符、双引号、美元符号或反引号。");
-  if(p.WifiPassword.Length<8||p.WifiPassword.Length>63||p.WifiPassword.Any(c=>c<32||c>126))throw new ArgumentException("WPA2 密码应为 8–63 位可打印 ASCII 字符。");
-  return new ParameterizedWifiSettings(p.Ssid,p.WifiPassword,p.ConnectWifi,WifiAuthentications.WPA2PSK,p.HiddenWifi);
  }
 }

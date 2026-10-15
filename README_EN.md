@@ -4,7 +4,7 @@
 
 UnattendLocal is a Chinese-language Windows desktop tool based on [Christoph Schneegans’ UnattendGenerator](https://github.com/cschneegans/unattend-generator). It lets you edit, check, and generate `autounattend.xml` for Windows 10 / 11 locally.
 
-Current version: **V0.7**. This release adds Narrator-assisted setup, an option to make Edge uninstallable, and an option to disable System Restore on C:. It retains the original generation core and script execution stages. The tool prepares installation configuration; it does not execute the generated installation scripts on your current computer.
+Current version: **V0.8**. This release adds WPA3, open Wi-Fi, and wireless profile XML import/editing. It retains the original generation core and script execution stages. The tool prepares installation configuration; it does not execute the generated installation scripts on your current computer.
 
 ## 💡 Why this project exists
 
@@ -24,7 +24,7 @@ Offline use means editing, saving, and generating configuration locally. Microso
 | :---: | :---: |
 | ![Configuration plans in the light theme](docs/images/overview.png) | ![Edition and product key in the dark theme](docs/images/edition-and-key-dark.png) |
 
-These are actual V0.1 pre41 screenshots showing the light and dark themes. The current V0.7 release includes navigation changes and additional settings; refer to the current application for the latest interface. The application interface is currently in Chinese.
+These are actual V0.1 pre41 screenshots showing the light and dark themes. The current V0.8 release includes navigation changes and additional settings; refer to the current application for the latest interface. The application interface is currently in Chinese.
 
 ## ✨ Main features
 
@@ -39,17 +39,17 @@ These are actual V0.1 pre41 screenshots showing the light and dark themes. The c
 - Save and restore JSON plans; review summaries, recommended-setting differences, checks, redacted previews, and XML exports.
 - Import existing XML and edit supported settings while preserving unknown content. Export stops with an explanation when changes cannot be merged reliably.
 
-## ✨ V0.7 updates
+## ✨ V0.8 updates
 
-- Added Narrator-assisted setup: starts the screen reader in PE, during system setup, and at each user's first logon; requires media and audio support.
-- Added an option to attempt to make Edge uninstallable, without uninstalling Edge. Windows version, permissions, and updates can affect the result.
-- Added an option to disable System Restore on C: at the machine-wide first logon. Existing restore points may be deleted.
-- All three options are off by default, with JSON plans, summaries, recommendation differences/restoration, help, and independent XML editing/cancellation.
-- Import checks complete native scripts and execution pipelines, preserving unknown content. Fully recognized Narrator PE startup alone does not trigger disk-risk review; disk operations and unknown PE commands still require review.
+- Added WPA3-Personal presets using the native WPA3SAE and transitionMode configuration. Support depends on the target Windows system, wireless driver, and access point.
+- Exposed the native “Open Wi-Fi (no password, unencrypted)” option. Use it only after assessing the network and purpose; prefer WPA2 / WPA3 for personal networks. Open networks may still require a captive portal.
+- Added WLANProfile XML import, editing, and structural checks. Authentication and connection behavior come from the profile XML.
+- Integrated plans, summaries, help, recommendation differences, and answer-file import/editing while retaining existing WPA2 plans.
+- Saving without credentials omits the entire wireless profile XML; re-import it after loading. Preview hides the whole profile. Modified or inactive wireless setup scripts remain intact and cannot be overwritten unreliably.
 
 ## 📦 Download and usage
 
-Download and run the matching Windows x64 executable from the repository’s **Releases** page: `UnattendLocal_V0.7_x64_SelfContained.exe` or `UnattendLocal_V0.7_x64_FrameworkDependent.exe`. Choose `UnattendLocal_V0.7_x64_SelfContained.exe` for a bundled .NET runtime, or `UnattendLocal_V0.7_x64_FrameworkDependent.exe` if .NET 10 Desktop Runtime x64 is already installed. Both have the same features. Use a virtual machine for initial testing.
+Download and run the matching Windows x64 executable from the repository’s **Releases** page: `UnattendLocal_V0.8_x64_SelfContained.exe` or `UnattendLocal_V0.8_x64_FrameworkDependent.exe`. Choose `UnattendLocal_V0.8_x64_SelfContained.exe` for a bundled .NET runtime, or `UnattendLocal_V0.8_x64_FrameworkDependent.exe` if .NET 10 Desktop Runtime x64 is already installed. Both have the same features. Use a virtual machine for initial testing.
 
 1. Choose a recommended scenario or a custom configuration and enter the required account and image settings.
 2. Adjust system, appearance, and application removal options as needed.
@@ -62,9 +62,9 @@ Open a JSON plan to restore saved settings, or import an answer XML to continue 
 
 This version is published as an ordinary GitHub Release. Some non-core upstream settings will be implemented later. The project uses a fixed generation core with selective synchronization and does not claim complete parity with the latest upstream features.
 
-Narrator remains enabled until adjusted in Windows accessibility settings; customized PE media may lack speech or audio support. The Edge option only attempts a policy-file change: it does not uninstall Edge or WebView2, and Windows updates may revert it. Disabling System Restore on C: can delete existing restore points and removes that recovery path. Disabling UAC reduces elevation protection. Blocking WPBT does not modify firmware or uninstall software and may affect programs provided through that mechanism. VM guest tools require attached official tool media compatible with the target Windows version and architecture. Missing media means no installation. VirtIO Guest Tools do not replace Windows PE drivers; existing PE driver scripts in imported XML are preserved. Command-line auditing writes arguments in plain text to the security log and may expose credentials. Enabling only auditing does not force existing command-line capture policies off. Restart behavior depends on Windows version, organization policies, update deadlines, and user-scheduled restarts; this option does not guarantee preventing every restart. Schedule restarts yourself to complete updates. Disabling NTFS last-access updates may affect archival, backup, or cleanup rules that depend on those timestamps. Desktop image scripts must return raw image bytes, and the image must be accessible during installation. Lock-screen behavior depends on Windows edition and policies. Removing applications may affect related features; clearing a removal selection does not restore applications on an already installed system. Remote Desktop requires a supported target edition. Higher-priority policies may override RemoteSigned.
+WPA3 requires compatible Windows, wireless drivers, and access points. Open Wi-Fi does not encrypt the wireless link and may require a captive portal. Wireless profile XML may contain credentials; saving without credentials omits the whole profile. Automatic connection requires the profile name to match the SSID; encrypted keys are not portable. Prepare required certificates and drivers separately. Narrator remains enabled until adjusted in Windows accessibility settings; customized PE media may lack speech or audio support. The Edge option only attempts a policy-file change: it does not uninstall Edge or WebView2, and Windows updates may revert it. Disabling System Restore on C: can delete existing restore points and removes that recovery path. Disabling UAC reduces elevation protection. Blocking WPBT does not modify firmware or uninstall software and may affect programs provided through that mechanism. VM guest tools require attached official tool media compatible with the target Windows version and architecture. Missing media means no installation. VirtIO Guest Tools do not replace Windows PE drivers; existing PE driver scripts in imported XML are preserved. Command-line auditing writes arguments in plain text to the security log and may expose credentials. Enabling only auditing does not force existing command-line capture policies off. Restart behavior depends on Windows version, organization policies, update deadlines, and user-scheduled restarts; this option does not guarantee preventing every restart. Schedule restarts yourself to complete updates. Disabling NTFS last-access updates may affect archival, backup, or cleanup rules that depend on those timestamps. Desktop image scripts must return raw image bytes, and the image must be accessible during installation. Lock-screen behavior depends on Windows edition and policies. Removing applications may affect related features; clearing a removal selection does not restore applications on an already installed system. Remote Desktop requires a supported target edition. Higher-priority policies may override RemoteSigned.
 
-Exported XML, JSON plans containing credentials, and custom scripts may contain sensitive data. Remove passwords, keys, and tokens before sharing. The preview does not automatically identify secrets inside arbitrary scripts. Disk wiping and formatting may delete data; verify the target disk and back up first.
+Exported XML, JSON plans containing credentials, and custom scripts may contain sensitive data. Remove passwords, keys, and tokens before sharing. Preview hides the whole wireless profile, but does not automatically identify secrets inside arbitrary scripts. Disk wiping and formatting may delete data; verify the target disk and back up first.
 
 ## 🛠️ Build from source
 

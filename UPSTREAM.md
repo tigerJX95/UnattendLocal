@@ -89,3 +89,7 @@ Windows PowerShell 5.1 执行策略：https://learn.microsoft.com/en-us/powershe
 官网 download 合成样例不含账户、密码，选择 EnableRemoteDesktop/AllowPowerShellScripts，仅供解析、往返与取消检查，不执行脚本。
 
 pre45 发布准备核对：2026-10-14，GitHub 与官网当前提交 27237f82e9a8498d9c5bab7d398dc34b7682a1e8。本版本仅统一版本与发布资料，vendor 及 Core 实现与 pre44 逐字节一致，固定基线与选择性同步不变。
+
+
+V0.8 核对 · 2026-10-15：官网发布提交 27237f82e9a8498d9c5bab7d398dc34b7682a1e8，下载该提交 modifier/Wifi.cs 与固定 vendor 逐字节比较一致。仅本地扩展 WPA3/Open/XmlWifiSettings 映射及界面、凭据和导入联动，不修改 vendor。
+来源：https://raw.githubusercontent.com/cschneegans/unattend-generator/27237f82e9a8498d9c5bab7d398dc34b7682a1e8/modifier/Wifi.cs
