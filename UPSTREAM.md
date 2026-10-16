@@ -99,3 +99,8 @@ V0.9 核对 · 2026-10-16：官网发布提交 27237f82e9a8498d9c5bab7d398dc34b7
 命名源码：https://raw.githubusercontent.com/cschneegans/unattend-generator/27237f82e9a8498d9c5bab7d398dc34b7682a1e8/modifier/ComputerName.cs
 输入脚本：https://raw.githubusercontent.com/cschneegans/unattend-generator/27237f82e9a8498d9c5bab7d398dc34b7682a1e8/resource/ComputerNamePrompt.ps1
 语言源码：https://raw.githubusercontent.com/cschneegans/unattend-generator/27237f82e9a8498d9c5bab7d398dc34b7682a1e8/modifier/Locales.cs
+
+V0.10 核对 · 2026-10-16：GitHub 最新提交与官网发布均为 27237f82e9a8498d9c5bab7d398dc34b7682a1e8。下载该提交 modifier/Optimizations.cs 与固定 vendor 比较完全一致；本版仅本地映射 DisableSac、DisableSmartScreen、DisableCoreIsolation、HardenSystemDriveAcl，不修改 vendor。保留 SmartScreen 原生托盘隐藏副作用与默认用户阶段，核心隔离保留原生 VBS/HVCI 四个注册项，ACL 仅 C 盘根目录非递归移除指定组的允许项。官网与微软资料用于中文作用说明；不执行目标命令。
+来源：https://api.github.com/repos/cschneegans/unattend-generator/commits?per_page=1
+源码：https://raw.githubusercontent.com/cschneegans/unattend-generator/27237f82e9a8498d9c5bab7d398dc34b7682a1e8/modifier/Optimizations.cs
+使用范围及微软资料见 docs/SecurityOptions.md。

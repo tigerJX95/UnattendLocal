@@ -63,7 +63,7 @@ public static class AdditionalSetupSettings
         var mentions = Commands(doc, "specialize").Where(c => c.Contains("Extensions.ExtractScript", StringComparison.OrdinalIgnoreCase)).ToArray();
         return actual.Length == 1 && Normal(actual[0].InnerText) == Normal(expected.SelectSingleNode("//*[local-name()='ExtractScript']")!.InnerText) && mentions.Length == 1 && Style(mentions[0]) == Style(call);
     }
-    private static string[] KnownBlocks(XmlDocument doc, string name)
+    internal static string[] KnownBlocks(XmlDocument doc, string name)
     {
         string path = Root + name;
         var stage = Files(doc).Where(f => f.GetAttribute("path").Equals(path, StringComparison.OrdinalIgnoreCase)).ToArray();

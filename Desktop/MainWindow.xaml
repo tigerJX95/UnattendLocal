@@ -1,4 +1,4 @@
-<Window xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:local="clr-namespace:UnattendLocal.Desktop" xmlns:core="clr-namespace:UnattendLocal.Core;assembly=Core" x:Class="UnattendLocal.Desktop.MainWindow" Icon="Assets/App.ico" Title="Windows 无人值守配置工具 · V0.9" Width="1060" Height="780" MinWidth="850" MinHeight="620" Background="{DynamicResource CanvasBrush}" Foreground="{DynamicResource ForegroundBrush}" FontFamily="Microsoft YaHei UI" FontSize="14">
+<Window xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:local="clr-namespace:UnattendLocal.Desktop" xmlns:core="clr-namespace:UnattendLocal.Core;assembly=Core" x:Class="UnattendLocal.Desktop.MainWindow" Icon="Assets/App.ico" Title="Windows 无人值守配置工具 · V0.10" Width="1060" Height="780" MinWidth="850" MinHeight="620" Background="{DynamicResource CanvasBrush}" Foreground="{DynamicResource ForegroundBrush}" FontFamily="Microsoft YaHei UI" FontSize="14">
   <DockPanel>
     <Border DockPanel.Dock="Top" Background="{DynamicResource SurfaceBrush}" Padding="24,16">
       <DockPanel>
@@ -679,6 +679,22 @@
               <TextBlock Style="{StaticResource ExplanationText}" Text="　　可能影响厂商通过该机制提供的软件；不卸载已有应用，不修改 BIOS/UEFI 固件，也不等于全面阻止厂商软件安装。" Foreground="{DynamicResource WarningBrush}" Visibility="{Binding Plan.DisableWpbt,Converter={StaticResource VisibleWhen}}"/>
               <TextBlock Style="{StaticResource ExplanationText}" Text="　　两项只在目标 Windows 安装阶段设置，不修改当前电脑。取消勾选只影响新配置，不撤销已安装系统的设置。" Foreground="{DynamicResource SecondaryBrush}"/>
             </StackPanel></Border>
+            <Border Style="{StaticResource Card}"><StackPanel>
+              <TextBlock Text="应用与内核保护、系统盘权限" FontSize="20" FontWeight="SemiBold" Margin="0,0,0,16"/>
+              <TextBlock Style="{StaticResource ExplanationText}" Text="　　以下均为可选的目标安装设置，默认不勾选。不勾选表示不添加覆盖，遵循 Windows 和组织策略；本工具不修改当前电脑。" Foreground="{DynamicResource SecondaryBrush}"/>
+              <CheckBox Content="关闭智能应用控制（SAC）" IsChecked="{Binding Plan.DisableSac}" Margin="0,14,0,0" ToolTip="{Binding DataContext.HelpTips[sac],RelativeSource={RelativeSource AncestorType=Window}}"/>
+              <TextBlock Style="{StaticResource ExplanationText}" Text="　　Windows 11 的应用信任保护。关闭后可能需要重置或重装才能恢复，请勿当作临时暂停。" Foreground="{DynamicResource SecondaryBrush}"/>
+              <TextBlock Style="{StaticResource ExplanationText}" Text="　　会降低对不受信任应用的保护。取消勾选仅改变新配置，不重新启用已安装系统的智能应用控制。" Foreground="{DynamicResource WarningBrush}" Visibility="{Binding Plan.DisableSac,Converter={StaticResource VisibleWhen}}"/>
+              <CheckBox Content="关闭 Windows 与 Edge 的 SmartScreen" IsChecked="{Binding Plan.DisableSmartScreen}" Margin="0,14,0,0" ToolTip="{Binding DataContext.HelpTips[smartscreen],RelativeSource={RelativeSource AncestorType=Window}}"/>
+              <TextBlock Style="{StaticResource ExplanationText}" Text="　　关闭 Windows / Edge 的相关信誉、钓鱼及密码风险提示，并隐藏安全中心托盘图标；不关闭 Defender 防病毒引擎。" Foreground="{DynamicResource SecondaryBrush}"/>
+              <TextBlock Style="{StaticResource ExplanationText}" Text="　　会降低恶意网站、下载和应用的信誉检查保护，也会减少安全状态可见性。取消不恢复已安装系统。" Foreground="{DynamicResource WarningBrush}" Visibility="{Binding Plan.DisableSmartScreen,Converter={StaticResource VisibleWhen}}"/>
+              <CheckBox Content="关闭核心隔离（VBS / 内存完整性）" IsChecked="{Binding Plan.DisableCoreIsolation}" Margin="0,14,0,0" ToolTip="{Binding DataContext.HelpTips[coreisolation],RelativeSource={RelativeSource AncestorType=Window}}"/>
+              <TextBlock Style="{StaticResource ExplanationText}" Text="　　在安装阶段设置 VBS 与内存完整性相关项为关闭；不卸载 Hyper-V、WSL2 或虚拟机工具，不保证性能提升。" Foreground="{DynamicResource SecondaryBrush}"/>
+              <TextBlock Style="{StaticResource ExplanationText}" Text="　　会降低基于虚拟化的内核保护，可能影响依赖 VBS 的安全能力；驱动或虚拟机兼容性应先检查支持情况。" Foreground="{DynamicResource WarningBrush}" Visibility="{Binding Plan.DisableCoreIsolation,Converter={StaticResource VisibleWhen}}"/>
+              <CheckBox Content="收紧 C 盘根目录写入权限" IsChecked="{Binding Plan.HardenSystemDriveAcl}" Margin="0,14,0,0" ToolTip="{Binding DataContext.HelpTips[rootacl],RelativeSource={RelativeSource AncestorType=Window}}"/>
+              <TextBlock Style="{StaticResource ExplanationText}" Text="　　从 C 盘根目录移除 Authenticated Users 组的显式允许权限；非递归操作，可能影响依赖普通用户在根目录创建文件夹的程序。" Foreground="{DynamicResource SecondaryBrush}"/>
+              <TextBlock Style="{StaticResource ExplanationText}" Text="　　只收紧指定组在 C 盘根目录的权限，不重设整个磁盘 ACL，也不替代用户权限管理；取消不还原已安装系统权限。" Foreground="{DynamicResource WarningBrush}" Visibility="{Binding Plan.HardenSystemDriveAcl,Converter={StaticResource VisibleWhen}}"/>
+</StackPanel></Border>
             <Border Style="{StaticResource Card}"><StackPanel>
               <TextBlock Text="进程创建审计（高级）" FontSize="20" FontWeight="SemiBold" Margin="0,0,0,16"/>
               <ComboBox ItemsSource="{Binding ProcessAuditModes}" SelectedItem="{Binding Plan.ProcessAuditMode}" ToolTip="{Binding DataContext.HelpTips[processaudit],RelativeSource={RelativeSource AncestorType=Window}}"/>

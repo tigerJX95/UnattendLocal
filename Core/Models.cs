@@ -34,6 +34,10 @@ public class InstallPlan : Observable {
  private bool _VirtIoGuestTools;public bool VirtIoGuestTools {get=>_VirtIoGuestTools;set=>Set(ref _VirtIoGuestTools,value);}
  private bool _ParallelsTools;public bool ParallelsTools {get=>_ParallelsTools;set=>Set(ref _ParallelsTools,value);}
  private bool _DisableUac;public bool DisableUac {get=>_DisableUac;set=>Set(ref _DisableUac,value);}
+ private bool _DisableSac;public bool DisableSac {get=>_DisableSac;set=>Set(ref _DisableSac,value);}
+ private bool _DisableSmartScreen;public bool DisableSmartScreen {get=>_DisableSmartScreen;set=>Set(ref _DisableSmartScreen,value);}
+ private bool _DisableCoreIsolation;public bool DisableCoreIsolation {get=>_DisableCoreIsolation;set=>Set(ref _DisableCoreIsolation,value);}
+ private bool _HardenSystemDriveAcl;public bool HardenSystemDriveAcl {get=>_HardenSystemDriveAcl;set=>Set(ref _HardenSystemDriveAcl,value);}
  private bool _DisableWpbt;public bool DisableWpbt {get=>_DisableWpbt;set=>Set(ref _DisableWpbt,value);}
  private string _ProcessAuditMode=ProcessAuditSettings.Default;public string ProcessAuditMode {get=>_ProcessAuditMode;set=>Set(ref _ProcessAuditMode,value);}
  private bool _PreventAutomaticReboot;public bool PreventAutomaticReboot {get=>_PreventAutomaticReboot;set=>Set(ref _PreventAutomaticReboot,value);}

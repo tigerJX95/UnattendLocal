@@ -46,6 +46,7 @@ public class GeneratorService {
    ProcessAuditSettings=ProcessAuditSettings.Build(p),
    UseNarrator=p.UseNarrator,MakeEdgeUninstallable=p.MakeEdgeUninstallable,DisableSystemRestore=p.DisableSystemRestore,
    DisableUac=p.DisableUac,DisableWpbt=p.DisableWpbt,
+   DisableSac=p.DisableSac,DisableSmartScreen=p.DisableSmartScreen,DisableCoreIsolation=p.DisableCoreIsolation,HardenSystemDriveAcl=p.HardenSystemDriveAcl,
    VMwareTools=p.VMwareTools,VBoxGuestAdditions=p.VBoxGuestAdditions,VirtIoGuestTools=p.VirtIoGuestTools,ParallelsTools=p.ParallelsTools,
    EnableRemoteDesktop=p.EnableRemoteDesktop,AllowPowerShellScripts=p.AllowPowerShellScripts,
    PreventAutomaticReboot=p.PreventAutomaticReboot,DisableLastAccess=p.DisableLastAccess,

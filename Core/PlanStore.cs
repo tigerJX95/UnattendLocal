@@ -30,6 +30,7 @@ public static class PlanStore {
    ProtectionSettings.NormalizeLoaded(p,document.RootElement);
    VmGuestToolsSettings.NormalizeLoaded(p,document.RootElement);
    AdditionalSetupSettings.NormalizeLoaded(p,document.RootElement);
+   SecurityOptions.NormalizeLoaded(p,document.RootElement);
    WifiSettings.NormalizeLoaded(p,document.RootElement);
    ComputerNamingSettings.NormalizeLoaded(p,document.RootElement);
    LanguagePreferences.NormalizeLoaded(p,document.RootElement);
