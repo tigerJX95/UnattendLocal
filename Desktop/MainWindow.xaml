@@ -1,4 +1,4 @@
-<Window xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:local="clr-namespace:UnattendLocal.Desktop" xmlns:core="clr-namespace:UnattendLocal.Core;assembly=Core" x:Class="UnattendLocal.Desktop.MainWindow" Icon="Assets/App.ico" Title="Windows 无人值守配置工具 · V0.8" Width="1060" Height="780" MinWidth="850" MinHeight="620" Background="{DynamicResource CanvasBrush}" Foreground="{DynamicResource ForegroundBrush}" FontFamily="Microsoft YaHei UI" FontSize="14">
+<Window xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:local="clr-namespace:UnattendLocal.Desktop" xmlns:core="clr-namespace:UnattendLocal.Core;assembly=Core" x:Class="UnattendLocal.Desktop.MainWindow" Icon="Assets/App.ico" Title="Windows 无人值守配置工具 · V0.9" Width="1060" Height="780" MinWidth="850" MinHeight="620" Background="{DynamicResource CanvasBrush}" Foreground="{DynamicResource ForegroundBrush}" FontFamily="Microsoft YaHei UI" FontSize="14">
   <DockPanel>
     <Border DockPanel.Dock="Top" Background="{DynamicResource SurfaceBrush}" Padding="24,16">
       <DockPanel>
@@ -75,8 +75,16 @@
             <Border Style="{StaticResource Card}">
               <StackPanel>
                 <TextBlock Text="基础设置" FontSize="20" FontWeight="SemiBold" Margin="0,0,0,16" />
-                <TextBlock Text="计算机名（留空自动生成）" Foreground="{DynamicResource SecondaryBrush}" ToolTip="{Binding DataContext.HelpTips[computer],RelativeSource={RelativeSource AncestorType=Window}}" />
-                <TextBox Text="{Binding Plan.ComputerName,UpdateSourceTrigger=PropertyChanged}" ToolTip="{Binding DataContext.HelpTips[computer],RelativeSource={RelativeSource AncestorType=Window}}" />
+                <TextBlock Text="计算机命名" Foreground="{DynamicResource SecondaryBrush}" ToolTip="{Binding DataContext.HelpTips[computer],RelativeSource={RelativeSource AncestorType=Window}}" />
+                <ComboBox SelectedValue="{Binding Plan.ComputerNameMode}" SelectedValuePath="Tag" ToolTip="{Binding DataContext.HelpTips[computer],RelativeSource={RelativeSource AncestorType=Window}}"><ComboBoxItem Content="固定名称（留空由 Windows 自动生成）" Tag="Existing"/><ComboBoxItem Content="安装时输入名称" Tag="Prompt"/><ComboBoxItem Content="使用 PowerShell 脚本生成名称" Tag="Script"/></ComboBox>
+                <TextBox IsEnabled="{Binding IsFixedComputerName}" Text="{Binding Plan.ComputerName,UpdateSourceTrigger=PropertyChanged}" ToolTip="{Binding DataContext.HelpTips[computer],RelativeSource={RelativeSource AncestorType=Window}}" />
+                <TextBlock Text="{Binding ComputerNameSummary}" TextWrapping="Wrap" Margin="0,6"/>
+                <TextBlock Style="{StaticResource ExplanationText}" Text="　　安装时弹出独立输入对话框，可配合隐藏 PowerShell。无效或取消输入时继续提示，需输入有效名称才能继续；名称不应与本地账户同名。" Foreground="{DynamicResource WarningBrush}" Visibility="{Binding IsPromptComputerName,Converter={StaticResource VisibleWhen}}"/>
+                <StackPanel Visibility="{Binding IsScriptComputerName,Converter={StaticResource VisibleWhen}}">
+                  <TextBlock Style="{StaticResource ExplanationText}" Text="　　脚本需返回一个有效计算机名，仅在目标安装阶段执行。本工具不执行脚本，不能预先保证返回值有效。示例不参与生成；命名脚本始终按原文保存，分享前自行移除秘密。" Foreground="{DynamicResource SecondaryBrush}"/>
+                  <Button Content="复制示例" Command="{x:Static local:ExampleText.CopyCommand}" CommandParameter="{Binding ElementName=ComputerNameScriptEditor}"/>
+                  <TextBox x:Name="ComputerNameScriptEditor" Text="{Binding Plan.ComputerNameScript,UpdateSourceTrigger=PropertyChanged}" local:ExampleText.Value="{Binding ComputerNameExample}" Style="{StaticResource ExampleEditor}" AcceptsReturn="True" AcceptsTab="True" Height="150" FontFamily="Consolas" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto" ToolTip="{Binding DataContext.HelpTips[computer],RelativeSource={RelativeSource AncestorType=Window}}"/>
+                </StackPanel>
                 <TextBlock Text="目标架构" Foreground="{DynamicResource SecondaryBrush}" ToolTip="{Binding DataContext.HelpTips[architecture],RelativeSource={RelativeSource AncestorType=Window}}" />
                 <ComboBox SelectedValue="{Binding Plan.Architecture}" SelectedValuePath="Tag" ToolTip="{Binding DataContext.HelpTips[architecture],RelativeSource={RelativeSource AncestorType=Window}}">
                   <ComboBoxItem Content="x64（Intel / AMD 64 位）" Tag="amd64">
@@ -119,6 +127,22 @@
                 <ComboBox ItemsSource="{Binding Locales}" DisplayMemberPath="Label" SelectedValuePath="Id" SelectedValue="{Binding Plan.Locale}" ToolTip="{Binding DataContext.HelpTips[language],RelativeSource={RelativeSource AncestorType=Window}}" />
                 <TextBlock Text="键盘 / 输入法" Foreground="{DynamicResource SecondaryBrush}" ToolTip="{Binding DataContext.HelpTips[language],RelativeSource={RelativeSource AncestorType=Window}}" />
                 <ComboBox ItemsSource="{Binding Keyboards}" DisplayMemberPath="Label" SelectedValuePath="Id" SelectedValue="{Binding Plan.Keyboard}" ToolTip="{Binding DataContext.HelpTips[language],RelativeSource={RelativeSource AncestorType=Window}}" />
+                <CheckBox Content="启用第二组语言与键盘" IsChecked="{Binding Plan.UseSecondLanguage}" ToolTip="{Binding DataContext.HelpTips[extralanguages],RelativeSource={RelativeSource AncestorType=Window}}"/>
+                <StackPanel IsEnabled="{Binding IsSecondLanguage}">
+                  <TextBlock Text="第二组语言"/>
+                  <ComboBox ItemsSource="{Binding Locales}" DisplayMemberPath="Label" SelectedValuePath="Id" SelectedValue="{Binding Plan.SecondLocale}"/>
+                  <TextBlock Text="第二组键盘 / 输入法"/>
+                  <ComboBox ItemsSource="{Binding Keyboards}" DisplayMemberPath="Label" SelectedValuePath="Id" SelectedValue="{Binding Plan.SecondKeyboard}"/>
+                </StackPanel>
+                <CheckBox Content="启用第三组语言与键盘" IsChecked="{Binding Plan.UseThirdLanguage}" ToolTip="{Binding DataContext.HelpTips[extralanguages],RelativeSource={RelativeSource AncestorType=Window}}"/>
+                <StackPanel IsEnabled="{Binding IsThirdLanguage}">
+                  <TextBlock Text="第三组语言"/>
+                  <ComboBox ItemsSource="{Binding Locales}" DisplayMemberPath="Label" SelectedValuePath="Id" SelectedValue="{Binding Plan.ThirdLocale}"/>
+                  <TextBlock Text="第三组键盘 / 输入法"/>
+                  <ComboBox ItemsSource="{Binding Keyboards}" DisplayMemberPath="Label" SelectedValuePath="Id" SelectedValue="{Binding Plan.ThirdKeyboard}"/>
+                </StackPanel>
+                <TextBlock Text="{Binding LanguagePreferencesSummary}" TextWrapping="Wrap" Margin="0,6"/>
+                <TextBlock Style="{StaticResource ExplanationText}" Text="　　第一组决定初始区域格式；额外组只配置语言偏好与输入布局，不安装语言包，也不改变本工具的界面语言。" Foreground="{DynamicResource SecondaryBrush}"/>
                 <TextBlock Text="国家或地区" Foreground="{DynamicResource SecondaryBrush}" ToolTip="{Binding DataContext.HelpTips[region],RelativeSource={RelativeSource AncestorType=Window}}" />
                 <ComboBox ItemsSource="{Binding Regions}" DisplayMemberPath="Label" SelectedValuePath="Id" SelectedValue="{Binding Plan.GeoId}" ToolTip="{Binding DataContext.HelpTips[region],RelativeSource={RelativeSource AncestorType=Window}}" />
                 </StackPanel>
@@ -541,23 +565,23 @@
                       </ToolTip>
                     </ComboBoxItem.ToolTip>
                   </ComboBoxItem>
-                  <ComboBoxItem Content="预设 WPA2 Wi-Fi" Tag="预设 WPA2 Wi-Fi">
+                  <ComboBoxItem Content="WPA2-Personal（AES）" Tag="预设 WPA2 Wi-Fi">
                     <ComboBoxItem.ToolTip>
                       <ToolTip ContentTemplate="{x:Null}">
                         <StackPanel>
-                          <TextBlock Text="预设 WPA2 Wi-Fi" FontWeight="SemiBold" TextWrapping="Wrap" Margin="0,0,0,8" />
-                          <TextBlock Text="使用本页 SSID 和密码生成 WPA2-Personal 配置，需安装镜像包含相应网卡驱动。" TextWrapping="Wrap" />
+                          <TextBlock Text="WPA2-Personal（AES）" FontWeight="SemiBold" TextWrapping="Wrap" Margin="0,0,0,8" />
+                          <TextBlock Text="使用本页 SSID 和密码生成 WPA2-Personal（AES）配置，需安装镜像包含相应网卡驱动。" TextWrapping="Wrap" />
                         </StackPanel>
                       </ToolTip>
                     </ComboBoxItem.ToolTip>
                   </ComboBoxItem>
-                  <ComboBoxItem Content="预设 WPA3 Wi-Fi（Personal）" Tag="预设 WPA3 Wi-Fi"/>
+                  <ComboBoxItem Content="WPA3-Personal（AES，启用过渡模式）" Tag="预设 WPA3 Wi-Fi"/>
                   <ComboBoxItem Content="开放 Wi-Fi（无密码、不加密）" Tag="预设开放 Wi-Fi"/>
                   <ComboBoxItem Content="使用 Wi-Fi 配置 XML" Tag="使用 Wi-Fi 配置 XML"/>
                 </ComboBox>
                 <TextBlock Text="{Binding WifiSummary}" TextWrapping="Wrap" Margin="0,8"/>
                 <TextBlock Style="{StaticResource ExplanationText}" Text="　　开放网络不提供无线链路加密。仅在确认网络和用途后使用；个人网络优先选择 WPA2 / WPA3。可能仍需网页门户认证。" Foreground="{DynamicResource WarningBrush}" Visibility="{Binding IsOpenWifi,Converter={StaticResource VisibleWhen}}"/>
-                <TextBlock Style="{StaticResource ExplanationText}" Text="　　WPA3 沿用原生成器配置，需目标 Windows、无线网卡/驱动及接入点共同支持。开放网络无无线链路加密，可能仍需门户认证。" Foreground="{DynamicResource SecondaryBrush}"/>
+                <TextBlock Style="{StaticResource ExplanationText}" Text="　　WPA3-Personal（AES，启用过渡模式）需目标 Windows、无线网卡/驱动及接入点共同支持。网络也支持过渡模式时，可兼容仅支持 WPA2-PSK 的客户端。开放网络无无线链路加密，可能仍需门户认证。" Foreground="{DynamicResource SecondaryBrush}"/>
                 <StackPanel IsEnabled="{Binding IsPresetWifi}">
                   <TextBlock Text="Wi-Fi 名称（SSID）" Foreground="{DynamicResource SecondaryBrush}" ToolTip="{Binding DataContext.HelpTips[ssid],RelativeSource={RelativeSource AncestorType=Window}}" />
                   <TextBox Text="{Binding Plan.Ssid,UpdateSourceTrigger=PropertyChanged}" ToolTip="{Binding DataContext.HelpTips[ssid],RelativeSource={RelativeSource AncestorType=Window}}" />

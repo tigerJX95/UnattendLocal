@@ -11,6 +11,7 @@ public static class WifiSettings
     public const int MaxProfileLength = 512 * 1024;
     private const string Root = @"C:\Windows\Setup\Scripts\";
     private const string WlanNamespace = "http://www.microsoft.com/networking/WLAN/profile/v1";
+    public static string ModeLabel(string mode) => mode switch { Wpa2 => "WPA2-Personal（AES）", Wpa3 => "WPA3-Personal（AES，启用过渡模式）", Open => "开放 Wi-Fi（无密码、不加密）", _ => mode };
     public static bool IsPreset(InstallPlan p) => p.WifiMode is Wpa2 or Wpa3 or Open;
     public static bool NeedsPassword(InstallPlan p) => p.WifiMode is Wpa2 or Wpa3;
     public static bool HasProfile(InstallPlan p) => IsPreset(p) || p.WifiMode == Profile;
@@ -135,7 +136,7 @@ public static class WifiSettings
     public static string Summary(InstallPlan p) => p.WifiMode switch
     {
         Profile => "无线配置：使用 WLANProfile XML（名称、认证及连接方式由 XML 决定；可能含凭据）" + (p.NeedsWifiProfile || string.IsNullOrWhiteSpace(p.WifiProfileXml) ? "；需重新导入配置" : ""),
-        Wpa2 or Wpa3 or Open => "无线配置：" + (p.WifiMode == Open ? "开放 Wi-Fi（无密码、不加密）" : p.WifiMode) + "；" + (p.HiddenWifi ? "隐藏网络" : "广播网络") + "；" + (p.ConnectWifi ? "自动连接" : "只添加配置，不发起连接") + (p.WifiMode == Open ? "（无无线链路加密，可能仍需门户认证）" : ""),
+        Wpa2 or Wpa3 or Open => "无线配置：" + ModeLabel(p.WifiMode) + "；" + (p.HiddenWifi ? "隐藏网络" : "广播网络") + "；" + (p.ConnectWifi ? "自动连接" : "只添加配置，不发起连接") + (p.WifiMode == Open ? "（无无线链路加密，可能仍需门户认证）" : ""),
         _ => "无线配置：" + p.WifiMode
     };
     public static void NormalizeLoaded(InstallPlan p, JsonElement json)

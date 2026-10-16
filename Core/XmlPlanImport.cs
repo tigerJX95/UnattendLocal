@@ -27,6 +27,8 @@ public static class XmlPlanImport {
   }
   // Credentials come from actual XML, never from form comments or the reversible settings note.
   ReadCredentials(doc,ns,p,notes);
+  ComputerNamingSettings.ReadIntoPlan(doc,p,notes);
+  LanguagePreferences.ReadIntoPlan(doc,p,notes);
   WifiSettings.ReadIntoPlan(doc,p,notes);
   CommonSystemSettings.ReadIntoPlan(doc,p,notes);
   ImageBackgroundSettings.ReadIntoPlan(doc,p,notes);
@@ -66,7 +68,6 @@ public static class XmlPlanImport {
    p.ImageLanguage=language;p.Locale=Text(doc,"//u:component[@name='Microsoft-Windows-International-Core']/u:UserLocale",ns)??"";
    string input=Text(doc,"//u:component[@name='Microsoft-Windows-International-Core']/u:InputLocale",ns)??"";var first=input.Split(';')[0];
    p.Keyboard=service.Keyboards.Any(k=>k.Id==first)?first:first.Contains(':')?first[(first.IndexOf(':')+1)..]:first;
-   if(input.Contains(';'))notes.Add("检测到多个键盘/区域组合；界面仅显示第一组，其他组合保留在 XML 中，修改相关组合时可能产生冲突。");
    var generator=new UnattendGenerator();p.GeoId=generator.UserLocales.TryGetValue(p.Locale,out var locale)?locale.GeoLocation?.Id??"45":"45";
    var geo=Match(doc.InnerText,@"Set-WinHomeLocation -GeoId (\d+)");if(geo.Success)p.GeoId=geo.Groups[1].Value;
   }
@@ -217,7 +218,7 @@ public static class XmlPlanImport {
   p.RestartExplorerAfterScripts=Checked("RestartExplorer");known.Add("RestartExplorer");
   known.Add("ProcessAudit");known.Add("IncludeCommandLine");
   // Native XML and payload readers handle these; credentials are never accepted from comments.
-  foreach(var key in new[]{"LanguageMode","UILanguage","Locale","Keyboard","GeoLocation","ComputerNameMode","ComputerName","TimeZoneMode","TimeZone","WindowsEditionMode","WindowsEdition","ProductKey","UseActivationKey","ActivationKey","UserAccountMode","AutoLogonMode","ObscurePasswords","PasswordExpirationMode","PasswordMaxAge","LockoutMode","LockoutThreshold","LockoutWindow","LockoutDuration","WifiMode","WifiName","WifiPassword","WifiAuthentication","WifiNonBroadcast","ExpressSettings","TaskbarSearch","HideFiles","TaskbarIconsMode","TaskbarIconsXml","StartTilesMode","StartTilesXml","StartPinsMode","StartPinsJson","ColorMode","SystemColorTheme","AppsColorTheme","AccentColor","AccentColorOnStart","AccentColorOnBorders","EnableTransparency","WallpaperMode","WallpaperColor","WallpaperScript","LockScreenMode","LockScreenScript","LockKeysMode","ProcessorArchitecture","BypassRequirementsCheck","BypassNetworkCheck","StickyKeysHotKeyActive","StickyKeysHotKeySound","StickyKeysIndicator","StickyKeysAudibleFeedback","StickyKeysTriState","StickyKeysTwoKeysOff","NotFilename","CompactOs"})known.Add(key);
+  foreach(var key in new[]{"LanguageMode","UILanguage","Locale","Keyboard","GeoLocation","ComputerNameMode","ComputerName","ComputerNameScript","Locale2","Keyboard2","Locale3","Keyboard3","TimeZoneMode","TimeZone","WindowsEditionMode","WindowsEdition","ProductKey","UseActivationKey","ActivationKey","UserAccountMode","AutoLogonMode","ObscurePasswords","PasswordExpirationMode","PasswordMaxAge","LockoutMode","LockoutThreshold","LockoutWindow","LockoutDuration","WifiMode","WifiName","WifiPassword","WifiAuthentication","WifiNonBroadcast","ExpressSettings","TaskbarSearch","HideFiles","TaskbarIconsMode","TaskbarIconsXml","StartTilesMode","StartTilesXml","StartPinsMode","StartPinsJson","ColorMode","SystemColorTheme","AppsColorTheme","AccentColor","AccentColorOnStart","AccentColorOnBorders","EnableTransparency","WallpaperMode","WallpaperColor","WallpaperScript","LockScreenMode","LockScreenScript","LockKeysMode","ProcessorArchitecture","BypassRequirementsCheck","BypassNetworkCheck","StickyKeysHotKeyActive","StickyKeysHotKeySound","StickyKeysIndicator","StickyKeysAudibleFeedback","StickyKeysTriState","StickyKeysTwoKeysOff","NotFilename","CompactOs"})known.Add(key);
   foreach(var pair in values){
    if(known.Contains(pair.Key)||Match(pair.Key,@"^(Account(Name|DisplayName|Password|Group)|(?:System|DefaultUser|FirstLogon|UserOnce)Script(?:Type)?)[0-9]+$").Success)continue;
    if(pair.Value is "false" or "Default" or "" or "Implicit")continue;
@@ -241,6 +242,7 @@ public static class XmlPlanImport {
   copy.Scripts=new(copy.Scripts.Where(s=>s.Enabled&&!s.IsRemovedType));
   if(copy.AccountMode!="自动创建本地账户")copy.Users.Clear();
   if(!WifiSettings.IsPreset(copy)){copy.Ssid="";copy.WifiPassword="";}
+  if(copy.ComputerNameMode!=ComputerNamingSettings.Script)copy.ComputerNameScript="";
   if(copy.TaskbarIconsMode!=ShellSettings.CustomXml)copy.TaskbarIconsXml="";
   if(copy.StartTilesMode!=ShellSettings.CustomXml)copy.StartTilesXml="";
   if(copy.StartPinsMode!=ShellSettings.CustomJson)copy.StartPinsJson="";
@@ -257,6 +259,8 @@ public static class XmlPlanImport {
   if(data.Blockers.Length>0)throw new ArgumentException(string.Join("\n",data.Blockers));
   var source=XmlMerge.Read(data.SourceXml);
   CompactOsSettings.ValidateImported(p,source);
+  ComputerNamingSettings.ValidateImported(p,source);
+  LanguagePreferences.ValidateImported(p,source);
   WifiSettings.ValidateImported(p,source);
   CommonSystemSettings.ValidateImported(p,source);
   ImageBackgroundSettings.ValidateImported(p,source);

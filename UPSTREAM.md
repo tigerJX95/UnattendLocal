@@ -93,3 +93,9 @@ pre45 发布准备核对：2026-10-14，GitHub 与官网当前提交 27237f82e9a
 
 V0.8 核对 · 2026-10-15：官网发布提交 27237f82e9a8498d9c5bab7d398dc34b7682a1e8，下载该提交 modifier/Wifi.cs 与固定 vendor 逐字节比较一致。仅本地扩展 WPA3/Open/XmlWifiSettings 映射及界面、凭据和导入联动，不修改 vendor。
 来源：https://raw.githubusercontent.com/cschneegans/unattend-generator/27237f82e9a8498d9c5bab7d398dc34b7682a1e8/modifier/Wifi.cs
+
+V0.9 核对 · 2026-10-16：官网发布提交 27237f82e9a8498d9c5bab7d398dc34b7682a1e8。modifier/Locales.cs 与固定 vendor 完全一致；ComputerName.cs 新增的 PromptComputerNameSettings 仅将官方 ComputerNamePrompt.ps1 交给既有 ScriptComputerNameSettings。为保持 vendor 不变，本地 Core 原样嵌入该官方资源并调用固定核心的脚本命名流程，保留 MIT 版权及许可证。命名对话框使用 Microsoft.VisualBasic.InputBox，支持隐藏 PowerShell，不改为命令行提示；自定义脚本同样不在宿主执行。
+官网：https://schneegans.de/windows/unattend-generator/
+命名源码：https://raw.githubusercontent.com/cschneegans/unattend-generator/27237f82e9a8498d9c5bab7d398dc34b7682a1e8/modifier/ComputerName.cs
+输入脚本：https://raw.githubusercontent.com/cschneegans/unattend-generator/27237f82e9a8498d9c5bab7d398dc34b7682a1e8/resource/ComputerNamePrompt.ps1
+语言源码：https://raw.githubusercontent.com/cschneegans/unattend-generator/27237f82e9a8498d9c5bab7d398dc34b7682a1e8/modifier/Locales.cs

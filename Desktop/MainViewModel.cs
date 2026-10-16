@@ -35,7 +35,7 @@ public class MainViewModel : Observable {
   ObserveUsers();SelectedUser=plan.Users.FirstOrDefault();RefreshAll();InvalidatePreview();
  }}
  private UserEntry? selected;public UserEntry? SelectedUser {get=>selected;set{Set(ref selected,value);RefreshHelp();}}
- private string preview="配置完成后，点击“检查与预览”。",status="就绪 · V0.8";
+ private string preview="配置完成后，点击“检查与预览”。",status="就绪 · V0.9";
  public string Preview {get=>preview;set=>Set(ref preview,value);} public string Status {get=>status;set=>Set(ref status,value);}
  public GeneratorService Service {get;}=new();
  public List<GeneratorService.Choice> Editions=>Service.Editions;
@@ -43,6 +43,14 @@ public class MainViewModel : Observable {
  public bool IsAuditCommandLine=>Plan.ProcessAuditMode==ProcessAuditSettings.WithCommandLine;
  private bool isGenericEdition,isCustomEdition,isPresetWifi;private string selectedEditionKey="",editionHint="";
  public bool IsPresetWifi {get=>isPresetWifi;private set=>Set(ref isPresetWifi,value);}
+ public bool IsFixedComputerName=>Plan.ComputerNameMode==ComputerNamingSettings.Existing;
+ public bool IsPromptComputerName=>Plan.ComputerNameMode==ComputerNamingSettings.Prompt;
+ public bool IsScriptComputerName=>Plan.ComputerNameMode==ComputerNamingSettings.Script;
+ public string ComputerNameExample=>ComputerNamingSettings.Example;
+ public string ComputerNameSummary=>ComputerNamingSettings.Summary(Plan);
+ public string LanguagePreferencesSummary=>LanguagePreferences.Summary(Plan);
+ public bool IsSecondLanguage=>Plan.UseSecondLanguage&&!Plan.InteractiveLanguage;
+ public bool IsThirdLanguage=>Plan.UseThirdLanguage&&!Plan.InteractiveLanguage;
  public bool IsPasswordWifi=>WifiSettings.NeedsPassword(Plan);
  public bool IsOpenWifi=>Plan.WifiMode==WifiSettings.Open;
  public bool IsXmlWifi=>Plan.WifiMode==WifiSettings.Profile;
@@ -86,7 +94,7 @@ public class MainViewModel : Observable {
   }finally{updating=false;}
   RefreshAll();InvalidatePreview();
  }
- private void RefreshAll(){Notify(nameof(IsAuditCommandLine));RefreshRecommendations();RefreshEdition();RefreshNetwork();RefreshShell();RefreshDesktop();RefreshVisualEffects();RefreshColors();RefreshWallpaper();RefreshLockKeys();RefreshStickyKeys();RefreshAccountLockout();RefreshXmlImport();RefreshCompactOs();RefreshHelp();}
+ private void RefreshAll(){foreach(var name in new[]{nameof(IsFixedComputerName),nameof(IsPromptComputerName),nameof(IsScriptComputerName),nameof(ComputerNameSummary),nameof(LanguagePreferencesSummary),nameof(IsSecondLanguage),nameof(IsThirdLanguage)})Notify(name);Notify(nameof(IsAuditCommandLine));RefreshRecommendations();RefreshEdition();RefreshNetwork();RefreshShell();RefreshDesktop();RefreshVisualEffects();RefreshColors();RefreshWallpaper();RefreshLockKeys();RefreshStickyKeys();RefreshAccountLockout();RefreshXmlImport();RefreshCompactOs();RefreshHelp();}
  public bool IsCustomAccountLockout=>Plan.AccountLockoutMode==AccountLockoutPolicy.Custom;
  public bool IsAccountLockoutDisabled=>AccountLockoutPolicy.IsDisabled(Plan);
  public string AccountLockoutSummary=>AccountLockoutPolicy.ModeSummary(Plan);

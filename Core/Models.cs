@@ -16,6 +16,15 @@ public class UserEntry : Observable {
  private bool _NeedsPassword = false; public bool NeedsPassword {get=>_NeedsPassword;set=>Set(ref _NeedsPassword,value);}
 }
 public class InstallPlan : Observable {
+ private string _ComputerNameMode=ComputerNamingSettings.Existing;public string ComputerNameMode {get=>_ComputerNameMode;set=>Set(ref _ComputerNameMode,value);}
+ private string _ComputerNameScript="";public string ComputerNameScript {get=>_ComputerNameScript;set=>Set(ref _ComputerNameScript,value);}
+ private bool _UseSecondLanguage=false;public bool UseSecondLanguage {get=>_UseSecondLanguage;set=>Set(ref _UseSecondLanguage,value);}
+ private bool _UseThirdLanguage=false;public bool UseThirdLanguage {get=>_UseThirdLanguage;set=>Set(ref _UseThirdLanguage,value);}
+ private string _SecondLocale="";public string SecondLocale {get=>_SecondLocale;set=>Set(ref _SecondLocale,value);}
+ private string _SecondKeyboard="";public string SecondKeyboard {get=>_SecondKeyboard;set=>Set(ref _SecondKeyboard,value);}
+ private string _ThirdLocale="";public string ThirdLocale {get=>_ThirdLocale;set=>Set(ref _ThirdLocale,value);}
+ private string _ThirdKeyboard="";public string ThirdKeyboard {get=>_ThirdKeyboard;set=>Set(ref _ThirdKeyboard,value);}
+
  private bool _UseNarrator;public bool UseNarrator {get=>_UseNarrator;set=>Set(ref _UseNarrator,value);}
  private bool _MakeEdgeUninstallable;public bool MakeEdgeUninstallable {get=>_MakeEdgeUninstallable;set=>Set(ref _MakeEdgeUninstallable,value);}
  private bool _DisableSystemRestore;public bool DisableSystemRestore {get=>_DisableSystemRestore;set=>Set(ref _DisableSystemRestore,value);}

@@ -4,7 +4,7 @@
 
 UnattendLocal is a Chinese-language Windows desktop tool based on [Christoph Schneegans’ UnattendGenerator](https://github.com/cschneegans/unattend-generator). It lets you edit, check, and generate `autounattend.xml` for Windows 10 / 11 locally.
 
-Current version: **V0.8**. This release adds WPA3, open Wi-Fi, and wireless profile XML import/editing. It retains the original generation core and script execution stages. The tool prepares installation configuration; it does not execute the generated installation scripts on your current computer.
+Current version: **V0.9**. This release adds interactive and scripted computer naming, plus second and third locale/keyboard pairs. It retains the original generation core and script execution stages. The tool prepares installation configuration; it does not execute the generated installation scripts on your current computer.
 
 ## 💡 Why this project exists
 
@@ -24,7 +24,7 @@ Offline use means editing, saving, and generating configuration locally. Microso
 | :---: | :---: |
 | ![Configuration plans in the light theme](docs/images/overview.png) | ![Edition and product key in the dark theme](docs/images/edition-and-key-dark.png) |
 
-These are actual V0.1 pre41 screenshots showing the light and dark themes. The current V0.8 release includes navigation changes and additional settings; refer to the current application for the latest interface. The application interface is currently in Chinese.
+These are actual V0.1 pre41 screenshots showing the light and dark themes. The current V0.9 release includes navigation changes and additional settings; refer to the current application for the latest interface. The application interface is currently in Chinese.
 
 ## ✨ Main features
 
@@ -39,17 +39,17 @@ These are actual V0.1 pre41 screenshots showing the light and dark themes. The c
 - Save and restore JSON plans; review summaries, recommended-setting differences, checks, redacted previews, and XML exports.
 - Import existing XML and edit supported settings while preserving unknown content. Export stops with an explanation when changes cannot be merged reliably.
 
-## ✨ V0.8 updates
+## ✨ V0.9 updates
 
-- Added WPA3-Personal presets using the native WPA3SAE and transitionMode configuration. Support depends on the target Windows system, wireless driver, and access point.
-- Exposed the native “Open Wi-Fi (no password, unencrypted)” option. Use it only after assessing the network and purpose; prefer WPA2 / WPA3 for personal networks. Open networks may still require a captive portal.
-- Added WLANProfile XML import, editing, and structural checks. Authentication and connection behavior come from the profile XML.
-- Integrated plans, summaries, help, recommendation differences, and answer-file import/editing while retaining existing WPA2 plans.
-- Saving without credentials omits the entire wireless profile XML; re-import it after loading. Preview hides the whole profile. Modified or inactive wireless setup scripts remain intact and cannot be overwritten unreliably.
+- Added an installation-time computer-name dialog. It works with hidden PowerShell windows and repeats after invalid or cancelled input.
+- Added PowerShell-generated computer names. Return a name based on device information or custom rules; the script runs only during the target installation.
+- Added an independently enabled second locale and keyboard pair.
+- Added a third locale and keyboard pair. Input methods follow the first, second, and third pair order; the first pair still determines system and user regional formats.
+- Integrated saved plans, summaries, contextual help, recommendation differences, answer-file editing, and compatibility with older plans.
 
 ## 📦 Download and usage
 
-Download and run the matching Windows x64 executable from the repository’s **Releases** page: `UnattendLocal_V0.8_x64_SelfContained.exe` or `UnattendLocal_V0.8_x64_FrameworkDependent.exe`. Choose `UnattendLocal_V0.8_x64_SelfContained.exe` for a bundled .NET runtime, or `UnattendLocal_V0.8_x64_FrameworkDependent.exe` if .NET 10 Desktop Runtime x64 is already installed. Both have the same features. Use a virtual machine for initial testing.
+Download and run the matching Windows x64 executable from the repository’s **Releases** page: `UnattendLocal_V0.9_x64_SelfContained.exe` or `UnattendLocal_V0.9_x64_FrameworkDependent.exe`. Choose `UnattendLocal_V0.9_x64_SelfContained.exe` for a bundled .NET runtime, or `UnattendLocal_V0.9_x64_FrameworkDependent.exe` if .NET 10 Desktop Runtime x64 is already installed. Both have the same features. Use a virtual machine for initial testing.
 
 1. Choose a recommended scenario or a custom configuration and enter the required account and image settings.
 2. Adjust system, appearance, and application removal options as needed.
@@ -59,6 +59,10 @@ Download and run the matching Windows x64 executable from the repository’s **R
 Open a JSON plan to restore saved settings, or import an answer XML to continue editing an existing configuration. Plans saved without credentials may require passwords or keys to be entered again. If the imported original XML was not saved with the plan, import it again.
 
 ## 📖 Scope and limitations
+
+Choose the naming mode in basic settings. Leaving the fixed name empty still lets Windows generate it. The installation-time dialog requires valid input before setup can continue. A naming script must return a valid computer name (1–15 characters, not entirely numeric, without invalid characters, and different from local account names). The tool does not run the script or verify its runtime result. Scripts are stored verbatim in plans and XML; check for sensitive information before sharing.
+
+The second and third locale/keyboard pairs apply in fixed language/region mode. They do not install language packs or change this tool’s Chinese interface. Interactive language selection retains these settings in the plan without writing fixed language settings.
 
 This version is published as an ordinary GitHub Release. Some non-core upstream settings will be implemented later. The project uses a fixed generation core with selective synchronization and does not claim complete parity with the latest upstream features.
 
