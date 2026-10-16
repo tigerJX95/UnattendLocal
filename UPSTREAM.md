@@ -109,3 +109,5 @@ V0.11 核对 · 2026-10-16：官网发布提交 27237f82e9a8498d9c5bab7d398dc34b
 源码：https://raw.githubusercontent.com/cschneegans/unattend-generator/27237f82e9a8498d9c5bab7d398dc34b7682a1e8/modifier/AppLocker.cs
 源码：https://raw.githubusercontent.com/cschneegans/unattend-generator/27237f82e9a8498d9c5bab7d398dc34b7682a1e8/modifier/Optimizations.cs
 使用与微软资料：docs/DeploymentOptions.md。
+
+V0.12 核对 · 2026-10-16：官网发布仍标注 27237f82e9a8498d9c5bab7d398dc34b7682a1e8；固定 vendor 全部文件保持 V0.11 原样。仅新增 DeleteJunctions 的本地映射，完整复用 Optimizations.cs 的 FirstLogon / UserOnce 原命令。中文说明以实际 ReparsePoint 筛选与指定目录枚举为准，不将其描述成仅按 Hidden 属性删除。不在当前电脑执行生成命令。

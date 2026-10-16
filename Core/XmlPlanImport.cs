@@ -40,6 +40,7 @@ public static class XmlPlanImport {
   VmGuestToolsSettings.ReadIntoPlan(doc,p,notes);
   AdditionalSetupSettings.ReadIntoPlan(doc,p,notes);
   SecurityOptions.ReadIntoPlan(doc,p,notes);
+  JunctionSettings.ReadIntoPlan(doc,p,notes);
   AppControlSettings.ReadIntoPlan(doc,p,notes);
   ConfigurationSetSettings.ReadIntoPlan(doc,p,notes);
   var compactState=CompactOsSettings.ReadIntoPlan(doc,p,notes);
@@ -276,6 +277,7 @@ public static class XmlPlanImport {
   VmGuestToolsSettings.ValidateImported(p,source);
   AdditionalSetupSettings.ValidateImported(p,source);
   SecurityOptions.ValidateImported(p,source);
+  JunctionSettings.ValidateImported(p,source);
   AppControlSettings.ValidateImported(p,source);
   ConfigurationSetSettings.ValidateImported(p,source);
   if(HasRemovedScript(source))throw new ArgumentException("原 XML 仍含已移除支持的 JScript，不能再导出。");

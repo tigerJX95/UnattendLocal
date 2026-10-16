@@ -20,6 +20,11 @@ public static class CustomScripts {
  public const string DirectoryExample="setx.exe DIRCMD \"/A /O:GN /C /N\" /m";
  public const string NetworkExample="Get-NetConnectionProfile -InterfaceAlias 'Ethernet*' | Set-NetConnectionProfile -NetworkCategory 'Private';";
  public static string PhaseLabel(string phase)=>phase switch {"System"=>"系统安装时","DefaultUser"=>"默认用户配置","FirstLogon"=>"全机首次登录","UserOnce"=>"每个用户首次登录",_=>"未知阶段"};
+ public static ScriptEntry Duplicate(InstallPlan p,ScriptEntry source){
+  int index=p.Scripts.IndexOf(source);if(index<0)throw new ArgumentException("请选择当前方案中的脚本。");
+  if(p.Scripts.Count>=60)throw new ArgumentException("最多 60 条脚本。");
+  var copy=new ScriptEntry{Enabled=false,Phase=source.Phase,Type=source.Type,Content=source.Content};p.Scripts.Insert(index+1,copy);return copy;
+ }
  public static ScriptSettings Build(InstallPlan p){
   if(p.Scripts==null||p.Scripts.Any(s=>s==null)||p.Scripts.Count>60)throw new ArgumentException("自定义脚本列表无效，最多 60 条。");
   var result=new List<Script>();

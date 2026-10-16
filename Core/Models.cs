@@ -34,6 +34,7 @@ public class InstallPlan : Observable {
  private bool _VirtIoGuestTools;public bool VirtIoGuestTools {get=>_VirtIoGuestTools;set=>Set(ref _VirtIoGuestTools,value);}
  private bool _ParallelsTools;public bool ParallelsTools {get=>_ParallelsTools;set=>Set(ref _ParallelsTools,value);}
  private bool _DisableUac;public bool DisableUac {get=>_DisableUac;set=>Set(ref _DisableUac,value);}
+ private bool _DeleteJunctions;public bool DeleteJunctions {get=>_DeleteJunctions;set=>Set(ref _DeleteJunctions,value);}
  private bool _UseConfigurationSet;public bool UseConfigurationSet {get=>_UseConfigurationSet;set=>Set(ref _UseConfigurationSet,value);}
  private bool _UseAppLocker;public bool UseAppLocker {get=>_UseAppLocker;set=>Set(ref _UseAppLocker,value);}
  private string _AppLockerPolicyXml="";public string AppLockerPolicyXml {get=>_AppLockerPolicyXml;set=>Set(ref _AppLockerPolicyXml,value);}

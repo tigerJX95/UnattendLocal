@@ -31,6 +31,7 @@ public static class PlanStore {
    VmGuestToolsSettings.NormalizeLoaded(p,document.RootElement);
    AdditionalSetupSettings.NormalizeLoaded(p,document.RootElement);
    SecurityOptions.NormalizeLoaded(p,document.RootElement);
+   JunctionSettings.NormalizeLoaded(p,document.RootElement);
    AppControlSettings.NormalizeLoaded(p,document.RootElement);
    ConfigurationSetSettings.NormalizeLoaded(p,document.RootElement);
    WifiSettings.NormalizeLoaded(p,document.RootElement);

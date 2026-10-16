@@ -1,0 +1,83 @@
+using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Documents;
+using System.Windows.Input;
+using System.Windows.Media;
+using System.Windows.Threading;
+namespace UnattendLocal.Desktop;
+
+public partial class MainWindow
+{
+    private int searchNavigationGeneration;
+    private string lastSettingsQuery = "";
+    private AdornerLayer? searchHighlightLayer;
+    private SearchHighlight? searchHighlight;
+    private DispatcherTimer? searchHighlightTimer;
+    private void InitializeSettingsSearch()
+    {
+        PreviewKeyDown += (_, e) => { if (e.Key == Key.F && Keyboard.Modifiers == ModifierKeys.Control) { e.Handled = true; OpenSettingsSearch(); } };
+        Pages.SelectionChanged += (_, e) => { if (ReferenceEquals(e.Source, Pages)) { searchNavigationGeneration++; ClearSearchHighlight(); } };
+        Closed += (_, _) => { searchNavigationGeneration++; ClearSearchHighlight(); };
+    }
+    private void SettingsSearchClick(object sender, RoutedEventArgs e) => OpenSettingsSearch();
+    private void OpenSettingsSearch()
+    {
+        searchNavigationGeneration++; ClearSearchHighlight();
+        var dialog = new SettingsSearchWindow(lastSettingsQuery) { Owner = this };
+        bool? accepted = dialog.ShowDialog(); lastSettingsQuery = dialog.Query;
+        if (accepted == true && dialog.Selected is {} selected) NavigateToSetting(selected);
+    }
+    private void NavigateToSetting(SettingSearchResult result)
+    {
+        ClearSearchHighlight();
+        if (result.AppId.Length > 0) vm.AppRemovalFilter = result.AppId;
+        Pages.SelectedIndex = result.PageIndex;
+        int ticket = ++searchNavigationGeneration;
+        Dispatcher.BeginInvoke(DispatcherPriority.Loaded, new Action(() =>
+        {
+            if (ticket != searchNavigationGeneration || Pages.SelectedIndex != result.PageIndex) return;
+            UpdateLayout();
+            FrameworkElement? target = FindName(result.Target) as FrameworkElement;
+            if (result.AppId.Length > 0)
+            {
+                var choice = vm.AppRemovalChoices.FirstOrDefault(i => i.Id == result.AppId);
+                target = AppRemovalItems.ItemContainerGenerator.ContainerFromItem(choice) as FrameworkElement ?? target;
+            }
+            bool hidden = target?.IsVisible == false;
+            // Locate the visible containing section when a mode hides a conditional editor.
+            FrameworkElement? hiddenBranch = null;
+            while (target != null && !target.IsVisible) { hiddenBranch = target; target = target.Parent as FrameworkElement ?? VisualTreeHelper.GetParent(target) as FrameworkElement; }
+            if (hiddenBranch != null && target is Panel panel)
+            {
+                int position = panel.Children.IndexOf(hiddenBranch);
+                var previous = panel.Children.OfType<FrameworkElement>().Take(Math.Max(0, position)).LastOrDefault(c => c.IsVisible && c is Control);
+                if (previous != null) target = previous;
+            }
+            if (target == null) { vm.Status = "已切换到设置页面，请在该页查看此项"; return; }
+            target.BringIntoView();
+            vm.Status = $"已定位：{result.Page} → {result.Title}" + (hidden ? "；此项在当前模式下隐藏，已定位到所属区域" : !target.IsEnabled ? "；此项在当前模式下不可编辑" : "");
+            var anchor = target;
+            Dispatcher.BeginInvoke(DispatcherPriority.ContextIdle, new Action(() => { if (ticket == searchNavigationGeneration && Pages.SelectedIndex == result.PageIndex && anchor.IsVisible) HighlightSearchTarget(anchor); }));
+        }));
+    }
+    private void ClearSearchHighlight()
+    {
+        searchHighlightTimer?.Stop(); searchHighlightTimer = null;
+        if (searchHighlight != null) searchHighlightLayer?.Remove(searchHighlight);
+        searchHighlight = null; searchHighlightLayer = null;
+    }
+    private void HighlightSearchTarget(FrameworkElement target)
+    {
+        ClearSearchHighlight(); searchHighlightLayer = AdornerLayer.GetAdornerLayer(target);
+        if (searchHighlightLayer == null) return;
+        searchHighlight = new SearchHighlight(target, (Brush)FindResource("AccentTextBrush")); searchHighlightLayer.Add(searchHighlight);
+        searchHighlightTimer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(4) };
+        searchHighlightTimer.Tick += (_, _) => ClearSearchHighlight(); searchHighlightTimer.Start();
+    }
+    private sealed class SearchHighlight : Adorner
+    {
+        private readonly Brush brush;
+        public SearchHighlight(UIElement target, Brush brush) : base(target) { this.brush = brush; IsHitTestVisible = false; }
+        protected override void OnRender(DrawingContext drawingContext) => drawingContext.DrawRoundedRectangle(null, new Pen(brush, 3), new Rect(new Point(), AdornedElement.RenderSize), 4, 4);
+    }
+}

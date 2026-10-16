@@ -4,7 +4,7 @@
 
 UnattendLocal is a Chinese-language Windows desktop tool based on [Christoph Schneegans’ UnattendGenerator](https://github.com/cschneegans/unattend-generator). It lets you edit, check, and generate `autounattend.xml` for Windows 10 / 11 locally.
 
-Current version: **V0.11**. This release adds configuration sets and AppLocker policy XML, and fixes page scroll positions after minimizing and restoring the window. It retains the original generation core and script execution stages. The tool prepares installation configuration; it does not execute the generated installation scripts on your current computer.
+Current version: **V0.12**. This release adds global settings search, optional legacy junction cleanup, bulk selection of filtered app-removal items and script duplication. The tool prepares installation configuration; it does not execute generated installation scripts on your current computer.
 
 ## 💡 Why this project exists
 
@@ -24,7 +24,7 @@ Offline use means editing, saving, and generating configuration locally. Microso
 | :---: | :---: |
 | ![Configuration plans in the light theme](docs/images/overview.png) | ![Edition and product key in the dark theme](docs/images/edition-and-key-dark.png) |
 
-These are actual V0.1 pre41 screenshots showing the light and dark themes. The current V0.11 release includes navigation changes and additional settings; refer to the current application for the latest interface. The application interface is currently in Chinese.
+These are actual V0.1 pre41 screenshots showing the light and dark themes. The current V0.12 release includes navigation changes and additional settings; refer to the current application for the latest interface. The application interface is currently in Chinese.
 
 ## ✨ Main features
 
@@ -33,22 +33,24 @@ These are actual V0.1 pre41 screenshots showing the light and dark themes. The c
 - Configure local accounts, passwords, initial sign-in, password expiration and lockout policies, Wi-Fi, offline installation, and OOBE.
 - Configure File Explorer, the Start menu, taskbar, desktop icons, visual effects, colors, backgrounds, and lock-screen images.
 - Select among 60 application and system capability removal items, with Chinese impact descriptions, keyword search, and a selection summary. Items are unchecked by default.
+- Configure `$OEM$` media configuration sets and AppLocker policy XML, with policy editing and structural validation.
+- Configure Narrator-assisted setup, the Edge uninstall option, and system protection on drive C:. All three are unchecked by default.
 - Configure guest tool installation for VMware, VirtualBox, KVM / QEMU (VirtIO), and Parallels, with media requirements and scope descriptions.
 - Configure common system behavior, including Fast Startup, long paths, system sounds, automatic device encryption, device-associated apps, Windows Update restart behavior, NTFS last-access timestamps, process creation auditing, UAC/WPBT, Remote Desktop, and Windows PowerShell execution policy.
 - Manage System, DefaultUser, FirstLogon, and UserOnce custom scripts using the original execution-stage design, with examples and scope explanations.
 - Save and restore JSON plans; review summaries, recommended-setting differences, checks, redacted previews, and XML exports.
 - Import existing XML and edit supported settings while preserving unknown content. Export stops with an explanation when changes cannot be merged reliably.
 
-## ✨ V0.11 updates
+## ✨ V0.12 updates
 
-- Added the `$OEM$` configuration-set option, using Windows Setup’s UseConfigurationSet setting for accompanying media files; off by default.
-- Added AppLocker policy XML import, editing, and structural validation, with an audit-only example. Off by default; audit or enforcement mode comes from the policy.
-- Fixed settings pages losing their scroll position after minimizing and restoring the window. Scrolling or changing pages cancels the pending restoration.
-- Both options support saved plans, summaries, contextual help, recommendation differences, XML editing, and older-plan migration. Preview hides the whole AppLocker policy.
+- Click the toolbar magnifier or press **Ctrl+F** to search Chinese and English setting names, aliases and descriptions, such as `$OEM$`, `BitLocker` or `AutoLogon`. Click a result to navigate, scroll and briefly highlight it. Editors hidden by the current mode lead to their containing section.
+- **OOBE → Common system settings** adds optional legacy junction cleanup, disabled by default. It uses the generator's original logon commands and may affect old software or custom links. Includes persistence, summaries, help, recommendation differences and XML editing.
+- **App removal** can select or clear the currently filtered results. Hidden selections are retained; bulk selection asks for confirmation.
+- **Custom scripts** can duplicate a selected row. Copies follow the original and start disabled for review and editing.
 
 ## 📦 Download and usage
 
-Download and run the matching Windows x64 executable from the repository’s **Releases** page: `UnattendLocal_V0.11_x64_SelfContained.exe` or `UnattendLocal_V0.11_x64_FrameworkDependent.exe`. Choose `UnattendLocal_V0.11_x64_SelfContained.exe` for a bundled .NET runtime, or `UnattendLocal_V0.11_x64_FrameworkDependent.exe` if .NET 10 Desktop Runtime x64 is already installed. Both have the same features. Use a virtual machine for initial testing.
+Download and run the matching Windows x64 executable from the repository’s **Releases** page: `UnattendLocal_V0.12_x64_SelfContained.exe` or `UnattendLocal_V0.12_x64_FrameworkDependent.exe`. Choose `UnattendLocal_V0.12_x64_SelfContained.exe` for a bundled .NET runtime, or `UnattendLocal_V0.12_x64_FrameworkDependent.exe` if .NET 10 Desktop Runtime x64 is already installed. Both have the same features. Use a virtual machine for initial testing.
 
 1. Choose a recommended scenario or a custom configuration and enter the required account and image settings.
 2. Adjust system, appearance, and application removal options as needed.

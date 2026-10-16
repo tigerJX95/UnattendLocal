@@ -11,6 +11,8 @@ public class MainViewModel : Observable {
  private string appRemovalFilter="";public string AppRemovalFilter {get=>appRemovalFilter;set{Set(ref appRemovalFilter,value);Notify(nameof(FilteredAppRemovalChoices));Notify(nameof(AppRemovalFilterSummary));}}
  public List<AppRemovalChoice> FilteredAppRemovalChoices=>AppRemovalChoices.Where(i=>SearchTextMatcher.Matches(i.Label+" "+i.Id+" "+i.Group+" "+i.Description,AppRemovalFilter)).ToList();
  public string AppRemovalFilterSummary=>$"显示 {FilteredAppRemovalChoices.Count} / {AppRemovalChoices.Count} 项；搜索不会改变勾选。";
+ public void SelectFilteredApps(bool selected){var ids=FilteredAppRemovalChoices.Select(i=>i.Id).ToHashSet();var next=selected?Plan.RemovedApps.Concat(ids).Distinct().ToArray():Plan.RemovedApps.Where(id=>!ids.Contains(id)).ToArray();if(!Plan.RemovedApps.SequenceEqual(next))Plan.RemovedApps=new(next);}
+ public ScriptEntry? DuplicateSelectedScript(){if(SelectedScript is not {} source)return null;var copy=CustomScripts.Duplicate(Plan,source);SelectedScript=copy;return copy;}
  public string AppRemovalSummary=>AppRemovalSettings.Selection(Plan);
  private void ObserveApps(){if(ReferenceEquals(observedApps,Plan.RemovedApps))return;if(observedApps!=null)observedApps.CollectionChanged-=AppsChanged;observedApps=Plan.RemovedApps;observedApps.CollectionChanged+=AppsChanged;}
  private void RefreshApps(){ObserveApps();foreach(var choice in AppRemovalChoices)choice.Refresh();Notify(nameof(AppRemovalSummary));}

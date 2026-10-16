@@ -43,6 +43,7 @@ public class GeneratorService {
   if(p.AccountMode=="自动创建本地账户"&&!p.AutoLogon&&!p.KeepSensitiveFiles)throw new ArgumentException("关闭首次自动登录时，无法自动清理安装隐私文件。请启用首次自动登录，或在 OOBE 页的“安装脚本与隐私文件”中明确勾选“保留安装隐私文件”。");
   var config=Configuration.Default with {
    Bloatwares=AppRemovalSettings.Build(generator,p),
+   DeleteJunctions=p.DeleteJunctions,
    UseConfigurationSet=p.UseConfigurationSet,AppLockerSettings=AppControlSettings.Build(p),
    ProcessAuditSettings=ProcessAuditSettings.Build(p),
    UseNarrator=p.UseNarrator,MakeEdgeUninstallable=p.MakeEdgeUninstallable,DisableSystemRestore=p.DisableSystemRestore,

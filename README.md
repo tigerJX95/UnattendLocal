@@ -4,7 +4,7 @@
 
 UnattendLocal 是基于 [Christoph Schneegans 的 UnattendGenerator](https://github.com/cschneegans/unattend-generator) 开发的中文 Windows 桌面配置工具，用于在本地编辑、检查和生成 Windows 10 / 11 的 `autounattend.xml`。
 
-当前版本：**V0.11**。本版新增配置集与 AppLocker 策略 XML，并修复最小化恢复后的页面滚动位置，延续原有生成核心和脚本执行阶段。工具用于准备安装配置，不会在当前电脑执行生成的安装脚本。
+当前版本：**V0.12**。新增全局设置搜索、旧版兼容联接点设置、应用筛选结果批量选择和自定义脚本复制。工具用于准备安装配置，不会在当前电脑执行生成的安装脚本。
 
 ## 💡 开发初衷
 
@@ -24,7 +24,7 @@ UnattendLocal 是基于 [Christoph Schneegans 的 UnattendGenerator](https://git
 | :---: | :---: |
 | ![配置方案：浅色主题](docs/images/overview.png) | ![版本与密钥：深色主题](docs/images/edition-and-key-dark.png) |
 
-截图来自 V0.1 pre41 的实际运行界面，用于展示浅色与深色主题；当前 V0.11 已调整导航顺序并新增部分设置，实际界面以当前版本为准。
+截图来自 V0.1 pre41 的实际运行界面，用于展示浅色与深色主题；当前 V0.12 已调整导航顺序并新增部分设置，实际界面以当前版本为准。
 
 ## ✨ 主要功能
 
@@ -33,6 +33,7 @@ UnattendLocal 是基于 [Christoph Schneegans 的 UnattendGenerator](https://git
 - 配置本地账户、密码、首次登录、密码到期与锁定策略，以及 WPA2 / WPA3 / 开放 Wi-Fi、无线配置 XML、离线安装和 OOBE。
 - 配置资源管理器、开始菜单、任务栏、系统桌面图标、视觉效果、配色、纯色或图片背景及锁屏图片。
 - 按项选择 60 个应用与系统能力移除项目，提供中文影响说明、关键词搜索和选择摘要，默认不勾选。
+- 配置 `$OEM$` 安装介质配置集与 AppLocker 策略 XML，提供策略编辑及结构检查。
 - 配置讲述人辅助安装、Edge 卸载入口和 C 盘系统还原行为，三项默认不勾选。
 - 配置 VMware、VirtualBox、KVM / QEMU（VirtIO）和 Parallels 的工具安装，附带所需介质及作用范围说明。
 - 配置常用系统行为，包括快速启动、长路径、系统声音、设备自动加密、硬件关联应用、更新自动重启、NTFS 最后访问时间、进程创建审计、UAC / WPBT 及远程桌面 / PowerShell 执行策略等选项。
@@ -40,21 +41,21 @@ UnattendLocal 是基于 [Christoph Schneegans 的 UnattendGenerator](https://git
 - 保存和恢复 JSON 方案，提供配置摘要、推荐差异、检查、脱敏预览和 XML 导出。
 - 导入已有 XML 后编辑已支持设置，保留未知内容；遇到无法可靠合并的修改时停止导出并说明原因。
 
-## ✨ V0.11 更新
+## ✨ V0.12 更新
 
-- 新增 `$OEM$` 配置集开关，通过 Windows Setup 的 UseConfigurationSet 处理配套介质文件；默认关闭。
-- 新增 AppLocker 策略 XML 导入、编辑和结构检查，提供审核模式示例；默认关闭，审核或强制模式由策略决定。
-- 修复最小化窗口后恢复时，当前设置页滚动位置丢失、跳回顶部的问题；恢复后主动滚动或切换页面时取消旧位置还原。
-- 两项设置支持方案保存、摘要、动态帮助、推荐差异、XML 导入编辑和旧方案迁移；预览整体遮蔽 AppLocker 策略。
+- 点击顶部放大镜或按 **Ctrl+F** 搜索中英文设置名称、别名和说明，例如 `$OEM$`、`BitLocker`、`自动登录`。点击结果切页、滚动定位并短暂高亮；当前模式隐藏的选项会定位到所属区域，保持配置选择。
+- **OOBE → 系统常用设置**增加“删除旧版兼容联接点（高级）”，默认关闭；沿用生成器的首次登录阶段命令，可能影响旧软件或自建链接。支持保存、摘要、帮助、推荐差异和 XML 导入编辑。
+- **应用移除**可勾选或取消当前筛选结果，隐藏条目保留原选择；批量勾选前显示确认。
+- **自定义脚本**可复制选中条目，副本紧跟原条目并默认停用，修改并核对后再启用。
 
 ## 📦 下载与使用
 
-从仓库的 **Releases** 页面下载并直接运行对应的 `UnattendLocal_V0.11_x64_SelfContained.exe` 或 `UnattendLocal_V0.11_x64_FrameworkDependent.exe`：
+从仓库的 **Releases** 页面下载并直接运行对应的 `UnattendLocal_V0.12_x64_SelfContained.exe` 或 `UnattendLocal_V0.12_x64_FrameworkDependent.exe`：
 
 | 程序文件 | 运行要求 |
 | --- | --- |
-| `UnattendLocal_V0.11_x64_SelfContained.exe` | 集成 .NET 运行时，无需单独安装；通常选择此版。 |
-| `UnattendLocal_V0.11_x64_FrameworkDependent.exe` | 文件较小，需安装 .NET 10 Desktop Runtime x64。 |
+| `UnattendLocal_V0.12_x64_SelfContained.exe` | 集成 .NET 运行时，无需单独安装；通常选择此版。 |
+| `UnattendLocal_V0.12_x64_FrameworkDependent.exe` | 文件较小，需安装 .NET 10 Desktop Runtime x64。 |
 
 两版功能相同。首次安装测试建议使用虚拟机。
 
@@ -66,6 +67,8 @@ UnattendLocal 是基于 [Christoph Schneegans 的 UnattendGenerator](https://git
 可通过“打开方案”恢复 JSON，也可通过“导入应答 XML”继续编辑已有应答配置。方案省略凭据后，重新打开可能需要补填密码 / 密钥；导入原 XML 未保存时需要重新导入。
 
 ## 📖 使用说明
+
+设置搜索操作见 [搜索说明](docs/SettingsSearch.md)。兼容联接点选项按 ReparsePoint 属性删除指定范围的项目，可能包含其他重解析点；不恢复已删除的链接，请先在虚拟机验证。
 
 在“基础设置”选择命名方式。固定名称留空时仍由 Windows 自动生成；安装时输入会中断无人值守流程，需完成有效输入才能继续。脚本必须返回一个有效计算机名（1–15 个字符，不能是纯数字或包含非法符号，也不应与本地账户同名）；工具不会执行或预先验证脚本结果。命名脚本按原文保存在方案和 XML 中，分享前检查敏感信息。
 
