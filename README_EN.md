@@ -4,7 +4,7 @@
 
 UnattendLocal is a Chinese-language Windows desktop tool based on [Christoph Schneegans’ UnattendGenerator](https://github.com/cschneegans/unattend-generator). It lets you edit, check, and generate `autounattend.xml` for Windows 10 / 11 locally.
 
-Current version: **V0.13**. This release corrects XML import diagnostics and clarifies cancellation, failure and preserved scripts. The tool prepares installation configuration; it does not run generated scripts on your current computer.
+Current version: **V0.14**. This release adds editable import of a recognized historical app-removal format and migration of older saved plans. The tool prepares installation configuration; it does not run generated scripts on your current computer.
 
 ## 💡 Why this project exists
 
@@ -26,7 +26,7 @@ See [XML import behavior](docs/XmlImport.md) for replacement, cancellation and r
 | :---: | :---: |
 | ![Configuration plans in the light theme](docs/images/overview.png) | ![Edition and product key in the dark theme](docs/images/edition-and-key-dark.png) |
 
-These are actual V0.1 pre41 screenshots showing the light and dark themes. The current V0.13 release includes navigation changes and additional settings; refer to the current application for the latest interface. The application interface is currently in Chinese.
+These are actual V0.1 pre41 screenshots showing the light and dark themes. The current V0.14 release includes navigation changes and additional settings; refer to the current application for the latest interface. The application interface is currently in Chinese.
 
 ## ✨ Main features
 
@@ -45,17 +45,17 @@ These are actual V0.1 pre41 screenshots showing the light and dark themes. The c
 - Save and restore JSON plans; review summaries, recommended-setting differences, checks, redacted previews, and XML exports.
 - Import existing XML and edit supported settings while preserving unknown content. Export stops with an explanation when changes cannot be merged reliably.
 
-## ✨ V0.13 updates
+## ✨ V0.14 updates
 
-- Corrected implemented app-removal options being labeled as unimplemented when importing generator XML. Common inactive/default mode aliases no longer produce false missing-feature notices.
-- Form comments describe the original selections. Actual scripts and XML determine restored settings; discrepancies remain visible without treating form values as installed-app inventory.
-- App-removal scripts that do not match the editable template are retained and clearly marked read-only. Clearing an app checkbox cannot silently replace an unknown script.
-- Import confirmation now explicitly distinguishes replacing the current configuration from cancelling the entire import. Declining preserves the current configuration and shows cancellation feedback; errors report import failure.
-- Previously saved plans refresh stale parameter notices without replacing pending edits or the original XML. The toolbar keeps Open plan and Save plan adjacent, with Import XML last.
+- Added editable import support for a recognized historical removal format: `RemovePackages.ps1`, `RemoveCapabilities.ps1`, `RemoveFeatures.ps1`, and its matching OneDrive command.
+- Checkboxes are restored from actual selectors and complete execution flows. Form comments are neither the source of truth nor an inventory of installed apps.
+- Unedited removal lists retain the original scripts. Editing converts the recognized removal flow to the current generator format while preserving other XML content.
+- Older saved plans restore selections when the source and editing baseline can be migrated reliably, retaining pending changes. Conflicts require importing the original XML again.
+- Modified scripts, unknown selectors, repeated calls and incomplete execution chains remain read-only with their original contents preserved.
 
 ## 📦 Download and usage
 
-Download and run the matching Windows x64 executable from the repository’s **Releases** page: `UnattendLocal_V0.13_x64_SelfContained.exe` or `UnattendLocal_V0.13_x64_FrameworkDependent.exe`. Choose `UnattendLocal_V0.13_x64_SelfContained.exe` for a bundled .NET runtime, or `UnattendLocal_V0.13_x64_FrameworkDependent.exe` if .NET 10 Desktop Runtime x64 is already installed. Both have the same features. Use a virtual machine for initial testing.
+Download and run the matching Windows x64 executable from the repository’s **Releases** page: `UnattendLocal_V0.14_x64_SelfContained.exe` or `UnattendLocal_V0.14_x64_FrameworkDependent.exe`. Choose `UnattendLocal_V0.14_x64_SelfContained.exe` for a bundled .NET runtime, or `UnattendLocal_V0.14_x64_FrameworkDependent.exe` if .NET 10 Desktop Runtime x64 is already installed. Both have the same features. Use a virtual machine for initial testing.
 
 1. Choose a recommended scenario or a custom configuration and enter the required account and image settings.
 2. Adjust system, appearance, and application removal options as needed.

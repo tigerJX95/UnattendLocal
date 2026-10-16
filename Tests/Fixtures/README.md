@@ -10,3 +10,5 @@ upstream-image-backgrounds.xml：2026-10-14 从官网 download 接口通过无�
 upstream-app-removal.xml：2026-10-14 从官网 download 接口通过无账户、无密码合成参数生成，选择 Photos/Teams/Copilot/OneDrive/Notepad/Recall。验证实际移除 helper 和侧效应的识别、往返、增删及全部取消，不执行其中的命令。
 
 upstream-advanced-system.xml：2026-10-14 从官网 download 接口通过无账户、无密码合成参数生成，选择 EnableRemoteDesktop/AllowPowerShellScripts。验证原始命令、阶段、完整识别、往返与取消，不执行其中的命令。
+
+V0.14 的旧版移除回归由 Tests/LegacyRemovalFixture.cs 使用固定生成器和合成测试方案构造，覆盖三种旧文件名、历史日志外壳和 OneDrive 命令。未包含用户实际 XML、账户或凭据。

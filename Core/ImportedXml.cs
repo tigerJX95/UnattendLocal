@@ -1,5 +1,6 @@
 namespace UnattendLocal.Core;
 public class ImportedXml {
+ public int AppRemovalImportVersion {get;set;}
  public bool AppRemovalReadOnly {get;set;}
  public bool CompactOsScriptControlled {get;set;}
  public string CompactOsSourceMode {get;set;}=CompactOsSettings.Default;

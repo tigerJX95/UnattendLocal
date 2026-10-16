@@ -1875,3 +1875,68 @@ try{_=importVm13.ImportXml("<unattend>",()=>{confirmations13++;return true;});Ch
 Check(importVm13.ImportXml(allAppXml13,()=>true)&&!ReferenceEquals(beforePlan13,importVm13.Plan)&&importVm13.Plan.RemovedApps.Count==AppRemovalSettings.Items.Count&&importVm13.Status.StartsWith("XML 已导入"),"accepted import commits candidate and reports success");
 Check(importVm13.ImportXml(oldScript13,()=>true)&&!importVm13.CanEditAppRemoval&&importVm13.Plan.ImportedXml!.SourceXml.Length>0,"accepting different script format retains full source and readonly feedback");
 Console.WriteLine($"V0.13 total: {count} checks passed.");
+
+// V0.14: strictly recognized historical app-removal flow and atomic migration.
+string Legacy14(InstallPlan plan)=>LegacyRemovalFixture.FromCurrent(Xml(plan));
+string Body14(XmlDocument d,string name)=>d.SelectNodes("//*[local-name()='File']")!.Cast<XmlElement>().Single(f=>f.GetAttribute("path").EndsWith("\\"+name,StringComparison.Ordinal)).InnerText;
+XmlElement File14(XmlDocument d,string name)=>d.SelectNodes("//*[local-name()='File']")!.Cast<XmlElement>().Single(f=>f.GetAttribute("path").EndsWith("\\"+name,StringComparison.Ordinal));
+foreach(var item14 in AppRemovalSettings.Items){
+ p=Plan();p.RemovedApps.Add(item14.Id);var old14=Legacy14(p);var imported14=XmlPlanImport.Import(old14,g);
+ Check(!imported14.ImportedXml!.AppRemovalReadOnly&&imported14.RemovedApps.SequenceEqual(new[]{item14.Id}),"legacy actual single selection: "+item14.Id);
+ Check(SameXml(old14,Xml(imported14)),"legacy unedited roundtrip: "+item14.Id);
+ imported14.RemovedApps.Clear();var cleared14=Xml(imported14);var clearState14=AppRemovalSettings.Inspect(XmlMerge.Read(cleared14));
+ Check(!clearState14.Ambiguous&&clearState14.Selected.Length==0&&!cleared14.Contains("RemovePackages.ps1")&&!cleared14.Contains("RemoveCapabilities.ps1")&&!cleared14.Contains("RemoveFeatures.ps1"),"legacy removal can be cleared without leftover helper calls: "+item14.Id);
+ string extra14=item14.Id=="RemoveCalculator"?"RemovePhotos":"RemoveCalculator";imported14.RemovedApps.Add(item14.Id);imported14.RemovedApps.Add(extra14);var added14=Xml(imported14);var addedState14=AppRemovalSettings.Inspect(XmlMerge.Read(added14));
+ Check(!addedState14.Ambiguous&&addedState14.Selected.Order().SequenceEqual(new[]{item14.Id,extra14}.Order()),"legacy add converts complete recognized flow: "+item14.Id);
+}
+foreach(var arch14 in new[]{"amd64","arm64","x86"})foreach(bool hide14 in new[]{false,true}){
+ p=Plan();p.Architecture=arch14;p.HidePowerShellWindows=hide14;p.RemovedApps=new(AppRemovalSettings.Items.Select(i=>i.Id));p.Scripts.Add(new(){Enabled=true,Phase="System",Type="Ps1",Content="Write-Output 'preserve-extra14';"});
+ var old14=Legacy14(p);var imported14=XmlPlanImport.Import(old14,g);Check(imported14.RemovedApps.Count==60&&!imported14.ImportedXml!.AppRemovalReadOnly,"legacy all items and active pipeline: "+arch14+hide14);
+ Check(SameXml(old14,Xml(imported14)),"legacy all items unchanged exact tree: "+arch14+hide14);
+ var saved14=PlanStore.Deserialize(PlanStore.Serialize(imported14,true));Check(saved14.RemovedApps.Count==60&&!saved14.ImportedXml!.AppRemovalReadOnly&&SameXml(old14,Xml(saved14)),"legacy saved plan retains recognized selection and source: "+arch14+hide14);
+ imported14.RemovedApps.Remove("RemoveOneDrive");imported14.RemovedApps.Remove("RemoveMediaFeatures");var edited14=Xml(imported14);var editedPlan14=XmlPlanImport.Import(edited14,g);
+ Check(editedPlan14.RemovedApps.Count==58&&!editedPlan14.RemovedApps.Contains("RemoveOneDrive")&&!editedPlan14.RemovedApps.Contains("RemoveMediaFeatures")&&edited14.Contains("preserve-extra14"),"legacy edit removes selectors and all custom side effects while preserving extra command: "+arch14+hide14);
+ Check(!edited14.Contains("OneDriveSetup")&&!edited14.Contains("MediaPlayback")&&SameXml(edited14,Xml(editedPlan14)),"legacy edited output reimports without residual commands: "+arch14+hide14);
+}
+p=Plan();p.RemovedApps=new(new[]{"RemoveCalculator","RemoveMathInputPanel","RemoveRecall","RemoveOneDrive","RemoveCopilot","RemoveTeams","RemoveXboxApps"});var mixedLegacy14=Legacy14(p);var legacyDoc14=XmlMerge.Read(mixedLegacy14);
+var corruptions14=new Dictionary<string,Action<XmlDocument>>{
+ ["modified helper"]=d=>File14(d,"RemovePackages.ps1").InnerText+="\nWrite-Output 'changed';",
+ ["unknown selector"]=d=>File14(d,"RemovePackages.ps1").InnerText=Body14(d,"RemovePackages.ps1").Replace("'Microsoft.WindowsCalculator';","'Unknown.App14';"),
+ ["duplicate selector"]=d=>File14(d,"RemovePackages.ps1").InnerText=Body14(d,"RemovePackages.ps1").Replace("'Microsoft.WindowsCalculator';","'Microsoft.WindowsCalculator';\n\t'Microsoft.WindowsCalculator';"),
+ ["missing helper"]=d=>File14(d,"RemovePackages.ps1").ParentNode!.RemoveChild(File14(d,"RemovePackages.ps1")),
+ ["duplicate helper"]=d=>File14(d,"RemovePackages.ps1").ParentNode!.AppendChild(File14(d,"RemovePackages.ps1").CloneNode(true)),
+ ["missing call"]=d=>File14(d,"Specialize.ps1").InnerText=Body14(d,"Specialize.ps1").Replace("& 'C:\\Windows\\Setup\\Scripts\\RemovePackages.ps1';","Write-Output 'skipped';"),
+ ["conditional call"]=d=>File14(d,"Specialize.ps1").InnerText=Body14(d,"Specialize.ps1").Replace("& 'C:\\Windows\\Setup\\Scripts\\RemovePackages.ps1';","if($false){ & 'C:\\Windows\\Setup\\Scripts\\RemovePackages.ps1'; }"),
+ ["duplicate call"]=d=>File14(d,"Specialize.ps1").InnerText=Body14(d,"Specialize.ps1").Replace("& 'C:\\Windows\\Setup\\Scripts\\RemovePackages.ps1';","& 'C:\\Windows\\Setup\\Scripts\\RemovePackages.ps1';\n\t\t& 'C:\\Windows\\Setup\\Scripts\\RemovePackages.ps1';"),
+ ["inactive stage"]=d=>{foreach(var n in d.SelectNodes("//*[local-name()='Path']")!.Cast<XmlElement>().Where(n=>n.InnerText.Contains("-File \"C:\\Windows\\Setup\\Scripts\\Specialize.ps1\"")))n.InnerText="cmd.exe /c echo skipped";},
+ ["missing extraction"]=d=>{var n=d.SelectSingleNode("//*[local-name()='ExtractScript']")!;n.ParentNode!.RemoveChild(n);},
+ ["changed wrapper"]=d=>File14(d,"Specialize.ps1").InnerText=Body14(d,"Specialize.ps1").Replace("& $script;","if($false){ & $script; }"),
+ ["changed one drive"]=d=>File14(d,"Specialize.ps1").InnerText=Body14(d,"Specialize.ps1").Replace(" -ErrorAction 'Continue';"," -ErrorAction 'SilentlyContinue';"),
+ ["missing default hive chain"]=d=>{foreach(var n in d.SelectNodes("//*[local-name()='Path']")!.Cast<XmlElement>().Where(n=>n.InnerText.Contains("reg.exe load")))n.InnerText="cmd.exe /c echo skipped";},
+ ["missing user registration"]=d=>File14(d,"DefaultUser.ps1").InnerText=Body14(d,"DefaultUser.ps1").Replace("UnattendedSetup","ChangedRegistration14"),
+};
+foreach(var case14 in corruptions14){var bad14=(XmlDocument)legacyDoc14.CloneNode(true);case14.Value(bad14);var badPlan14=XmlPlanImport.Import(bad14.OuterXml,g);Check(badPlan14.ImportedXml!.AppRemovalReadOnly,"legacy unsafe flow remains read-only: "+case14.Key);badPlan14.RemovedApps.Add("RemovePhotos");Reject(badPlan14,"legacy unsafe flow cannot be overwritten: "+case14.Key);}
+// Simulate V0.13's partial view/baseline without embedding any private XML.
+var oldSaved14=XmlPlanImport.Import(mixedLegacy14,g);oldSaved14.RemovedApps.Clear();oldSaved14.ImportedXml!.AppRemovalImportVersion=0;oldSaved14.ImportedXml.AppRemovalReadOnly=true;
+var beforeMigration14=PlanStore.Deserialize(PlanStore.Serialize(Plan(),true));beforeMigration14.RemovedApps.Clear();oldSaved14.ImportedXml.BaselineXml=Encoding.UTF8.GetString(g.GenerateStandalone(beforeMigration14));
+oldSaved14.ComputerName="PENDING14";oldSaved14.ImportedXml.Notices=new[]{AppRemovalSettings.ReadOnlyDescription,"原文件的生成参数声明选择了 7 项应用移除；这是原文件的选择记录，不代表目标系统实际安装了这些应用。原脚本保留，清单暂不可编辑。","原文保留，未完全还原到界面：RemovePackages.ps1","retain-unknown14"};
+var upgraded14=PlanStore.Deserialize(PlanStore.Serialize(oldSaved14,true));Check(upgraded14.RemovedApps.Count==7&&upgraded14.ComputerName=="PENDING14"&&!upgraded14.ImportedXml!.AppRemovalReadOnly&&upgraded14.ImportedXml.AppRemovalImportVersion==2,"V0.13 saved plan upgrades selection without losing pending name");
+Check(upgraded14.ImportedXml!.Notices.Contains("retain-unknown14")&&upgraded14.ImportedXml.Notices.Contains(AppRemovalSettings.LegacyDescription)&&!upgraded14.ImportedXml.Notices.Contains(AppRemovalSettings.ReadOnlyDescription)&&!upgraded14.ImportedXml.Notices.Any(n=>n.Contains("清单暂不可编辑")),"legacy migration refreshes only derived stale notices");
+var upgradedXml14=Xml(upgraded14);Check(Node(upgradedXml14,"//u:ComputerName")=="PENDING14"&&Body14(XmlMerge.Read(upgradedXml14),"RemovePackages.ps1")==Body14(legacyDoc14,"RemovePackages.ps1"),"migration changes pending name while preserving untouched legacy scripts");
+Check(PlanStore.Deserialize(PlanStore.Serialize(upgraded14,true)).RemovedApps.SequenceEqual(upgraded14.RemovedApps),"legacy upgrade is idempotent");
+var unsafeSaved14=PlanStore.Serialize(oldSaved14,true);oldSaved14.RemovedApps.Add("RemovePhotos");var blockedUpgrade14=PlanStore.Deserialize(PlanStore.Serialize(oldSaved14,true));Check(blockedUpgrade14.RemovedApps.Contains("RemovePhotos")&&blockedUpgrade14.ImportedXml!.Blockers.Length>0,"legacy migration preserves conflicting pending selection and blocks export");Reject(blockedUpgrade14,"ambiguous old edit cannot be silently rebased");
+var conflictMigration14=System.Text.Json.JsonSerializer.Deserialize<InstallPlan>(unsafeSaved14)!;conflictMigration14.ImportedXml!.BaselineXml=conflictMigration14.ImportedXml.BaselineXml.Replace("Specialize.ps1","AlteredStage14.ps1");var blockedBaseline14=PlanStore.Deserialize(PlanStore.Serialize(conflictMigration14,true));Check(blockedBaseline14.ImportedXml!.Blockers.Length>0,"legacy baseline migration conflict is explicit");
+
+
+// Extra commands before/between known removal blocks and historical selector order.
+p=Plan();p.RemovedApps=new(new[]{"RemoveCalculator","RemoveMathInputPanel","RemoveMediaFeatures","RemoveOneDrive","RemoveCopilot","RemoveTeams","RemoveDevHome","RemoveOutlook"});
+var prefixed14=XmlMerge.Read(Legacy14(p));var stage14=File14(prefixed14,"Specialize.ps1");
+stage14.InnerText=stage14.InnerText.Replace("$scripts = @(\n","$scripts = @(\n\t{\n\t\tWrite-Output 'preserve-before14';\n\t};\n");
+stage14.InnerText=stage14.InnerText.Replace("\t\t& 'C:\\Windows\\Setup\\Scripts\\RemovePackages.ps1';\n\t};\n","\t\t& 'C:\\Windows\\Setup\\Scripts\\RemovePackages.ps1';\n\t};\n\t{\n\t\tWrite-Output 'preserve-between14';\n\t};\n");
+var cap14=File14(prefixed14,"RemovePackages.ps1");var selectors14=System.Text.RegularExpressions.Regex.Match(cap14.InnerText,@"(?<=\$selectors = @\(\n)(?:\t'[^'\n]+';\n)+");cap14.InnerText=cap14.InnerText.Remove(selectors14.Index,selectors14.Length).Insert(selectors14.Index,string.Join('\n',selectors14.Value.TrimEnd('\n').Split('\n').Reverse())+"\n");
+var withPrefix14=XmlPlanImport.Import(prefixed14.OuterXml,g);Check(!withPrefix14.ImportedXml!.AppRemovalReadOnly&&withPrefix14.RemovedApps.Count==8,"legacy extra prefix and selector order remain fully recognized");
+Check(SameXml(prefixed14.OuterXml,Xml(withPrefix14)),"unchanged historical selector order and extra prefix stay intact");
+withPrefix14.RemovedApps.Clear();var prefixCleared14=Xml(withPrefix14);Check(AppRemovalSettings.Inspect(XmlMerge.Read(prefixCleared14)) is {Selected.Length:0,Ambiguous:false}&&prefixCleared14.Contains("preserve-before14")&&prefixCleared14.Contains("preserve-between14"),"clear all legacy removals preserves an extra leading command");
+withPrefix14.RemovedApps=new(new[]{"RemoveCalculator","RemoveTeams"});var prefixChanged14=Xml(withPrefix14);Check(AppRemovalSettings.Inspect(XmlMerge.Read(prefixChanged14)).Selected.Order().SequenceEqual(new[]{"RemoveCalculator","RemoveTeams"}.Order())&&prefixChanged14.Contains("preserve-before14")&&prefixChanged14.Contains("preserve-between14"),"legacy partial edit canonicalizes selector order and preserves leading command");
+withPrefix14.ComputerName="COMBINED14";withPrefix14.DisableFastStartup=!withPrefix14.DisableFastStartup;var combined14=Xml(withPrefix14);Check(Node(combined14,"//u:ComputerName")=="COMBINED14"&&combined14.Contains("preserve-before14"),"legacy app and unrelated setting changes combine without losing extra command");
+Console.WriteLine($"V0.14 total: {count} checks passed.");

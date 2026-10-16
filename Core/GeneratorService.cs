@@ -99,7 +99,7 @@ public class GeneratorService {
   HardwareSettings.Apply(doc,ns,p);
   InstallationSettings.Apply(doc,ns,p);
   CompactOsSettings.Apply(doc,ns,p);
-  if(includeImport&&p.ImportedXml is {} imported)doc=XmlMerge.Apply(imported.SourceXml,imported.BaselineXml,doc);
+  if(includeImport&&p.ImportedXml is {} imported)doc=AppRemovalSettings.MergeImported(p,doc);
   using var schema=typeof(UnattendGenerator).Assembly.GetManifestResourceStream("Schneegans.Unattend.resource.autounattend.xsd")!;
   doc.Schemas.Add("urn:schemas-microsoft-com:unattend",XmlReader.Create(schema));
   doc.Validate((_,e)=>throw new ArgumentException("XML 结构验证失败："+e.Message));

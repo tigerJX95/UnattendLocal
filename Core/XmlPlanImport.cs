@@ -61,7 +61,7 @@ public static class XmlPlanImport {
   }
   XmlImportParameters.Reconcile(doc,p,appRemovalState,notes);
   if(baseline.Length>0)DescribeRemainder(doc,XmlMerge.Read(baseline),notes);
-  p.ImportedXml=new ImportedXml{AppRemovalReadOnly=appRemovalState.Ambiguous,SourceXml=doc.OuterXml,BaselineXml=baseline,Notices=notes.Distinct().ToArray(),Blockers=blockers.Distinct().ToArray(),RequiresDiskReview=disk};
+  p.ImportedXml=new ImportedXml{AppRemovalImportVersion=2,AppRemovalReadOnly=appRemovalState.Ambiguous,SourceXml=doc.OuterXml,BaselineXml=baseline,Notices=notes.Distinct().ToArray(),Blockers=blockers.Distinct().ToArray(),RequiresDiskReview=disk};
   CompactOsSettings.UpdateImportState(p.ImportedXml,compactState);
   p.ClearDiskConsent();return p;
  }
@@ -185,9 +185,10 @@ public static class XmlPlanImport {
   void ReadLayout(string name,string kind){string value=File(name);if(value.Length==0)return;try{ShellSettings.ValidateDocument(kind,value);if(kind=="taskbar"){p.TaskbarIconsXml=value;p.TaskbarIconsMode=value.Contains("#leaveempty")?"移除全部固定图标":ShellSettings.CustomXml;}else{p.StartTilesXml=value;p.StartTilesMode=ShellSettings.CustomXml;}}catch(ArgumentException){if(kind=="tiles"&&!value.Contains("Tile "))p.StartTilesMode="移除全部磁贴";else notes.Add("部分开始菜单/任务栏布局无法在界面还原，原布局保留。");}}
  }
  private static void DescribeRemainder(XmlDocument source,XmlDocument baseline,List<string> notes){
+  var legacyHelpers=AppRemovalSettings.KnownLegacyHelpers(source).ToHashSet(StringComparer.OrdinalIgnoreCase);
   var generated=baseline.SelectNodes("//*[local-name()='File']")!.Cast<XmlElement>().ToDictionary(f=>f.GetAttribute("path"),StringComparer.OrdinalIgnoreCase);
   foreach(XmlElement file in source.SelectNodes("//*[local-name()='File']")!) {
-   string path=file.GetAttribute("path");if(!generated.TryGetValue(path,out var other)||!XmlMerge.Equal(file,other))notes.Add("原文保留，未完全还原到界面："+PathName(path));
+   string path=file.GetAttribute("path");if(legacyHelpers.Contains(PathName(path)))continue;if(!generated.TryGetValue(path,out var other)||!XmlMerge.Equal(file,other))notes.Add("原文保留，未完全还原到界面："+PathName(path));
   }
   var known=baseline.SelectNodes("//*[local-name()='component']")!.Cast<XmlElement>().Select(XmlMerge.Identity).ToHashSet();
   foreach(XmlElement component in source.SelectNodes("//u:component",NamespaceManager(source))!)if(!known.Contains(XmlMerge.Identity(component)))notes.Add("原文保留，未实现的组件："+component.GetAttribute("name"));

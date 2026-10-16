@@ -7,7 +7,7 @@ using System.Xml;
 using Schneegans.Unattend;
 namespace UnattendLocal.Core;
 
-public static class AppRemovalSettings
+public static partial class AppRemovalSettings
 {
     public record Item(string Id, string Label, string Group, string Description);
     public static IReadOnlyList<Item> Items { get; } = new Item[]
@@ -91,6 +91,8 @@ public static class AppRemovalSettings
     private static XmlElement[] Files(XmlDocument d, string name) => d.SelectNodes("//*[local-name()='File']")!.Cast<XmlElement>().Where(f => f.GetAttribute("path").Equals(Root + name, StringComparison.OrdinalIgnoreCase)).ToArray();
     private static List<string> Blocks(string body) => Regex.Matches(body.Replace("\r\n", "\n"), @"(?m)^\t\{\n(?<body>(?:\t\t[^\n]*\n)*)\t\};\n", RegexOptions.None, TimeSpan.FromSeconds(1)).Select(m => Normal(m.Groups["body"].Value)).ToList();
     private static Dictionary<string,string> wrappers = new();
+    private static readonly Dictionary<string,string> helperTails = new();
+    private static string oneDriveBlock = "";
     private static HashSet<string> runOnceCommands = new();
     private static string Skeleton(string body) => Normal(Regex.Replace(body.Replace("\r\n","\n"), @"(?m)^\t\{\n(?:\t\t[^\n]*\n)*\t\};\n", "", RegexOptions.None, TimeSpan.FromSeconds(1)));
     private record Template(Dictionary<string,string> Helpers, Dictionary<string,string[]> Custom, Dictionary<string,string[]> Selectors);
@@ -117,15 +119,24 @@ public static class AppRemovalSettings
                 var match = Regex.Match(f[0].InnerText.Replace("\r\n","\n"), @"\A\s*\$selectors = @\(\n(?<values>(?:\t'[^'\n]+';\n)+)\);\n(?<tail>[\s\S]+)\z", RegexOptions.None, TimeSpan.FromSeconds(1));
                 if (!match.Success) throw new InvalidOperationException("应用移除模板不匹配。");
                 helpers[name] = Normal(match.Groups["tail"].Value);
+                helperTails.TryAdd(name, match.Groups["tail"].Value);
                 selectors[name] = Regex.Matches(match.Groups["values"].Value,@"'([^']+)';").Select(m => m.Groups[1].Value).ToArray();
             }
             var custom = Stages.ToDictionary(s => s, s => Files(doc,s).SelectMany(f=>Blocks(f.InnerText)).Where(b => !empty[s].Contains(b) && !(b.Contains("RunOnce") && b.Contains(Root+"UserOnce.ps1")) && !b.StartsWith("& '" + Root + "Remove", StringComparison.Ordinal)).ToArray());
+            if (item.Id == "RemoveOneDrive") oneDriveBlock = RawBlocks(Files(doc,"Specialize.ps1").Single().InnerText).Single(m => Normal(m.Groups["body"].Value) == custom["Specialize.ps1"].Single()).Value;
             result[item.Id] = new(helpers, custom, selectors);
         }
         return result;
     }
     public record Source(string[] Selected, bool Ambiguous);
     public static Source Inspect(XmlDocument doc)
+    {
+        var normalized = NormalizeLegacy(doc);
+        if (normalized != null) return InspectCurrent(normalized);
+        var state = InspectCurrent(doc);
+        return HasLegacyRemoval(doc) ? state with { Ambiguous = true } : state;
+    }
+    private static Source InspectCurrent(XmlDocument doc)
     {
         var templates = Templates.Value; var selectors = new Dictionary<string,HashSet<string>>(); bool ambiguous = false;
         var blocks = Stages.ToDictionary(s=>s,s=>Files(doc,s).SelectMany(f=>Blocks(f.InnerText)).ToArray());
@@ -188,6 +199,7 @@ public static class AppRemovalSettings
     public static Source ReadIntoPlan(XmlDocument doc,InstallPlan p,List<string> notes)
     {
         var state=Inspect(doc); p.RemovedApps=new(state.Selected);
+        if (!state.Ambiguous && HasLegacyRemoval(doc)) notes.Add(LegacyDescription);
         if(state.Ambiguous)notes.Add(ReadOnlyDescription);
         return state;
     }
@@ -199,6 +211,7 @@ public static class AppRemovalSettings
     }
     public static void NormalizeLoaded(InstallPlan p,JsonElement json)
     {
+        UpgradeLegacyPlan(p);
         if(json.TryGetProperty(nameof(InstallPlan.RemovedApps),out _) || p.ImportedXml is not {OriginalOmitted:false} data || data.SourceXml.Length==0 || data.BaselineXml.Length==0)return;
         var before=JsonSerializer.Deserialize<InstallPlan>(JsonSerializer.Serialize(p))!;before.ImportedXml=null;before.ConfirmWipeDisk=before.ConfirmFormatPartition=before.ConfirmDiskScript=true;
         var notes=new List<string>();ReadIntoPlan(XmlMerge.Read(data.SourceXml),p,notes);data.Notices=data.Notices.Concat(notes).Distinct().ToArray();

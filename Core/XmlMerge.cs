@@ -44,10 +44,11 @@ public static class XmlMerge {
  public static bool Equal(XmlElement? a,XmlElement? b)=>a==null?b==null:b!=null&&Canonical(a)==Canonical(b);
  private static string Normalize(string text)=>text.Replace("\r\n","\n").Replace('\r','\n').Trim();
  private static Exception Conflict(string path)=>new ArgumentException("XML 修改与原有内容存在冲突，未导出："+path+"。原文件未修改；请核对原 XML，或减少本次修改后重试。");
- public static XmlDocument Apply(string source,string baseline,XmlDocument updated){
-  var original=Read(source);var before=Read(baseline);Merge(original.DocumentElement!,before.DocumentElement!,updated.DocumentElement!,"unattend");return original;
+ public static XmlDocument Apply(string source,string baseline,XmlDocument updated)=>Apply(source,baseline,updated,null);
+ internal static XmlDocument Apply(string source,string baseline,XmlDocument updated,Func<string,string,string,string,string?>? scriptMerge){
+  var original=Read(source);var before=Read(baseline);Merge(original.DocumentElement!,before.DocumentElement!,updated.DocumentElement!,"unattend",scriptMerge);return original;
  }
- private static void Merge(XmlElement target,XmlElement before,XmlElement after,string path){
+ private static void Merge(XmlElement target,XmlElement before,XmlElement after,string path,Func<string,string,string,string,string?>? scriptMerge){
   if(Equal(before,after))return;
   var oldAttrs=Attributes(before);var newAttrs=Attributes(after);
   foreach(var key in oldAttrs.Keys.Union(newAttrs.Keys)){
@@ -63,7 +64,7 @@ public static class XmlMerge {
    if(Normalize(target.InnerText)==Normalize(after.InnerText))return;
    if(Normalize(target.InnerText)==Normalize(before.InnerText)){target.InnerText=after.InnerText;return;}
    if(target.LocalName=="File"&&target.GetAttribute("path").EndsWith(".ps1",StringComparison.OrdinalIgnoreCase)){
-    target.InnerText=MergeScript(target.InnerText,before.InnerText,after.InnerText,path);return;
+    target.InnerText=scriptMerge?.Invoke(target.GetAttribute("path"),target.InnerText,before.InnerText,after.InnerText) ?? MergeScript(target.InnerText,before.InnerText,after.InnerText,path);return;
    }
    throw Conflict(path);
   }
@@ -80,10 +81,10 @@ public static class XmlMerge {
     var node=target.OwnerDocument!.ImportNode(a,true);if(anchor==null)target.AppendChild(node);else target.InsertBefore(node,anchor);continue;
    }
    if(a==null){if(t==null)continue;if(!Equal(t,b))throw Conflict(childPath);target.RemoveChild(t);continue;}
-   if(t==null)throw Conflict(childPath);Merge(t,b,a,childPath);
+   if(t==null)throw Conflict(childPath);Merge(t,b,a,childPath,scriptMerge);
   }
  }
- private static string MergeScript(string source,string baseline,string updated,string path){
+ internal static string MergeScript(string source,string baseline,string updated,string path){
   var b=Normalize(baseline).Split('\n');var a=Normalize(updated).Split('\n');var s=Normalize(source).Split('\n').ToList();
   if((long)b.Length*a.Length>4_000_000)throw Conflict(path+"（脚本变更过大）");
   var lcs=new int[b.Length+1,a.Length+1];

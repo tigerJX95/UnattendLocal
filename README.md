@@ -4,7 +4,7 @@
 
 UnattendLocal 是基于 [Christoph Schneegans 的 UnattendGenerator](https://github.com/cschneegans/unattend-generator) 开发的中文 Windows 桌面配置工具，用于在本地编辑、检查和生成 Windows 10 / 11 的 `autounattend.xml`。
 
-当前版本：**V0.13**。修正 XML 导入参数误报，明确取消、失败及原文保留状态。工具用于准备安装配置，不会在当前电脑执行生成的安装脚本。
+当前版本：**V0.14**。增加已识别旧版应用移除脚本的导入编辑与旧方案迁移。工具用于准备安装配置，不会在当前电脑执行生成的安装脚本。
 
 ## 💡 开发初衷
 
@@ -24,7 +24,7 @@ UnattendLocal 是基于 [Christoph Schneegans 的 UnattendGenerator](https://git
 | :---: | :---: |
 | ![配置方案：浅色主题](docs/images/overview.png) | ![版本与密钥：深色主题](docs/images/edition-and-key-dark.png) |
 
-截图来自 V0.1 pre41 的实际运行界面，用于展示浅色与深色主题；当前 V0.13 已调整导航顺序并新增部分设置，实际界面以当前版本为准。
+截图来自 V0.1 pre41 的实际运行界面，用于展示浅色与深色主题；当前 V0.14 已调整导航顺序并新增部分设置，实际界面以当前版本为准。
 
 ## ✨ 主要功能
 
@@ -43,22 +43,22 @@ UnattendLocal 是基于 [Christoph Schneegans 的 UnattendGenerator](https://git
 - 保存和恢复 JSON 方案，提供配置摘要、推荐差异、检查、脱敏预览和 XML 导出。
 - 导入已有 XML 后编辑已支持设置，保留未知内容；遇到无法可靠合并的修改时停止导出并说明原因。
 
-## ✨ V0.13 更新
+## ✨ V0.14 更新
 
-- 修正导入生成器 XML 时，已实现的应用移除选项被误报为“尚未实现”；常见未启用或默认模式别名不再产生错误提示。
-- 参数注释仅表示原文件的选择记录，还原以实际 XML 和脚本为准；不一致时明确说明，不将参数当作目标系统已安装应用清单。
-- 不符合可编辑模板的应用移除脚本完整保留，并明确显示清单只读，避免用勾选静默覆盖未知脚本。
-- 导入确认框明确区分“替换当前配置”和“取消整次导入”。选择“否”保留当前配置并显示取消提示；读取或解析异常显示导入失败。
-- 旧方案重新打开时刷新过时参数提示，保留待处理修改和 XML 原文。顶部“打开方案／保存方案”相邻，“导入应答 XML”位于最后。
+- 新增一组旧版应用移除脚本的导入编辑兼容，支持 `RemovePackages.ps1`、`RemoveCapabilities.ps1`、`RemoveFeatures.ps1` 及配套 OneDrive 命令。
+- 从实际选择器和完整执行流程还原勾选，不依赖生成参数注释，也不将它们当作镜像已安装应用清单。
+- 未修改移除清单时保留旧脚本；修改后转换已识别的移除流程为当前生成器格式，保留其他 XML 内容。
+- 旧方案在原文和编辑基准完整、状态一致时自动恢复选择，并保留待处理修改；不能可靠迁移时提示重新导入。
+- 脚本被改写、选择器未知、调用重复或执行链不完整时继续只读，并保留原文。
 
 ## 📦 下载与使用
 
-从仓库的 **Releases** 页面下载并直接运行对应的 `UnattendLocal_V0.13_x64_SelfContained.exe` 或 `UnattendLocal_V0.13_x64_FrameworkDependent.exe`：
+从仓库的 **Releases** 页面下载并直接运行对应的 `UnattendLocal_V0.14_x64_SelfContained.exe` 或 `UnattendLocal_V0.14_x64_FrameworkDependent.exe`：
 
 | 程序文件 | 运行要求 |
 | --- | --- |
-| `UnattendLocal_V0.13_x64_SelfContained.exe` | 集成 .NET 运行时，无需单独安装；通常选择此版。 |
-| `UnattendLocal_V0.13_x64_FrameworkDependent.exe` | 文件较小，需安装 .NET 10 Desktop Runtime x64。 |
+| `UnattendLocal_V0.14_x64_SelfContained.exe` | 集成 .NET 运行时，无需单独安装；通常选择此版。 |
+| `UnattendLocal_V0.14_x64_FrameworkDependent.exe` | 文件较小，需安装 .NET 10 Desktop Runtime x64。 |
 
 两版功能相同。首次安装测试建议使用虚拟机。
 

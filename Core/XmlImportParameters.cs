@@ -68,8 +68,10 @@ public static class XmlImportParameters
         var state = AppRemovalSettings.Inspect(doc);
         data.AppRemovalReadOnly = state.Ambiguous;
         var notes = data.Notices.ToList();
-        notes.RemoveAll(n => n == "应用移除脚本含未知、修改过或不完整的内容，原文保留；本版不能通过应用移除列表覆盖这些脚本。");
+        var legacyHelpers = AppRemovalSettings.KnownLegacyHelpers(doc).ToHashSet();
+        notes.RemoveAll(n => n == "应用移除脚本含未知、修改过或不完整的内容，原文保留；本版不能通过应用移除列表覆盖这些脚本。" || n == AppRemovalSettings.ReadOnlyDescription || n == AppRemovalSettings.LegacyDescription || n.StartsWith("原文件的生成参数声明选择了 ",StringComparison.Ordinal) || n.StartsWith("应用移除生成参数与实际脚本不一致",StringComparison.Ordinal) || n.StartsWith("部分应用移除生成参数的取值无法识别",StringComparison.Ordinal) || n.StartsWith("CompactOS 生成参数与实际安装配置不一致",StringComparison.Ordinal) || legacyHelpers.Any(name=>n=="原文保留，未完全还原到界面："+name));
         if (state.Ambiguous) notes.Add(AppRemovalSettings.ReadOnlyDescription);
+        else if (AppRemovalSettings.IsEditableLegacy(doc)) notes.Add(AppRemovalSettings.LegacyDescription);
         Reconcile(doc, plan, state, notes);
         data.Notices = notes.Distinct().ToArray();
     }
