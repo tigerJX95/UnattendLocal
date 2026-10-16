@@ -4,7 +4,7 @@
 
 UnattendLocal 是基于 [Christoph Schneegans 的 UnattendGenerator](https://github.com/cschneegans/unattend-generator) 开发的中文 Windows 桌面配置工具，用于在本地编辑、检查和生成 Windows 10 / 11 的 `autounattend.xml`。
 
-当前版本：**V0.10**。本版接入智能应用控制、SmartScreen、核心隔离与 C 盘根目录权限四项可选设置，延续原有生成核心和脚本执行阶段。工具用于准备安装配置，不会在当前电脑执行生成的安装脚本。
+当前版本：**V0.11**。本版新增配置集与 AppLocker 策略 XML，并修复最小化恢复后的页面滚动位置，延续原有生成核心和脚本执行阶段。工具用于准备安装配置，不会在当前电脑执行生成的安装脚本。
 
 ## 💡 开发初衷
 
@@ -24,7 +24,7 @@ UnattendLocal 是基于 [Christoph Schneegans 的 UnattendGenerator](https://git
 | :---: | :---: |
 | ![配置方案：浅色主题](docs/images/overview.png) | ![版本与密钥：深色主题](docs/images/edition-and-key-dark.png) |
 
-截图来自 V0.1 pre41 的实际运行界面，用于展示浅色与深色主题；当前 V0.10 已调整导航顺序并新增部分设置，实际界面以当前版本为准。
+截图来自 V0.1 pre41 的实际运行界面，用于展示浅色与深色主题；当前 V0.11 已调整导航顺序并新增部分设置，实际界面以当前版本为准。
 
 ## ✨ 主要功能
 
@@ -40,22 +40,21 @@ UnattendLocal 是基于 [Christoph Schneegans 的 UnattendGenerator](https://git
 - 保存和恢复 JSON 方案，提供配置摘要、推荐差异、检查、脱敏预览和 XML 导出。
 - 导入已有 XML 后编辑已支持设置，保留未知内容；遇到无法可靠合并的修改时停止导出并说明原因。
 
-## ✨ V0.10 更新
+## ✨ V0.11 更新
 
-- 接入“关闭智能应用控制（SAC）”，附带保护影响及恢复可能需要重置或重装的说明。
-- 接入“关闭 Windows 与 Edge 的 SmartScreen”，明确信誉、钓鱼与密码风险提示及隐藏安全中心托盘图标的影响。
-- 接入“关闭核心隔离（VBS / 内存完整性）”，说明保护降低、驱动兼容及作用范围，不承诺性能提升。
-- 接入“收紧 C 盘根目录写入权限”，移除已验证用户组的根目录显式允许权限，不递归重设整个磁盘 ACL。
-- 四项默认不勾选；支持方案保存、摘要、动态帮助、推荐差异、XML 导入编辑及旧方案兼容。
+- 新增 `$OEM$` 配置集开关，通过 Windows Setup 的 UseConfigurationSet 处理配套介质文件；默认关闭。
+- 新增 AppLocker 策略 XML 导入、编辑和结构检查，提供审核模式示例；默认关闭，审核或强制模式由策略决定。
+- 修复最小化窗口后恢复时，当前设置页滚动位置丢失、跳回顶部的问题；恢复后主动滚动或切换页面时取消旧位置还原。
+- 两项设置支持方案保存、摘要、动态帮助、推荐差异、XML 导入编辑和旧方案迁移；预览整体遮蔽 AppLocker 策略。
 
 ## 📦 下载与使用
 
-从仓库的 **Releases** 页面下载并直接运行对应的 `UnattendLocal_V0.10_x64_SelfContained.exe` 或 `UnattendLocal_V0.10_x64_FrameworkDependent.exe`：
+从仓库的 **Releases** 页面下载并直接运行对应的 `UnattendLocal_V0.11_x64_SelfContained.exe` 或 `UnattendLocal_V0.11_x64_FrameworkDependent.exe`：
 
 | 程序文件 | 运行要求 |
 | --- | --- |
-| `UnattendLocal_V0.10_x64_SelfContained.exe` | 集成 .NET 运行时，无需单独安装；通常选择此版。 |
-| `UnattendLocal_V0.10_x64_FrameworkDependent.exe` | 文件较小，需安装 .NET 10 Desktop Runtime x64。 |
+| `UnattendLocal_V0.11_x64_SelfContained.exe` | 集成 .NET 运行时，无需单独安装；通常选择此版。 |
+| `UnattendLocal_V0.11_x64_FrameworkDependent.exe` | 文件较小，需安装 .NET 10 Desktop Runtime x64。 |
 
 两版功能相同。首次安装测试建议使用虚拟机。
 
@@ -75,6 +74,10 @@ UnattendLocal 是基于 [Christoph Schneegans 的 UnattendGenerator](https://git
 四项设置位于系统设置页，默认均不勾选，遵循 Windows 默认行为。关闭 SAC、SmartScreen 或核心隔离会降低相应保护；SAC 关闭后重新启用可能需要重置或重装 Windows。SmartScreen 选项还会隐藏安全中心托盘图标，但不关闭 Defender 防病毒引擎。核心隔离选项不卸载 Hyper-V、WSL2 或虚拟机工具，不保证性能提升；系统版本、组织策略和固件锁定可能影响结果。根目录权限收紧可能影响依赖普通用户向 C 盘根目录写入的程序，不改变整个磁盘或其他盘的权限。
 
 取消勾选仅影响新生成配置，不恢复已安装系统；工具不在当前电脑执行这些命令。导入 XML 仅对完整识别的原生流程开放编辑，未知或修改过的内容保留原文并拒绝不可靠覆盖。
+
+`$OEM$` 开关只生成安装设置；需自行准备与 `autounattend.xml` 配套的介质目录。`$$` 对应 Windows 目录，`$1` 对应系统盘根目录。复制可能覆盖同路径内容，不会自动安装其中的应用；不要预先建立未来用户的个人目录。自定义 PE 脚本中的复制流程保留原文，不能由此开关可靠控制。
+
+AppLocker 在 specialize 阶段启动 AppIDSvc 并执行 Set-AppLockerPolicy，不带 `-Merge`，可能替换现有本地策略。强制规则可能拦截安装脚本、系统工具或管理员应用；先在虚拟机审核并准备恢复方案。结构检查不判断规则是否适合目标电脑，生效取决于 Windows 版本、组件和组织策略。策略始终保存在 JSON 中，省略凭据不会移除其中的路径、SID 或自行填写的信息；预览整体遮蔽策略 XML。取消仅改变新配置，不恢复已安装系统。
 
 当前使用普通 Release 发布，部分非核心上游设置将逐步补齐。当前使用固定生成核心及选择性同步，未宣称与上游最新功能完全对齐。
 

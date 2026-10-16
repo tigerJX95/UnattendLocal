@@ -104,3 +104,8 @@ V0.10 核对 · 2026-10-16：GitHub 最新提交与官网发布均为 27237f82e9
 来源：https://api.github.com/repos/cschneegans/unattend-generator/commits?per_page=1
 源码：https://raw.githubusercontent.com/cschneegans/unattend-generator/27237f82e9a8498d9c5bab7d398dc34b7682a1e8/modifier/Optimizations.cs
 使用范围及微软资料见 docs/SecurityOptions.md。
+
+V0.11 核对 · 2026-10-16：官网发布提交 27237f82e9a8498d9c5bab7d398dc34b7682a1e8。该提交 modifier/AppLocker.cs、modifier/Optimizations.cs 与固定 vendor 逐字节一致。本版本地接入 ConfigureAppLockerSettings 与标准 Windows Setup 的 UseConfigurationSet；不修改固定核心或执行阶段，不接入整套原生自定义 PE 生成流程。AppLocker 保留不带 -Merge 的原生命令，并明确本地策略替换及强制规则风险。配置集按官方 usage 示例在介质根目录准备配套 $OEM$；自定义 PE 复制脚本原文保留，不宣称可由简单开关控制。
+源码：https://raw.githubusercontent.com/cschneegans/unattend-generator/27237f82e9a8498d9c5bab7d398dc34b7682a1e8/modifier/AppLocker.cs
+源码：https://raw.githubusercontent.com/cschneegans/unattend-generator/27237f82e9a8498d9c5bab7d398dc34b7682a1e8/modifier/Optimizations.cs
+使用与微软资料：docs/DeploymentOptions.md。

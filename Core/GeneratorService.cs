@@ -43,6 +43,7 @@ public class GeneratorService {
   if(p.AccountMode=="自动创建本地账户"&&!p.AutoLogon&&!p.KeepSensitiveFiles)throw new ArgumentException("关闭首次自动登录时，无法自动清理安装隐私文件。请启用首次自动登录，或在 OOBE 页的“安装脚本与隐私文件”中明确勾选“保留安装隐私文件”。");
   var config=Configuration.Default with {
    Bloatwares=AppRemovalSettings.Build(generator,p),
+   UseConfigurationSet=p.UseConfigurationSet,AppLockerSettings=AppControlSettings.Build(p),
    ProcessAuditSettings=ProcessAuditSettings.Build(p),
    UseNarrator=p.UseNarrator,MakeEdgeUninstallable=p.MakeEdgeUninstallable,DisableSystemRestore=p.DisableSystemRestore,
    DisableUac=p.DisableUac,DisableWpbt=p.DisableWpbt,
@@ -113,6 +114,8 @@ public class GeneratorService {
   foreach(XmlNode n in doc.SelectNodes("//*[local-name()='File']",ns)!)
    if(n.Attributes?["path"]?.Value.EndsWith("Wifi.xml",StringComparison.OrdinalIgnoreCase)==true)
     n.InnerText="[无线配置 XML 已整体遮蔽，可能含密码及其他认证资料]";
+   else if(n.Attributes?["path"]?.Value.EndsWith("AppLockerPolicy.xml",StringComparison.OrdinalIgnoreCase)==true)
+    n.InnerText="[AppLocker 策略 XML 已整体遮蔽，可能含路径和身份信息]";
   using var sw=new StringWriter();using(var w=XmlWriter.Create(sw,new XmlWriterSettings{Indent=true,OmitXmlDeclaration=true}))doc.Save(w);
   return "预览（密码和产品密钥已遮蔽，不能用于安装）\n"+sw.ToString();
  }

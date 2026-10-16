@@ -40,6 +40,8 @@ public static class XmlPlanImport {
   VmGuestToolsSettings.ReadIntoPlan(doc,p,notes);
   AdditionalSetupSettings.ReadIntoPlan(doc,p,notes);
   SecurityOptions.ReadIntoPlan(doc,p,notes);
+  AppControlSettings.ReadIntoPlan(doc,p,notes);
+  ConfigurationSetSettings.ReadIntoPlan(doc,p,notes);
   var compactState=CompactOsSettings.ReadIntoPlan(doc,p,notes);
   p.Architecture=arches.FirstOrDefault()??"amd64";
   p.ConfigurationMode="自定义配置";p.CustomStartingPoint="保留当前设置";p.RecommendationId="";p.RecommendationVersion=0;p.RecommendationWindows="";
@@ -217,7 +219,7 @@ public static class XmlPlanImport {
    known.Add(key+"Initial");known.Add(key+"Behavior");typeof(InstallPlan).GetProperty("Initial"+key+"On")!.SetValue(p,Value(key+"Initial")=="On");typeof(InstallPlan).GetProperty("Ignore"+key)!.SetValue(p,Value(key+"Behavior")=="Ignore");
   }
   p.RestartExplorerAfterScripts=Checked("RestartExplorer");known.Add("RestartExplorer");
-  known.Add("ProcessAudit");known.Add("IncludeCommandLine");
+  known.Add("ProcessAudit");known.Add("IncludeCommandLine");known.Add("AppLockerMode");known.Add("AppLockerPolicyXml");
   // Native XML and payload readers handle these; credentials are never accepted from comments.
   foreach(var key in new[]{"LanguageMode","UILanguage","Locale","Keyboard","GeoLocation","ComputerNameMode","ComputerName","ComputerNameScript","Locale2","Keyboard2","Locale3","Keyboard3","TimeZoneMode","TimeZone","WindowsEditionMode","WindowsEdition","ProductKey","UseActivationKey","ActivationKey","UserAccountMode","AutoLogonMode","ObscurePasswords","PasswordExpirationMode","PasswordMaxAge","LockoutMode","LockoutThreshold","LockoutWindow","LockoutDuration","WifiMode","WifiName","WifiPassword","WifiAuthentication","WifiNonBroadcast","ExpressSettings","TaskbarSearch","HideFiles","TaskbarIconsMode","TaskbarIconsXml","StartTilesMode","StartTilesXml","StartPinsMode","StartPinsJson","ColorMode","SystemColorTheme","AppsColorTheme","AccentColor","AccentColorOnStart","AccentColorOnBorders","EnableTransparency","WallpaperMode","WallpaperColor","WallpaperScript","LockScreenMode","LockScreenScript","LockKeysMode","ProcessorArchitecture","BypassRequirementsCheck","BypassNetworkCheck","StickyKeysHotKeyActive","StickyKeysHotKeySound","StickyKeysIndicator","StickyKeysAudibleFeedback","StickyKeysTriState","StickyKeysTwoKeysOff","NotFilename","CompactOs"})known.Add(key);
   foreach(var pair in values){
@@ -243,6 +245,7 @@ public static class XmlPlanImport {
   copy.Scripts=new(copy.Scripts.Where(s=>s.Enabled&&!s.IsRemovedType));
   if(copy.AccountMode!="自动创建本地账户")copy.Users.Clear();
   if(!WifiSettings.IsPreset(copy)){copy.Ssid="";copy.WifiPassword="";}
+  if(!copy.UseAppLocker)copy.AppLockerPolicyXml="";
   if(copy.ComputerNameMode!=ComputerNamingSettings.Script)copy.ComputerNameScript="";
   if(copy.TaskbarIconsMode!=ShellSettings.CustomXml)copy.TaskbarIconsXml="";
   if(copy.StartTilesMode!=ShellSettings.CustomXml)copy.StartTilesXml="";
@@ -273,6 +276,8 @@ public static class XmlPlanImport {
   VmGuestToolsSettings.ValidateImported(p,source);
   AdditionalSetupSettings.ValidateImported(p,source);
   SecurityOptions.ValidateImported(p,source);
+  AppControlSettings.ValidateImported(p,source);
+  ConfigurationSetSettings.ValidateImported(p,source);
   if(HasRemovedScript(source))throw new ArgumentException("原 XML 仍含已移除支持的 JScript，不能再导出。");
   if((data.RequiresDiskReview||NeedsDiskReview(source))&&!p.ConfirmImportedXmlRisk)throw new ArgumentException("导入的 XML 含磁盘配置或 Windows PE 命令，请在配置方案页重新核对原文操作范围并勾选风险确认。");
  }

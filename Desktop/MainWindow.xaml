@@ -1,4 +1,4 @@
-<Window xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:local="clr-namespace:UnattendLocal.Desktop" xmlns:core="clr-namespace:UnattendLocal.Core;assembly=Core" x:Class="UnattendLocal.Desktop.MainWindow" Icon="Assets/App.ico" Title="Windows 无人值守配置工具 · V0.10" Width="1060" Height="780" MinWidth="850" MinHeight="620" Background="{DynamicResource CanvasBrush}" Foreground="{DynamicResource ForegroundBrush}" FontFamily="Microsoft YaHei UI" FontSize="14">
+<Window xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:local="clr-namespace:UnattendLocal.Desktop" xmlns:core="clr-namespace:UnattendLocal.Core;assembly=Core" x:Class="UnattendLocal.Desktop.MainWindow" Icon="Assets/App.ico" Title="Windows 无人值守配置工具 · V0.11" Width="1060" Height="780" MinWidth="850" MinHeight="620" Background="{DynamicResource CanvasBrush}" Foreground="{DynamicResource ForegroundBrush}" FontFamily="Microsoft YaHei UI" FontSize="14">
   <DockPanel>
     <Border DockPanel.Dock="Top" Background="{DynamicResource SurfaceBrush}" Padding="24,16">
       <DockPanel>
@@ -328,6 +328,13 @@
       </TabItem>
       <TabItem Header="镜像与分区" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch">
         <ScrollViewer VerticalScrollBarVisibility="Auto"><StackPanel Margin="24">
+          <Border Style="{StaticResource Card}"><StackPanel>
+            <TextBlock Text="安装介质配置集" FontSize="20" FontWeight="SemiBold" Margin="0,0,0,16"/>
+            <CheckBox Content="使用 $OEM$ 配置集（UseConfigurationSet）" IsChecked="{Binding Plan.UseConfigurationSet}" ToolTip="{Binding DataContext.HelpTips[configset],RelativeSource={RelativeSource AncestorType=Window}}"/>
+            <TextBlock Style="{StaticResource ExplanationText}" Text="　　默认关闭。需自行准备与应答文件配套的 $OEM$ 目录；$$ 对应 Windows 目录，$1 对应系统盘根目录。本工具不创建、打包或复制介质文件，也不自动安装其中的应用。" Foreground="{DynamicResource SecondaryBrush}"/>
+            <TextBlock Style="{StaticResource ExplanationText}" Text="　　由 Windows Setup 处理配置集，可能覆盖同路径文件。请核对介质内容；取消不删除已复制文件。自定义 PE 脚本中的复制流程仍需用原工具调整。" Foreground="{DynamicResource WarningBrush}" Visibility="{Binding Plan.UseConfigurationSet,Converter={StaticResource VisibleWhen}}"/>
+          </StackPanel></Border>
+
           <Border Style="{StaticResource Card}"><StackPanel>
             <TextBlock Text="安装镜像" FontSize="20" FontWeight="SemiBold" Margin="0,0,0,16" />
             <TextBlock Style="{StaticResource ExplanationText}" Text="　　选择安装介质中的镜像，名称 / 索引必须与实际介质匹配。Windows 10 / 11 由镜像决定，产品密钥须匹配 SKU。" TextWrapping="Wrap" Foreground="{DynamicResource SecondaryBrush}" />
@@ -678,6 +685,16 @@
               <TextBlock Style="{StaticResource ExplanationText}" Text="　　设置 DisableWpbtExecution=1，阻止 Windows 执行通过 Windows Platform Binary Table 提供的固件程序。默认不勾选。" Foreground="{DynamicResource SecondaryBrush}"/>
               <TextBlock Style="{StaticResource ExplanationText}" Text="　　可能影响厂商通过该机制提供的软件；不卸载已有应用，不修改 BIOS/UEFI 固件，也不等于全面阻止厂商软件安装。" Foreground="{DynamicResource WarningBrush}" Visibility="{Binding Plan.DisableWpbt,Converter={StaticResource VisibleWhen}}"/>
               <TextBlock Style="{StaticResource ExplanationText}" Text="　　两项只在目标 Windows 安装阶段设置，不修改当前电脑。取消勾选只影响新配置，不撤销已安装系统的设置。" Foreground="{DynamicResource SecondaryBrush}"/>
+            </StackPanel></Border>
+            <Border Style="{StaticResource Card}"><StackPanel>
+              <TextBlock Text="AppLocker 应用控制策略" FontSize="20" FontWeight="SemiBold" Margin="0,0,0,16"/>
+              <CheckBox Content="应用 AppLocker 策略 XML" IsChecked="{Binding Plan.UseAppLocker}" ToolTip="{Binding DataContext.HelpTips[applocker],RelativeSource={RelativeSource AncestorType=Window}}"/>
+              <TextBlock Style="{StaticResource ExplanationText}" Text="　　默认关闭。规则的审核或强制模式由 XML 决定；结构检查不能判断规则是否适合目标电脑。策略始终保存在方案中，分享前核对路径、SID 及其他信息。" Foreground="{DynamicResource SecondaryBrush}"/>
+              <StackPanel IsEnabled="{Binding Plan.UseAppLocker}">
+                <WrapPanel><Button Content="导入策略 XML" Click="ImportAppLockerClick"/><Button Content="检查策略结构" Click="ValidateAppLockerClick"/><Button Content="载入审核示例" Click="AppLockerExampleClick"/></WrapPanel>
+                <TextBox Text="{Binding Plan.AppLockerPolicyXml,UpdateSourceTrigger=PropertyChanged}" AcceptsReturn="True" AcceptsTab="True" Height="220" FontFamily="Consolas" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto" SpellCheck.IsEnabled="False" ToolTip="{Binding DataContext.HelpTips[applocker],RelativeSource={RelativeSource AncestorType=Window}}"/>
+              </StackPanel>
+              <TextBlock Style="{StaticResource ExplanationText}" Text="　　会启动 AppIDSvc 并应用策略，不带 -Merge，可能替换现有本地策略。强制策略可能拦截安装脚本、系统工具或管理员应用，请先在虚拟机审核并准备恢复方案；取消勾选不恢复已安装系统。" Foreground="{DynamicResource WarningBrush}" Visibility="{Binding Plan.UseAppLocker,Converter={StaticResource VisibleWhen}}"/>
             </StackPanel></Border>
             <Border Style="{StaticResource Card}"><StackPanel>
               <TextBlock Text="应用与内核保护、系统盘权限" FontSize="20" FontWeight="SemiBold" Margin="0,0,0,16"/>

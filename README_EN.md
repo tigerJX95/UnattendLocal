@@ -4,7 +4,7 @@
 
 UnattendLocal is a Chinese-language Windows desktop tool based on [Christoph Schneegans’ UnattendGenerator](https://github.com/cschneegans/unattend-generator). It lets you edit, check, and generate `autounattend.xml` for Windows 10 / 11 locally.
 
-Current version: **V0.10**. This release adds optional Smart App Control, SmartScreen, core-isolation, and C: root permission settings. It retains the original generation core and script execution stages. The tool prepares installation configuration; it does not execute the generated installation scripts on your current computer.
+Current version: **V0.11**. This release adds configuration sets and AppLocker policy XML, and fixes page scroll positions after minimizing and restoring the window. It retains the original generation core and script execution stages. The tool prepares installation configuration; it does not execute the generated installation scripts on your current computer.
 
 ## 💡 Why this project exists
 
@@ -24,7 +24,7 @@ Offline use means editing, saving, and generating configuration locally. Microso
 | :---: | :---: |
 | ![Configuration plans in the light theme](docs/images/overview.png) | ![Edition and product key in the dark theme](docs/images/edition-and-key-dark.png) |
 
-These are actual V0.1 pre41 screenshots showing the light and dark themes. The current V0.10 release includes navigation changes and additional settings; refer to the current application for the latest interface. The application interface is currently in Chinese.
+These are actual V0.1 pre41 screenshots showing the light and dark themes. The current V0.11 release includes navigation changes and additional settings; refer to the current application for the latest interface. The application interface is currently in Chinese.
 
 ## ✨ Main features
 
@@ -39,17 +39,16 @@ These are actual V0.1 pre41 screenshots showing the light and dark themes. The c
 - Save and restore JSON plans; review summaries, recommended-setting differences, checks, redacted previews, and XML exports.
 - Import existing XML and edit supported settings while preserving unknown content. Export stops with an explanation when changes cannot be merged reliably.
 
-## ✨ V0.10 updates
+## ✨ V0.11 updates
 
-- Added an option to disable Smart App Control (SAC), with protection and reset/reinstall recovery notes.
-- Added an option to disable the native Windows and Edge SmartScreen settings, explaining reputation, phishing/password warnings, and the hidden Windows Security tray icon.
-- Added an option to disable core isolation (VBS / memory integrity), explaining reduced protection, driver compatibility, and scope without promising performance gains.
-- Added an option to restrict writes at the C: root by removing explicit allow permissions for Authenticated Users; it does not recursively reset disk ACLs.
-- All four options are unchecked by default and support saved plans, summaries, contextual help, recommendation differences, XML editing, and older-plan compatibility.
+- Added the `$OEM$` configuration-set option, using Windows Setup’s UseConfigurationSet setting for accompanying media files; off by default.
+- Added AppLocker policy XML import, editing, and structural validation, with an audit-only example. Off by default; audit or enforcement mode comes from the policy.
+- Fixed settings pages losing their scroll position after minimizing and restoring the window. Scrolling or changing pages cancels the pending restoration.
+- Both options support saved plans, summaries, contextual help, recommendation differences, XML editing, and older-plan migration. Preview hides the whole AppLocker policy.
 
 ## 📦 Download and usage
 
-Download and run the matching Windows x64 executable from the repository’s **Releases** page: `UnattendLocal_V0.10_x64_SelfContained.exe` or `UnattendLocal_V0.10_x64_FrameworkDependent.exe`. Choose `UnattendLocal_V0.10_x64_SelfContained.exe` for a bundled .NET runtime, or `UnattendLocal_V0.10_x64_FrameworkDependent.exe` if .NET 10 Desktop Runtime x64 is already installed. Both have the same features. Use a virtual machine for initial testing.
+Download and run the matching Windows x64 executable from the repository’s **Releases** page: `UnattendLocal_V0.11_x64_SelfContained.exe` or `UnattendLocal_V0.11_x64_FrameworkDependent.exe`. Choose `UnattendLocal_V0.11_x64_SelfContained.exe` for a bundled .NET runtime, or `UnattendLocal_V0.11_x64_FrameworkDependent.exe` if .NET 10 Desktop Runtime x64 is already installed. Both have the same features. Use a virtual machine for initial testing.
 
 1. Choose a recommended scenario or a custom configuration and enter the required account and image settings.
 2. Adjust system, appearance, and application removal options as needed.
@@ -67,6 +66,10 @@ The second and third locale/keyboard pairs apply in fixed language/region mode. 
 The four options appear in system settings and are unchecked by default, leaving Windows behavior unchanged. Disabling SAC, SmartScreen, or core isolation reduces the corresponding protection. Re-enabling SAC may require a Windows reset or reinstall. The SmartScreen option also hides the Windows Security tray icon but does not disable the Defender antivirus engine. The core-isolation option does not uninstall Hyper-V, WSL2, or VM tools and does not guarantee better performance; Windows version, organization policies, and firmware locks can affect results. Restricting C: root permissions may affect programs that expect ordinary users to write there; it does not change permissions throughout the disk or on other drives.
 
 Clearing an option changes newly generated configuration only; it does not restore an installed system. The tool does not execute these commands on the current computer. XML editing is available for complete recognized native flows; unknown or modified content is preserved and unreliable replacements are rejected.
+
+The `$OEM$` option generates installation settings only. Prepare the media folders alongside `autounattend.xml`: `$$` maps to the Windows directory and `$1` to the system-drive root. Copying can replace matching files and does not automatically install applications. Do not pre-create future users’ personal profile folders. Custom PE copying scripts are preserved and cannot be reliably controlled by this switch.
+
+AppLocker starts AppIDSvc and runs Set-AppLockerPolicy during specialize without `-Merge`, potentially replacing the existing local policy. Enforced rules can block setup scripts, system tools, or administrator applications; audit them in a VM and prepare recovery first. Structural checks cannot establish whether a policy is suitable. Results depend on Windows version, components, and organization policy. JSON always retains policy text, including when credentials are omitted; review paths, SIDs, and other entered information before sharing. Preview hides the entire policy XML. Clearing the option changes new configuration only and does not restore an installed system.
 
 This version is published as an ordinary GitHub Release. Some non-core upstream settings will be implemented later. The project uses a fixed generation core with selective synchronization and does not claim complete parity with the latest upstream features.
 
