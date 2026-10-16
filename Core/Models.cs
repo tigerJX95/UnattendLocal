@@ -16,6 +16,11 @@ public class UserEntry : Observable {
  private bool _NeedsPassword = false; public bool NeedsPassword {get=>_NeedsPassword;set=>Set(ref _NeedsPassword,value);}
 }
 public class InstallPlan : Observable {
+ private bool _UseBuiltinAdministrator;public bool UseBuiltinAdministrator {get=>_UseBuiltinAdministrator;set=>Set(ref _UseBuiltinAdministrator,value);}
+ private string _BuiltinAdministratorPassword="";public string BuiltinAdministratorPassword {get=>_BuiltinAdministratorPassword;set=>Set(ref _BuiltinAdministratorPassword,value);}
+ private bool _AllowEmptyBuiltinAdministratorPassword;public bool AllowEmptyBuiltinAdministratorPassword {get=>_AllowEmptyBuiltinAdministratorPassword;set=>Set(ref _AllowEmptyBuiltinAdministratorPassword,value);}
+ private bool _NeedsBuiltinAdministratorPassword;public bool NeedsBuiltinAdministratorPassword {get=>_NeedsBuiltinAdministratorPassword;set=>Set(ref _NeedsBuiltinAdministratorPassword,value);}
+
  private string _ComputerNameMode=ComputerNamingSettings.Existing;public string ComputerNameMode {get=>_ComputerNameMode;set=>Set(ref _ComputerNameMode,value);}
  private string _ComputerNameScript="";public string ComputerNameScript {get=>_ComputerNameScript;set=>Set(ref _ComputerNameScript,value);}
  private bool _UseSecondLanguage=false;public bool UseSecondLanguage {get=>_UseSecondLanguage;set=>Set(ref _UseSecondLanguage,value);}

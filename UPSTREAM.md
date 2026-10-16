@@ -115,3 +115,7 @@ V0.12 核对 · 2026-10-16：官网发布仍标注 27237f82e9a8498d9c5bab7d398dc
 V0.13 · 2026-10-16：本版仅修正本地 XML 导入诊断、兼容别名及取消/只读反馈，不改固定生成核心。vendor 的 77 个源码/资源文件与 V0.12 逐字节保持；未升级上游，不声明当前官网版本。
 
 V0.14 · 2026-10-16：固定 vendor 与 V0.13 保持；本地兼容一组历史移除 helper 和 OneDrive 命令，仅从完整实际脚本和执行链恢复，编辑时转换已识别流程为固定生成器格式。未升级上游，未宣称当前官网版本。
+
+V0.15 · 2026-10-16：官网发布仍标注 27237f8，与固定基线一致；本地接入 Users.cs 的 BuiltinAutoLogonSettings，沿用原生 AdministratorPassword、AutoLogon、LogonCount=1 及 FirstLogon 次数归零命令，不修改 vendor。微软确认 AutoLogon/Username=Administrator 可启用内置账户。
+官网：https://schneegans.de/windows/unattend-generator/
+微软：https://learn.microsoft.com/en-us/windows-hardware/customize/desktop/unattend/microsoft-windows-shell-setup-autologon-username

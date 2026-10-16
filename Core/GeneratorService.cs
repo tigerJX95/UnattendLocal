@@ -99,7 +99,7 @@ public class GeneratorService {
   HardwareSettings.Apply(doc,ns,p);
   InstallationSettings.Apply(doc,ns,p);
   CompactOsSettings.Apply(doc,ns,p);
-  if(includeImport&&p.ImportedXml is {} imported)doc=AppRemovalSettings.MergeImported(p,doc);
+  if(includeImport&&p.ImportedXml is {} imported){FirstLogonSettings.ValidateGenerated(p,doc);doc=AppRemovalSettings.MergeImported(p,doc);}
   using var schema=typeof(UnattendGenerator).Assembly.GetManifestResourceStream("Schneegans.Unattend.resource.autounattend.xsd")!;
   doc.Schemas.Add("urn:schemas-microsoft-com:unattend",XmlReader.Create(schema));
   doc.Validate((_,e)=>throw new ArgumentException("XML 结构验证失败："+e.Message));
@@ -110,7 +110,7 @@ public class GeneratorService {
   var doc=new XmlDocument();doc.LoadXml(Encoding.UTF8.GetString(bytes));
   foreach(XmlComment comment in doc.SelectNodes("//comment()")!.Cast<XmlComment>().ToArray())comment.ParentNode!.RemoveChild(comment);
   var ns=new XmlNamespaceManager(doc.NameTable);ns.AddNamespace("u","urn:schemas-microsoft-com:unattend");
-  foreach(XmlNode n in doc.SelectNodes("//u:Password/u:Value",ns)!)n.InnerText="[密码已遮蔽]";
+  foreach(XmlNode n in doc.SelectNodes("//u:Password/u:Value | //u:AdministratorPassword/u:Value",ns)!)n.InnerText="[密码已遮蔽]";
   foreach(XmlNode n in doc.SelectNodes("//u:ProductKey/u:Key | //u:component[@name='Microsoft-Windows-Shell-Setup']/u:ProductKey",ns)!)n.InnerText="[产品密钥已遮蔽]";
   foreach(XmlNode n in doc.SelectNodes("//*[local-name()='File']",ns)!)
    if(n.Attributes?["path"]?.Value.EndsWith("Wifi.xml",StringComparison.OrdinalIgnoreCase)==true)
@@ -134,8 +134,9 @@ public class GeneratorService {
  }
  private static void SetOobe(XmlDocument doc,XmlNamespaceManager ns,XmlElement parent,string name,bool value) {var node=parent.SelectSingleNode("u:"+name,ns) as XmlElement;if(node==null){node=doc.CreateElement(name,"urn:schemas-microsoft-com:unattend");parent.AppendChild(node);}node.InnerText=value?"true":"false";}
  private static IAccountSettings CreateAccounts(InstallPlan p) {
-  if(p.Users.Count==0)throw new ArgumentException("请至少添加一个本地账户。");
+  FirstLogonSettings.Validate(p);
+  if(p.Users.Count==0&&!FirstLogonSettings.IsBuiltin(p))throw new ArgumentException("请至少添加一个本地账户。");
   foreach(var u in p.Users){if(string.IsNullOrWhiteSpace(u.Name))throw new ArgumentException("请填写每个本地账户的名称。");if(u.NeedsPassword&&!(u.AllowEmptyPassword&&string.IsNullOrEmpty(u.Password)))throw new ArgumentException($"请重新输入账户 {u.Name} 的密码，或明确允许空密码。");if(string.IsNullOrEmpty(u.Password)&&!u.AllowEmptyPassword)throw new ArgumentException($"账户 {u.Name} 未设置密码；如需空密码，请明确勾选允许空密码。");if(u.AllowEmptyPassword&&!string.IsNullOrEmpty(u.Password))throw new ArgumentException($"账户 {u.Name} 同时设置了密码和允许空密码，请选择一种。");}
-  return new UnattendedAccountSettings(p.Users.Select(u=>new Account(u.Name,u.DisplayName,u.Password,u.Administrator?Constants.AdministratorsGroup:Constants.UsersGroup)).ToImmutableList(),p.AutoLogon?new OwnAutoLogonSettings():new NoneAutoLogonSettings(),p.ObscurePasswords);
+  return new UnattendedAccountSettings(p.Users.Select(u=>new Account(u.Name,u.DisplayName,u.Password,u.Administrator?Constants.AdministratorsGroup:Constants.UsersGroup)).ToImmutableList(),FirstLogonSettings.Build(p),p.ObscurePasswords);
  }
 }

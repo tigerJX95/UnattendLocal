@@ -4,7 +4,7 @@
 
 UnattendLocal is a Chinese-language Windows desktop tool based on [Christoph Schneegans’ UnattendGenerator](https://github.com/cschneegans/unattend-generator). It lets you edit, check, and generate `autounattend.xml` for Windows 10 / 11 locally.
 
-Current version: **V0.14**. This release adds editable import of a recognized historical app-removal format and migration of older saved plans. The tool prepares installation configuration; it does not run generated scripts on your current computer.
+Current version: **V0.15**. This release adds built-in Administrator first logon, password handling and editable import. The tool prepares installation configuration; it does not run generated scripts on your current computer.
 
 ## 💡 Why this project exists
 
@@ -18,7 +18,7 @@ Publishing the project makes it available to people with similar needs and allow
 
 Offline use means editing, saving, and generating configuration locally. Microsoft account sign-in, image downloads, and other network-dependent scripts still depend on connectivity in the target installation environment.
 
-See [XML import behavior](docs/XmlImport.md) for replacement, cancellation and read-only script handling.
+See [first-logon options](docs/FirstLogon.md) and [XML import behavior](docs/XmlImport.md) for replacement, cancellation and read-only script handling.
 
 ## 📸 Screenshots
 
@@ -26,7 +26,7 @@ See [XML import behavior](docs/XmlImport.md) for replacement, cancellation and r
 | :---: | :---: |
 | ![Configuration plans in the light theme](docs/images/overview.png) | ![Edition and product key in the dark theme](docs/images/edition-and-key-dark.png) |
 
-These are actual V0.1 pre41 screenshots showing the light and dark themes. The current V0.14 release includes navigation changes and additional settings; refer to the current application for the latest interface. The application interface is currently in Chinese.
+These are actual V0.1 pre41 screenshots showing the light and dark themes. The current V0.15 release includes navigation changes and additional settings; refer to the current application for the latest interface. The application interface is currently in Chinese.
 
 ## ✨ Main features
 
@@ -45,17 +45,16 @@ These are actual V0.1 pre41 screenshots showing the light and dark themes. The c
 - Save and restore JSON plans; review summaries, recommended-setting differences, checks, redacted previews, and XML exports.
 - Import existing XML and edit supported settings while preserving unknown content. Export stops with an explanation when changes cannot be merged reliably.
 
-## ✨ V0.14 updates
+## ✨ V0.15 updates
 
-- Added editable import support for a recognized historical removal format: `RemovePackages.ps1`, `RemoveCapabilities.ps1`, `RemoveFeatures.ps1`, and its matching OneDrive command.
-- Checkboxes are restored from actual selectors and complete execution flows. Form comments are neither the source of truth nor an inventory of installed apps.
-- Unedited removal lists retain the original scripts. Editing converts the recognized removal flow to the current generator format while preserving other XML content.
-- Older saved plans restore selections when the source and editing baseline can be migrated reliably, retaining pending changes. Conflicts require importing the original XML again.
-- Modified scripts, unknown selectors, repeated calls and incomplete execution chains remain read-only with their original contents preserved.
+- First logon can use the first newly created administrator, the built-in Administrator, or no automatic sign-in. The default remains the first newly created administrator.
+- The built-in account has a separate password field, explicit empty-password consent, Base64 encoding and optional omission from saved plans. Preview masks both built-in and automatic sign-in passwords.
+- Fully recognized native built-in-account flows can be imported and edited. Modified or incomplete flows retain their source with login settings read-only.
+- Updated summaries, recommendation differences, help and settings search. Built-in sign-in can be used without creating another account, or alongside standard accounts.
 
 ## 📦 Download and usage
 
-Download and run the matching Windows x64 executable from the repository’s **Releases** page: `UnattendLocal_V0.14_x64_SelfContained.exe` or `UnattendLocal_V0.14_x64_FrameworkDependent.exe`. Choose `UnattendLocal_V0.14_x64_SelfContained.exe` for a bundled .NET runtime, or `UnattendLocal_V0.14_x64_FrameworkDependent.exe` if .NET 10 Desktop Runtime x64 is already installed. Both have the same features. Use a virtual machine for initial testing.
+Download and run the matching Windows x64 executable from the repository’s **Releases** page: `UnattendLocal_V0.15_x64_SelfContained.exe` or `UnattendLocal_V0.15_x64_FrameworkDependent.exe`. Choose `UnattendLocal_V0.15_x64_SelfContained.exe` for a bundled .NET runtime, or `UnattendLocal_V0.15_x64_FrameworkDependent.exe` if .NET 10 Desktop Runtime x64 is already installed. Both have the same features. Use a virtual machine for initial testing.
 
 1. Choose a recommended scenario or a custom configuration and enter the required account and image settings.
 2. Adjust system, appearance, and application removal options as needed.

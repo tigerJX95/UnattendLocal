@@ -1,5 +1,11 @@
 namespace UnattendLocal.Core;
 public class ImportedXml {
+ public int FirstLogonImportVersion {get;set;}
+ public bool FirstLogonReadOnly {get;set;}
+ public string FirstLogonSourceAccountMode {get;set;}="";
+ public bool FirstLogonSourceAutoLogon {get;set;}
+ public bool FirstLogonSourceBuiltin {get;set;}
+
  public int AppRemovalImportVersion {get;set;}
  public bool AppRemovalReadOnly {get;set;}
  public bool CompactOsScriptControlled {get;set;}

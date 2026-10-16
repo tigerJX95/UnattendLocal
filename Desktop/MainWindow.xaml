@@ -1,4 +1,4 @@
-<Window xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:local="clr-namespace:UnattendLocal.Desktop" xmlns:core="clr-namespace:UnattendLocal.Core;assembly=Core" x:Class="UnattendLocal.Desktop.MainWindow" Icon="Assets/App.ico" Title="Windows 无人值守配置工具 · V0.14" Width="1060" Height="780" MinWidth="850" MinHeight="620" Background="{DynamicResource CanvasBrush}" Foreground="{DynamicResource ForegroundBrush}" FontFamily="Microsoft YaHei UI" FontSize="14">
+<Window xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:local="clr-namespace:UnattendLocal.Desktop" xmlns:core="clr-namespace:UnattendLocal.Core;assembly=Core" x:Class="UnattendLocal.Desktop.MainWindow" Icon="Assets/App.ico" Title="Windows 无人值守配置工具 · V0.15" Width="1060" Height="780" MinWidth="850" MinHeight="620" Background="{DynamicResource CanvasBrush}" Foreground="{DynamicResource ForegroundBrush}" FontFamily="Microsoft YaHei UI" FontSize="14">
   <DockPanel>
     <Border DockPanel.Dock="Top" Background="{DynamicResource SurfaceBrush}" Padding="24,16">
       <Grid>
@@ -488,7 +488,16 @@
             <Border Style="{StaticResource Card}">
               <StackPanel>
                 <TextBlock x:Name="SettingAnchor072" Text="登录与密码策略" FontSize="20" FontWeight="SemiBold" Margin="0,0,0,16" />
-                <CheckBox x:Name="SettingAnchor073" Content="首次自动登录第一个管理员账户一次" IsEnabled="{Binding IsAutomaticAccounts}" IsChecked="{Binding Plan.AutoLogon}" ToolTip="{Binding DataContext.HelpTips[logon],RelativeSource={RelativeSource AncestorType=Window}}" />
+                <TextBlock Text="首次登录方式" Foreground="{DynamicResource SecondaryBrush}"/>
+                <ComboBox x:Name="SettingAnchor073" ItemsSource="{Binding FirstLogonModes}" SelectedItem="{Binding SelectedFirstLogon}" IsEnabled="{Binding CanEditFirstLogon}" ToolTip="{Binding DataContext.HelpTips[logon],RelativeSource={RelativeSource AncestorType=Window}}"/>
+                <TextBlock Text="原 XML 的登录流程未完整识别，首次登录方式只读，原文保留。" TextWrapping="Wrap" Foreground="{DynamicResource WarningBrush}" Visibility="{Binding HasReadonlyFirstLogon,Converter={StaticResource VisibleWhen}}"/>
+                <StackPanel Margin="0,4,0,12" Visibility="{Binding IsBuiltinAdministrator,Converter={StaticResource VisibleWhen}}">
+                  <TextBlock Text="内置 Administrator 密码" Foreground="{DynamicResource SecondaryBrush}"/>
+                  <PasswordBox x:Name="BuiltinAdministratorPassword" PasswordChanged="BuiltinPasswordChanged" Loaded="BuiltinPasswordLoaded" ToolTip="{Binding DataContext.HelpTips[builtinlogon],RelativeSource={RelativeSource AncestorType=Window}}"/>
+                  <CheckBox x:Name="AllowEmptyBuiltinPassword" Content="明确允许内置账户使用空密码" IsChecked="{Binding Plan.AllowEmptyBuiltinAdministratorPassword}"/>
+                  <TextBlock Text="此密码未随方案保存，请重新输入。" Foreground="{DynamicResource WarningBrush}" Visibility="{Binding Plan.NeedsBuiltinAdministratorPassword,Converter={StaticResource VisibleWhen}}"/>
+                  <TextBlock Style="{StaticResource ExplanationText}" Text="启用内置 Administrator 并自动登录一次。本工具不会在之后自动停用该账户，请核对后续使用安排。" TextWrapping="Wrap" Foreground="{DynamicResource WarningBrush}"/>
+                </StackPanel>
                 <TextBlock Text="密码到期（Windows 默认：42 天）" Foreground="{DynamicResource SecondaryBrush}" ToolTip="{Binding DataContext.HelpTips[expiration],RelativeSource={RelativeSource AncestorType=Window}}" />
                 <ComboBox x:Name="SettingAnchor074" IsEnabled="{Binding IsAutomaticAccounts}" SelectedValue="{Binding Plan.PasswordExpiration}" SelectedValuePath="Content" ToolTip="{Binding DataContext.HelpTips[expiration],RelativeSource={RelativeSource AncestorType=Window}}">
                   <ComboBoxItem Content="永不过期">

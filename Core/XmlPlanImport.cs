@@ -27,6 +27,7 @@ public static class XmlPlanImport {
   }
   // Credentials come from actual XML, never from form comments or the reversible settings note.
   ReadCredentials(doc,ns,p,notes);
+  var firstLogonState=FirstLogonSettings.ReadIntoPlan(doc,p,notes);
   ComputerNamingSettings.ReadIntoPlan(doc,p,notes);
   LanguagePreferences.ReadIntoPlan(doc,p,notes);
   WifiSettings.ReadIntoPlan(doc,p,notes);
@@ -63,6 +64,7 @@ public static class XmlPlanImport {
   if(baseline.Length>0)DescribeRemainder(doc,XmlMerge.Read(baseline),notes);
   p.ImportedXml=new ImportedXml{AppRemovalImportVersion=2,AppRemovalReadOnly=appRemovalState.Ambiguous,SourceXml=doc.OuterXml,BaselineXml=baseline,Notices=notes.Distinct().ToArray(),Blockers=blockers.Distinct().ToArray(),RequiresDiskReview=disk};
   CompactOsSettings.UpdateImportState(p.ImportedXml,compactState);
+  FirstLogonSettings.UpdateImportState(p.ImportedXml,p,firstLogonState);
   p.ClearDiskConsent();return p;
  }
  private static string SafeReason(string message)=>message.Contains("'")?"原有模式或参数暂不受支持，请核对设置。":message;
@@ -219,7 +221,7 @@ public static class XmlPlanImport {
   p.RestartExplorerAfterScripts=Checked("RestartExplorer");known.Add("RestartExplorer");
   known.Add("ProcessAudit");known.Add("IncludeCommandLine");known.Add("AppLockerMode");known.Add("AppLockerPolicyXml");
   // Native XML and payload readers handle these; credentials are never accepted from comments.
-  foreach(var key in new[]{"LanguageMode","UILanguage","Locale","Keyboard","GeoLocation","ComputerNameMode","ComputerName","ComputerNameScript","Locale2","Keyboard2","Locale3","Keyboard3","TimeZoneMode","TimeZone","WindowsEditionMode","WindowsEdition","ProductKey","UseActivationKey","ActivationKey","UserAccountMode","AutoLogonMode","ObscurePasswords","PasswordExpirationMode","PasswordMaxAge","LockoutMode","LockoutThreshold","LockoutWindow","LockoutDuration","WifiMode","WifiName","WifiPassword","WifiAuthentication","WifiNonBroadcast","ExpressSettings","TaskbarSearch","HideFiles","TaskbarIconsMode","TaskbarIconsXml","StartTilesMode","StartTilesXml","StartPinsMode","StartPinsJson","ColorMode","SystemColorTheme","AppsColorTheme","AccentColor","AccentColorOnStart","AccentColorOnBorders","EnableTransparency","WallpaperMode","WallpaperColor","WallpaperScript","LockScreenMode","LockScreenScript","LockKeysMode","ProcessorArchitecture","BypassRequirementsCheck","BypassNetworkCheck","StickyKeysHotKeyActive","StickyKeysHotKeySound","StickyKeysIndicator","StickyKeysAudibleFeedback","StickyKeysTriState","StickyKeysTwoKeysOff","NotFilename","CompactOs"})known.Add(key);
+  foreach(var key in new[]{"LanguageMode","UILanguage","Locale","Keyboard","GeoLocation","ComputerNameMode","ComputerName","ComputerNameScript","Locale2","Keyboard2","Locale3","Keyboard3","TimeZoneMode","TimeZone","WindowsEditionMode","WindowsEdition","ProductKey","UseActivationKey","ActivationKey","UserAccountMode","AutoLogonMode","BuiltinAdministratorPassword","ObscurePasswords","PasswordExpirationMode","PasswordMaxAge","LockoutMode","LockoutThreshold","LockoutWindow","LockoutDuration","WifiMode","WifiName","WifiPassword","WifiAuthentication","WifiNonBroadcast","ExpressSettings","TaskbarSearch","HideFiles","TaskbarIconsMode","TaskbarIconsXml","StartTilesMode","StartTilesXml","StartPinsMode","StartPinsJson","ColorMode","SystemColorTheme","AppsColorTheme","AccentColor","AccentColorOnStart","AccentColorOnBorders","EnableTransparency","WallpaperMode","WallpaperColor","WallpaperScript","LockScreenMode","LockScreenScript","LockKeysMode","ProcessorArchitecture","BypassRequirementsCheck","BypassNetworkCheck","StickyKeysHotKeyActive","StickyKeysHotKeySound","StickyKeysIndicator","StickyKeysAudibleFeedback","StickyKeysTriState","StickyKeysTwoKeysOff","NotFilename","CompactOs"})known.Add(key);
   foreach(var item in AppRemovalSettings.Items)known.Add(item.Id);
   foreach(var pair in values){
    if(XmlImportParameters.IsHandled(pair.Key,pair.Value)||known.Contains(pair.Key)||Match(pair.Key,@"^(Account(Name|DisplayName|Password|Group)|(?:System|DefaultUser|FirstLogon|UserOnce)Script(?:Type)?)[0-9]+$").Success)continue;
@@ -268,6 +270,7 @@ public static class XmlPlanImport {
   CommonSystemSettings.ValidateImported(p,source);
   ImageBackgroundSettings.ValidateImported(p,source);
   AppRemovalSettings.ValidateImported(p,source);
+  FirstLogonSettings.ValidateImported(p,source);
   AdvancedSystemSettings.ValidateImported(p,source);
   SystemMaintenanceSettings.ValidateImported(p,source);
   ProcessAuditSettings.ValidateImported(p,source);

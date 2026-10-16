@@ -4,7 +4,7 @@
 
 UnattendLocal 是基于 [Christoph Schneegans 的 UnattendGenerator](https://github.com/cschneegans/unattend-generator) 开发的中文 Windows 桌面配置工具，用于在本地编辑、检查和生成 Windows 10 / 11 的 `autounattend.xml`。
 
-当前版本：**V0.14**。增加已识别旧版应用移除脚本的导入编辑与旧方案迁移。工具用于准备安装配置，不会在当前电脑执行生成的安装脚本。
+当前版本：**V0.15**。补齐内置 Administrator 首次登录、密码处理和导入编辑。工具用于准备安装配置，不会在当前电脑执行生成的安装脚本。
 
 ## 💡 开发初衷
 
@@ -24,7 +24,7 @@ UnattendLocal 是基于 [Christoph Schneegans 的 UnattendGenerator](https://git
 | :---: | :---: |
 | ![配置方案：浅色主题](docs/images/overview.png) | ![版本与密钥：深色主题](docs/images/edition-and-key-dark.png) |
 
-截图来自 V0.1 pre41 的实际运行界面，用于展示浅色与深色主题；当前 V0.14 已调整导航顺序并新增部分设置，实际界面以当前版本为准。
+截图来自 V0.1 pre41 的实际运行界面，用于展示浅色与深色主题；当前 V0.15 已调整导航顺序并新增部分设置，实际界面以当前版本为准。
 
 ## ✨ 主要功能
 
@@ -32,7 +32,7 @@ UnattendLocal 是基于 [Christoph Schneegans 的 UnattendGenerator](https://git
 
 - 配置安装架构、显示语言、区域、键盘、时区、计算机名及安装版本 / 产品密钥。
 - 配置镜像选择、已有分区或自动分区、CompactOS；涉及清空或格式化时显示风险说明并要求核对。
-- 配置本地账户、密码、首次登录、密码到期与锁定策略，以及 WPA2 / WPA3 / 开放 Wi-Fi、无线配置 XML、离线安装和 OOBE。
+- 配置本地账户、内置 Administrator 首次登录、密码、密码到期与锁定策略，以及 WPA2 / WPA3 / 开放 Wi-Fi、无线配置 XML、离线安装和 OOBE。
 - 配置资源管理器、开始菜单、任务栏、系统桌面图标、视觉效果、配色、纯色或图片背景及锁屏图片。
 - 按项选择 60 个应用与系统能力移除项目，提供中文影响说明、关键词搜索和选择摘要，默认不勾选。
 - 配置 `$OEM$` 安装介质配置集与 AppLocker 策略 XML，提供策略编辑及结构检查。
@@ -43,22 +43,21 @@ UnattendLocal 是基于 [Christoph Schneegans 的 UnattendGenerator](https://git
 - 保存和恢复 JSON 方案，提供配置摘要、推荐差异、检查、脱敏预览和 XML 导出。
 - 导入已有 XML 后编辑已支持设置，保留未知内容；遇到无法可靠合并的修改时停止导出并说明原因。
 
-## ✨ V0.14 更新
+## ✨ V0.15 更新
 
-- 新增一组旧版应用移除脚本的导入编辑兼容，支持 `RemovePackages.ps1`、`RemoveCapabilities.ps1`、`RemoveFeatures.ps1` 及配套 OneDrive 命令。
-- 从实际选择器和完整执行流程还原勾选，不依赖生成参数注释，也不将它们当作镜像已安装应用清单。
-- 未修改移除清单时保留旧脚本；修改后转换已识别的移除流程为当前生成器格式，保留其他 XML 内容。
-- 旧方案在原文和编辑基准完整、状态一致时自动恢复选择，并保留待处理修改；不能可靠迁移时提示重新导入。
-- 脚本被改写、选择器未知、调用重复或执行链不完整时继续只读，并保留原文。
+- 首次登录支持首个新建管理员账户、内置 Administrator 和不自动登录三种方式，默认保持首个新建管理员账户。
+- 内置账户密码独立填写，支持明确允许空密码、Base64 编码及省略凭据保存；预览遮蔽内置账户和自动登录密码。
+- 完整识别的原生内置账户流程可导入编辑；修改过或不完整的流程保留原文并限制登录设置编辑。
+- 补齐摘要、推荐差异、帮助及设置搜索。选择内置账户时，可不另建账户或仅创建标准账户。
 
 ## 📦 下载与使用
 
-从仓库的 **Releases** 页面下载并直接运行对应的 `UnattendLocal_V0.14_x64_SelfContained.exe` 或 `UnattendLocal_V0.14_x64_FrameworkDependent.exe`：
+从仓库的 **Releases** 页面下载并直接运行对应的 `UnattendLocal_V0.15_x64_SelfContained.exe` 或 `UnattendLocal_V0.15_x64_FrameworkDependent.exe`：
 
 | 程序文件 | 运行要求 |
 | --- | --- |
-| `UnattendLocal_V0.14_x64_SelfContained.exe` | 集成 .NET 运行时，无需单独安装；通常选择此版。 |
-| `UnattendLocal_V0.14_x64_FrameworkDependent.exe` | 文件较小，需安装 .NET 10 Desktop Runtime x64。 |
+| `UnattendLocal_V0.15_x64_SelfContained.exe` | 集成 .NET 运行时，无需单独安装；通常选择此版。 |
+| `UnattendLocal_V0.15_x64_FrameworkDependent.exe` | 文件较小，需安装 .NET 10 Desktop Runtime x64。 |
 
 两版功能相同。首次安装测试建议使用虚拟机。
 
@@ -71,7 +70,7 @@ UnattendLocal 是基于 [Christoph Schneegans 的 UnattendGenerator](https://git
 
 ## 📖 使用说明
 
-XML 导入与取消行为见 [导入说明](docs/XmlImport.md)。设置搜索操作见 [搜索说明](docs/SettingsSearch.md)。兼容联接点选项按 ReparsePoint 属性删除指定范围的项目，可能包含其他重解析点；不恢复已删除的链接，请先在虚拟机验证。
+首次登录选项见 [首次登录说明](docs/FirstLogon.md)。XML 导入与取消行为见 [导入说明](docs/XmlImport.md)。设置搜索操作见 [搜索说明](docs/SettingsSearch.md)。兼容联接点选项按 ReparsePoint 属性删除指定范围的项目，可能包含其他重解析点；不恢复已删除的链接，请先在虚拟机验证。
 
 在“基础设置”选择命名方式。固定名称留空时仍由 Windows 自动生成；安装时输入会中断无人值守流程，需完成有效输入才能继续。脚本必须返回一个有效计算机名（1–15 个字符，不能是纯数字或包含非法符号，也不应与本地账户同名）；工具不会执行或预先验证脚本结果。命名脚本按原文保存在方案和 XML 中，分享前检查敏感信息。
 
