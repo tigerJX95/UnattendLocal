@@ -83,7 +83,7 @@ public static class AppRemovalSettings
         Validate(p);
         return p.RemovedApps.Select(id => g.Lookup<Bloatware>(id)).ToImmutableList();
     }
-    public static string Selection(InstallPlan p) => p.RemovedApps.Count == 0 ? "未选择（不添加移除命令）" : $"已选 {p.RemovedApps.Count} 项：" + string.Join("、", Items.Where(i => p.RemovedApps.Contains(i.Id)).Select(i => i.Label));
+    public static string Selection(InstallPlan p) => p.ImportedXml?.AppRemovalReadOnly==true ? $"原 XML 移除脚本保留（清单只读）；已识别 {p.RemovedApps.Count} 项" : p.RemovedApps.Count == 0 ? "未选择（不添加移除命令）" : $"已选 {p.RemovedApps.Count} 项：" + string.Join("、", Items.Where(i => p.RemovedApps.Contains(i.Id)).Select(i => i.Label));
     public static string Summary(InstallPlan p) => "应用移除：" + Selection(p);
     private const string Root = @"C:\Windows\Setup\Scripts\";
     private static readonly string[] Stages = ["Specialize.ps1", "DefaultUser.ps1", "UserOnce.ps1"];
@@ -185,11 +185,13 @@ public static class AppRemovalSettings
         }
         return new(chosen.ToArray(),ambiguous);
     }
-    public static void ReadIntoPlan(XmlDocument doc,InstallPlan p,List<string> notes)
+    public static Source ReadIntoPlan(XmlDocument doc,InstallPlan p,List<string> notes)
     {
         var state=Inspect(doc); p.RemovedApps=new(state.Selected);
-        if(state.Ambiguous)notes.Add("应用移除脚本含未知、修改过或不完整的内容，原文保留；本版不能通过应用移除列表覆盖这些脚本。");
+        if(state.Ambiguous)notes.Add(ReadOnlyDescription);
+        return state;
     }
+    public const string ReadOnlyDescription = "应用移除脚本与当前可编辑模板不一致，原脚本完整保留并继续随 XML 导出；本次应用移除清单只读。该功能已支持，但此文件的脚本暂不能通过清单编辑。";
     public static void ValidateImported(InstallPlan p,XmlDocument doc)
     {
         var state=Inspect(doc);

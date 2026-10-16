@@ -11,13 +11,19 @@ public class MainViewModel : Observable {
  private string appRemovalFilter="";public string AppRemovalFilter {get=>appRemovalFilter;set{Set(ref appRemovalFilter,value);Notify(nameof(FilteredAppRemovalChoices));Notify(nameof(AppRemovalFilterSummary));}}
  public List<AppRemovalChoice> FilteredAppRemovalChoices=>AppRemovalChoices.Where(i=>SearchTextMatcher.Matches(i.Label+" "+i.Id+" "+i.Group+" "+i.Description,AppRemovalFilter)).ToList();
  public string AppRemovalFilterSummary=>$"显示 {FilteredAppRemovalChoices.Count} / {AppRemovalChoices.Count} 项；搜索不会改变勾选。";
- public void SelectFilteredApps(bool selected){var ids=FilteredAppRemovalChoices.Select(i=>i.Id).ToHashSet();var next=selected?Plan.RemovedApps.Concat(ids).Distinct().ToArray():Plan.RemovedApps.Where(id=>!ids.Contains(id)).ToArray();if(!Plan.RemovedApps.SequenceEqual(next))Plan.RemovedApps=new(next);}
+ public bool CanEditAppRemoval=>Plan.ImportedXml?.AppRemovalReadOnly!=true;
+ public void SelectFilteredApps(bool selected){if(!CanEditAppRemoval)throw new ArgumentException("原 XML 的应用移除脚本暂不能通过清单编辑，请在原工具调整后重新导入。");var ids=FilteredAppRemovalChoices.Select(i=>i.Id).ToHashSet();var next=selected?Plan.RemovedApps.Concat(ids).Distinct().ToArray():Plan.RemovedApps.Where(id=>!ids.Contains(id)).ToArray();if(!Plan.RemovedApps.SequenceEqual(next))Plan.RemovedApps=new(next);}
  public ScriptEntry? DuplicateSelectedScript(){if(SelectedScript is not {} source)return null;var copy=CustomScripts.Duplicate(Plan,source);SelectedScript=copy;return copy;}
  public string AppRemovalSummary=>AppRemovalSettings.Selection(Plan);
  private void ObserveApps(){if(ReferenceEquals(observedApps,Plan.RemovedApps))return;if(observedApps!=null)observedApps.CollectionChanged-=AppsChanged;observedApps=Plan.RemovedApps;observedApps.CollectionChanged+=AppsChanged;}
  private void RefreshApps(){ObserveApps();foreach(var choice in AppRemovalChoices)choice.Refresh();Notify(nameof(AppRemovalSummary));}
  private void AppsChanged(object? sender,System.Collections.Specialized.NotifyCollectionChangedEventArgs e){RefreshApps();RefreshAll();InvalidatePreview();}
 
+ public bool ImportXml(string xml,Func<bool> confirm){
+  InstallPlan candidate;try{candidate=XmlPlanImport.Import(xml,Service);}catch{Status="XML 导入失败，当前配置未改变。";throw;}
+  if(!confirm()){Status="已取消 XML 导入，当前配置未改变。";return false;}
+  Plan=candidate;Status=candidate.ImportedXml!.Blockers.Length>0?"XML 已导入；存在阻止导出的项目，请查看配置方案页。":"XML 已导入为自定义配置；已识别设置可编辑，其他原文保留，请查看导入说明。";return true;
+ }
  private InstallPlan plan=InstallPlan.New();
  private readonly HashSet<UserEntry> observedUsers=new();
  private readonly HashSet<ScriptEntry> observedScripts=new();
@@ -108,7 +114,7 @@ public class MainViewModel : Observable {
  public bool HasImportedXmlRisk=>Plan.ImportedXml?.RequiresDiskReview==true;
  public string XmlImportSummary=>XmlPlanImport.Summary(Plan);
  public string XmlImportDetails=>Plan.ImportedXml is {} data?string.Join("\n",data.Blockers.Concat(data.Notices).Select(n=>"　　"+n)):"";
- private void RefreshXmlImport(){Notify(nameof(HasImportedXml));Notify(nameof(HasImportedXmlRisk));Notify(nameof(XmlImportSummary));Notify(nameof(XmlImportDetails));}
+ private void RefreshXmlImport(){Notify(nameof(CanEditAppRemoval));Notify(nameof(HasImportedXml));Notify(nameof(HasImportedXmlRisk));Notify(nameof(XmlImportSummary));Notify(nameof(XmlImportDetails));}
  public bool IsCustomStickyKeys=>Plan.StickyKeysMode==StickyKeySettings.Custom;
  public bool IsStickyKeysDisabled=>Plan.StickyKeysMode==StickyKeySettings.Disabled;
  public string StickyKeysSummary=>StickyKeySettings.ModeSummary(Plan);

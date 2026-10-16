@@ -111,3 +111,5 @@ V0.11 核对 · 2026-10-16：官网发布提交 27237f82e9a8498d9c5bab7d398dc34b
 使用与微软资料：docs/DeploymentOptions.md。
 
 V0.12 核对 · 2026-10-16：官网发布仍标注 27237f82e9a8498d9c5bab7d398dc34b7682a1e8；固定 vendor 全部文件保持 V0.11 原样。仅新增 DeleteJunctions 的本地映射，完整复用 Optimizations.cs 的 FirstLogon / UserOnce 原命令。中文说明以实际 ReparsePoint 筛选与指定目录枚举为准，不将其描述成仅按 Hidden 属性删除。不在当前电脑执行生成命令。
+
+V0.13 · 2026-10-16：本版仅修正本地 XML 导入诊断、兼容别名及取消/只读反馈，不改固定生成核心。vendor 的 77 个源码/资源文件与 V0.12 逐字节保持；未升级上游，不声明当前官网版本。

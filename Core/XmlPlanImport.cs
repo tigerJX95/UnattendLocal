@@ -32,7 +32,7 @@ public static class XmlPlanImport {
   WifiSettings.ReadIntoPlan(doc,p,notes);
   CommonSystemSettings.ReadIntoPlan(doc,p,notes);
   ImageBackgroundSettings.ReadIntoPlan(doc,p,notes);
-  AppRemovalSettings.ReadIntoPlan(doc,p,notes);
+  var appRemovalState=AppRemovalSettings.ReadIntoPlan(doc,p,notes);
   AdvancedSystemSettings.ReadIntoPlan(doc,p,notes);
   SystemMaintenanceSettings.ReadIntoPlan(doc,p,notes);
   ProcessAuditSettings.ReadIntoPlan(doc,p,notes);
@@ -59,8 +59,9 @@ public static class XmlPlanImport {
   catch(Exception e)when(e is ArgumentException or ConfigurationException or XmlException){
    blockers.Add("部分设置无法建立可靠的编辑基准，暂不能再导出。请先使用原工具调整后重新导入；原因："+SafeReason(e.Message));
   }
+  XmlImportParameters.Reconcile(doc,p,appRemovalState,notes);
   if(baseline.Length>0)DescribeRemainder(doc,XmlMerge.Read(baseline),notes);
-  p.ImportedXml=new ImportedXml{SourceXml=doc.OuterXml,BaselineXml=baseline,Notices=notes.Distinct().ToArray(),Blockers=blockers.Distinct().ToArray(),RequiresDiskReview=disk};
+  p.ImportedXml=new ImportedXml{AppRemovalReadOnly=appRemovalState.Ambiguous,SourceXml=doc.OuterXml,BaselineXml=baseline,Notices=notes.Distinct().ToArray(),Blockers=blockers.Distinct().ToArray(),RequiresDiskReview=disk};
   CompactOsSettings.UpdateImportState(p.ImportedXml,compactState);
   p.ClearDiskConsent();return p;
  }
@@ -193,13 +194,8 @@ public static class XmlPlanImport {
   if(!XmlMerge.Equal(source.DocumentElement,baseline.DocumentElement)&&notes.Count==0)notes.Add("原 XML 含无法完整还原的参数或组件内容；原文保留，修改发生冲突时将阻止导出。");
  }
  private static void ReadForm(XmlDocument doc,InstallPlan p,List<string> notes){
-  var url=doc.SelectNodes("//comment()")!.Cast<XmlComment>().Select(c=>c.Value?.Trim()).FirstOrDefault(c=>c?.StartsWith("https://schneegans.de/windows/unattend-generator/?",StringComparison.Ordinal)==true);
-  if(url==null)return;
-  var values=new Dictionary<string,string>();
-  foreach(var entry in url[(url.IndexOf('?')+1)..].Split('&')){
-   var pair=entry.Split('=',2);string Decode(string v)=>Uri.UnescapeDataString(v.Replace('+',' '));var key=Decode(pair[0]);
-   if(!values.TryAdd(key,pair.Length==2?Decode(pair[1]):""))notes.Add("生成参数有重复项，优先读取实际 XML；重复项："+key);
-  }
+  var values=XmlImportParameters.ReadValues(doc,notes);
+  if(values.Count==0)return;
   string Value(string key,string fallback="")=>values.GetValueOrDefault(key,fallback);
   bool Checked(string key)=>Value(key)=="true";
   var known=new HashSet<string>();
@@ -211,7 +207,7 @@ public static class XmlPlanImport {
   Mode("EffectsMode",nameof(p.VisualEffectsMode),"Default",VisualEffectsSettings.Default,"Appearance",VisualEffectsSettings.Appearance,"Performance",VisualEffectsSettings.Performance,"Custom",VisualEffectsSettings.Custom);
   Mode("DesktopIconsMode",nameof(p.DesktopIconsMode),"Default",DesktopSettings.DefaultIcons,"Custom",DesktopSettings.CustomIcons);
   Mode("StartFoldersMode",nameof(p.StartFoldersMode),"Default",DesktopSettings.DefaultFolders,"Custom",DesktopSettings.CustomFolders);
-  Mode("LockKeysMode",nameof(p.LockKeyMode),"Default",KeyboardLockSettings.Default,"Custom",KeyboardLockSettings.Custom);
+  Mode("LockKeysMode",nameof(p.LockKeyMode),"Skip",KeyboardLockSettings.Default,"Default",KeyboardLockSettings.Default,"Custom",KeyboardLockSettings.Custom);
   Mode("StickyKeysMode",nameof(p.StickyKeysMode),"Default",StickyKeySettings.Default,"Disabled",StickyKeySettings.Disabled,"Custom",StickyKeySettings.Custom);
   foreach(var item in VisualEffectsSettings.Items){known.Add(item.Effect.ToString());typeof(InstallPlan).GetProperty(item.Property)!.SetValue(p,Checked(item.Effect.ToString()));}
   foreach(var item in DesktopSettings.Icons){known.Add("Icon"+item.Id);typeof(InstallPlan).GetProperty(item.Property)!.SetValue(p,Checked("Icon"+item.Id));}
@@ -223,11 +219,12 @@ public static class XmlPlanImport {
   known.Add("ProcessAudit");known.Add("IncludeCommandLine");known.Add("AppLockerMode");known.Add("AppLockerPolicyXml");
   // Native XML and payload readers handle these; credentials are never accepted from comments.
   foreach(var key in new[]{"LanguageMode","UILanguage","Locale","Keyboard","GeoLocation","ComputerNameMode","ComputerName","ComputerNameScript","Locale2","Keyboard2","Locale3","Keyboard3","TimeZoneMode","TimeZone","WindowsEditionMode","WindowsEdition","ProductKey","UseActivationKey","ActivationKey","UserAccountMode","AutoLogonMode","ObscurePasswords","PasswordExpirationMode","PasswordMaxAge","LockoutMode","LockoutThreshold","LockoutWindow","LockoutDuration","WifiMode","WifiName","WifiPassword","WifiAuthentication","WifiNonBroadcast","ExpressSettings","TaskbarSearch","HideFiles","TaskbarIconsMode","TaskbarIconsXml","StartTilesMode","StartTilesXml","StartPinsMode","StartPinsJson","ColorMode","SystemColorTheme","AppsColorTheme","AccentColor","AccentColorOnStart","AccentColorOnBorders","EnableTransparency","WallpaperMode","WallpaperColor","WallpaperScript","LockScreenMode","LockScreenScript","LockKeysMode","ProcessorArchitecture","BypassRequirementsCheck","BypassNetworkCheck","StickyKeysHotKeyActive","StickyKeysHotKeySound","StickyKeysIndicator","StickyKeysAudibleFeedback","StickyKeysTriState","StickyKeysTwoKeysOff","NotFilename","CompactOs"})known.Add(key);
+  foreach(var item in AppRemovalSettings.Items)known.Add(item.Id);
   foreach(var pair in values){
-   if(known.Contains(pair.Key)||Match(pair.Key,@"^(Account(Name|DisplayName|Password|Group)|(?:System|DefaultUser|FirstLogon|UserOnce)Script(?:Type)?)[0-9]+$").Success)continue;
+   if(XmlImportParameters.IsHandled(pair.Key,pair.Value)||known.Contains(pair.Key)||Match(pair.Key,@"^(Account(Name|DisplayName|Password|Group)|(?:System|DefaultUser|FirstLogon|UserOnce)Script(?:Type)?)[0-9]+$").Success)continue;
    if(pair.Value is "false" or "Default" or "" or "Implicit")continue;
    // Report names only: parameters can contain passwords, keys or whole scripts.
-   if(pair.Value=="true"||pair.Key.EndsWith("Mode")||pair.Key.StartsWith("Remove"))notes.Add("界面尚未实现或无法完整还原的生成参数："+pair.Key+"；原 XML 保留。");
+   if(pair.Value=="true"||pair.Key.EndsWith("Mode")||pair.Key.StartsWith("Remove"))notes.Add("暂未识别的生成参数："+pair.Key+"；相关 XML 原文保留，未自动套用此参数。");
   }
  }
  private static string PathName(string path)=>path[(path.LastIndexOf('\\')+1)..];

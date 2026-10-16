@@ -37,6 +37,7 @@ public static class PlanStore {
    WifiSettings.NormalizeLoaded(p,document.RootElement);
    ComputerNamingSettings.NormalizeLoaded(p,document.RootElement);
    LanguagePreferences.NormalizeLoaded(p,document.RootElement);
+   XmlImportParameters.RefreshLoaded(p);
   }
   p.ClearDiskConsent();
   return p;

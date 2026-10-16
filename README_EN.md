@@ -4,7 +4,7 @@
 
 UnattendLocal is a Chinese-language Windows desktop tool based on [Christoph Schneegans’ UnattendGenerator](https://github.com/cschneegans/unattend-generator). It lets you edit, check, and generate `autounattend.xml` for Windows 10 / 11 locally.
 
-Current version: **V0.12**. This release adds global settings search, optional legacy junction cleanup, bulk selection of filtered app-removal items and script duplication. The tool prepares installation configuration; it does not execute generated installation scripts on your current computer.
+Current version: **V0.13**. This release corrects XML import diagnostics and clarifies cancellation, failure and preserved scripts. The tool prepares installation configuration; it does not run generated scripts on your current computer.
 
 ## 💡 Why this project exists
 
@@ -18,15 +18,19 @@ Publishing the project makes it available to people with similar needs and allow
 
 Offline use means editing, saving, and generating configuration locally. Microsoft account sign-in, image downloads, and other network-dependent scripts still depend on connectivity in the target installation environment.
 
+See [XML import behavior](docs/XmlImport.md) for replacement, cancellation and read-only script handling.
+
 ## 📸 Screenshots
 
 | Configuration plans · Light theme | Edition and product key · Dark theme |
 | :---: | :---: |
 | ![Configuration plans in the light theme](docs/images/overview.png) | ![Edition and product key in the dark theme](docs/images/edition-and-key-dark.png) |
 
-These are actual V0.1 pre41 screenshots showing the light and dark themes. The current V0.12 release includes navigation changes and additional settings; refer to the current application for the latest interface. The application interface is currently in Chinese.
+These are actual V0.1 pre41 screenshots showing the light and dark themes. The current V0.13 release includes navigation changes and additional settings; refer to the current application for the latest interface. The application interface is currently in Chinese.
 
 ## ✨ Main features
+
+- Search settings through the toolbar magnifier or Ctrl+F using Chinese/English names and aliases, then navigate and highlight the result.
 
 - Configure architecture, display language, region, keyboard, time zone, computer name, installation edition, and product keys.
 - Configure image selection, existing or automatic partitioning, and CompactOS. Destructive disk operations include risk explanations and confirmation.
@@ -37,20 +41,21 @@ These are actual V0.1 pre41 screenshots showing the light and dark themes. The c
 - Configure Narrator-assisted setup, the Edge uninstall option, and system protection on drive C:. All three are unchecked by default.
 - Configure guest tool installation for VMware, VirtualBox, KVM / QEMU (VirtIO), and Parallels, with media requirements and scope descriptions.
 - Configure common system behavior, including Fast Startup, long paths, system sounds, automatic device encryption, device-associated apps, Windows Update restart behavior, NTFS last-access timestamps, process creation auditing, UAC/WPBT, Remote Desktop, and Windows PowerShell execution policy.
-- Manage System, DefaultUser, FirstLogon, and UserOnce custom scripts using the original execution-stage design, with examples and scope explanations.
+- Manage System, DefaultUser, FirstLogon, and UserOnce custom scripts using the original execution-stage design. Duplicate scripts with copies disabled by default for review.
 - Save and restore JSON plans; review summaries, recommended-setting differences, checks, redacted previews, and XML exports.
 - Import existing XML and edit supported settings while preserving unknown content. Export stops with an explanation when changes cannot be merged reliably.
 
-## ✨ V0.12 updates
+## ✨ V0.13 updates
 
-- Click the toolbar magnifier or press **Ctrl+F** to search Chinese and English setting names, aliases and descriptions, such as `$OEM$`, `BitLocker` or `AutoLogon`. Click a result to navigate, scroll and briefly highlight it. Editors hidden by the current mode lead to their containing section.
-- **OOBE → Common system settings** adds optional legacy junction cleanup, disabled by default. It uses the generator's original logon commands and may affect old software or custom links. Includes persistence, summaries, help, recommendation differences and XML editing.
-- **App removal** can select or clear the currently filtered results. Hidden selections are retained; bulk selection asks for confirmation.
-- **Custom scripts** can duplicate a selected row. Copies follow the original and start disabled for review and editing.
+- Corrected implemented app-removal options being labeled as unimplemented when importing generator XML. Common inactive/default mode aliases no longer produce false missing-feature notices.
+- Form comments describe the original selections. Actual scripts and XML determine restored settings; discrepancies remain visible without treating form values as installed-app inventory.
+- App-removal scripts that do not match the editable template are retained and clearly marked read-only. Clearing an app checkbox cannot silently replace an unknown script.
+- Import confirmation now explicitly distinguishes replacing the current configuration from cancelling the entire import. Declining preserves the current configuration and shows cancellation feedback; errors report import failure.
+- Previously saved plans refresh stale parameter notices without replacing pending edits or the original XML. The toolbar keeps Open plan and Save plan adjacent, with Import XML last.
 
 ## 📦 Download and usage
 
-Download and run the matching Windows x64 executable from the repository’s **Releases** page: `UnattendLocal_V0.12_x64_SelfContained.exe` or `UnattendLocal_V0.12_x64_FrameworkDependent.exe`. Choose `UnattendLocal_V0.12_x64_SelfContained.exe` for a bundled .NET runtime, or `UnattendLocal_V0.12_x64_FrameworkDependent.exe` if .NET 10 Desktop Runtime x64 is already installed. Both have the same features. Use a virtual machine for initial testing.
+Download and run the matching Windows x64 executable from the repository’s **Releases** page: `UnattendLocal_V0.13_x64_SelfContained.exe` or `UnattendLocal_V0.13_x64_FrameworkDependent.exe`. Choose `UnattendLocal_V0.13_x64_SelfContained.exe` for a bundled .NET runtime, or `UnattendLocal_V0.13_x64_FrameworkDependent.exe` if .NET 10 Desktop Runtime x64 is already installed. Both have the same features. Use a virtual machine for initial testing.
 
 1. Choose a recommended scenario or a custom configuration and enter the required account and image settings.
 2. Adjust system, appearance, and application removal options as needed.

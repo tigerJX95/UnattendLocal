@@ -1,4 +1,4 @@
-<Window xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:local="clr-namespace:UnattendLocal.Desktop" xmlns:core="clr-namespace:UnattendLocal.Core;assembly=Core" x:Class="UnattendLocal.Desktop.MainWindow" Icon="Assets/App.ico" Title="Windows 无人值守配置工具 · V0.12 · 工具栏修正版" Width="1060" Height="780" MinWidth="850" MinHeight="620" Background="{DynamicResource CanvasBrush}" Foreground="{DynamicResource ForegroundBrush}" FontFamily="Microsoft YaHei UI" FontSize="14">
+<Window xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:local="clr-namespace:UnattendLocal.Desktop" xmlns:core="clr-namespace:UnattendLocal.Core;assembly=Core" x:Class="UnattendLocal.Desktop.MainWindow" Icon="Assets/App.ico" Title="Windows 无人值守配置工具 · V0.13" Width="1060" Height="780" MinWidth="850" MinHeight="620" Background="{DynamicResource CanvasBrush}" Foreground="{DynamicResource ForegroundBrush}" FontFamily="Microsoft YaHei UI" FontSize="14">
   <DockPanel>
     <Border DockPanel.Dock="Top" Background="{DynamicResource SurfaceBrush}" Padding="24,16">
       <Grid>
@@ -806,12 +806,13 @@
           <StackPanel Margin="20">
             <TextBlock x:Name="SettingAnchor141" Text="按项选择要移除的应用与系统能力" FontSize="20" FontWeight="SemiBold" Margin="0,0,0,12"/>
             <TextBlock Text="默认不勾选；只在目标 Windows 安装时执行。不存在的项目会跳过，取消勾选只影响新生成的配置。请先阅读每项影响说明。" TextWrapping="Wrap" Margin="0,0,0,12" ToolTip="{Binding HelpTips[appremoval]}"/>
+            <TextBlock Text="应用移除功能已支持；本文件的原脚本暂不能通过清单编辑，仍会保留并随 XML 导出。下方勾选仅表示已识别的项目，不代表原脚本没有其他移除操作。" TextWrapping="Wrap" Foreground="{DynamicResource WarningBrush}" Margin="0,0,0,12"><TextBlock.Style><Style TargetType="TextBlock" BasedOn="{StaticResource {x:Type TextBlock}}"><Setter Property="Visibility" Value="Collapsed"/><Style.Triggers><DataTrigger Binding="{Binding CanEditAppRemoval}" Value="False"><Setter Property="Visibility" Value="Visible"/></DataTrigger></Style.Triggers></Style></TextBlock.Style></TextBlock>
             <TextBlock Text="{Binding AppRemovalSummary}" TextWrapping="Wrap" FontWeight="SemiBold" Margin="0,0,0,16"/>
             <TextBlock Text="搜索应用或组件" Margin="0,0,0,4"/>
             <TextBox Text="{Binding AppRemovalFilter,UpdateSourceTrigger=PropertyChanged}" ToolTip="输入中文名称、英文名称或功能关键词筛选；隐藏的选择仍保留。" Margin="0,0,0,6"/>
             <TextBlock Text="{Binding AppRemovalFilterSummary}" Foreground="{DynamicResource SecondaryBrush}" Margin="0,0,0,10"/>
-            <WrapPanel Margin="0,0,0,10"><Button Content="勾选当前筛选结果" Tag="select" Click="SelectFilteredAppsClick"/><Button Content="取消当前筛选结果" Tag="clear" Click="SelectFilteredAppsClick"/></WrapPanel>
-            <ItemsControl x:Name="AppRemovalItems" ItemsSource="{Binding FilteredAppRemovalChoices}">
+            <WrapPanel IsEnabled="{Binding CanEditAppRemoval}" Margin="0,0,0,10"><Button Content="勾选当前筛选结果" Tag="select" Click="SelectFilteredAppsClick"/><Button Content="取消当前筛选结果" Tag="clear" Click="SelectFilteredAppsClick"/></WrapPanel>
+            <ItemsControl x:Name="AppRemovalItems" IsEnabled="{Binding CanEditAppRemoval}" ItemsSource="{Binding FilteredAppRemovalChoices}">
               <ItemsControl.ItemTemplate>
                 <DataTemplate>
                   <Border BorderBrush="{DynamicResource BorderBrush}" BorderThickness="0,0,0,1" Padding="0,10">

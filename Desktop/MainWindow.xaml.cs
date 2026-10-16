@@ -40,7 +40,16 @@ public partial class MainWindow : Window {
   else{loading=true;try{vm.Plan.ConfigurationMode="推荐配置";}finally{loading=false;}}
  }
  private void OpenClick(object s,RoutedEventArgs e)=>Run(()=>{var d=new OpenFileDialog{Filter="配置方案 (*.json)|*.json"};if(d.ShowDialog(this)==true){var p=PlanStore.Deserialize(File.ReadAllText(d.FileName));if(Discard())Load(p);}});
- private void ImportAnswerClick(object s,RoutedEventArgs e)=>Run(()=>{var d=new OpenFileDialog{Filter="Windows 应答 XML (*.xml)|*.xml",Title="导入 Windows 应答配置"};if(d.ShowDialog(this)!=true)return;if(new FileInfo(d.FileName).Length>32*1024*1024)throw new ArgumentException("应答 XML 文件超过 32 MiB。");var plan=XmlPlanImport.Import(File.ReadAllText(d.FileName),vm.Service);if(!Discard())return;Load(plan);Pages.SelectedIndex=0;vm.Status="XML 已导入为自定义配置；请阅读原文保留及风险提示，再修改并检查导出。";});
+ private void ImportAnswerClick(object s,RoutedEventArgs e){
+  var d=new OpenFileDialog{Filter="Windows 应答 XML (*.xml)|*.xml",Title="导入 Windows 应答配置"};
+  if(d.ShowDialog(this)!=true){vm.Status="已取消 XML 文件选择，当前配置未改变。";return;}
+  try{
+   if(new FileInfo(d.FileName).Length>32*1024*1024)throw new ArgumentException("应答 XML 文件超过 32 MiB。");
+   bool accepted=vm.ImportXml(File.ReadAllText(d.FileName),()=>MessageBox.Show(this,"导入 XML 将替换当前界面中的配置，当前未保存的修改将被放弃。\nXML 中未识别的设置和脚本会保留原文；无法可靠合并的修改会在导出时被阻止。\n\n选择“是”：导入并替换当前配置。\n选择“否”：取消整次导入，保留当前配置。\n是否继续导入？","确认导入应答 XML",MessageBoxButton.YesNo,MessageBoxImage.Question,MessageBoxResult.No)==MessageBoxResult.Yes);
+   if(!accepted){MessageBox.Show(this,vm.Status,"XML 导入已取消",MessageBoxButton.OK,MessageBoxImage.Information);return;}
+   string status=vm.Status;Load(vm.Plan);Pages.SelectedIndex=0;vm.Status=status;
+  }catch(Exception error){vm.Status="XML 导入失败，当前配置未改变。";MessageBox.Show(this,error.Message,"XML 导入失败",MessageBoxButton.OK,MessageBoxImage.Warning);}
+ }
  private void ImportWifiProfileClick(object s,RoutedEventArgs e)=>Run(()=>{var d=new OpenFileDialog{Filter="无线配置 XML (*.xml)|*.xml",Title="导入 WLANProfile 无线配置"};if(d.ShowDialog(this)!=true)return;if(new FileInfo(d.FileName).Length>2*1024*1024)throw new ArgumentException("无线配置文件超过 2 MiB。");var text=File.ReadAllText(d.FileName);_=WifiSettings.ReadProfile(text);vm.Plan.WifiProfileXml=text;vm.Status="无线配置 XML 已导入，请核对内容和目标环境";});
  private void ValidateWifiProfileClick(object s,RoutedEventArgs e)=>Run(()=>{_=WifiSettings.ReadProfile(vm.Plan.WifiProfileXml);vm.Status="无线配置 XML 结构检查通过；实际连接取决于目标环境";});
  private void ImportAppLockerClick(object s,RoutedEventArgs e)=>Run(()=>{var d=new OpenFileDialog{Filter="AppLocker 策略 XML (*.xml)|*.xml",Title="导入 AppLocker 策略"};if(d.ShowDialog(this)!=true)return;if(new FileInfo(d.FileName).Length>AppControlSettings.MaxLength*4L)throw new ArgumentException("AppLocker 策略文件超过 8 MiB。");var text=File.ReadAllText(d.FileName);_=AppControlSettings.ReadPolicy(text);if(!string.IsNullOrWhiteSpace(vm.Plan.AppLockerPolicyXml)&&MessageBox.Show(this,"导入将替换编辑器中的策略，是否继续？","导入 AppLocker 策略",MessageBoxButton.YesNo,MessageBoxImage.Question)!=MessageBoxResult.Yes)return;vm.Plan.AppLockerPolicyXml=text;vm.Status="策略结构检查通过；请在目标环境审核规则及恢复方案";});
