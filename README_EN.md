@@ -4,7 +4,7 @@
 
 UnattendLocal is a Chinese-language Windows desktop tool based on [Christoph Schneegans’ UnattendGenerator](https://github.com/cschneegans/unattend-generator). It lets you edit, check, and generate `autounattend.xml` for Windows 10 / 11 locally.
 
-Current version: **V0.15**. This release adds built-in Administrator first logon, password handling and editable import. The tool prepares installation configuration; it does not run generated scripts on your current computer.
+Current version: **V0.16**. This release adds About, legal and usage notices, offline open-source licenses, and clearer setup-file cleanup explanations. The tool prepares installation configuration; it does not run generated scripts on your current computer.
 
 ## 💡 Why this project exists
 
@@ -26,12 +26,13 @@ See [first-logon options](docs/FirstLogon.md) and [XML import behavior](docs/Xml
 | :---: | :---: |
 | ![Configuration plans in the light theme](docs/images/overview.png) | ![Edition and product key in the dark theme](docs/images/edition-and-key-dark.png) |
 
-These are actual V0.1 pre41 screenshots showing the light and dark themes. The current V0.15 release includes navigation changes and additional settings; refer to the current application for the latest interface. The application interface is currently in Chinese.
+These are actual V0.1 pre41 screenshots showing the light and dark themes. The current V0.16 release includes navigation changes and additional settings; refer to the current application for the latest interface. The application interface is currently in Chinese.
 
 ## ✨ Main features
 
-- Search settings through the toolbar magnifier or Ctrl+F using Chinese/English names and aliases, then navigate and highlight the result.
+- View the version, usage notices and embedded third-party licenses through Help and About, with offline reading and copying.
 
+- Search settings through the toolbar magnifier or Ctrl+F using Chinese/English names and aliases, then navigate and highlight the result.
 - Configure architecture, display language, region, keyboard, time zone, computer name, installation edition, and product keys.
 - Configure image selection, existing or automatic partitioning, and CompactOS. Destructive disk operations include risk explanations and confirmation.
 - Configure local accounts, passwords, initial sign-in, password expiration and lockout policies, Wi-Fi, offline installation, and OOBE.
@@ -45,16 +46,19 @@ These are actual V0.1 pre41 screenshots showing the light and dark themes. The c
 - Save and restore JSON plans; review summaries, recommended-setting differences, checks, redacted previews, and XML exports.
 - Import existing XML and edit supported settings while preserving unknown content. Export stops with an explanation when changes cannot be merged reliably.
 
-## ✨ V0.15 updates
+## ✨ V0.16 updates
 
-- First logon can use the first newly created administrator, the built-in Administrator, or no automatic sign-in. The default remains the first newly created administrator.
-- The built-in account has a separate password field, explicit empty-password consent, Base64 encoding and optional omission from saved plans. Preview masks both built-in and automatic sign-in passwords.
-- Fully recognized native built-in-account flows can be imported and edited. Modified or incomplete flows retain their source with login settings read-only.
-- Updated summaries, recommendation differences, help and settings search. Built-in sign-in can be used without creating another account, or alongside standard accounts.
+- About explicitly loads the high-resolution icon frame and lists the local and upstream GitHub repositories.
+
+- Added a Help and About icon at the upper right, with About, Legal Information and Usage, and Open-source Licenses entries.
+- The window displays the actual application version, purpose and upstream acknowledgments. Embedded notices and full licenses can be read offline, selected or copied by page.
+- Lists UnattendGenerator, Newtonsoft.Json, .NET Runtime and Windows Desktop / WPF with their original license texts and third-party notices.
+- Clarified the generation core restriction on sensitive setup-file cleanup. Retention is not selected automatically; the upstream sign-in and cleanup behavior remains unchanged.
+- Corrected the old initial status version and aligned it with V0.16.
 
 ## 📦 Download and usage
 
-Download and run the matching Windows x64 executable from the repository’s **Releases** page: `UnattendLocal_V0.15_x64_SelfContained.exe` or `UnattendLocal_V0.15_x64_FrameworkDependent.exe`. Choose `UnattendLocal_V0.15_x64_SelfContained.exe` for a bundled .NET runtime, or `UnattendLocal_V0.15_x64_FrameworkDependent.exe` if .NET 10 Desktop Runtime x64 is already installed. Both have the same features. Use a virtual machine for initial testing.
+Download and run the matching Windows x64 executable from the repository’s **Releases** page: `UnattendLocal_V0.16_x64_SelfContained.exe` or `UnattendLocal_V0.16_x64_FrameworkDependent.exe`. Choose `UnattendLocal_V0.16_x64_SelfContained.exe` for a bundled .NET runtime, or `UnattendLocal_V0.16_x64_FrameworkDependent.exe` if .NET 10 Desktop Runtime x64 is already installed. Both have the same features. Use a virtual machine for initial testing.
 
 1. Choose a recommended scenario or a custom configuration and enter the required account and image settings.
 2. Adjust system, appearance, and application removal options as needed.
@@ -64,6 +68,8 @@ Download and run the matching Windows x64 executable from the repository’s **R
 Open a JSON plan to restore saved settings, or import an answer XML to continue editing an existing configuration. Plans saved without credentials may require passwords or keys to be entered again. If the imported original XML was not saved with the plan, import it again.
 
 ## 📖 Scope and limitations
+
+See [Help and About](docs/About.md) for the information window and license texts.
 
 Choose the naming mode in basic settings. Leaving the fixed name empty still lets Windows generate it. The installation-time dialog requires valid input before setup can continue. A naming script must return a valid computer name (1–15 characters, not entirely numeric, without invalid characters, and different from local account names). The tool does not run the script or verify its runtime result. Scripts are stored verbatim in plans and XML; check for sensitive information before sharing.
 

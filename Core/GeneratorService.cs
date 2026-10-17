@@ -40,7 +40,7 @@ public class GeneratorService {
   IWifiSettings wifi=WifiSettings.Build(p);
   if(p.BypassNetwork&&p.AccountMode=="安装时添加微软账户")throw new ArgumentException("微软账户模式需要联网，请关闭允许离线安装。");
   if(p.AccountMode=="自动创建本地账户"&&p.PasswordExpiration=="指定天数"&&(p.PasswordDays<1||p.PasswordDays>999))throw new ArgumentException("密码到期天数应为 1–999。");
-  if(p.AccountMode=="自动创建本地账户"&&!p.AutoLogon&&!p.KeepSensitiveFiles)throw new ArgumentException("关闭首次自动登录时，无法自动清理安装隐私文件。请启用首次自动登录，或在 OOBE 页的“安装脚本与隐私文件”中明确勾选“保留安装隐私文件”。");
+  if(p.AccountMode=="自动创建本地账户"&&!p.AutoLogon&&!p.KeepSensitiveFiles)throw new ArgumentException("当前生成核心要求自动清理安装隐私文件搭配首次自动登录。请启用首次自动登录，或到 OOBE 页的“安装脚本与隐私文件”中手动勾选“保留安装隐私文件”。程序不会自动勾选；本次检查或导出已停止。");
   var config=Configuration.Default with {
    Bloatwares=AppRemovalSettings.Build(generator,p),
    DeleteJunctions=p.DeleteJunctions,

@@ -91,7 +91,7 @@ public static class HelpCatalog
             new("hardwareboot", "绕过安全启动检查", "启用后，安装阶段配置跳过安全启动要求检查。不会更改 BIOS/UEFI 的安全启动开关，不会转换系统分区格式。取消时不生成此项覆盖。"),
             new("hardwareram", "绕过内存容量检查", "启用后，安装阶段配置跳过内存容量要求检查。不会增加实际内存；安装后的可用性和性能仍受硬件限制。取消时不生成此项覆盖。"),
             new("powershell", "隐藏 PowerShell 窗口", "勾选后，为安装和首次登录阶段的 PowerShell 调用使用 -WindowStyle Hidden；取消后使用 Normal，便于观察和调试。新建方案默认开启。若脚本包含 Read-Host 等交互输入，请保持窗口可见，否则无法回答提示，安装可能停滞。"),
-            new("sensitivefiles", "保留安装隐私文件", "勾选后保留目标系统的以下文件：C:\\Windows\\Panther\\unattend.xml、C:\\Windows\\Panther\\unattend-original.xml、C:\\Windows\\Setup\\Scripts\\Wifi.xml。它们可能包含账户密码、Wi-Fi 密码和产品密钥。取消后，在首次管理员登录阶段执行清理；原始安装介质上的 XML 需另行保管。自动创建本地账户并关闭首次自动登录时，本版要求明确选择保留。")
+            new("sensitivefiles", "保留安装隐私文件", "勾选后保留目标系统的以下文件：C:\\Windows\\Panther\\unattend.xml、C:\\Windows\\Panther\\unattend-original.xml、C:\\Windows\\Setup\\Scripts\\Wifi.xml。它们可能包含账户密码、Wi-Fi 密码和产品密钥。取消后，在首次管理员登录阶段执行清理；原始安装介质上的 XML 需另行保管。当前生成核心要求此清理搭配首次自动登录；预设本地账户但不自动登录时，须手动选择保留，否则停止检查与导出。这是生成核心的限制，不是 Windows 必须保留文件。此开关不控制自定义脚本中的额外删除命令。")
         ],
         [
             new("preview", "检查与预览", "检查当前配置并验证 XML 结构，预览会遮蔽账户与 Wi-Fi 密码。预览文本不能直接用于安装；修改配置后应重新检查。"),

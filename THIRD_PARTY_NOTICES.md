@@ -48,3 +48,19 @@ Microsoft 与项目贡献者提供运行时及桌面框架。
 源码与许可证：https://github.com/dotnet/runtime · https://github.com/dotnet/wpf
 
 第三方依赖采用各自的许可声明；此记录不为本地适配部分新增或替换项目许可。
+
+## 完整离线许可 / Full offline licenses
+
+程序“帮助与关于 → 开源许可”以及源码 `docs/licenses/` 保留完整原文：
+
+| 组件 / Component | 版本 / Version | 文件 / File | 来源 / Source |
+| --- | --- | --- | --- |
+| UnattendGenerator | 固定基线，见 UPSTREAM.md / fixed baseline | UnattendGenerator.txt | vendor/UnattendGenerator/LICENSE.txt |
+| Newtonsoft.Json | 13.0.4 | Newtonsoft.Json.txt | NuGet 包 / package LICENSE.md |
+| .NET Runtime | 10.0.13 | DotNetRuntime.txt、DotNetThirdParty.txt | Microsoft.NETCore.App.Runtime.win-x64 NuGet 包 / package |
+| Windows Desktop / WPF | 10.0.13 | WindowsDesktop.txt | Microsoft.WindowsDesktop.App.Runtime.win-x64 NuGet 包 / package LICENSE |
+| WPF 第三方声明 / third-party notices | v10.0.13 | WpfThirdParty.txt | https://github.com/dotnet/wpf/blob/v10.0.13/THIRD-PARTY-NOTICES.TXT |
+
+许可文本逐字保留，不将第三方许可扩大为本地界面与适配部分的许可。自包含版集成运行时；依赖运行时版需另行安装。更新依赖或运行时版本时，应同步核对这些文件。
+
+License texts are preserved verbatim. These component licenses do not establish a license for the local UI or adaptation layer. The self-contained edition bundles the runtime; the framework-dependent edition requires a separate installation. Review these files when updating dependencies or runtime versions.

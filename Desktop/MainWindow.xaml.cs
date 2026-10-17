@@ -13,6 +13,8 @@ public partial class MainWindow : Window {
  public MainWindow(){InitializeComponent();DataContext=vm;InitializeSettingsSearch();_ = new WindowScrollPosition(this,Pages);SourceInitialized+=(_,_)=>UiTheme.UpdateTitleBar(this);RefreshThemeIcon();}
  private void RefreshThemeIcon(){var dark=UiTheme.Current=="Dark";ThemeMoon.Visibility=dark?Visibility.Collapsed:Visibility.Visible;ThemeSun.Visibility=dark?Visibility.Visible:Visibility.Collapsed;var title=dark?"切换为浅色主题":"切换为深色主题";ThemeToggleTip.Content=title;System.Windows.Automation.AutomationProperties.SetName(ThemeToggleButton,title);}
  private void ThemeToggleClick(object s,RoutedEventArgs e){var saved=UiTheme.Apply(UiTheme.Current=="Dark"?"Light":"Dark");RefreshThemeIcon();if(!saved)vm.Status="主题已切换，但未能保存主题偏好";}
+ private void AboutMenuClick(object s,RoutedEventArgs e){var menu=AboutMenuButton.ContextMenu;menu.PlacementTarget=AboutMenuButton;menu.Placement=System.Windows.Controls.Primitives.PlacementMode.Bottom;menu.IsOpen=true;}
+ private void AboutSectionClick(object s,RoutedEventArgs e){if(s is MenuItem {Tag:string section}&&int.TryParse(section,out var index))Run(()=>new AboutWindow(index){Owner=this}.ShowDialog());}
  private void Run(Action action){try{action();}catch(Exception e){vm.Status="配置未通过检查";MessageBox.Show(this,e.Message,"请检查配置",MessageBoxButton.OK,MessageBoxImage.Warning);}}
  private void UserPasswordChanged(object s,RoutedEventArgs e){if(!loading&&s is PasswordBox b&&b.DataContext is UserEntry u){u.Password=b.Password;u.NeedsPassword=false;}}
  private void UserContextChanged(object s,DependencyPropertyChangedEventArgs e){SyncUserPassword((PasswordBox)s);}

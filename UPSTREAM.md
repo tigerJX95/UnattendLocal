@@ -119,3 +119,5 @@ V0.14 · 2026-10-16：固定 vendor 与 V0.13 保持；本地兼容一组历史�
 V0.15 · 2026-10-16：官网发布仍标注 27237f8，与固定基线一致；本地接入 Users.cs 的 BuiltinAutoLogonSettings，沿用原生 AdministratorPassword、AutoLogon、LogonCount=1 及 FirstLogon 次数归零命令，不修改 vendor。微软确认 AutoLogon/Username=Administrator 可启用内置账户。
 官网：https://schneegans.de/windows/unattend-generator/
 微软：https://learn.microsoft.com/en-us/windows-hardware/customize/desktop/unattend/microsoft-windows-shell-setup-autologon-username
+
+V0.16 · 2026-10-17：增加本地关于、使用说明与第三方许可窗口，不修改 vendor。许可文本来源与版本见 THIRD_PARTY_NOTICES.md。保留原生成核心对“不自动登录＋自动清理隐私文件”的限制，不新增自动勾选联动。法律信息保留“依法不得排除或限制的责任”边界；措辞核对参考最高人民法院公布的《中华人民共和国民法典》第506条：https://www.court.gov.cn/zixun/xiangqing/233181.html 。
