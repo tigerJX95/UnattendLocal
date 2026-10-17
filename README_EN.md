@@ -4,7 +4,7 @@
 
 UnattendLocal is a Chinese-language Windows desktop tool based on [Christoph Schneegans’ UnattendGenerator](https://github.com/cschneegans/unattend-generator). It lets you edit, check, and generate `autounattend.xml` for Windows 10 / 11 locally.
 
-Current version: **V1.0**. This core-feature release adds single-adapter static IPv4 configuration and adopts the MIT project license. The tool prepares installation configuration; it does not run generated scripts on your current computer.
+Current version: **V1.0.1**. This release fixes XML import and UI loading, supports single-adapter static IPv4 configuration and uses the MIT project license. The tool prepares installation configuration; it does not run generated scripts on your current computer.
 
 ## 💡 Why this project exists
 
@@ -26,7 +26,7 @@ See [first-logon options](docs/FirstLogon.md) and [XML import behavior](docs/Xml
 | :---: | :---: |
 | ![Configuration plans in the light theme](docs/images/overview.png) | ![Edition and product key in the dark theme](docs/images/edition-and-key-dark.png) |
 
-These are actual V0.1 pre41 screenshots showing the light and dark themes. The current V1.0 release includes navigation changes and additional settings; refer to the current application for the latest interface. The application interface is currently in Chinese.
+These are actual V0.1 pre41 screenshots showing the light and dark themes. The current V1.0.1 release includes navigation changes and additional settings; refer to the current application for the latest interface. The application interface is currently in Chinese.
 
 ## ✨ Main features
 
@@ -48,17 +48,16 @@ These are actual V0.1 pre41 screenshots showing the light and dark themes. The c
 - Save and restore JSON plans; review summaries, recommended-setting differences, checks, redacted previews, and XML exports.
 - Import existing XML and edit supported settings while preserving unknown content. Export stops with an explanation when changes cannot be merged reliably.
 
-## ✨ V1.0 updates
+## 🐛 V1.0.1 updates
 
-- Reached V1.0, the core-feature release, bringing together common setup, account, network, appearance, script, saved-plan and XML import/export workflows.
-- Added single-adapter static IPv4 configuration by target MAC: address, prefix lengths 1–30, optional default gateway and up to three IPv4 DNS servers. Disabled by default.
-- Added validation, restoration from actual XML, editing and disabling, older-plan migration, summaries, help and bilingual setting search for static networking.
-- Multi-adapter, additional IPv6, alias-based or otherwise unrecognized TCPIP/DNS configurations retain their source with the static-network editor read-only.
-- Licensed the local UI and adaptation code under MIT, with a root LICENSE and integration into About, offline licenses and documentation. Third-party copyrights and licenses remain separately preserved.
+- Fixed XML import triggering the custom-plan starting-point prompt, preserving parsed language, SKU, account, CompactOS, app-removal, taskbar and script settings.
+- Added compatibility for a recognized alternative script logging wrapper and repeated path separators, restoring complete historical app-removal and other supported execution flows.
+- Improved path matching during XML merging so restored settings remain editable, saveable and exportable; unchanged source content is retained.
+- Incomplete or altered scripts remain protected and read-only. Restoration relies on actual XML and complete execution flows.
 
 ## 📦 Download and usage
 
-Download and run the matching Windows x64 executable from the repository’s **Releases** page: `UnattendLocal_V1.0_x64_SelfContained.exe` or `UnattendLocal_V1.0_x64_FrameworkDependent.exe`. Choose `UnattendLocal_V1.0_x64_SelfContained.exe` for a bundled .NET runtime, or `UnattendLocal_V1.0_x64_FrameworkDependent.exe` if .NET 10 Desktop Runtime x64 is already installed. Both have the same features. Use a virtual machine for initial testing.
+Download and run the matching Windows x64 executable from the repository’s **Releases** page: `UnattendLocal_V1.0.1_x64_SelfContained.exe` or `UnattendLocal_V1.0.1_x64_FrameworkDependent.exe`. Choose `UnattendLocal_V1.0.1_x64_SelfContained.exe` for a bundled .NET runtime, or `UnattendLocal_V1.0.1_x64_FrameworkDependent.exe` if .NET 10 Desktop Runtime x64 is already installed. Both have the same features. Use a virtual machine for initial testing.
 
 1. Choose a recommended scenario or a custom configuration and enter the required account and image settings.
 2. Adjust system, appearance, and application removal options as needed.

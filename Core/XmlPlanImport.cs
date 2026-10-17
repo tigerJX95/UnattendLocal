@@ -14,16 +14,16 @@ public static class XmlPlanImport {
  private static string? Text(XmlNode node,string path,XmlNamespaceManager ns)=>node.SelectSingleNode(path,ns)?.InnerText;
  private static bool IsTrue(string? text)=>text is "true" or "1";
  public static InstallPlan Import(string xml,GeneratorService service){
-  var doc=XmlMerge.Read(xml);var ns=new XmlNamespaceManager(doc.NameTable);ns.AddNamespace("u",XmlMerge.Namespace);
+  var original=XmlMerge.Read(xml);var doc=XmlImportPaths.Inspection(original);var ns=new XmlNamespaceManager(doc.NameTable);ns.AddNamespace("u",XmlMerge.Namespace);
   var arches=doc.SelectNodes("//u:component/@processorArchitecture",ns)!.Cast<XmlAttribute>().Select(a=>a.Value).Distinct().ToArray();
   if(arches.Length>1)throw new ArgumentException("此 XML 含多个安装架构，当前界面仅支持单一架构；请先在原工具中导出单一架构文件。");
   if(arches.Length==1&&arches[0] is not ("amd64" or "arm64" or "x86"))throw new ArgumentException("此 XML 使用了尚不支持的安装架构。");
   var notes=new List<string>();var blockers=new List<string>();
-  var p=ReadSnapshot(doc,notes)??new InstallPlan();
+  var p=ReadSnapshot(original,notes)??new InstallPlan();
   if(p.ImportedXml!=null)p.ImportedXml=null;
   bool snapshot=doc.SelectNodes("//comment()")!.Cast<XmlComment>().Any(c=>c.Value?.StartsWith(Marker)==true)&&notes.Count==0;
   if(!snapshot){
-   ReadForm(doc,p,notes);ReadBasic(doc,ns,p,service,notes);ReadGeneratedSettings(doc,ns,p,notes);
+   ReadForm(doc,p,notes);ReadBasic(doc,ns,p,service,notes);ReadGeneratedSettings(original,ns,p,notes);
   }
   // Credentials come from actual XML, never from form comments or the reversible settings note.
   ReadCredentials(doc,ns,p,notes);
@@ -63,7 +63,7 @@ public static class XmlPlanImport {
   }
   XmlImportParameters.Reconcile(doc,p,appRemovalState,notes);
   if(baseline.Length>0)DescribeRemainder(doc,XmlMerge.Read(baseline),notes);
-  p.ImportedXml=new ImportedXml{AppRemovalImportVersion=2,AppRemovalReadOnly=appRemovalState.Ambiguous,SourceXml=doc.OuterXml,BaselineXml=baseline,Notices=notes.Distinct().ToArray(),Blockers=blockers.Distinct().ToArray(),RequiresDiskReview=disk};
+  p.ImportedXml=new ImportedXml{AppRemovalImportVersion=2,AppRemovalReadOnly=appRemovalState.Ambiguous,SourceXml=original.OuterXml,BaselineXml=baseline,Notices=notes.Distinct().ToArray(),Blockers=blockers.Distinct().ToArray(),RequiresDiskReview=disk};
   CompactOsSettings.UpdateImportState(p.ImportedXml,compactState);
   StaticIPv4Settings.UpdateImportState(p.ImportedXml,networkState);
   FirstLogonSettings.UpdateImportState(p.ImportedXml,p,firstLogonState);
@@ -264,7 +264,7 @@ public static class XmlPlanImport {
   if(p.ImportedXml is not {} data)return;
   if(data.OriginalOmitted||data.SourceXml.Length==0||data.BaselineXml.Length==0)throw new ArgumentException("缺少完整 XML 原文/编辑基准，请重新导入原 XML；不会使用界面默认值代替丢失内容。");
   if(data.Blockers.Length>0)throw new ArgumentException(string.Join("\n",data.Blockers));
-  var source=XmlMerge.Read(data.SourceXml);
+  var source=XmlImportPaths.Inspection(XmlMerge.Read(data.SourceXml));
   CompactOsSettings.ValidateImported(p,source);
   StaticIPv4Settings.ValidateImported(p,source);
   ComputerNamingSettings.ValidateImported(p,source);

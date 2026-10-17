@@ -20,7 +20,7 @@ public static class XmlMerge {
  public static string Identity(XmlElement e){
   string id=e.NamespaceURI+"|"+e.LocalName;
   if(e.HasAttribute("keyValue","http://schemas.microsoft.com/WMIConfig/2002/State"))id+="|keyValue="+e.GetAttribute("keyValue","http://schemas.microsoft.com/WMIConfig/2002/State");
-  foreach(var a in new[]{"pass","name","processorArchitecture","path"})if(e.HasAttribute(a))id+="|"+a+"="+e.GetAttribute(a);
+  foreach(var a in new[]{"pass","name","processorArchitecture","path"})if(e.HasAttribute(a))id+="|"+a+"="+(a=="path"?XmlImportPaths.Path(e.GetAttribute(a)):e.GetAttribute(a));
   if(e.LocalName is "RunSynchronousCommand" or "SynchronousCommand" or "ModifyPartition" or "CreatePartition")id+="|Order="+e.ChildNodes.OfType<XmlElement>().FirstOrDefault(n=>n.LocalName=="Order")?.InnerText;
   if(e.LocalName is "LocalAccount")id+="|Name="+e.ChildNodes.OfType<XmlElement>().FirstOrDefault(n=>n.LocalName=="Name")?.InnerText;
   if(e.LocalName is "Disk")id+="|DiskID="+e.ChildNodes.OfType<XmlElement>().FirstOrDefault(n=>n.LocalName=="DiskID")?.InnerText;
@@ -101,9 +101,12 @@ public static class XmlMerge {
    hunks.Add((start,x,replacement));
   }
   // Every edit needs an exact unique match including surrounding unchanged lines.
+  bool generatedStage=System.Text.RegularExpressions.Regex.IsMatch(path,@"\\(?:Specialize|DefaultUser|FirstLogon|UserOnce)\.ps1(?:\)|$)",System.Text.RegularExpressions.RegexOptions.IgnoreCase,TimeSpan.FromSeconds(1));
+  string Compare(string line)=>generatedStage?XmlImportPaths.Command(line):line;
   foreach(var h in hunks.AsEnumerable().Reverse()){
    int left=Math.Max(0,h.Start-2),right=Math.Min(b.Length,h.End+2);var needle=b[left..right];var matches=new List<int>();
-   for(int i=0;i+needle.Length<=s.Count;i++)if(s.Skip(i).Take(needle.Length).SequenceEqual(needle))matches.Add(i);
+   var comparable=needle.Select(Compare).ToArray();
+   for(int i=0;i+needle.Length<=s.Count;i++)if(s.Skip(i).Take(needle.Length).Select(Compare).SequenceEqual(comparable))matches.Add(i);
    if(matches.Count!=1)throw Conflict(path+"（脚本上下文无法唯一匹配）");
    int at=matches[0]+h.Start-left;s.RemoveRange(at,h.End-h.Start);s.InsertRange(at,h.Replacement);
   }

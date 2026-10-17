@@ -65,6 +65,7 @@ public static class AdditionalSetupSettings
     }
     internal static string[] KnownBlocks(XmlDocument doc, string name)
     {
+        doc=XmlImportPaths.Inspection(doc);
         string path = Root + name;
         var stage = Files(doc).Where(f => f.GetAttribute("path").Equals(path, StringComparison.OrdinalIgnoreCase)).ToArray();
         var reference = Files(Expected.Value.Document).Single(f => f.GetAttribute("path") == path);

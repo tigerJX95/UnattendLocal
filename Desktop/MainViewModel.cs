@@ -37,8 +37,12 @@ public class MainViewModel : Observable {
  private void ObserveScripts(){foreach(var row in observedScripts.Where(s=>!Plan.Scripts.Contains(s)).ToArray()){row.PropertyChanged-=HelpSettingChanged;observedScripts.Remove(row);}foreach(var row in Plan.Scripts)if(observedScripts.Add(row))row.PropertyChanged+=HelpSettingChanged;}
  private void ScriptsChanged(object? sender,System.Collections.Specialized.NotifyCollectionChangedEventArgs e){ObserveScripts();if(SelectedScript==null||!Plan.Scripts.Contains(SelectedScript))SelectedScript=Plan.Scripts.FirstOrDefault();Notify(nameof(HasSelectedScript));RefreshAll();InvalidatePreview();}
  private bool updating;
+ public bool IsLoadingPlan {get;private set;}
  public InstallPlan Plan {get=>plan;set{
   if(ReferenceEquals(plan,value))return;
+  if(IsLoadingPlan)throw new InvalidOperationException("配置正在载入，不能在绑定更新中替换方案。");
+  IsLoadingPlan=true;
+  try{
   HardwareSettings.NormalizeLegacy(value);
   plan.Scripts.CollectionChanged-=ScriptsChanged;foreach(var row in observedScripts)row.PropertyChanged-=HelpSettingChanged;observedScripts.Clear();
   plan.PropertyChanged-=HelpSettingChanged;plan.Users.CollectionChanged-=UsersChanged;
@@ -46,9 +50,10 @@ public class MainViewModel : Observable {
   Set(ref plan,value);plan.PropertyChanged+=HelpSettingChanged;plan.Users.CollectionChanged+=UsersChanged;
   plan.Scripts.CollectionChanged+=ScriptsChanged;ObserveScripts();SelectedScript=plan.Scripts.FirstOrDefault();Notify(nameof(HasSelectedScript));
   ObserveUsers();SelectedUser=plan.Users.FirstOrDefault();RefreshAll();InvalidatePreview();
+  }finally{IsLoadingPlan=false;}
  }}
  private UserEntry? selected;public UserEntry? SelectedUser {get=>selected;set{Set(ref selected,value);RefreshHelp();}}
- private string preview="配置完成后，点击“检查与预览”。",status="就绪 · V1.0";
+ private string preview="配置完成后，点击“检查与预览”。",status="就绪 · V1.0.1";
  public string Preview {get=>preview;set=>Set(ref preview,value);} public string Status {get=>status;set=>Set(ref status,value);}
  public GeneratorService Service {get;}=new();
  public List<GeneratorService.Choice> Editions=>Service.Editions;

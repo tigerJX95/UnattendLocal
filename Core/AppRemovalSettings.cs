@@ -131,6 +131,7 @@ public static partial class AppRemovalSettings
     public record Source(string[] Selected, bool Ambiguous);
     public static Source Inspect(XmlDocument doc)
     {
+        doc=XmlImportPaths.Inspection(doc);
         var normalized = NormalizeLegacy(doc);
         if (normalized != null) return InspectCurrent(normalized);
         var state = InspectCurrent(doc);

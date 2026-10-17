@@ -44,6 +44,7 @@ public static class FirstLogonSettings
     }
     public static Source Inspect(XmlDocument doc)
     {
+        doc=XmlImportPaths.Inspection(doc);
         var auto=Nodes(doc,"//u:AutoLogon");var accounts=Nodes(doc,"//u:UserAccounts");
         bool mentioned=Nodes(doc,"//u:AdministratorPassword").Length>0||auto.Any(n=>n.ChildNodes.OfType<XmlElement>().Any(c=>c.LocalName=="Username"&&c.InnerText.Equals("Administrator",StringComparison.OrdinalIgnoreCase)));
         if(!mentioned)return new(false,false,"",true);

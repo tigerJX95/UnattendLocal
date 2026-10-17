@@ -32,6 +32,7 @@ public static partial class AppRemovalSettings
     }
     private static XmlDocument? NormalizeLegacy(XmlDocument source)
     {
+        source=XmlImportPaths.Inspection(source);
         _ = Templates.Value;
         if (!HasLegacyRemoval(source)) return null;
         var doc = (XmlDocument)source.CloneNode(true);

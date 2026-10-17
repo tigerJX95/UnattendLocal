@@ -16,21 +16,21 @@ public partial class MainWindow : Window {
  private void AboutMenuClick(object s,RoutedEventArgs e){var menu=AboutMenuButton.ContextMenu;menu.PlacementTarget=AboutMenuButton;menu.Placement=System.Windows.Controls.Primitives.PlacementMode.Bottom;menu.IsOpen=true;}
  private void AboutSectionClick(object s,RoutedEventArgs e){if(s is MenuItem {Tag:string section}&&int.TryParse(section,out var index))Run(()=>new AboutWindow(index){Owner=this}.ShowDialog());}
  private void Run(Action action){try{action();}catch(Exception e){vm.Status="配置未通过检查";MessageBox.Show(this,e.Message,"请检查配置",MessageBoxButton.OK,MessageBoxImage.Warning);}}
- private void UserPasswordChanged(object s,RoutedEventArgs e){if(!loading&&s is PasswordBox b&&b.DataContext is UserEntry u){u.Password=b.Password;u.NeedsPassword=false;}}
+ private void UserPasswordChanged(object s,RoutedEventArgs e){if(!loading&&!vm.IsLoadingPlan&&s is PasswordBox b&&b.DataContext is UserEntry u){u.Password=b.Password;u.NeedsPassword=false;}}
  private void UserContextChanged(object s,DependencyPropertyChangedEventArgs e){SyncUserPassword((PasswordBox)s);}
  private void UserPasswordLoaded(object s,RoutedEventArgs e){SyncUserPassword((PasswordBox)s);}
  private void SyncUserPassword(PasswordBox b){var previous=loading;loading=true;try{b.Password=(b.DataContext as UserEntry)?.Password??"";}finally{loading=previous;}}
- private void BuiltinPasswordChanged(object s,RoutedEventArgs e){if(!loading){vm.Plan.BuiltinAdministratorPassword=((PasswordBox)s).Password;vm.Plan.NeedsBuiltinAdministratorPassword=false;}}
+ private void BuiltinPasswordChanged(object s,RoutedEventArgs e){if(!loading&&!vm.IsLoadingPlan){vm.Plan.BuiltinAdministratorPassword=((PasswordBox)s).Password;vm.Plan.NeedsBuiltinAdministratorPassword=false;}}
  private void BuiltinPasswordLoaded(object s,RoutedEventArgs e){var previous=loading;loading=true;try{((PasswordBox)s).Password=vm.Plan.BuiltinAdministratorPassword;}finally{loading=previous;}}
- private void WifiPasswordChanged(object s,RoutedEventArgs e){if(!loading){vm.Plan.WifiPassword=((PasswordBox)s).Password;vm.Plan.NeedsWifiPassword=false;}}
+ private void WifiPasswordChanged(object s,RoutedEventArgs e){if(!loading&&!vm.IsLoadingPlan){vm.Plan.WifiPassword=((PasswordBox)s).Password;vm.Plan.NeedsWifiPassword=false;}}
  private void AddUser(object s,RoutedEventArgs e){int i=1;while(vm.Plan.Users.Any(u=>u.Name.Equals("User"+i,StringComparison.OrdinalIgnoreCase)))i++;var u=new UserEntry{Name=vm.Plan.ConfigurationMode=="自定义配置"&&vm.Plan.CustomStartingPoint=="基础配置"?"":"User"+i,Administrator=vm.Plan.Users.Count==0};vm.Plan.Users.Add(u);vm.SelectedUser=u;}
  private void RemoveUser(object s,RoutedEventArgs e){if(vm.SelectedUser is {} u)vm.Plan.Users.Remove(u);vm.SelectedUser=vm.Plan.Users.FirstOrDefault();}
  private bool Discard()=>MessageBox.Show(this,"是否放弃当前未保存的修改？","切换方案",MessageBoxButton.YesNo,MessageBoxImage.Question)==MessageBoxResult.Yes;
- private void Load(InstallPlan p){loading=true;try{vm.Plan=p;vm.SelectedUser=p.Users.FirstOrDefault();WifiPassword.Password=p.WifiPassword;BuiltinAdministratorPassword.Password=p.BuiltinAdministratorPassword;vm.Preview="方案已载入，请检查与预览。";vm.Status=p.Scripts.Any(row=>row.IsRemovedType)?"方案已载入；旧 JScript 脚本已停用，内容保留，请移除或手动改写":"方案已载入；未保存的密码和密钥需重新输入";}finally{loading=false;}}
+ private void Load(InstallPlan p){var previous=loading;loading=true;try{vm.Plan=p;vm.SelectedUser=p.Users.FirstOrDefault();WifiPassword.Password=p.WifiPassword;BuiltinAdministratorPassword.Password=p.BuiltinAdministratorPassword;vm.Preview="方案已载入，请检查与预览。";vm.Status=p.Scripts.Any(row=>row.IsRemovedType)?"方案已载入；旧 JScript 脚本已停用，内容保留，请移除或手动改写":"方案已载入；未保存的密码和密钥需重新输入";}finally{loading=previous;}}
  private void NewCustomClick(object s,RoutedEventArgs e){if(Discard()){Load(InstallPlan.NewCustom());vm.Status="已新建自定义配置，请逐项选择或填写";}}
  private void NewClick(object s,RoutedEventArgs e){if(Discard())Load(InstallPlan.New());}
  private void ConfigurationModeChanged(object s,SelectionChangedEventArgs e){
-  if(loading||s is not ComboBox b||e.RemovedItems.Count==0||b.SelectedItem is not ComboBoxItem item||item.Content?.ToString()!="自定义配置")return;
+  if(loading||vm.IsLoadingPlan||s is not ComboBox b||e.RemovedItems.Count==0||b.SelectedItem is not ComboBoxItem item||item.Content?.ToString()!="自定义配置")return;
   var dialog=new Window{Owner=this,Title="开始自定义配置",SizeToContent=SizeToContent.WidthAndHeight,WindowStartupLocation=WindowStartupLocation.CenterOwner,ResizeMode=ResizeMode.NoResize,ShowInTaskbar=false};
   var panel=new StackPanel{Margin=new Thickness(24),Width=480};panel.Children.Add(new TextBlock{Text="请选择自定义配置的起点。\n从基础值重新开始会清空当前填写的账户、凭据和其他配置。\n保留当前设置则继续调整已有内容，不会自动应用推荐值。",TextWrapping=TextWrapping.Wrap});
   var buttons=new StackPanel{Orientation=Orientation.Horizontal,HorizontalAlignment=HorizontalAlignment.Center,Margin=new Thickness(0,16,0,0)};
@@ -47,12 +47,14 @@ public partial class MainWindow : Window {
  private void ImportAnswerClick(object s,RoutedEventArgs e){
   var d=new OpenFileDialog{Filter="Windows 应答 XML (*.xml)|*.xml",Title="导入 Windows 应答配置"};
   if(d.ShowDialog(this)!=true){vm.Status="已取消 XML 文件选择，当前配置未改变。";return;}
+  var previous=loading;loading=true;
   try{
    if(new FileInfo(d.FileName).Length>32*1024*1024)throw new ArgumentException("应答 XML 文件超过 32 MiB。");
    bool accepted=vm.ImportXml(File.ReadAllText(d.FileName),()=>MessageBox.Show(this,"导入 XML 将替换当前界面中的配置，当前未保存的修改将被放弃。\nXML 中未识别的设置和脚本会保留原文；无法可靠合并的修改会在导出时被阻止。\n\n选择“是”：导入并替换当前配置。\n选择“否”：取消整次导入，保留当前配置。\n是否继续导入？","确认导入应答 XML",MessageBoxButton.YesNo,MessageBoxImage.Question,MessageBoxResult.No)==MessageBoxResult.Yes);
    if(!accepted){MessageBox.Show(this,vm.Status,"XML 导入已取消",MessageBoxButton.OK,MessageBoxImage.Information);return;}
    string status=vm.Status;Load(vm.Plan);Pages.SelectedIndex=0;vm.Status=status;
   }catch(Exception error){vm.Status="XML 导入失败，当前配置未改变。";MessageBox.Show(this,error.Message,"XML 导入失败",MessageBoxButton.OK,MessageBoxImage.Warning);}
+  finally{loading=previous;}
  }
  private void ImportWifiProfileClick(object s,RoutedEventArgs e)=>Run(()=>{var d=new OpenFileDialog{Filter="无线配置 XML (*.xml)|*.xml",Title="导入 WLANProfile 无线配置"};if(d.ShowDialog(this)!=true)return;if(new FileInfo(d.FileName).Length>2*1024*1024)throw new ArgumentException("无线配置文件超过 2 MiB。");var text=File.ReadAllText(d.FileName);_=WifiSettings.ReadProfile(text);vm.Plan.WifiProfileXml=text;vm.Status="无线配置 XML 已导入，请核对内容和目标环境";});
  private void ValidateWifiProfileClick(object s,RoutedEventArgs e)=>Run(()=>{_=WifiSettings.ReadProfile(vm.Plan.WifiProfileXml);vm.Status="无线配置 XML 结构检查通过；实际连接取决于目标环境";});

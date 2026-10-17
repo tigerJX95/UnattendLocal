@@ -4,7 +4,7 @@
 
 UnattendLocal 是基于 [Christoph Schneegans 的 UnattendGenerator](https://github.com/cschneegans/unattend-generator) 开发的中文 Windows 桌面配置工具，用于在本地编辑、检查和生成 Windows 10 / 11 的 `autounattend.xml`。
 
-当前版本：**V1.0**。成熟核心功能版，新增单网卡静态 IPv4，并正式采用 MIT 项目许可。工具用于准备安装配置，不会在当前电脑执行生成的安装脚本。
+当前版本：**V1.0.1**。修复 XML 导入与界面载入，支持单网卡静态 IPv4，采用 MIT 项目许可。工具用于准备安装配置，不会在当前电脑执行生成的安装脚本。
 
 ## 💡 开发初衷
 
@@ -24,7 +24,7 @@ UnattendLocal 是基于 [Christoph Schneegans 的 UnattendGenerator](https://git
 | :---: | :---: |
 | ![配置方案：浅色主题](docs/images/overview.png) | ![版本与密钥：深色主题](docs/images/edition-and-key-dark.png) |
 
-截图来自 V0.1 pre41 的实际运行界面，用于展示浅色与深色主题；当前 V1.0 已调整导航顺序并新增部分设置，实际界面以当前版本为准。
+截图来自 V0.1 pre41 的实际运行界面，用于展示浅色与深色主题；当前 V1.0.1 已调整导航顺序并新增部分设置，实际界面以当前版本为准。
 
 ## ✨ 主要功能
 
@@ -46,22 +46,21 @@ UnattendLocal 是基于 [Christoph Schneegans 的 UnattendGenerator](https://git
 - 保存和恢复 JSON 方案，提供配置摘要、推荐差异、检查、脱敏预览和 XML 导出。
 - 导入已有 XML 后编辑已支持设置，保留未知内容；遇到无法可靠合并的修改时停止导出并说明原因。
 
-## ✨ V1.0 更新
+## 🐛 V1.0.1 更新
 
-- 进入 V1.0 成熟核心功能版：整合安装、账户、网络、外观、脚本、方案保存、XML 导入与导出等常用配置流程。
-- 新增单网卡静态 IPv4：按目标 MAC 配置地址、1–30 位前缀、可选默认网关与最多三个 IPv4 DNS；默认不启用。
-- 补齐静态网络输入校验、实际 XML 还原、修改与停用、旧方案迁移、摘要、帮助和中英文设置搜索。
-- 多网卡、额外 IPv6、别名标识或无法完整识别的 TCPIP / DNS 内容只读保留；不使用界面默认值覆盖原配置。
-- 本项目本地界面与适配代码采用 MIT License，加入根目录 LICENSE，并接入关于页、离线许可页与项目说明；第三方版权和许可独立保留。
+- 修复导入 XML 时程序触发自定义配置起点选择的问题，保留已解析的语言、SKU、账户、CompactOS、应用移除、任务栏和脚本设置。
+- 兼容已识别的另一版脚本日志外壳及重复路径分隔符，还原完整旧版应用移除和其他已支持的执行流程。
+- 完善原文件路径的合并匹配，支持还原后的配置继续编辑、保存和导出；未修改的原内容保留。
+- 未完整识别或被改写的脚本继续只读保护，以实际 XML 和完整执行流程为准。
 
 ## 📦 下载与使用
 
-从仓库的 **Releases** 页面下载并直接运行对应的 `UnattendLocal_V1.0_x64_SelfContained.exe` 或 `UnattendLocal_V1.0_x64_FrameworkDependent.exe`：
+从仓库的 **Releases** 页面下载并直接运行对应的 `UnattendLocal_V1.0.1_x64_SelfContained.exe` 或 `UnattendLocal_V1.0.1_x64_FrameworkDependent.exe`：
 
 | 程序文件 | 运行要求 |
 | --- | --- |
-| `UnattendLocal_V1.0_x64_SelfContained.exe` | 集成 .NET 运行时，无需单独安装；通常选择此版。 |
-| `UnattendLocal_V1.0_x64_FrameworkDependent.exe` | 文件较小，需安装 .NET 10 Desktop Runtime x64。 |
+| `UnattendLocal_V1.0.1_x64_SelfContained.exe` | 集成 .NET 运行时，无需单独安装；通常选择此版。 |
+| `UnattendLocal_V1.0.1_x64_FrameworkDependent.exe` | 文件较小，需安装 .NET 10 Desktop Runtime x64。 |
 
 两版功能相同。首次安装测试建议使用虚拟机。
 
