@@ -48,7 +48,7 @@ public class MainViewModel : Observable {
   ObserveUsers();SelectedUser=plan.Users.FirstOrDefault();RefreshAll();InvalidatePreview();
  }}
  private UserEntry? selected;public UserEntry? SelectedUser {get=>selected;set{Set(ref selected,value);RefreshHelp();}}
- private string preview="配置完成后，点击“检查与预览”。",status="就绪 · V0.16";
+ private string preview="配置完成后，点击“检查与预览”。",status="就绪 · V1.0";
  public string Preview {get=>preview;set=>Set(ref preview,value);} public string Status {get=>status;set=>Set(ref status,value);}
  public GeneratorService Service {get;}=new();
  public List<GeneratorService.Choice> Editions=>Service.Editions;
@@ -68,7 +68,10 @@ public class MainViewModel : Observable {
  public bool IsOpenWifi=>Plan.WifiMode==WifiSettings.Open;
  public bool IsXmlWifi=>Plan.WifiMode==WifiSettings.Profile;
  public string WifiSummary=>WifiSettings.Summary(Plan);
- private void RefreshNetwork(){IsPresetWifi=WifiSettings.IsPreset(Plan);Notify(nameof(IsPasswordWifi));Notify(nameof(IsOpenWifi));Notify(nameof(IsXmlWifi));Notify(nameof(WifiSummary));}
+ public bool CanEditStaticIPv4=>StaticIPv4Settings.CanEdit(Plan);
+ public bool IsStaticIPv4=>Plan.UseStaticIPv4&&CanEditStaticIPv4;
+ public string StaticIPv4Summary=>StaticIPv4Settings.Summary(Plan);
+ private void RefreshNetwork(){IsPresetWifi=WifiSettings.IsPreset(Plan);Notify(nameof(IsPasswordWifi));Notify(nameof(IsOpenWifi));Notify(nameof(IsXmlWifi));Notify(nameof(WifiSummary));Notify(nameof(CanEditStaticIPv4));Notify(nameof(IsStaticIPv4));Notify(nameof(StaticIPv4Summary));}
  public bool IsGenericEdition {get=>isGenericEdition;private set=>Set(ref isGenericEdition,value);}
  public bool IsCustomEdition {get=>isCustomEdition;private set=>Set(ref isCustomEdition,value);}
  public string SelectedEditionKey {get=>selectedEditionKey;private set=>Set(ref selectedEditionKey,value);}

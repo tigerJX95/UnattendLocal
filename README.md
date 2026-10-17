@@ -4,7 +4,7 @@
 
 UnattendLocal 是基于 [Christoph Schneegans 的 UnattendGenerator](https://github.com/cschneegans/unattend-generator) 开发的中文 Windows 桌面配置工具，用于在本地编辑、检查和生成 Windows 10 / 11 的 `autounattend.xml`。
 
-当前版本：**V0.16**。新增关于、法律信息与离线开源许可，并完善安装隐私文件清理说明。工具用于准备安装配置，不会在当前电脑执行生成的安装脚本。
+当前版本：**V1.0**。成熟核心功能版，新增单网卡静态 IPv4，并正式采用 MIT 项目许可。工具用于准备安装配置，不会在当前电脑执行生成的安装脚本。
 
 ## 💡 开发初衷
 
@@ -24,9 +24,11 @@ UnattendLocal 是基于 [Christoph Schneegans 的 UnattendGenerator](https://git
 | :---: | :---: |
 | ![配置方案：浅色主题](docs/images/overview.png) | ![版本与密钥：深色主题](docs/images/edition-and-key-dark.png) |
 
-截图来自 V0.1 pre41 的实际运行界面，用于展示浅色与深色主题；当前 V0.16 已调整导航顺序并新增部分设置，实际界面以当前版本为准。
+截图来自 V0.1 pre41 的实际运行界面，用于展示浅色与深色主题；当前 V1.0 已调整导航顺序并新增部分设置，实际界面以当前版本为准。
 
 ## ✨ 主要功能
+
+- 默认保持 Windows 网络行为；可按目标网卡 MAC 指定静态 IPv4、前缀、网关和 DNS，不修改当前电脑网络。
 
 - 通过右上角“帮助与关于”查看版本、使用说明和内置第三方许可，支持离线查看与复制。
 
@@ -44,24 +46,22 @@ UnattendLocal 是基于 [Christoph Schneegans 的 UnattendGenerator](https://git
 - 保存和恢复 JSON 方案，提供配置摘要、推荐差异、检查、脱敏预览和 XML 导出。
 - 导入已有 XML 后编辑已支持设置，保留未知内容；遇到无法可靠合并的修改时停止导出并说明原因。
 
-## ✨ V0.16 更新
+## ✨ V1.0 更新
 
-- 关于页明确使用原图标的高清帧，改善放大显示；列出本项目与原项目的 GitHub 地址。
-
-- 右上角新增“帮助与关于”图标，菜单提供关于、法律信息与使用说明、开源许可。
-- 关于窗口显示实际程序版本、用途和原项目鸣谢；说明与许可全文内置，可离线查看、选择文字或复制当前页。
-- 列明 UnattendGenerator、Newtonsoft.Json、.NET Runtime 与 Windows Desktop / WPF，并保留各自许可原文及第三方声明。
-- 明确安装隐私文件清理的生成核心限制；不自动勾选保留，也不改变原作者的登录与清理流程。
-- 修正底部初始状态中的旧版本号，并统一为 V0.16。
+- 进入 V1.0 成熟核心功能版：整合安装、账户、网络、外观、脚本、方案保存、XML 导入与导出等常用配置流程。
+- 新增单网卡静态 IPv4：按目标 MAC 配置地址、1–30 位前缀、可选默认网关与最多三个 IPv4 DNS；默认不启用。
+- 补齐静态网络输入校验、实际 XML 还原、修改与停用、旧方案迁移、摘要、帮助和中英文设置搜索。
+- 多网卡、额外 IPv6、别名标识或无法完整识别的 TCPIP / DNS 内容只读保留；不使用界面默认值覆盖原配置。
+- 本项目本地界面与适配代码采用 MIT License，加入根目录 LICENSE，并接入关于页、离线许可页与项目说明；第三方版权和许可独立保留。
 
 ## 📦 下载与使用
 
-从仓库的 **Releases** 页面下载并直接运行对应的 `UnattendLocal_V0.16_x64_SelfContained.exe` 或 `UnattendLocal_V0.16_x64_FrameworkDependent.exe`：
+从仓库的 **Releases** 页面下载并直接运行对应的 `UnattendLocal_V1.0_x64_SelfContained.exe` 或 `UnattendLocal_V1.0_x64_FrameworkDependent.exe`：
 
 | 程序文件 | 运行要求 |
 | --- | --- |
-| `UnattendLocal_V0.16_x64_SelfContained.exe` | 集成 .NET 运行时，无需单独安装；通常选择此版。 |
-| `UnattendLocal_V0.16_x64_FrameworkDependent.exe` | 文件较小，需安装 .NET 10 Desktop Runtime x64。 |
+| `UnattendLocal_V1.0_x64_SelfContained.exe` | 集成 .NET 运行时，无需单独安装；通常选择此版。 |
+| `UnattendLocal_V1.0_x64_FrameworkDependent.exe` | 文件较小，需安装 .NET 10 Desktop Runtime x64。 |
 
 两版功能相同。首次安装测试建议使用虚拟机。
 
@@ -74,7 +74,7 @@ UnattendLocal 是基于 [Christoph Schneegans 的 UnattendGenerator](https://git
 
 ## 📖 使用说明
 
-关于与许可入口见 [帮助与关于](docs/About.md)。首次登录选项见 [首次登录说明](docs/FirstLogon.md)。XML 导入与取消行为见 [导入说明](docs/XmlImport.md)。设置搜索操作见 [搜索说明](docs/SettingsSearch.md)。兼容联接点选项按 ReparsePoint 属性删除指定范围的项目，可能包含其他重解析点；不恢复已删除的链接，请先在虚拟机验证。
+静态网络操作与范围见 [静态 IPv4](docs/StaticIPv4.md)。V1.0 定位与范围见 [版本说明](docs/V1Scope.md)。关于与许可入口见 [帮助与关于](docs/About.md)。首次登录选项见 [首次登录说明](docs/FirstLogon.md)。XML 导入与取消行为见 [导入说明](docs/XmlImport.md)。设置搜索操作见 [搜索说明](docs/SettingsSearch.md)。兼容联接点选项按 ReparsePoint 属性删除指定范围的项目，可能包含其他重解析点；不恢复已删除的链接，请先在虚拟机验证。
 
 在“基础设置”选择命名方式。固定名称留空时仍由 Windows 自动生成；安装时输入会中断无人值守流程，需完成有效输入才能继续。脚本必须返回一个有效计算机名（1–15 个字符，不能是纯数字或包含非法符号，也不应与本地账户同名）；工具不会执行或预先验证脚本结果。命名脚本按原文保存在方案和 XML 中，分享前检查敏感信息。
 
@@ -121,3 +121,7 @@ dotnet publish Desktop/Desktop.csproj -c Release -m:1 -nr:false -r win-x64 --sel
 ## 💬 反馈
 
 欢迎提交 Issues，说明工具版本、Windows 环境、复现步骤、预期与实际结果。安装问题请补充目标镜像版本、版本类型、架构与出现阶段。日志或配置只提供脱敏后的最小复现内容。
+
+## 📖 项目许可证
+
+本项目本地界面与适配代码采用 [MIT License](LICENSE)，Copyright (c) 2026 tigerJX95。第三方组件保留原版权及许可，见 [第三方声明](THIRD_PARTY_NOTICES.md)。完整许可也可在程序“帮助与关于 → 开源许可”中离线查看。

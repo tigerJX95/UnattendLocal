@@ -39,6 +39,7 @@ public static class PlanStore {
    LanguagePreferences.NormalizeLoaded(p,document.RootElement);
    XmlImportParameters.RefreshLoaded(p);
    FirstLogonSettings.RefreshLoaded(p);
+   StaticIPv4Settings.NormalizeLoaded(p,document.RootElement);
   }
   p.ClearDiskConsent();
   return p;

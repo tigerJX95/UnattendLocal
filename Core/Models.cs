@@ -16,6 +16,12 @@ public class UserEntry : Observable {
  private bool _NeedsPassword = false; public bool NeedsPassword {get=>_NeedsPassword;set=>Set(ref _NeedsPassword,value);}
 }
 public class InstallPlan : Observable {
+ private bool _UseStaticIPv4;public bool UseStaticIPv4 {get=>_UseStaticIPv4;set=>Set(ref _UseStaticIPv4,value);}
+ private string _StaticIPv4Mac="";public string StaticIPv4Mac {get=>_StaticIPv4Mac;set=>Set(ref _StaticIPv4Mac,value);}
+ private string _StaticIPv4Address="";public string StaticIPv4Address {get=>_StaticIPv4Address;set=>Set(ref _StaticIPv4Address,value);}
+ private int _StaticIPv4Prefix=24;public int StaticIPv4Prefix {get=>_StaticIPv4Prefix;set=>Set(ref _StaticIPv4Prefix,value);}
+ private string _StaticIPv4Gateway="";public string StaticIPv4Gateway {get=>_StaticIPv4Gateway;set=>Set(ref _StaticIPv4Gateway,value);}
+ private string _StaticIPv4Dns="";public string StaticIPv4Dns {get=>_StaticIPv4Dns;set=>Set(ref _StaticIPv4Dns,value);}
  private bool _UseBuiltinAdministrator;public bool UseBuiltinAdministrator {get=>_UseBuiltinAdministrator;set=>Set(ref _UseBuiltinAdministrator,value);}
  private string _BuiltinAdministratorPassword="";public string BuiltinAdministratorPassword {get=>_BuiltinAdministratorPassword;set=>Set(ref _BuiltinAdministratorPassword,value);}
  private bool _AllowEmptyBuiltinAdministratorPassword;public bool AllowEmptyBuiltinAdministratorPassword {get=>_AllowEmptyBuiltinAdministratorPassword;set=>Set(ref _AllowEmptyBuiltinAdministratorPassword,value);}

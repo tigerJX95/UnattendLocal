@@ -1,4 +1,4 @@
-<Window xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:local="clr-namespace:UnattendLocal.Desktop" xmlns:core="clr-namespace:UnattendLocal.Core;assembly=Core" x:Class="UnattendLocal.Desktop.MainWindow" Icon="Assets/App.ico" Title="Windows 无人值守配置工具 · V0.16" Width="1060" Height="780" MinWidth="850" MinHeight="620" Background="{DynamicResource CanvasBrush}" Foreground="{DynamicResource ForegroundBrush}" FontFamily="Microsoft YaHei UI" FontSize="14">
+<Window xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:local="clr-namespace:UnattendLocal.Desktop" xmlns:core="clr-namespace:UnattendLocal.Core;assembly=Core" x:Class="UnattendLocal.Desktop.MainWindow" Icon="Assets/App.ico" Title="Windows 无人值守配置工具 · V1.0" Width="1060" Height="780" MinWidth="850" MinHeight="620" Background="{DynamicResource CanvasBrush}" Foreground="{DynamicResource ForegroundBrush}" FontFamily="Microsoft YaHei UI" FontSize="14">
   <DockPanel>
     <Border DockPanel.Dock="Top" Background="{DynamicResource SurfaceBrush}" Padding="24,16">
       <Grid>
@@ -68,8 +68,8 @@
             <ComboBox x:Name="SettingAnchor002" SelectionChanged="ConfigurationModeChanged" SelectedValue="{Binding Plan.ConfigurationMode}" SelectedValuePath="Content"><ComboBoxItem Content="推荐配置"><ComboBoxItem.ToolTip><ToolTip ContentTemplate="{x:Null}"><TextBlock Text="先应用建议值，再逐项调整。所有设置均可修改。" TextWrapping="Wrap" /></ToolTip></ComboBoxItem.ToolTip></ComboBoxItem><ComboBoxItem Content="自定义配置"><ComboBoxItem.ToolTip><ToolTip ContentTemplate="{x:Null}"><TextBlock Text="切换时可选择从基础值重新开始，或明确保留当前设置；推荐场景将隐藏。" TextWrapping="Wrap" /></ToolTip></ComboBoxItem.ToolTip></ComboBoxItem></ComboBox>
             <StackPanel Visibility="{Binding IsRecommended,Converter={StaticResource VisibleWhen}}">
               <TextBlock Text="推荐场景" />
-              <ComboBox SelectedValue="{Binding PendingRecommendation}" SelectedValuePath="Tag"><ComboBoxItem Content="有线局域网" Tag="wired"><ComboBoxItem.ToolTip><ToolTip ContentTemplate="{x:Null}"><TextBlock Text="使用 Windows 默认 DHCP，并跳过 Wi-Fi 配置。静态 IP 仍需安装后设置。" TextWrapping="Wrap" /></ToolTip></ComboBoxItem.ToolTip></ComboBoxItem><ComboBoxItem Content="预设 Wi-Fi" Tag="wifi"><ComboBoxItem.ToolTip><ToolTip ContentTemplate="{x:Null}"><TextBlock Text="选择后网络页立即切换为预设 Wi-Fi 并启用自动连接；请填写 SSID 和 WPA2 密码，并核对无线驱动。" TextWrapping="Wrap" /></ToolTip></ComboBoxItem.ToolTip></ComboBoxItem></ComboBox>
-              <TextBlock Style="{StaticResource ExplanationText}" Text="　　有线使用默认 DHCP；无线方案需要填写 SSID 和密码。切换场景立即同步网络页，其余策略可通过下方按钮应用或恢复。" Foreground="{DynamicResource SecondaryBrush}"/>
+              <ComboBox SelectedValue="{Binding PendingRecommendation}" SelectedValuePath="Tag"><ComboBoxItem Content="有线局域网" Tag="wired"><ComboBoxItem.ToolTip><ToolTip ContentTemplate="{x:Null}"><TextBlock Text="跳过 Wi-Fi 配置。默认使用 Windows 网络行为；静态 IPv4 可在网络页独立配置，不随推荐场景重置。" TextWrapping="Wrap" /></ToolTip></ComboBoxItem.ToolTip></ComboBoxItem><ComboBoxItem Content="预设 Wi-Fi" Tag="wifi"><ComboBoxItem.ToolTip><ToolTip ContentTemplate="{x:Null}"><TextBlock Text="选择后网络页立即切换为预设 Wi-Fi 并启用自动连接；请填写 SSID 和 WPA2 密码，并核对无线驱动。" TextWrapping="Wrap" /></ToolTip></ComboBoxItem.ToolTip></ComboBoxItem></ComboBox>
+              <TextBlock Style="{StaticResource ExplanationText}" Text="　　未指定静态 IPv4 时，有线使用 Windows 默认网络行为；无线方案需要填写 SSID 和密码。切换场景立即同步网络页，其余策略可通过下方按钮应用或恢复。" Foreground="{DynamicResource SecondaryBrush}"/>
               <TextBlock Style="{StaticResource ExplanationText}" Text="　　共同推荐关闭 OOBE 快捷隐私、预设本地账户、首次自动登录一次、隐藏脚本窗口、阻止设备自动加密并清理安装凭据。" Foreground="{DynamicResource SecondaryBrush}"/>
               <TextBlock Style="{StaticResource ExplanationText}" Text="　　Windows 11 默认允许离线安装；硬件检查绕过默认关闭。" Foreground="{DynamicResource SecondaryBrush}"/>
               <Button Content="应用 / 恢复整套推荐值" Click="ApplyRecommendationClick" HorizontalAlignment="Left" />
@@ -578,6 +578,25 @@
       <TabItem Header="网络" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch">
         <ScrollViewer VerticalScrollBarVisibility="Auto">
           <StackPanel Margin="24">
+            <Border Style="{StaticResource Card}"><StackPanel>
+              <TextBlock x:Name="StaticIPv4Section" Text="静态 IPv4（目标系统）" FontSize="20" FontWeight="SemiBold" Margin="0,0,0,12"/>
+              <CheckBox x:Name="StaticIPv4Enabled" Content="按目标网卡 MAC 地址指定静态 IPv4" IsChecked="{Binding Plan.UseStaticIPv4}" IsEnabled="{Binding CanEditStaticIPv4}" ToolTip="{Binding DataContext.HelpTips[staticipv4],RelativeSource={RelativeSource AncestorType=Window}}"/>
+              <TextBlock Style="{StaticResource ExplanationText}" Text="默认不启用。在目标 Windows 的 specialize 阶段配置，不配置 Windows PE，不改变 IPv6，也不修改当前电脑。MAC、地址和前缀须来自目标网络。" Foreground="{DynamicResource SecondaryBrush}"/>
+              <StackPanel IsEnabled="{Binding IsStaticIPv4}">
+                <TextBlock Text="目标网卡 MAC 地址" Foreground="{DynamicResource SecondaryBrush}"/>
+                <TextBox x:Name="StaticIPv4MacEditor" Text="{Binding Plan.StaticIPv4Mac,UpdateSourceTrigger=PropertyChanged}" MaxLength="32" local:ExampleText.Value="02-00-00-00-00-10（请填写目标网卡）" Style="{StaticResource ExampleEditor}" ToolTip="{Binding DataContext.HelpTips[staticmac],RelativeSource={RelativeSource AncestorType=Window}}"/>
+                <Grid><Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="150"/></Grid.ColumnDefinitions>
+                  <StackPanel Margin="0,0,12,0"><TextBlock Text="IPv4 地址" Foreground="{DynamicResource SecondaryBrush}"/><TextBox x:Name="StaticIPv4AddressEditor" Text="{Binding Plan.StaticIPv4Address,UpdateSourceTrigger=PropertyChanged}" MaxLength="32" local:ExampleText.Value="192.168.10.20" Style="{StaticResource ExampleEditor}" ToolTip="{Binding DataContext.HelpTips[staticipv4],RelativeSource={RelativeSource AncestorType=Window}}"/></StackPanel>
+                  <StackPanel Grid.Column="1"><TextBlock Text="前缀长度（1–30）" Foreground="{DynamicResource SecondaryBrush}"/><TextBox x:Name="StaticIPv4PrefixEditor" Text="{Binding Plan.StaticIPv4Prefix,UpdateSourceTrigger=PropertyChanged,ValidatesOnExceptions=True}" ToolTip="24 对应 255.255.255.0；本版不提供 /31 点对点或 /32 主机路由。"/></StackPanel>
+                </Grid>
+                <TextBlock Text="默认网关（可留空）" Foreground="{DynamicResource SecondaryBrush}"/>
+                <TextBox x:Name="StaticIPv4GatewayEditor" Text="{Binding Plan.StaticIPv4Gateway,UpdateSourceTrigger=PropertyChanged}" MaxLength="32" local:ExampleText.Value="192.168.10.1" Style="{StaticResource ExampleEditor}" ToolTip="{Binding DataContext.HelpTips[staticgateway],RelativeSource={RelativeSource AncestorType=Window}}"/>
+                <TextBlock Text="IPv4 DNS（可留空，最多三个）" Foreground="{DynamicResource SecondaryBrush}"/>
+                <TextBox x:Name="StaticIPv4DnsEditor" Text="{Binding Plan.StaticIPv4Dns,UpdateSourceTrigger=PropertyChanged}" MaxLength="256" local:ExampleText.Value="192.168.10.1, 192.168.10.2" Style="{StaticResource ExampleEditor}" ToolTip="{Binding DataContext.HelpTips[staticdns],RelativeSource={RelativeSource AncestorType=Window}}"/>
+              </StackPanel>
+              <TextBlock Text="{Binding StaticIPv4Summary}" Style="{StaticResource ExplanationText}" Foreground="{DynamicResource AccentTextBrush}"/>
+              <TextBlock Style="{StaticResource ExplanationText}" Text="留空网关不生成默认路由；留空 DNS 不写入 DNS 覆盖，不保证名称解析或互联网访问。工具不检测地址占用；请核对地址冲突、驱动与目标 MAC。Wi-Fi 连接仍需单独配置，其他脚本或组织策略可能覆盖这些设置。" Foreground="{DynamicResource SecondaryBrush}"/>
+            </StackPanel></Border>
             <Border Style="{StaticResource Card}">
               <StackPanel>
                 <TextBlock x:Name="SettingAnchor082" Text="安装网络" FontSize="20" FontWeight="SemiBold" Margin="0,0,0,16" />
@@ -636,7 +655,7 @@
                   <TextBlock Style="{StaticResource ExplanationText}" Text="　　XML 可能含明文密码或其他认证资料。省略凭据保存时不保存整段无线 XML，预览整体遮蔽。加密密钥不能可靠迁移；自动连接时配置名称需与 SSID 一致。证书和网卡驱动仍需另行准备。" Foreground="{DynamicResource WarningBrush}"/>
                 </StackPanel></Border>
                 <CheckBox x:Name="SettingAnchor089" Content="允许 Windows 11 在无网络时安装" IsEnabled="{Binding CanBypassNetwork}" IsChecked="{Binding Plan.BypassNetwork}" ToolTip="{Binding DataContext.HelpTips[offline],RelativeSource={RelativeSource AncestorType=Window}}" />
-                <TextBlock Style="{StaticResource ExplanationText}" Text="　　有线局域网默认通过 DHCP 获取地址；跳过 Wi-Fi 配置。仅局域网、无互联网时可允许离线安装。微软账户模式需要联网，并取消允许离线安装。" TextWrapping="Wrap" Foreground="{DynamicResource SecondaryBrush}" />
+                <TextBlock Style="{StaticResource ExplanationText}" Text="　　有线局域网默认使用 Windows 网络行为，可在本页独立指定静态 IPv4；跳过 Wi-Fi 配置。仅局域网、无互联网时可允许离线安装。微软账户模式需要联网，并取消允许离线安装。" TextWrapping="Wrap" Foreground="{DynamicResource SecondaryBrush}" />
               </StackPanel>
             </Border>
           </StackPanel>

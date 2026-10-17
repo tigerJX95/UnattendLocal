@@ -45,6 +45,7 @@ public static class XmlPlanImport {
   AppControlSettings.ReadIntoPlan(doc,p,notes);
   ConfigurationSetSettings.ReadIntoPlan(doc,p,notes);
   var compactState=CompactOsSettings.ReadIntoPlan(doc,p,notes);
+  var networkState=StaticIPv4Settings.ReadIntoPlan(doc,p,notes);
   p.Architecture=arches.FirstOrDefault()??"amd64";
   p.ConfigurationMode="自定义配置";p.CustomStartingPoint="保留当前设置";p.RecommendationId="";p.RecommendationVersion=0;p.RecommendationWindows="";
   p.ClearDiskConsent();
@@ -64,6 +65,7 @@ public static class XmlPlanImport {
   if(baseline.Length>0)DescribeRemainder(doc,XmlMerge.Read(baseline),notes);
   p.ImportedXml=new ImportedXml{AppRemovalImportVersion=2,AppRemovalReadOnly=appRemovalState.Ambiguous,SourceXml=doc.OuterXml,BaselineXml=baseline,Notices=notes.Distinct().ToArray(),Blockers=blockers.Distinct().ToArray(),RequiresDiskReview=disk};
   CompactOsSettings.UpdateImportState(p.ImportedXml,compactState);
+  StaticIPv4Settings.UpdateImportState(p.ImportedXml,networkState);
   FirstLogonSettings.UpdateImportState(p.ImportedXml,p,firstLogonState);
   p.ClearDiskConsent();return p;
  }
@@ -193,7 +195,7 @@ public static class XmlPlanImport {
    string path=file.GetAttribute("path");if(legacyHelpers.Contains(PathName(path)))continue;if(!generated.TryGetValue(path,out var other)||!XmlMerge.Equal(file,other))notes.Add("原文保留，未完全还原到界面："+PathName(path));
   }
   var known=baseline.SelectNodes("//*[local-name()='component']")!.Cast<XmlElement>().Select(XmlMerge.Identity).ToHashSet();
-  foreach(XmlElement component in source.SelectNodes("//u:component",NamespaceManager(source))!)if(!known.Contains(XmlMerge.Identity(component)))notes.Add("原文保留，未实现的组件："+component.GetAttribute("name"));
+  foreach(XmlElement component in source.SelectNodes("//u:component",NamespaceManager(source))!)if(!known.Contains(XmlMerge.Identity(component))&&component.GetAttribute("name") is not (StaticIPv4Settings.Tcp or StaticIPv4Settings.Dns))notes.Add("原文保留，未实现的组件："+component.GetAttribute("name"));
   if(!XmlMerge.Equal(source.DocumentElement,baseline.DocumentElement)&&notes.Count==0)notes.Add("原 XML 含无法完整还原的参数或组件内容；原文保留，修改发生冲突时将阻止导出。");
  }
  private static void ReadForm(XmlDocument doc,InstallPlan p,List<string> notes){
@@ -264,6 +266,7 @@ public static class XmlPlanImport {
   if(data.Blockers.Length>0)throw new ArgumentException(string.Join("\n",data.Blockers));
   var source=XmlMerge.Read(data.SourceXml);
   CompactOsSettings.ValidateImported(p,source);
+  StaticIPv4Settings.ValidateImported(p,source);
   ComputerNamingSettings.ValidateImported(p,source);
   LanguagePreferences.ValidateImported(p,source);
   WifiSettings.ValidateImported(p,source);

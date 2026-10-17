@@ -6,7 +6,7 @@
 
 关于页显示程序内实际版本及原项目鸣谢；使用图标内的 256×256 高清帧缩放显示。本项目 https://github.com/tigerJX95/UnattendLocal 与原项目的 GitHub 地址可选择复制，不再显示原作者网站地址。许可页通过下拉框选择组件、许可证或第三方声明；内容内置，无需联网。文字可选择复制，也可用底部复制图标复制当前页；关闭图标或 Esc 关闭窗口。不增加启动弹窗或强制同意。
 
-第三方原文见 `docs/licenses/`，来源及依赖版本见 [第三方声明](../THIRD_PARTY_NOTICES.md)。本地适配层的授权以项目发布者声明为准，不将上游 MIT 自动视为整个项目的许可。
+第三方原文见 `docs/licenses/`，来源及依赖版本见 [第三方声明](../THIRD_PARTY_NOTICES.md)。本项目本地界面与适配代码采用 MIT，Copyright (c) 2026 tigerJX95，全文见根目录 LICENSE；许可页首项可直接查看。第三方声明单独保留。
 
 ## 📖 View information
 
@@ -14,4 +14,4 @@ Use the information icon beside Search and Theme at the upper right. The three m
 
 About shows the actual application version and upstream acknowledgments, using the embedded 256×256 icon frame. The local repository (https://github.com/tigerJX95/UnattendLocal) and upstream GitHub addresses can be selected and copied; the upstream website is omitted from this window. The license selector provides embedded component licenses and third-party notices, available offline. Select text to copy, or use the copy icon for the current page. Close with the close icon or Esc. There is no startup dialog or mandatory acceptance.
 
-Original third-party texts are in `docs/licenses/`; sources and dependency versions are recorded in [third-party notices](../THIRD_PARTY_NOTICES.md). Licensing of the local adaptation layer follows its publisher's declaration; the upstream MIT license is not presented as the license for the entire project.
+Original third-party texts are in `docs/licenses/`; sources and dependency versions are recorded in [third-party notices](../THIRD_PARTY_NOTICES.md). The local UI and adaptation code are licensed under MIT, Copyright (c) 2026 tigerJX95. The root LICENSE is embedded as the first license entry. Third-party notices remain independently preserved.

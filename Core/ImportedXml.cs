@@ -1,5 +1,7 @@
 namespace UnattendLocal.Core;
 public class ImportedXml {
+ public int StaticIPv4ImportVersion {get;set;}
+ public bool StaticIPv4ReadOnly {get;set;}
  public int FirstLogonImportVersion {get;set;}
  public bool FirstLogonReadOnly {get;set;}
  public string FirstLogonSourceAccountMode {get;set;}="";

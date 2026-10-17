@@ -19,6 +19,7 @@ public static class XmlMerge {
  }
  public static string Identity(XmlElement e){
   string id=e.NamespaceURI+"|"+e.LocalName;
+  if(e.HasAttribute("keyValue","http://schemas.microsoft.com/WMIConfig/2002/State"))id+="|keyValue="+e.GetAttribute("keyValue","http://schemas.microsoft.com/WMIConfig/2002/State");
   foreach(var a in new[]{"pass","name","processorArchitecture","path"})if(e.HasAttribute(a))id+="|"+a+"="+e.GetAttribute(a);
   if(e.LocalName is "RunSynchronousCommand" or "SynchronousCommand" or "ModifyPartition" or "CreatePartition")id+="|Order="+e.ChildNodes.OfType<XmlElement>().FirstOrDefault(n=>n.LocalName=="Order")?.InnerText;
   if(e.LocalName is "LocalAccount")id+="|Name="+e.ChildNodes.OfType<XmlElement>().FirstOrDefault(n=>n.LocalName=="Name")?.InnerText;

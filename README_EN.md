@@ -4,7 +4,7 @@
 
 UnattendLocal is a Chinese-language Windows desktop tool based on [Christoph Schneegans’ UnattendGenerator](https://github.com/cschneegans/unattend-generator). It lets you edit, check, and generate `autounattend.xml` for Windows 10 / 11 locally.
 
-Current version: **V0.16**. This release adds About, legal and usage notices, offline open-source licenses, and clearer setup-file cleanup explanations. The tool prepares installation configuration; it does not run generated scripts on your current computer.
+Current version: **V1.0**. This core-feature release adds single-adapter static IPv4 configuration and adopts the MIT project license. The tool prepares installation configuration; it does not run generated scripts on your current computer.
 
 ## 💡 Why this project exists
 
@@ -26,9 +26,11 @@ See [first-logon options](docs/FirstLogon.md) and [XML import behavior](docs/Xml
 | :---: | :---: |
 | ![Configuration plans in the light theme](docs/images/overview.png) | ![Edition and product key in the dark theme](docs/images/edition-and-key-dark.png) |
 
-These are actual V0.1 pre41 screenshots showing the light and dark themes. The current V0.16 release includes navigation changes and additional settings; refer to the current application for the latest interface. The application interface is currently in Chinese.
+These are actual V0.1 pre41 screenshots showing the light and dark themes. The current V1.0 release includes navigation changes and additional settings; refer to the current application for the latest interface. The application interface is currently in Chinese.
 
 ## ✨ Main features
+
+- Leave Windows networking unchanged by default, or configure a static IPv4 address, prefix, gateway and DNS by target adapter MAC without changing the current computer.
 
 - View the version, usage notices and embedded third-party licenses through Help and About, with offline reading and copying.
 
@@ -46,19 +48,17 @@ These are actual V0.1 pre41 screenshots showing the light and dark themes. The c
 - Save and restore JSON plans; review summaries, recommended-setting differences, checks, redacted previews, and XML exports.
 - Import existing XML and edit supported settings while preserving unknown content. Export stops with an explanation when changes cannot be merged reliably.
 
-## ✨ V0.16 updates
+## ✨ V1.0 updates
 
-- About explicitly loads the high-resolution icon frame and lists the local and upstream GitHub repositories.
-
-- Added a Help and About icon at the upper right, with About, Legal Information and Usage, and Open-source Licenses entries.
-- The window displays the actual application version, purpose and upstream acknowledgments. Embedded notices and full licenses can be read offline, selected or copied by page.
-- Lists UnattendGenerator, Newtonsoft.Json, .NET Runtime and Windows Desktop / WPF with their original license texts and third-party notices.
-- Clarified the generation core restriction on sensitive setup-file cleanup. Retention is not selected automatically; the upstream sign-in and cleanup behavior remains unchanged.
-- Corrected the old initial status version and aligned it with V0.16.
+- Reached V1.0, the core-feature release, bringing together common setup, account, network, appearance, script, saved-plan and XML import/export workflows.
+- Added single-adapter static IPv4 configuration by target MAC: address, prefix lengths 1–30, optional default gateway and up to three IPv4 DNS servers. Disabled by default.
+- Added validation, restoration from actual XML, editing and disabling, older-plan migration, summaries, help and bilingual setting search for static networking.
+- Multi-adapter, additional IPv6, alias-based or otherwise unrecognized TCPIP/DNS configurations retain their source with the static-network editor read-only.
+- Licensed the local UI and adaptation code under MIT, with a root LICENSE and integration into About, offline licenses and documentation. Third-party copyrights and licenses remain separately preserved.
 
 ## 📦 Download and usage
 
-Download and run the matching Windows x64 executable from the repository’s **Releases** page: `UnattendLocal_V0.16_x64_SelfContained.exe` or `UnattendLocal_V0.16_x64_FrameworkDependent.exe`. Choose `UnattendLocal_V0.16_x64_SelfContained.exe` for a bundled .NET runtime, or `UnattendLocal_V0.16_x64_FrameworkDependent.exe` if .NET 10 Desktop Runtime x64 is already installed. Both have the same features. Use a virtual machine for initial testing.
+Download and run the matching Windows x64 executable from the repository’s **Releases** page: `UnattendLocal_V1.0_x64_SelfContained.exe` or `UnattendLocal_V1.0_x64_FrameworkDependent.exe`. Choose `UnattendLocal_V1.0_x64_SelfContained.exe` for a bundled .NET runtime, or `UnattendLocal_V1.0_x64_FrameworkDependent.exe` if .NET 10 Desktop Runtime x64 is already installed. Both have the same features. Use a virtual machine for initial testing.
 
 1. Choose a recommended scenario or a custom configuration and enter the required account and image settings.
 2. Adjust system, appearance, and application removal options as needed.
@@ -68,6 +68,8 @@ Download and run the matching Windows x64 executable from the repository’s **R
 Open a JSON plan to restore saved settings, or import an answer XML to continue editing an existing configuration. Plans saved without credentials may require passwords or keys to be entered again. If the imported original XML was not saved with the plan, import it again.
 
 ## 📖 Scope and limitations
+
+See [static IPv4 configuration](docs/StaticIPv4.md) and [V1.0 scope](docs/V1Scope.md).
 
 See [Help and About](docs/About.md) for the information window and license texts.
 
@@ -116,3 +118,7 @@ Upstream copyright and the MIT license are retained in [vendor/UnattendGenerator
 ## 💬 Feedback
 
 Please open an Issue with the tool version, Windows environment, reproduction steps, and expected and actual behavior. For installation issues, include the target image version, edition, architecture, and the stage where the issue occurred. Share only redacted logs or minimal reproduction configurations.
+
+## 📖 Project license
+
+The local UI and adaptation code are licensed under the [MIT License](LICENSE), Copyright (c) 2026 tigerJX95. Third-party copyrights and licenses are retained in [third-party notices](THIRD_PARTY_NOTICES.md). Full texts are also available offline through Help and About → Open-source Licenses.

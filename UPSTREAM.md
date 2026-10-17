@@ -121,3 +121,5 @@ V0.15 · 2026-10-16：官网发布仍标注 27237f8，与固定基线一致；�
 微软：https://learn.microsoft.com/en-us/windows-hardware/customize/desktop/unattend/microsoft-windows-shell-setup-autologon-username
 
 V0.16 · 2026-10-17：增加本地关于、使用说明与第三方许可窗口，不修改 vendor。许可文本来源与版本见 THIRD_PARTY_NOTICES.md。保留原生成核心对“不自动登录＋自动清理隐私文件”的限制，不新增自动勾选联动。法律信息保留“依法不得排除或限制的责任”边界；措辞核对参考最高人民法院公布的《中华人民共和国民法典》第506条：https://www.court.gov.cn/zixun/xiangqing/233181.html 。
+
+V1.0 · 2026-10-17：固定 vendor 保持不变。新增本地单网卡静态 IPv4，使用微软原生 specialize/TCPIP、DNS-Client 组件，MAC 标识、子项顺序、默认路由及 DNS keyValue 顺序依据官方文档；来源见 docs/StaticIPv4.md。本项目本地界面与适配代码采用 MIT（Copyright (c) 2026 tigerJX95），保留各第三方原版权和许可，标准文本来源：https://opensource.org/license/mit 。V1.0 不表示覆盖所有上游高级设置，也不将自动检查视为 Windows 安装验收。

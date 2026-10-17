@@ -1,5 +1,9 @@
 # 第三方引用与鸣谢
 
+本项目本地界面与适配代码采用 [MIT License](LICENSE)，Copyright (c) 2026 tigerJX95。以下第三方组件的原版权、许可与声明独立保留。
+
+The local UI and adaptation code use the [MIT License](LICENSE), Copyright (c) 2026 tigerJX95. Original third-party copyrights, licenses and notices are retained separately.
+
 ## UnattendGenerator
 
 作者：Christoph Schneegans。
@@ -47,7 +51,7 @@ Microsoft 与项目贡献者提供运行时及桌面框架。
 
 源码与许可证：https://github.com/dotnet/runtime · https://github.com/dotnet/wpf
 
-第三方依赖采用各自的许可声明；此记录不为本地适配部分新增或替换项目许可。
+第三方依赖采用各自的许可声明；本项目的 MIT 全文另见根目录 LICENSE。
 
 ## 完整离线许可 / Full offline licenses
 
@@ -61,6 +65,6 @@ Microsoft 与项目贡献者提供运行时及桌面框架。
 | Windows Desktop / WPF | 10.0.13 | WindowsDesktop.txt | Microsoft.WindowsDesktop.App.Runtime.win-x64 NuGet 包 / package LICENSE |
 | WPF 第三方声明 / third-party notices | v10.0.13 | WpfThirdParty.txt | https://github.com/dotnet/wpf/blob/v10.0.13/THIRD-PARTY-NOTICES.TXT |
 
-许可文本逐字保留，不将第三方许可扩大为本地界面与适配部分的许可。自包含版集成运行时；依赖运行时版需另行安装。更新依赖或运行时版本时，应同步核对这些文件。
+许可文本逐字保留，本项目许可全文与第三方许可分别展示。自包含版集成运行时；依赖运行时版需另行安装。更新依赖或运行时版本时，应同步核对这些文件。
 
-License texts are preserved verbatim. These component licenses do not establish a license for the local UI or adaptation layer. The self-contained edition bundles the runtime; the framework-dependent edition requires a separate installation. Review these files when updating dependencies or runtime versions.
+License texts are preserved verbatim. The project MIT license and third-party licenses are shown separately. The self-contained edition bundles the runtime; the framework-dependent edition requires a separate installation. Review these files when updating dependencies or runtime versions.

@@ -1,5 +1,6 @@
 using System.Text;using System.Xml;using UnattendLocal.Core;
 int count=0;var g=new GeneratorService();
+if(args.Contains("--network-only")){Console.WriteLine($"V1.0 network: {StaticNetworkTests.Run(g)} checks passed.");return;}
 void Check(bool ok,string name){if(!ok)throw new Exception(name);Console.WriteLine("PASS "+name);count++;}
 void Reject(InstallPlan p,string name){try{g.Generate(p);}catch(Exception){Check(true,name);return;}throw new Exception("Expected rejection: "+name);}
 InstallPlan Plan(){var p=InstallPlan.New();p.Users[0].Password="A<&'12345";return p;}
@@ -1989,4 +1990,5 @@ var collisionDisplay15=XmlPlanImport.Import(collisionDoc15.OuterXml,g);collision
 
 
 vm15.Plan=XmlPlanImport.Import(collisionDoc15.OuterXml,g);var preservedMode15=vm15.SelectedFirstLogon;vm15.SelectedFirstLogon=FirstLogonSettings.Builtin;Check(!vm15.CanEditFirstLogon&&vm15.SelectedFirstLogon.Contains("只读")&&vm15.FirstLogonModes.Contains(preservedMode15)&&!vm15.Plan.UseBuiltinAdministrator,"read-only UI shows preserved source mode and refuses mode edits");
-Console.WriteLine($"V0.15 total: {count} checks passed.");
+count+=StaticNetworkTests.Run(g);
+Console.WriteLine($"V1.0 total: {count} checks passed.");

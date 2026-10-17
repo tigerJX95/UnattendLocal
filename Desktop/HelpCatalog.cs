@@ -45,12 +45,16 @@ public static class HelpCatalog
             new("secrets", "密码编码与隐私文件", "Base64 可还原，不是加密。隐私文件保留选项位于 OOBE 页的“安装脚本与隐私文件”。默认在首次管理员登录阶段清理目标系统的应答文件与 Wi-Fi 文件；自动创建本地账户并关闭首次自动登录时需明确选择保留。安装介质上的原始 XML 需另行保管。")
         ],
         [
+            new("staticipv4", "静态 IPv4 配置", StaticIPv4Settings.Description),
+            new("staticmac", "目标网卡 MAC 地址", "填写目标电脑或虚拟机网卡的 MAC，不是当前电脑的 MAC。支持横线、冒号或连续 12 位十六进制，导出统一使用大写横线格式。仅接受单播地址；不扫描、自动选择或改用其他网卡。Wi-Fi 随机 MAC 或克隆虚拟机后的 MAC 改变可能导致不匹配，需自行核对目标安装环境。"),
+            new("staticgateway", "静态 IPv4 默认网关", "可留空。填写时须为同子网中其他有效主机地址，不能是本机、网络或广播地址。本版只生成一条默认路由，不提供跨子网网关、策略路由或 /31、/32 配置。留空不生成默认路由，并不保证能访问互联网。"),
+            new("staticdns", "静态 IPv4 DNS", "最多三个不重复的 IPv4 DNS，用空格、逗号或分号分隔，按填写顺序写入编号。留空不写入 DNS 覆盖，不保证名称解析。请使用目标网络可访问且符合组织要求的 DNS；工具不测试解析服务，不改变 DNS 注册或后缀策略。"),
             new("wifiprofile","WLANProfile 无线配置 XML","支持从 Windows 导出后导入或粘贴完整 WLANProfile XML。可用 netsh wlan export profile key=clear 导出；文件可能含明文密码。认证及自动连接由 XML 决定，上方参数不参与生成；加密密钥不能可靠迁移，自动连接时配置名称需与 SSID 一致。结构检查不保证目标系统具备网卡驱动、证书或认证能力。省略凭据保存时不保存整段无线 XML；重新打开需补充，预览整体遮蔽。"),
-            new("wifi", "无线网络配置方式", "新建推荐与自定义基础配置默认选择有线局域网，跳过 Wi-Fi 配置，有线网络通过 DHCP 获取地址。首页选择推荐场景会立即同步此处的网络模式，切换为预设 Wi-Fi 时默认自动连接。手动选择会保留安装时的无线网络引导。预设支持 WPA2-Personal（AES）、WPA3-Personal（AES，启用过渡模式）或开放网络，也可使用完整 WLANProfile XML。WPA3 需目标系统、驱动和接入点支持；按原生成器生成 WPA3SAE / AES 并启用 transitionMode，与微软 WPA3-Personal with transition mode 示例一致。网络也支持过渡模式时，可兼容仅支持 WPA2-PSK 的客户端；实际连接取决于目标环境。开放 Wi-Fi（无密码、不加密）不提供无线链路加密。仅在确认网络和用途后使用；个人网络优先选择 WPA2 / WPA3，开放网络可能仍需门户认证。若镜像不含无线网卡驱动，需把相应驱动放到安装介质的 $WinPEDriver$ 文件夹。"),
+            new("wifi", "无线网络配置方式", "新建推荐与自定义基础配置默认选择有线局域网，跳过 Wi-Fi 配置，未启用静态 IPv4 时由 Windows 默认网络行为获取地址。首页选择推荐场景会立即同步此处的网络模式，切换为预设 Wi-Fi 时默认自动连接。手动选择会保留安装时的无线网络引导。预设支持 WPA2-Personal（AES）、WPA3-Personal（AES，启用过渡模式）或开放网络，也可使用完整 WLANProfile XML。WPA3 需目标系统、驱动和接入点支持；按原生成器生成 WPA3SAE / AES 并启用 transitionMode，与微软 WPA3-Personal with transition mode 示例一致。网络也支持过渡模式时，可兼容仅支持 WPA2-PSK 的客户端；实际连接取决于目标环境。开放 Wi-Fi（无密码、不加密）不提供无线链路加密。仅在确认网络和用途后使用；个人网络优先选择 WPA2 / WPA3，开放网络可能仍需门户认证。若镜像不含无线网卡驱动，需把相应驱动放到安装介质的 $WinPEDriver$ 文件夹。"),
             new("ssid", "Wi-Fi 名称与密码", "SSID 应为 1–32 字节，中文字符会占多个字节。本版不接受控制字符、双引号、美元符号或反引号。WPA2 / WPA3 密码支持 8–63 位可打印 ASCII 字符；开放网络不使用密码框保留的内容。"),
             new("hidden", "隐藏网络与自动连接", "只有路由器不广播 SSID 时才需要勾选“隐藏网络”。自动连接选项决定是否自动连接预设 Wi-Fi；这些选项仅在预设 Wi-Fi 模式下生效。"),
             new("offline", "允许无网络安装", "离线安装与本地账户分别配置；隐藏无线页面不等于绕过联网要求。添加微软账户需要网络，不能同时选择允许离线安装。"),
-            new("driver", "无线驱动", "若 Windows 安装镜像不包含无线网卡驱动，预设 Wi-Fi 也无法连接。可把相应驱动放在安装介质的 $WinPEDriver$ 文件夹。本版有线网络使用默认 DHCP。")
+            new("driver", "无线驱动", "若 Windows 安装镜像不包含无线网卡驱动，预设 Wi-Fi 也无法连接。可把相应驱动放在安装介质的 $WinPEDriver$ 文件夹。未启用静态 IPv4 时保留 Windows 默认网络行为；静态 IPv4 独立配置。")
         ],
         [
             new("privacy", "快捷隐私设置", "全部关闭会将 ProtectYourPC 设置为 3，关闭 OOBE 快捷隐私设置并跳过手动选择；手动选择保留隐私引导；全部开启启用快捷设置。该选项覆盖 Windows 应答文件所定义的快捷设置，具体表现随目标 Windows 版本变化。"),
@@ -242,6 +246,7 @@ public static class HelpCatalog
                 _ => "当前：密码永不过期。"
             },
             "logon" or "builtinlogon" => "当前："+FirstLogonSettings.Summary(plan)+"。",
+            "staticipv4" or "staticmac" or "staticgateway" or "staticdns" => StaticIPv4Settings.Summary(plan),
             "wifi" => plan.WifiMode=="隐藏无线网络选择页" ? "当前：有线局域网（跳过 Wi-Fi 配置）。" : $"当前：{WifiSettings.ModeLabel(plan.WifiMode)}。",
             "offline" => plan.BypassNetwork ? "当前已允许无网络安装；微软账户模式与此设置冲突。" : "当前未启用无网络安装绕过。",
             "privacy" => $"当前：{plan.PrivacyMode}。",

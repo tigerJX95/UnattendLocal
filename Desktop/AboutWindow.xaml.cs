@@ -10,6 +10,7 @@ public partial class AboutWindow : Window
 {
     private record LicenseDocument(string Title, string Resource);
     private static readonly LicenseDocument[] Documents = [
+        new("UnattendLocal · MIT 项目许可证", "ProjectLicense.txt"),
         new("组件与授权说明", "Components.txt"),
         new("UnattendGenerator · MIT", "UnattendGenerator.txt"),
         new("Newtonsoft.Json 13.0.4 · MIT", "Newtonsoft.Json.txt"),
@@ -56,7 +57,7 @@ public partial class AboutWindow : Window
     {
         if (LicenseText != null && LicensePicker.SelectedItem is LicenseDocument document)
         {
-            LicenseText.Text = Read("UnattendLocal.Licenses." + document.Resource);
+            LicenseText.Text = Read(document.Resource == "ProjectLicense.txt" ? "UnattendLocal.ProjectLicense.txt" : "UnattendLocal.Licenses." + document.Resource);
             LicenseText.ScrollToHome();
         }
     }
@@ -69,7 +70,7 @@ public partial class AboutWindow : Window
             _ => "UnattendLocal V" + ProductVersion + "\nWindows 无人值守配置工具\nWindows x64 · .NET 10\n\n" +
                  "本地离线编辑、保存和生成 Windows 安装配置，不在当前电脑执行生成的安装脚本。\n" +
                  "生成核心：Christoph Schneegans · UnattendGenerator。独立本地中文界面与适配。\n" +
-                 "感谢 ChatGPT Codex 提供开发协助。\n\n" + UpstreamLinks.Text
+                 "MIT License · Copyright (c) 2026 tigerJX95\n感谢 ChatGPT Codex 提供开发协助。\n\n" + UpstreamLinks.Text
         };
         try { Clipboard.SetText(text); StatusText.Text = "当前页面内容已复制。"; }
         catch (System.Runtime.InteropServices.ExternalException) { StatusText.Text = "暂时无法访问剪贴板，请稍后重试，或选择文字手动复制。"; }

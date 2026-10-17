@@ -12,6 +12,7 @@
             <Image x:Name="ProductIcon" Width="56" Height="56" Margin="0,0,0,12" RenderOptions.BitmapScalingMode="HighQuality" SnapsToDevicePixels="True"/>
             <TextBlock Text="UnattendLocal" FontSize="26" FontWeight="SemiBold" TextAlignment="Center"/>
             <TextBlock x:Name="VersionText" Foreground="{DynamicResource AccentTextBrush}" FontSize="18" TextAlignment="Center" Margin="0,8,0,0"/>
+            <TextBlock Text="MIT License · Copyright © 2026 tigerJX95" TextAlignment="Center" TextWrapping="Wrap" Foreground="{DynamicResource SecondaryBrush}" Margin="0,8,0,0"/>
             <TextBlock Text="Windows 无人值守配置工具" TextAlignment="Center" Margin="0,12,0,4"/>
             <TextBlock Text="Windows x64 · .NET 10" TextAlignment="Center" Foreground="{DynamicResource SecondaryBrush}"/>
           </StackPanel></Border>
