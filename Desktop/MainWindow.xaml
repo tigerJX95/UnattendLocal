@@ -1,4 +1,4 @@
-<Window xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:local="clr-namespace:UnattendLocal.Desktop" xmlns:core="clr-namespace:UnattendLocal.Core;assembly=Core" x:Class="UnattendLocal.Desktop.MainWindow" Icon="Assets/App.ico" Title="Windows 无人值守配置工具 · V1.0.1" Width="1060" Height="780" MinWidth="850" MinHeight="620" Background="{DynamicResource CanvasBrush}" Foreground="{DynamicResource ForegroundBrush}" FontFamily="Microsoft YaHei UI" FontSize="14">
+<Window xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:local="clr-namespace:UnattendLocal.Desktop" xmlns:core="clr-namespace:UnattendLocal.Core;assembly=Core" x:Class="UnattendLocal.Desktop.MainWindow" Icon="Assets/App.ico" Title="Windows 无人值守配置工具 · V1.1" Width="1060" Height="780" MinWidth="850" MinHeight="620" Background="{DynamicResource CanvasBrush}" Foreground="{DynamicResource ForegroundBrush}" FontFamily="Microsoft YaHei UI" FontSize="14">
   <DockPanel>
     <Border DockPanel.Dock="Top" Background="{DynamicResource SurfaceBrush}" Padding="24,16">
       <Grid>
@@ -402,10 +402,16 @@
               <TextBlock Style="{StaticResource ExplanationText}" Text="　　仅支持 ASCII 的 DiskPart 命令，每行最多 160 字符、最多 512 行。不支持 CMD / PowerShell、变量、特殊运算符或 noerr。S/W/R 盘符只影响 Windows PE；安装后的系统盘符由 Windows 决定。此项不检测实际磁盘与启动环境。" TextWrapping="Wrap" Foreground="{DynamicResource SecondaryBrush}"/>
               <CheckBox Content="我已备份并获得操作授权，核对完整脚本及安装目标，确认脚本可能删除任意磁盘的数据" IsChecked="{Binding Plan.ConfirmDiskScript}" Foreground="{DynamicResource DangerBrush}" FontWeight="SemiBold" ToolTip="{Binding DataContext.HelpTips[diskconfirm],RelativeSource={RelativeSource AncestorType=Window}}"/>
             </StackPanel>
-            <StackPanel IsEnabled="{Binding IsWipeDisk}" Visibility="{Binding IsWipeDisk,Converter={StaticResource VisibleWhen}}">
+            <TextBlock Style="{StaticResource ExplanationText}" Text="　　原 XML 的分区流程保留，自动分区设置暂不可编辑；请到配置方案页查看导入说明。" Foreground="{DynamicResource WarningBrush}" Visibility="{Binding HasReadonlyAutoPartition,Converter={StaticResource VisibleWhen}}"/>
+            <StackPanel IsEnabled="{Binding CanEditAutoPartition}" Visibility="{Binding IsWipeDisk,Converter={StaticResource VisibleWhen}}">
               <TextBlock Text="启动与分区类型（须与目标电脑实际启动方式一致）"/>
               <ComboBox x:Name="SettingAnchor066" SelectedValue="{Binding Plan.DiskLayout}" SelectedValuePath="Content" ToolTip="{Binding DataContext.HelpTips[disklayout],RelativeSource={RelativeSource AncestorType=Window}}"><ComboBoxItem Content="UEFI / GPT"/><ComboBoxItem Content="BIOS / MBR"/></ComboBox>
               <TextBlock Style="{StaticResource ExplanationText}" Text="　　UEFI/GPT：EFI 300 MB、MSR 16 MB、Windows 剩余空间、恢复分区按下方设置。BIOS/MBR：系统 500 MB、Windows 剩余空间、恢复分区按下方设置；主要适用于 Windows 10 传统 BIOS。实际磁盘容量和恢复镜像大小仍需核对。" TextWrapping="Wrap" Foreground="{DynamicResource SecondaryBrush}"/>
+              <TextBlock Text="系统分区大小（MB；留空按布局默认：GPT 300 / MBR 500）"/>
+              <TextBox x:Name="SystemPartitionSizeEditor" Text="{Binding Plan.SystemPartitionSizeMB,UpdateSourceTrigger=PropertyChanged,ValidatesOnExceptions=True}" ToolTip="{Binding DataContext.HelpTips[systempartition],RelativeSource={RelativeSource AncestorType=Window}}"/>
+              <CheckBox x:Name="PauseBeforeFormattingCheck" Content="执行自动分区前暂停（在目标 Windows PE 中按任意键继续）" IsChecked="{Binding Plan.PauseBeforeFormatting}" ToolTip="{Binding DataContext.HelpTips[partitionpause],RelativeSource={RelativeSource AncestorType=Window}}"/>
+              <TextBlock Style="{StaticResource ExplanationText}" Text="{Binding AutoPartitionSummary}"/>
+              <TextBlock Style="{StaticResource ExplanationText}" Text="　　以上选项仅用于清空指定磁盘后自动分区，不修改当前电脑或已有分区模式。暂停不会自动判断目标是否正确；仍须核对目标编号并勾选下方风险确认。" Foreground="{DynamicResource SecondaryBrush}"/>
               <TextBlock Text="恢复分区大小（MB，默认 1536；须容纳 WinRE 镜像并预留维护空间）"/><TextBox x:Name="SettingAnchor067" Text="{Binding Plan.RecoverySizeMB,UpdateSourceTrigger=PropertyChanged,ValidatesOnExceptions=True}" ToolTip="{Binding DataContext.HelpTips[disklayout],RelativeSource={RelativeSource AncestorType=Window}}"/>
               <CheckBox Content="我已备份并获得操作授权，确认清空指定磁盘的全部分区和数据" IsChecked="{Binding Plan.ConfirmWipeDisk}" Foreground="{DynamicResource DangerBrush}" FontWeight="SemiBold" ToolTip="{Binding DataContext.HelpTips[diskconfirm],RelativeSource={RelativeSource AncestorType=Window}}" />
             </StackPanel>

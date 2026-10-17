@@ -40,6 +40,7 @@ public static class PlanStore {
    XmlImportParameters.RefreshLoaded(p);
    FirstLogonSettings.RefreshLoaded(p);
    StaticIPv4Settings.NormalizeLoaded(p,document.RootElement);
+   AutoPartitionSettings.NormalizeLoaded(p,document.RootElement);
   }
   p.ClearDiskConsent();
   return p;

@@ -44,6 +44,7 @@ public static class XmlPlanImport {
   JunctionSettings.ReadIntoPlan(doc,p,notes);
   AppControlSettings.ReadIntoPlan(doc,p,notes);
   ConfigurationSetSettings.ReadIntoPlan(doc,p,notes);
+  var partitionState=AutoPartitionSettings.ReadIntoPlan(doc,p,notes);
   var compactState=CompactOsSettings.ReadIntoPlan(doc,p,notes);
   var networkState=StaticIPv4Settings.ReadIntoPlan(doc,p,notes);
   p.Architecture=arches.FirstOrDefault()??"amd64";
@@ -64,6 +65,7 @@ public static class XmlPlanImport {
   XmlImportParameters.Reconcile(doc,p,appRemovalState,notes);
   if(baseline.Length>0)DescribeRemainder(doc,XmlMerge.Read(baseline),notes);
   p.ImportedXml=new ImportedXml{AppRemovalImportVersion=2,AppRemovalReadOnly=appRemovalState.Ambiguous,SourceXml=original.OuterXml,BaselineXml=baseline,Notices=notes.Distinct().ToArray(),Blockers=blockers.Distinct().ToArray(),RequiresDiskReview=disk};
+  p.ImportedXml.AutoPartitionReadOnly=partitionState.Mentioned&&!partitionState.Known;
   CompactOsSettings.UpdateImportState(p.ImportedXml,compactState);
   StaticIPv4Settings.UpdateImportState(p.ImportedXml,networkState);
   FirstLogonSettings.UpdateImportState(p.ImportedXml,p,firstLogonState);
@@ -265,6 +267,7 @@ public static class XmlPlanImport {
   if(data.OriginalOmitted||data.SourceXml.Length==0||data.BaselineXml.Length==0)throw new ArgumentException("缺少完整 XML 原文/编辑基准，请重新导入原 XML；不会使用界面默认值代替丢失内容。");
   if(data.Blockers.Length>0)throw new ArgumentException(string.Join("\n",data.Blockers));
   var source=XmlImportPaths.Inspection(XmlMerge.Read(data.SourceXml));
+  AutoPartitionSettings.ValidateImported(p,source);
   CompactOsSettings.ValidateImported(p,source);
   StaticIPv4Settings.ValidateImported(p,source);
   ComputerNamingSettings.ValidateImported(p,source);

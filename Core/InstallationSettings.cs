@@ -6,16 +6,17 @@ public static class InstallationSettings {
  private const string Ns="urn:schemas-microsoft-com:unattend",Wcm="http://schemas.microsoft.com/WMIConfig/2002/State";
  public static bool Destructive(InstallPlan p)=>p.DiskMode==DiskScriptSettings.Mode||p.DiskMode==Wipe||(p.DiskMode==Existing&&p.FormatExistingPartition);
  public static string ImageSummary(InstallPlan p)=>p.ImageSelection switch{"按镜像名称"=>$"名称：{p.ImageName}","按镜像索引"=>$"索引：{p.ImageIndex}",_=>"由安装程序和产品密钥决定"};
- public static string DiskSummary(InstallPlan p)=>p.DiskMode switch{
+ public static string DiskSummary(InstallPlan p)=>p.ImportedXml?.AutoPartitionReadOnly==true?"【危险】原 XML 的分区流程未完整识别；须核对原文全部目标与命令，不能按界面默认值推断操作范围。":p.DiskMode switch{
   DiskScriptSettings.Mode=>$"【危险】执行自定义 DiskPart 脚本（可能影响任意磁盘）；随后安装到磁盘 {p.TargetDiskId} / 分区 {p.TargetPartitionId}",
   Existing=>$"磁盘 {p.TargetDiskId} / 分区 {p.TargetPartitionId}；{(p.FormatExistingPartition?"【危险】格式化此分区，删除分区内全部数据":"不格式化；安装仍可能改动原有文件")}",
-  Wipe=>$"【危险】清空磁盘 {p.TargetDiskId} 全部分区和数据；{p.DiskLayout} 自动分区，恢复分区 {p.RecoverySizeMB} MB",
+  Wipe=>$"【危险】清空磁盘 {p.TargetDiskId} 全部分区和数据；{p.DiskLayout} 自动分区；{AutoPartitionSettings.Summary(p)}",
   _=>"安装时手动选择，不自动清空或格式化"};
  public static void Validate(InstallPlan p){
   if(p.ImageSelection is not ("由安装程序决定" or "按镜像名称" or "按镜像索引"))throw new ArgumentException("请选择有效镜像选择方式。");
   if(p.ImageSelection=="按镜像名称"&&(string.IsNullOrWhiteSpace(p.ImageName)||p.ImageName.Length>256||p.ImageName.Any(char.IsControl)))throw new ArgumentException("请填写安装镜像中的完整名称（不含控制字符）。");
   if(p.ImageSelection=="按镜像索引"&&(p.ImageIndex is null or <1))throw new ArgumentException("镜像索引必须为大于等于 1 的整数。");
   if(p.DiskMode is not (Manual or Existing or Wipe or DiskScriptSettings.Mode))throw new ArgumentException("请选择有效磁盘与分区模式。");
+  AutoPartitionSettings.Validate(p);
   if(p.DiskMode==Manual)return;
   if(p.TargetDiskId is null or <0)throw new ArgumentException("请明确填写目标电脑在 Windows PE 中的磁盘编号，从 0 开始。");
   if(p.DiskMode==DiskScriptSettings.Mode){_=DiskScriptSettings.Commands(p.DiskPartScript);if(p.TargetPartitionId is null or <1)throw new ArgumentException("请填写脚本执行后 Windows 目标分区编号，从 1 开始。");if(!p.ConfirmDiskScript)throw new ArgumentException("请核对完整脚本并勾选自定义分区脚本风险确认。");}
@@ -41,16 +42,10 @@ public static class InstallationSettings {
     }
    }
    if(p.DiskMode==Wipe){
-    // Run before image application; integers and fixed literals only enter the command.
-    var commands=new List<string>{"select disk "+Num(p.TargetDiskId),"clean"};
-    if(p.DiskLayout=="UEFI / GPT")commands.AddRange(new[]{"convert gpt","create partition efi size=300","format quick fs=fat32 label=System","create partition msr size=16"});
-    else commands.AddRange(new[]{"convert mbr","create partition primary size=500","format quick fs=ntfs label=System","active"});
-    commands.AddRange(new[]{"create partition primary","format quick fs=ntfs label=Windows",$"shrink minimum={p.RecoverySizeMB.ToString(CultureInfo.InvariantCulture)} desired={p.RecoverySizeMB.ToString(CultureInfo.InvariantCulture)}","create partition primary","format quick fs=ntfs label=Recovery"});
-    if(p.DiskLayout=="UEFI / GPT")commands.AddRange(new[]{"set id=de94bba4-06d1-4d40-a16a-bfd50179d6ac","gpt attributes=0x8000000000000001"});else commands.Add("set id=27");
     var sync=setup.SelectSingleNode("u:RunSynchronous",ns) as XmlElement??Add(setup,"RunSynchronous");
     var order=sync.SelectNodes("u:RunSynchronousCommand/u:Order",ns)!.Cast<XmlNode>().Select(n=>int.Parse(n.InnerText,CultureInfo.InvariantCulture)).DefaultIfEmpty(0).Max()+1;
     var cmd=Add(sync,"RunSynchronousCommand",list:true);Add(cmd,"Order",order.ToString(CultureInfo.InvariantCulture));Add(cmd,"Description","清空指定磁盘并创建系统、Windows 与恢复分区");
-    Add(cmd,"Path","cmd.exe /c \"("+string.Join(" & ",commands.Select(c=>"echo "+c))+@") > X:\UnattendLocal-diskpart.txt && diskpart.exe /s X:\UnattendLocal-diskpart.txt"+"\"");
+    Add(cmd,"Path",AutoPartitionSettings.Command(p));
    }
   }
  }

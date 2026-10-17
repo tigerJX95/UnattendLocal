@@ -4,7 +4,7 @@
 
 UnattendLocal 是基于 [Christoph Schneegans 的 UnattendGenerator](https://github.com/cschneegans/unattend-generator) 开发的中文 Windows 桌面配置工具，用于在本地编辑、检查和生成 Windows 10 / 11 的 `autounattend.xml`。
 
-当前版本：**V1.0.1**。修复 XML 导入与界面载入，支持单网卡静态 IPv4，采用 MIT 项目许可。工具用于准备安装配置，不会在当前电脑执行生成的安装脚本。
+当前版本：**V1.1**。新增系统分区大小与自动分区前暂停，支持静态 IPv4 与 XML 导入编辑，采用 MIT 项目许可。工具用于准备安装配置，不会在当前电脑执行生成的安装脚本。
 
 ## 💡 开发初衷
 
@@ -24,7 +24,7 @@ UnattendLocal 是基于 [Christoph Schneegans 的 UnattendGenerator](https://git
 | :---: | :---: |
 | ![配置方案：浅色主题](docs/images/overview.png) | ![版本与密钥：深色主题](docs/images/edition-and-key-dark.png) |
 
-截图来自 V0.1 pre41 的实际运行界面，用于展示浅色与深色主题；当前 V1.0.1 已调整导航顺序并新增部分设置，实际界面以当前版本为准。
+截图来自 V0.1 pre41 的实际运行界面，用于展示浅色与深色主题；当前 V1.1 已调整导航顺序并新增部分设置，实际界面以当前版本为准。
 
 ## ✨ 主要功能
 
@@ -34,7 +34,7 @@ UnattendLocal 是基于 [Christoph Schneegans 的 UnattendGenerator](https://git
 
 - 通过顶部放大镜或 Ctrl+F 搜索中英文设置名称与别名，切页定位并高亮结果。
 - 配置安装架构、显示语言、区域、键盘、时区、计算机名及安装版本 / 产品密钥。
-- 配置镜像选择、已有分区或自动分区、CompactOS；涉及清空或格式化时显示风险说明并要求核对。
+- 配置镜像选择、已有分区或自动分区、系统分区大小、分区前暂停及 CompactOS；涉及清空或格式化时显示风险说明并要求核对。
 - 配置本地账户、内置 Administrator 首次登录、密码、密码到期与锁定策略，以及 WPA2 / WPA3 / 开放 Wi-Fi、无线配置 XML、离线安装和 OOBE。
 - 配置资源管理器、开始菜单、任务栏、系统桌面图标、视觉效果、配色、纯色或图片背景及锁屏图片。
 - 按项选择 60 个应用与系统能力移除项目，提供中文影响说明、关键词搜索和选择摘要，默认不勾选。
@@ -46,21 +46,23 @@ UnattendLocal 是基于 [Christoph Schneegans 的 UnattendGenerator](https://git
 - 保存和恢复 JSON 方案，提供配置摘要、推荐差异、检查、脱敏预览和 XML 导出。
 - 导入已有 XML 后编辑已支持设置，保留未知内容；遇到无法可靠合并的修改时停止导出并说明原因。
 
-## 🐛 V1.0.1 更新
+## ✨ V1.1 更新
 
-- 修复导入 XML 时程序触发自定义配置起点选择的问题，保留已解析的语言、SKU、账户、CompactOS、应用移除、任务栏和脚本设置。
-- 兼容已识别的另一版脚本日志外壳及重复路径分隔符，还原完整旧版应用移除和其他已支持的执行流程。
-- 完善原文件路径的合并匹配，支持还原后的配置继续编辑、保存和导出；未修改的原内容保留。
-- 未完整识别或被改写的脚本继续只读保护，以实际 XML 和完整执行流程为准。
+- 自动分区支持指定系统分区大小；留空继续使用 GPT 300 MB / MBR 500 MB 的布局默认值。
+- 可在目标 Windows PE 执行自动分区前显示目标编号并暂停，按任意键继续；默认关闭。
+- 两项设置同步接入保存、摘要、帮助、搜索和 XML 导入编辑。修改设置会取消危险操作确认。
+- 被改写或不完整的自动分区流程继续原文保留，不能由新控件覆盖。
+
+[自动分区说明](docs/AutoPartition.md)
 
 ## 📦 下载与使用
 
-从仓库的 **Releases** 页面下载并直接运行对应的 `UnattendLocal_V1.0.1_x64_SelfContained.exe` 或 `UnattendLocal_V1.0.1_x64_FrameworkDependent.exe`：
+从仓库的 **Releases** 页面下载并直接运行对应的 `UnattendLocal_V1.1_x64_SelfContained.exe` 或 `UnattendLocal_V1.1_x64_FrameworkDependent.exe`：
 
 | 程序文件 | 运行要求 |
 | --- | --- |
-| `UnattendLocal_V1.0.1_x64_SelfContained.exe` | 集成 .NET 运行时，无需单独安装；通常选择此版。 |
-| `UnattendLocal_V1.0.1_x64_FrameworkDependent.exe` | 文件较小，需安装 .NET 10 Desktop Runtime x64。 |
+| `UnattendLocal_V1.1_x64_SelfContained.exe` | 集成 .NET 运行时，无需单独安装；通常选择此版。 |
+| `UnattendLocal_V1.1_x64_FrameworkDependent.exe` | 文件较小，需安装 .NET 10 Desktop Runtime x64。 |
 
 两版功能相同。首次安装测试建议使用虚拟机。
 

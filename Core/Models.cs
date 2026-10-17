@@ -177,6 +177,8 @@ public class InstallPlan : Observable {
  private int? _TargetDiskId; public int? TargetDiskId {get=>_TargetDiskId;set{if(_TargetDiskId==value)return;ClearDiskConsent();Set(ref _TargetDiskId,value);}}
  private int? _TargetPartitionId; public int? TargetPartitionId {get=>_TargetPartitionId;set{if(_TargetPartitionId==value)return;ClearDiskConsent();Set(ref _TargetPartitionId,value);}}
  private string _DiskLayout="UEFI / GPT"; public string DiskLayout {get=>_DiskLayout;set{if(_DiskLayout==value)return;ClearDiskConsent();Set(ref _DiskLayout,value);}}
+ private int? _SystemPartitionSizeMB; public int? SystemPartitionSizeMB {get=>_SystemPartitionSizeMB;set{if(_SystemPartitionSizeMB==value)return;ClearDiskConsent();Set(ref _SystemPartitionSizeMB,value);}}
+ private bool _PauseBeforeFormatting; public bool PauseBeforeFormatting {get=>_PauseBeforeFormatting;set{if(_PauseBeforeFormatting==value)return;ClearDiskConsent();Set(ref _PauseBeforeFormatting,value);}}
  private int _RecoverySizeMB=1536; public int RecoverySizeMB {get=>_RecoverySizeMB;set{if(_RecoverySizeMB==value)return;ClearDiskConsent();Set(ref _RecoverySizeMB,value);}}
  private bool _FormatExistingPartition; public bool FormatExistingPartition {get=>_FormatExistingPartition;set{if(_FormatExistingPartition==value)return;ConfirmFormatPartition=false;Set(ref _FormatExistingPartition,value);}}
  private bool _ConfirmWipeDisk; public bool ConfirmWipeDisk {get=>_ConfirmWipeDisk;set=>Set(ref _ConfirmWipeDisk,value);}

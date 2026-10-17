@@ -74,6 +74,8 @@ public static class SettingsSearchCatalog
         new("格式化目标已有分区为 NTFS（默认关闭）", "镜像与分区", 3, "SettingAnchor064", "diskformat", "FormatExistingPartition Format Existing Partition  "),
         new("自定义分区脚本（Windows PE / DiskPart）", "镜像与分区", 3, "DiskPartExampleEditor", "diskscript", "DiskPartScript Disk Part Script  "),
         new("启动与分区类型（须与目标电脑实际启动方式一致）", "镜像与分区", 3, "SettingAnchor066", "disklayout", "DiskLayout Disk Layout UEFI / GPT BIOS / MBR "),
+        new("系统分区大小", "镜像与分区", 3, "SystemPartitionSizeEditor", "systempartition", "SystemPartitionSizeMB EFI ESP system partition size 系统保留分区 FAT32 NTFS GPT MBR 系统盘 分区容量"),
+        new("执行自动分区前暂停", "镜像与分区", 3, "PauseBeforeFormattingCheck", "partitionpause", "PauseBeforeFormatting pause before formatting diskpart 分区前暂停 格式化前确认 清空前暂停"),
         new("恢复分区大小（MB，默认 1536；须容纳 WinRE 镜像并预留维护空间）", "镜像与分区", 3, "SettingAnchor067", "disklayout", "RecoverySizeMB Recovery Size MB  "),
         new("危险：安装时可能删除数据", "镜像与分区", 3, "SettingAnchor068", "", "   "),
         new("账户创建方式", "用户与密码", 4, "SettingAnchor069", "", "   "),

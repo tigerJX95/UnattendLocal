@@ -1,5 +1,6 @@
 namespace UnattendLocal.Core;
 public class ImportedXml {
+ public bool AutoPartitionReadOnly {get;set;}
  public int StaticIPv4ImportVersion {get;set;}
  public bool StaticIPv4ReadOnly {get;set;}
  public int FirstLogonImportVersion {get;set;}

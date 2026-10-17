@@ -4,7 +4,7 @@
 
 UnattendLocal is a Chinese-language Windows desktop tool based on [Christoph Schneegans’ UnattendGenerator](https://github.com/cschneegans/unattend-generator). It lets you edit, check, and generate `autounattend.xml` for Windows 10 / 11 locally.
 
-Current version: **V1.0.1**. This release fixes XML import and UI loading, supports single-adapter static IPv4 configuration and uses the MIT project license. The tool prepares installation configuration; it does not run generated scripts on your current computer.
+Current version: **V1.1**. This release adds system-partition sizing and a pre-partition pause, supports static IPv4 and XML import/editing, and uses the MIT project license. The tool prepares installation configuration; it does not run generated scripts on your current computer.
 
 ## 💡 Why this project exists
 
@@ -26,7 +26,7 @@ See [first-logon options](docs/FirstLogon.md) and [XML import behavior](docs/Xml
 | :---: | :---: |
 | ![Configuration plans in the light theme](docs/images/overview.png) | ![Edition and product key in the dark theme](docs/images/edition-and-key-dark.png) |
 
-These are actual V0.1 pre41 screenshots showing the light and dark themes. The current V1.0.1 release includes navigation changes and additional settings; refer to the current application for the latest interface. The application interface is currently in Chinese.
+These are actual V0.1 pre41 screenshots showing the light and dark themes. The current V1.1 release includes navigation changes and additional settings; refer to the current application for the latest interface. The application interface is currently in Chinese.
 
 ## ✨ Main features
 
@@ -36,7 +36,7 @@ These are actual V0.1 pre41 screenshots showing the light and dark themes. The c
 
 - Search settings through the toolbar magnifier or Ctrl+F using Chinese/English names and aliases, then navigate and highlight the result.
 - Configure architecture, display language, region, keyboard, time zone, computer name, installation edition, and product keys.
-- Configure image selection, existing or automatic partitioning, and CompactOS. Destructive disk operations include risk explanations and confirmation.
+- Configure image selection, existing or automatic partitioning, system-partition sizing and a pre-partition pause, and CompactOS. Destructive disk operations include risk explanations and confirmation.
 - Configure local accounts, passwords, initial sign-in, password expiration and lockout policies, Wi-Fi, offline installation, and OOBE.
 - Configure File Explorer, the Start menu, taskbar, desktop icons, visual effects, colors, backgrounds, and lock-screen images.
 - Select among 60 application and system capability removal items, with Chinese impact descriptions, keyword search, and a selection summary. Items are unchecked by default.
@@ -48,16 +48,18 @@ These are actual V0.1 pre41 screenshots showing the light and dark themes. The c
 - Save and restore JSON plans; review summaries, recommended-setting differences, checks, redacted previews, and XML exports.
 - Import existing XML and edit supported settings while preserving unknown content. Export stops with an explanation when changes cannot be merged reliably.
 
-## 🐛 V1.0.1 updates
+## ✨ V1.1 updates
 
-- Fixed XML import triggering the custom-plan starting-point prompt, preserving parsed language, SKU, account, CompactOS, app-removal, taskbar and script settings.
-- Added compatibility for a recognized alternative script logging wrapper and repeated path separators, restoring complete historical app-removal and other supported execution flows.
-- Improved path matching during XML merging so restored settings remain editable, saveable and exportable; unchanged source content is retained.
-- Incomplete or altered scripts remain protected and read-only. Restoration relies on actual XML and complete execution flows.
+- Added configurable system-partition size for automatic disk wiping/partitioning. A blank value retains the layout defaults: GPT 300 MB / MBR 500 MB.
+- Added an optional pause in target Windows PE before automatic partitioning, showing the target disk number and waiting for a keypress. Disabled by default.
+- Integrated both settings into saved plans, summaries, help, search and XML import/editing. Changes clear destructive-operation consent.
+- Altered or incomplete automatic-partition flows retain their source and cannot be overwritten through these controls.
+
+[Automatic partition options](docs/AutoPartition.md)
 
 ## 📦 Download and usage
 
-Download and run the matching Windows x64 executable from the repository’s **Releases** page: `UnattendLocal_V1.0.1_x64_SelfContained.exe` or `UnattendLocal_V1.0.1_x64_FrameworkDependent.exe`. Choose `UnattendLocal_V1.0.1_x64_SelfContained.exe` for a bundled .NET runtime, or `UnattendLocal_V1.0.1_x64_FrameworkDependent.exe` if .NET 10 Desktop Runtime x64 is already installed. Both have the same features. Use a virtual machine for initial testing.
+Download and run the matching Windows x64 executable from the repository’s **Releases** page: `UnattendLocal_V1.1_x64_SelfContained.exe` or `UnattendLocal_V1.1_x64_FrameworkDependent.exe`. Choose `UnattendLocal_V1.1_x64_SelfContained.exe` for a bundled .NET runtime, or `UnattendLocal_V1.1_x64_FrameworkDependent.exe` if .NET 10 Desktop Runtime x64 is already installed. Both have the same features. Use a virtual machine for initial testing.
 
 1. Choose a recommended scenario or a custom configuration and enter the required account and image settings.
 2. Adjust system, appearance, and application removal options as needed.

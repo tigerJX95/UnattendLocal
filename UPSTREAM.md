@@ -123,3 +123,5 @@ V0.15 · 2026-10-16：官网发布仍标注 27237f8，与固定基线一致；�
 V0.16 · 2026-10-17：增加本地关于、使用说明与第三方许可窗口，不修改 vendor。许可文本来源与版本见 THIRD_PARTY_NOTICES.md。保留原生成核心对“不自动登录＋自动清理隐私文件”的限制，不新增自动勾选联动。法律信息保留“依法不得排除或限制的责任”边界；措辞核对参考最高人民法院公布的《中华人民共和国民法典》第506条：https://www.court.gov.cn/zixun/xiangqing/233181.html 。
 
 V1.0 · 2026-10-17：固定 vendor 保持不变。新增本地单网卡静态 IPv4，使用微软原生 specialize/TCPIP、DNS-Client 组件，MAC 标识、子项顺序、默认路由及 DNS keyValue 顺序依据官方文档；来源见 docs/StaticIPv4.md。本项目本地界面与适配代码采用 MIT（Copyright (c) 2026 tigerJX95），保留各第三方原版权和许可，标准文本来源：https://opensource.org/license/mit 。V1.0 不表示覆盖所有上游高级设置，也不将自动检查视为 Windows 安装验收。
+
+V1.1 新增前核对 · 2026-10-17：官网发布仍标注 27237f82e9a8498d9c5bab7d398dc34b7682a1e8，对应该提交 Disk.cs 下载后与固定 vendor 逐字节一致。GitHub commits API 本轮返回 403，未声称已确认尚未发布的仓库最新变更。只把系统分区大小与分区前暂停接入本地既有自动分区路径；不更新 vendor，不将其描述为完整 PE 流程已接入。微软当前 GPT 文档列出 512/512e 至少 200 MB、4K 原生扇区至少 300 MB；本工具不查询目标扇区，采用 GPT 300 MB 下限、8192 MB 应用上限，MBR 下限 100 MB。来源见 docs/AutoPartition.md。

@@ -1,5 +1,6 @@
 using System.Text;using System.Xml;using UnattendLocal.Core;
 int count=0;var g=new GeneratorService();
+if(args.Contains("--partition-only")){Console.WriteLine($"V1.1 partition: {AutoPartitionTests.Run(g)} checks passed.");return;}
 if(args.Contains("--import-only")){Console.WriteLine($"V1.0.1 import: {ImportCompatibilityTests.Run(g)} checks passed.");return;}
 if(args.Contains("--network-only")){Console.WriteLine($"V1.0 network: {StaticNetworkTests.Run(g)} checks passed.");return;}
 void Check(bool ok,string name){if(!ok)throw new Exception(name);Console.WriteLine("PASS "+name);count++;}
@@ -1993,4 +1994,5 @@ var collisionDisplay15=XmlPlanImport.Import(collisionDoc15.OuterXml,g);collision
 vm15.Plan=XmlPlanImport.Import(collisionDoc15.OuterXml,g);var preservedMode15=vm15.SelectedFirstLogon;vm15.SelectedFirstLogon=FirstLogonSettings.Builtin;Check(!vm15.CanEditFirstLogon&&vm15.SelectedFirstLogon.Contains("只读")&&vm15.FirstLogonModes.Contains(preservedMode15)&&!vm15.Plan.UseBuiltinAdministrator,"read-only UI shows preserved source mode and refuses mode edits");
 count+=StaticNetworkTests.Run(g);
 count+=ImportCompatibilityTests.Run(g);
-Console.WriteLine($"V1.0.1 total: {count} checks passed.");
+count+=AutoPartitionTests.Run(g);
+Console.WriteLine($"V1.1 total: {count} checks passed.");
