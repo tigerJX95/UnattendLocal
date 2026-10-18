@@ -41,6 +41,7 @@ public static class PlanStore {
    FirstLogonSettings.RefreshLoaded(p);
    StaticIPv4Settings.NormalizeLoaded(p,document.RootElement);
    AutoPartitionSettings.NormalizeLoaded(p,document.RootElement);
+   SetupDriverSettings.NormalizeLoaded(p,document.RootElement);
   }
   p.ClearDiskConsent();
   return p;

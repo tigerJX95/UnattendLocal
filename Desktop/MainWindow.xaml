@@ -1,4 +1,4 @@
-<Window xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:local="clr-namespace:UnattendLocal.Desktop" xmlns:core="clr-namespace:UnattendLocal.Core;assembly=Core" x:Class="UnattendLocal.Desktop.MainWindow" Icon="Assets/App.ico" Title="Windows 无人值守配置工具 · V1.2" Width="1060" Height="780" MinWidth="850" MinHeight="620" Background="{DynamicResource CanvasBrush}" Foreground="{DynamicResource ForegroundBrush}" FontFamily="Microsoft YaHei UI" FontSize="14">
+<Window xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:local="clr-namespace:UnattendLocal.Desktop" xmlns:core="clr-namespace:UnattendLocal.Core;assembly=Core" x:Class="UnattendLocal.Desktop.MainWindow" Icon="Assets/App.ico" Title="Windows 无人值守配置工具 · V1.3" Width="1060" Height="780" MinWidth="850" MinHeight="620" Background="{DynamicResource CanvasBrush}" Foreground="{DynamicResource ForegroundBrush}" FontFamily="Microsoft YaHei UI" FontSize="14">
   <DockPanel>
     <Border DockPanel.Dock="Top" Background="{DynamicResource SurfaceBrush}" Padding="24,16">
       <Grid>
@@ -355,6 +355,20 @@
             <CheckBox x:Name="SettingAnchor053" Content="使用 $OEM$ 配置集（UseConfigurationSet）" IsChecked="{Binding Plan.UseConfigurationSet}" ToolTip="{Binding DataContext.HelpTips[configset],RelativeSource={RelativeSource AncestorType=Window}}"/>
             <TextBlock Style="{StaticResource ExplanationText}" Text="　　默认关闭。需自行准备与应答文件配套的 $OEM$ 目录；$$ 对应 Windows 目录，$1 对应系统盘根目录。本工具不创建、打包或复制介质文件，也不自动安装其中的应用。" Foreground="{DynamicResource SecondaryBrush}"/>
             <TextBlock Style="{StaticResource ExplanationText}" Text="　　由 Windows Setup 处理配置集，可能覆盖同路径文件。请核对介质内容；取消不删除已复制文件。自定义 PE 脚本中的复制流程仍需用原工具调整。" Foreground="{DynamicResource WarningBrush}" Visibility="{Binding Plan.UseConfigurationSet,Converter={StaticResource VisibleWhen}}"/>
+          </StackPanel></Border>
+
+          <Border Style="{StaticResource Card}"><StackPanel>
+            <TextBlock Text="安装阶段驱动目录" FontSize="20" FontWeight="SemiBold" Margin="0,0,0,16"/>
+            <CheckBox x:Name="SetupDriversCheck" Content="从指定目录添加安装驱动（Windows Setup / INF）" IsChecked="{Binding Plan.UseSetupDrivers}" IsEnabled="{Binding CanEditSetupDrivers}" ToolTip="{Binding HelpTips[setupdrivers]}"/>
+            <TextBlock Style="{StaticResource ExplanationText}" Text="默认关闭。需自行准备已解压且含 INF、SYS、CAT 等配套文件的驱动目录；匹配目标 Windows、架构及签名要求。工具不下载、复制或安装当前电脑的驱动。" Foreground="{DynamicResource SecondaryBrush}"/>
+            <StackPanel IsEnabled="{Binding IsSetupDrivers}">
+              <TextBlock Text="目标 Windows PE 可访问的目录，每行一个（最多 8 个）"/>
+              <TextBox x:Name="SetupDriverPathsEditor" Text="{Binding Plan.SetupDriverPaths,UpdateSourceTrigger=PropertyChanged}" AcceptsReturn="True" TextWrapping="NoWrap" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto" Height="125" FontFamily="Consolas" ToolTip="{Binding HelpTips[setupdriverpaths]}"/>
+              <TextBlock Style="{StaticResource ExplanationText}" Text="例如 E:\Drivers\Storage 或 \\server\drivers\storage。不自动填入示例；请按目标 PE 的实际盘符填写，不支持变量、通配符或访问凭据。" Foreground="{DynamicResource SecondaryBrush}"/>
+            </StackPanel>
+            <TextBlock Style="{StaticResource ExplanationText}" Text="{Binding SetupDriversSummary}"/>
+            <TextBlock Style="{StaticResource ExplanationText}" Text="网络目录需 PE 已有网络驱动和访问权限；介质盘符可能变化，驱动目录不能依赖随后被清空的分区。修改驱动设置后需重新确认磁盘风险。此功能不注入 boot.wim，也不替代虚拟机工具安装；导入的自定义 PE 驱动脚本仍按原文保留。" Foreground="{DynamicResource WarningBrush}"/>
+            <TextBlock Style="{StaticResource ExplanationText}" Text="原 XML 的驱动或 PE 流程未完整映射，目录设置只读；请核对配置方案页的导入说明。" Foreground="{DynamicResource WarningBrush}" Visibility="{Binding HasReadonlySetupDrivers,Converter={StaticResource VisibleWhen}}"/>
           </StackPanel></Border>
 
           <Border Style="{StaticResource Card}"><StackPanel>

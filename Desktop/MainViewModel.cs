@@ -54,7 +54,7 @@ public class MainViewModel : Observable {
   }finally{IsLoadingPlan=false;}
  }}
  private UserEntry? selected;public UserEntry? SelectedUser {get=>selected;set{Set(ref selected,value);RefreshHelp();}}
- private string preview="配置完成后，点击“检查与预览”。",status="就绪 · V1.2";
+ private string preview="配置完成后，点击“检查与预览”。",status="就绪 · V1.3";
  public string Preview {get=>preview;set=>Set(ref preview,value);} public string Status {get=>status;set=>Set(ref status,value);}
  public GeneratorService Service {get;}=new();
  public List<GeneratorService.Choice> Editions=>Service.Editions;
@@ -74,6 +74,10 @@ public class MainViewModel : Observable {
  public bool IsOpenWifi=>Plan.WifiMode==WifiSettings.Open;
  public bool IsXmlWifi=>Plan.WifiMode==WifiSettings.Profile;
  public string WifiSummary=>WifiSettings.Summary(Plan);
+ public bool CanEditSetupDrivers=>SetupDriverSettings.CanEdit(Plan);
+ public bool IsSetupDrivers=>Plan.UseSetupDrivers&&CanEditSetupDrivers;
+ public bool HasReadonlySetupDrivers=>!CanEditSetupDrivers;
+ public string SetupDriversSummary=>SetupDriverSettings.Summary(Plan);
  public bool CanEditStaticIPv4=>StaticIPv4Settings.CanEdit(Plan);
  public bool IsStaticIPv4=>Plan.UseStaticIPv4&&CanEditStaticIPv4;
  public string StaticIPv4Summary=>StaticIPv4Settings.Summary(Plan);
@@ -196,7 +200,7 @@ public class MainViewModel : Observable {
  public string AutoPartitionSummary=>AutoPartitionSettings.Summary(Plan);
  public bool IsTargetDisk {get=>isTargetDisk;private set=>Set(ref isTargetDisk,value);} public bool IsExistingDisk {get=>isExistingDisk;private set=>Set(ref isExistingDisk,value);} public bool IsWipeDisk {get=>isWipeDisk;private set=>Set(ref isWipeDisk,value);} public bool IsFormatDisk {get=>isFormatDisk;private set=>Set(ref isFormatDisk,value);} public bool IsDestructiveDisk {get=>isDestructiveDisk;private set=>Set(ref isDestructiveDisk,value);}
  private string diskRisk="";public string DiskRisk {get=>diskRisk;private set=>Set(ref diskRisk,value);}
- private void RefreshInstallation(){Notify(nameof(FirstLogonModes));Notify(nameof(SelectedFirstLogon));Notify(nameof(CanEditFirstLogon));Notify(nameof(IsBuiltinAdministrator));Notify(nameof(HasReadonlyFirstLogon));IsAutomaticAccounts=Plan.AccountMode=="自动创建本地账户";NeedsRetentionConsent=IsAutomaticAccounts&&!Plan.AutoLogon&&!Plan.KeepSensitiveFiles;IsPasswordDays=IsAutomaticAccounts&&Plan.PasswordExpiration=="指定天数";var wasEnabled=CanBypassNetwork;CanBypassNetwork=Plan.AccountMode!="安装时添加微软账户";if(wasEnabled!=CanBypassNetwork)Notify(nameof(CanHideOnlineAccount));IsCustomConfiguration=Plan.ConfigurationMode=="自定义配置";IsFixedLanguage=!Plan.InteractiveLanguage;IsFixedTimeZone=Plan.TimeZoneMode=="指定时区";IsImageName=Plan.ImageSelection=="按镜像名称";IsImageIndex=Plan.ImageSelection=="按镜像索引";IsExistingDisk=Plan.DiskMode==InstallationSettings.Existing;IsWipeDisk=Plan.DiskMode==InstallationSettings.Wipe;Notify(nameof(CanEditAutoPartition));Notify(nameof(HasReadonlyAutoPartition));Notify(nameof(AutoPartitionSummary));IsScriptDisk=Plan.DiskMode==DiskScriptSettings.Mode;IsPartitionTarget=IsExistingDisk||IsScriptDisk;IsTargetDisk=IsExistingDisk||IsWipeDisk||IsScriptDisk;IsFormatDisk=IsExistingDisk&&Plan.FormatExistingPartition;IsDestructiveDisk=InstallationSettings.Destructive(Plan)||HasImportedXmlRisk;DiskRisk=InstallationSettings.DiskSummary(Plan)+(HasImportedXmlRisk?"；【危险】原 XML 另含磁盘配置或 Windows PE 命令，须核对完整原文":"");}
+ private void RefreshInstallation(){Notify(nameof(CanEditSetupDrivers));Notify(nameof(IsSetupDrivers));Notify(nameof(HasReadonlySetupDrivers));Notify(nameof(SetupDriversSummary));Notify(nameof(FirstLogonModes));Notify(nameof(SelectedFirstLogon));Notify(nameof(CanEditFirstLogon));Notify(nameof(IsBuiltinAdministrator));Notify(nameof(HasReadonlyFirstLogon));IsAutomaticAccounts=Plan.AccountMode=="自动创建本地账户";NeedsRetentionConsent=IsAutomaticAccounts&&!Plan.AutoLogon&&!Plan.KeepSensitiveFiles;IsPasswordDays=IsAutomaticAccounts&&Plan.PasswordExpiration=="指定天数";var wasEnabled=CanBypassNetwork;CanBypassNetwork=Plan.AccountMode!="安装时添加微软账户";if(wasEnabled!=CanBypassNetwork)Notify(nameof(CanHideOnlineAccount));IsCustomConfiguration=Plan.ConfigurationMode=="自定义配置";IsFixedLanguage=!Plan.InteractiveLanguage;IsFixedTimeZone=Plan.TimeZoneMode=="指定时区";IsImageName=Plan.ImageSelection=="按镜像名称";IsImageIndex=Plan.ImageSelection=="按镜像索引";IsExistingDisk=Plan.DiskMode==InstallationSettings.Existing;IsWipeDisk=Plan.DiskMode==InstallationSettings.Wipe;Notify(nameof(CanEditAutoPartition));Notify(nameof(HasReadonlyAutoPartition));Notify(nameof(AutoPartitionSummary));IsScriptDisk=Plan.DiskMode==DiskScriptSettings.Mode;IsPartitionTarget=IsExistingDisk||IsScriptDisk;IsTargetDisk=IsExistingDisk||IsWipeDisk||IsScriptDisk;IsFormatDisk=IsExistingDisk&&Plan.FormatExistingPartition;IsDestructiveDisk=InstallationSettings.Destructive(Plan)||HasImportedXmlRisk;DiskRisk=InstallationSettings.DiskSummary(Plan)+(HasImportedXmlRisk?"；【危险】原 XML 另含磁盘配置或 Windows PE 命令，须核对完整原文":"");}
  private string pendingRecommendation="wired";
  public string PendingRecommendation {get=>pendingRecommendation;set{
   if(pendingRecommendation==value||!Recommendations.Known(value))return;

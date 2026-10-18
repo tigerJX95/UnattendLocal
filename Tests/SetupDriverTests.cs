@@ -1,0 +1,66 @@
+using System.Text;
+using System.Text.Json.Nodes;
+using System.Xml;
+using UnattendLocal.Core;
+using UnattendLocal.Desktop;
+
+static class SetupDriverTests {
+ public static int Run(GeneratorService generator){
+  int count=0;void Check(bool ok,string message){if(!ok)throw new Exception(message);count++;Console.WriteLine("PASS V1.3 "+message);}
+  void Reject(Action action,string message){try{action();}catch(ArgumentException){Check(true,message);return;}throw new Exception("Expected rejection: "+message);}
+  InstallPlan Plan(){var p=InstallPlan.New();p.Users[0].Password="SyntheticDrivers1!";return p;}
+  string Xml(InstallPlan p){p.ConfirmWipeDisk=true;p.ConfirmFormatPartition=true;p.ConfirmDiskScript=true;p.ConfirmImportedXmlRisk=true;return Encoding.UTF8.GetString(generator.Generate(p));}
+  string Strip(string xml){var d=XmlMerge.Read(xml);foreach(var c in d.SelectNodes("//comment()")!.Cast<XmlComment>().ToArray())c.ParentNode!.RemoveChild(c);return d.OuterXml;}
+  XmlElement Component(XmlDocument d)=>d.SelectNodes("//*[local-name()='component']")!.Cast<XmlElement>().Single(c=>c.GetAttribute("name")==SetupDriverSettings.ComponentName);
+  const string paths="E:\\Drivers\\Storage\r\n\\\\server\\drivers\\Net & 中文";
+  var fresh=Plan();Check(!fresh.UseSetupDrivers&&fresh.SetupDriverPaths.Length==0&&!Xml(fresh).Contains(SetupDriverSettings.ComponentName),"default adds no driver setting");fresh.SetupDriverPaths="bad input";Check(Xml(fresh).Length>0,"disabled invalid retained text does not affect generation");
+  foreach(string path in new[]{@"E:\Drivers\Storage",@"e:\Drivers\中文",@"E:\",@"\\server\share",@"\\server\share\folder\",@"E:\Drivers\Net & storage",@"\\server\drivers$\storage"})Check(SetupDriverSettings.ReadPaths(path).Single()==path,"valid directory "+path);
+  foreach(string path in new[]{""," \n","Drivers",".\\Drivers","E:Drivers","/drivers",@"%SystemDrive%\Drivers",@"E:\Drivers\*.inf",@"E:\Drivers\x.inf",@"E:\Drivers\setup.exe",@"E:\Drivers.zip",@"\\?\E:\Drivers",@"\\.\PhysicalDrive0",@"\\server",@"E:\a\..\Drivers",@"E:\a\\Drivers",@"E:\folder.\Drivers","E:\\Bad\tName","E:\\Bad\0Name","E:\\Bad\ufffeName","E:\\Bad\ud800Name",@"E:\x:stream",@"\\server\share\x:stream",@"E:\a?",@"E:\a/dir"})Reject(()=>SetupDriverSettings.ReadPaths(path),"invalid directory rejected "+Convert.ToHexString(Encoding.Unicode.GetBytes(path)));
+  Check(SetupDriverSettings.ReadPaths("E:\\"+new string('a',256)).Single().Length==259,"259 character boundary accepted");Reject(()=>SetupDriverSettings.ReadPaths("E:\\"+new string('a',257)),"260 character directory rejected");Check(SetupDriverSettings.ReadPaths(string.Join("\n",Enumerable.Range(1,8).Select(i=>@"E:\Drivers\"+i))).Length==8,"eight directory boundary accepted");Reject(()=>SetupDriverSettings.ReadPaths(string.Join("\n",Enumerable.Range(1,9).Select(i=>@"E:\Drivers\"+i))),"ninth directory rejected");Reject(()=>SetupDriverSettings.ReadPaths("E:\\Drivers\ne:\\drivers\\"),"case and trailing separator duplicates rejected");
+  foreach(string arch in new[]{"amd64","arm64","x86"})foreach(string mode in new[]{InstallationSettings.Manual,InstallationSettings.Existing,InstallationSettings.Wipe})foreach(bool hidden in new[]{false,true}){
+   var p=Plan();p.UseSetupDrivers=true;p.SetupDriverPaths=paths;p.Architecture=arch;p.HidePowerShellWindows=hidden;p.DiskMode=mode;p.TargetDiskId=1;p.TargetPartitionId=3;string xml=Xml(p);var d=XmlMerge.Read(xml);var c=Component(d);var keyNodes=c.SelectNodes("//*[local-name()='PathAndCredentials']")!.Cast<XmlElement>().ToArray();string label=arch+mode+hidden;
+   Check(c.ParentNode!.Attributes!["pass"]!.Value=="windowsPE"&&c.GetAttribute("processorArchitecture")==arch&&keyNodes.Select(n=>n.GetAttribute("keyValue","http://schemas.microsoft.com/WMIConfig/2002/State")).SequenceEqual(new[]{"1","2"}),"native phase, architecture and unique keys "+label);
+   Check(SetupDriverSettings.Inspect(d) is {Present:true,Known:true,Paths.Length:2},"native component fully recognized "+label);
+   foreach(bool snapshot in new[]{false,true}){
+    string source=snapshot?xml:Strip(xml);var restored=XmlPlanImport.Import(source,generator);
+    Check(restored.UseSetupDrivers&&restored.SetupDriverPaths==paths&&!restored.ImportedXml!.SetupDriversReadOnly,"actual XML restoration "+snapshot+label);
+    Check(XmlMerge.Equal(XmlMerge.Read(source).DocumentElement,XmlMerge.Read(Xml(restored)).DocumentElement),"unmodified XML preserved "+snapshot+label);
+   }
+  }
+  var risk=Plan();risk.ConfirmWipeDisk=true;risk.ConfirmImportedXmlRisk=true;risk.UseSetupDrivers=true;Check(!risk.ConfirmWipeDisk&&!risk.ConfirmImportedXmlRisk,"driver selection resets disk consent");risk.ConfirmWipeDisk=true;risk.SetupDriverPaths=paths;Check(!risk.ConfirmWipeDisk,"driver directory change resets disk consent");risk.ConfirmWipeDisk=true;risk.SetupDriverPaths=paths;Check(risk.ConfirmWipeDisk,"same directory text keeps consent");
+  var enabled=Plan();enabled.UseSetupDrivers=true;enabled.SetupDriverPaths=paths;string native=Strip(Xml(enabled));
+  foreach(bool secrets in new[]{false,true}){var copy=PlanStore.Deserialize(PlanStore.Serialize(enabled,secrets));Check(copy.UseSetupDrivers&&copy.SetupDriverPaths==paths,"JSON mode preserves driver selection "+secrets);}
+  var editable=XmlPlanImport.Import(native,generator);editable.SetupDriverPaths=@"F:\Drivers\VMD";editable.ComputerName="EDITDRIVERS";var back=XmlPlanImport.Import(Xml(editable),generator);Check(back.SetupDriverPaths==@"F:\Drivers\VMD"&&back.ComputerName=="EDITDRIVERS","driver and unrelated edits roundtrip together");editable.UseSetupDrivers=false;Check(!Xml(editable).Contains(SetupDriverSettings.ComponentName),"turning off removes only recognized driver component");
+  var added=XmlPlanImport.Import(Strip(Xml(Plan())),generator);added.UseSetupDrivers=true;added.SetupDriverPaths=paths;Check(XmlPlanImport.Import(Xml(added),generator).SetupDriverPaths==paths,"known original without drivers can add native directories");
+  foreach(string mutation in new[]{"credential","extra-child","extra-path-attribute","duplicate-component","duplicate-key","wrong-phase","unknown-key","extra-driver-root","bad-path"}){
+   var d=XmlMerge.Read(native);var c=Component(d);var row=(XmlElement)c.SelectSingleNode("*[local-name()='DriverPaths']/*[local-name()='PathAndCredentials']")!;
+   XmlElement Add(XmlNode parent,string name,string? value=null){var n=d.CreateElement(name,XmlMerge.Namespace);if(value!=null)n.InnerText=value;parent.AppendChild(n);return n;}
+   switch(mutation){
+    case "credential":var auth=Add(row,"Credentials");Add(auth,"Domain","SyntheticDomain");Add(auth,"Username","SyntheticUser");Add(auth,"Password","DriverSecret13!");break;
+    case "extra-child":Add(c,"UnknownSetting","keep");break;
+    case "extra-path-attribute":((XmlElement)row.FirstChild!).SetAttribute("custom","keep");break;
+    case "duplicate-component":c.ParentNode!.AppendChild(c.CloneNode(true));break;
+    case "duplicate-key":((XmlElement)row.NextSibling!).SetAttribute("keyValue","http://schemas.microsoft.com/WMIConfig/2002/State","1");break;
+    case "wrong-phase":c.ParentNode!.RemoveChild(c);d.SelectSingleNode("//*[local-name()='settings' and @pass='specialize']")!.AppendChild(c);break;
+    case "unknown-key":row.SetAttribute("keyValue","http://schemas.microsoft.com/WMIConfig/2002/State","storage");break;
+    case "extra-driver-root":c.AppendChild(c.FirstChild!.CloneNode(true));break;
+    case "bad-path":row.FirstChild!.InnerText="relative\\driver";break;
+   }
+   var p=XmlPlanImport.Import(d.OuterXml,generator);Check(!p.UseSetupDrivers&&p.ImportedXml!.SetupDriversReadOnly&&p.ImportedXml.Notices.Contains(SetupDriverSettings.ReadOnlyNotice),"unknown structure readonly "+mutation);
+   if(p.ImportedXml!.Blockers.Length==0){p.ComputerName="KEEPDRIVERS";var output=XmlMerge.Read(Xml(p));Check(d.SelectNodes("//*[local-name()='component']")!.Cast<XmlElement>().Where(n=>n.GetAttribute("name")==SetupDriverSettings.ComponentName).Zip(output.SelectNodes("//*[local-name()='component']")!.Cast<XmlElement>().Where(n=>n.GetAttribute("name")==SetupDriverSettings.ComponentName)).All(pair=>XmlMerge.Equal(pair.First,pair.Second)),"unknown source preserved through unrelated edit "+mutation);
+    if(mutation=="credential"){var preview=GeneratorService.Preview(Encoding.UTF8.GetBytes(Xml(p)));Check(!preview.Contains("DriverSecret13!")&&preview.Contains("驱动访问密码已遮蔽"),"unknown credential password masked in preview");var sanitized=PlanStore.Serialize(p,false);Check(!sanitized.Contains("DriverSecret13!"),"omitting credentials removes private XML source");}
+    p.UseSetupDrivers=true;p.SetupDriverPaths=paths;Reject(()=>Xml(p),"unknown source refuses new driver overlay "+mutation);
+   }
+  }
+  var scripted=XmlMerge.Read(Strip(Xml(Plan())));var pe=scripted.CreateElement("PEScriptCopy","https://schneegans.de/windows/unattend-generator/");pe.InnerText="echo Synthetic custom PE";scripted.DocumentElement!.AppendChild(pe);var protectedPlan=XmlPlanImport.Import(scripted.OuterXml,generator);Check(protectedPlan.ImportedXml!.SetupDriversReadOnly&&!protectedPlan.UseSetupDrivers,"custom PE does not claim native driver support");protectedPlan.UseSetupDrivers=true;protectedPlan.SetupDriverPaths=paths;Reject(()=>Xml(protectedPlan),"custom PE cannot acquire ignored native driver overlay");
+  // Pre-V1.3 imported JSON: restore recognized source, update only its missing baseline component.
+  var pending=XmlPlanImport.Import(native,generator);pending.ComputerName="PENDINGDRIVERS";var old=JsonNode.Parse(PlanStore.Serialize(pending,true))!.AsObject();old.Remove(nameof(InstallPlan.UseSetupDrivers));old.Remove(nameof(InstallPlan.SetupDriverPaths));old["ImportedXml"]!.AsObject().Remove("SetupDriversImportVersion");old["ImportedXml"]!.AsObject().Remove("SetupDriversReadOnly");var baseline=XmlMerge.Read(pending.ImportedXml!.BaselineXml);Component(baseline).ParentNode!.RemoveChild(Component(baseline));old["ImportedXml"]!["BaselineXml"]=baseline.OuterXml;old["ImportedXml"]!["Notices"]=new JsonArray("原文保留，未实现的组件："+SetupDriverSettings.ComponentName);
+  var migrated=PlanStore.Deserialize(old.ToJsonString());Check(migrated.UseSetupDrivers&&migrated.SetupDriverPaths==paths&&migrated.ComputerName=="PENDINGDRIVERS"&&migrated.ImportedXml!.Blockers.Length==0&&!migrated.ImportedXml.Notices.Any(n=>n.Contains("未实现的组件")),"old plan restores only new fields and removes obsolete notice");Check(XmlPlanImport.Import(Xml(migrated),generator).SetupDriverPaths==paths,"migrated editing baseline exports correctly");
+  var changedArchitecture=JsonNode.Parse(old.ToJsonString())!.AsObject();changedArchitecture[nameof(InstallPlan.Architecture)]="arm64";var architecturePlan=PlanStore.Deserialize(changedArchitecture.ToJsonString());Check(architecturePlan.Architecture=="arm64"&&architecturePlan.UseSetupDrivers&&Component(XmlMerge.Read(architecturePlan.ImportedXml!.BaselineXml)).GetAttribute("processorArchitecture")=="amd64","migration keeps pending architecture and original baseline architecture separate");
+  var customBaseline=JsonNode.Parse(old.ToJsonString())!.AsObject();var customDoc=XmlMerge.Read(baseline.OuterXml);var peCopy=customDoc.CreateElement("PEScriptCopy","https://schneegans.de/windows/unattend-generator/");customDoc.DocumentElement!.AppendChild(peCopy);customBaseline["ImportedXml"]!["BaselineXml"]=customDoc.OuterXml;var blockedBaseline=PlanStore.Deserialize(customBaseline.ToJsonString());Check(blockedBaseline.ComputerName=="PENDINGDRIVERS"&&blockedBaseline.ImportedXml!.Blockers.Any(n=>n.Contains("驱动编辑基准")),"incompatible migration keeps editable plan and adds blocker");
+  var uncertain=JsonNode.Parse(old.ToJsonString())!.AsObject();uncertain[nameof(InstallPlan.UseSetupDrivers)]=false;var blocked=PlanStore.Deserialize(uncertain.ToJsonString());Check(blocked.ComputerName=="PENDINGDRIVERS"&&!blocked.UseSetupDrivers&&blocked.ImportedXml!.Blockers.Any(n=>n.Contains("驱动编辑基准")),"ambiguous migration preserves pending choices and blocks export");Reject(()=>Xml(blocked),"uncertain migration requires reimport");
+  var vm=new MainViewModel{Plan=Plan()};Check(vm.CanEditSetupDrivers&&!vm.IsSetupDrivers&&!vm.HasReadonlySetupDrivers,"new controls default off and editable");vm.Plan.UseSetupDrivers=true;Check(vm.IsSetupDrivers&&vm.ConfigurationSummary.Contains("目录待完善")&&Recommendations.MissingInputs(vm.Plan).Contains("驱动目录"),"summary, required input and enable state refresh");vm.Plan.SetupDriverPaths=paths;Check(vm.SetupDriversSummary.Contains("Storage")&&SummaryPresentation.FromText(vm.ConfigurationSummary).Sections.Single(s=>s.Kind=="protection").Rows.Any(r=>r.SourceLabel=="安装驱动目录"),"driver summary grouped under installation");Recommendations.Apply(vm.Plan,"wired");Check(vm.Plan.UseSetupDrivers&&vm.Plan.SetupDriverPaths==paths,"recommendations preserve hardware driver input");vm.Plan=protectedPlan;Check(!vm.CanEditSetupDrivers&&!vm.IsSetupDrivers&&vm.HasReadonlySetupDrivers&&vm.SetupDriversSummary.Contains("只读"),"readonly UI cannot imply active default paths");
+  foreach(string query in new[]{"安装驱动","INF","VMD","SetupDriverPaths","PnpCustomizationsWinPE"})Check(SettingsSearchCatalog.Search(query).Any(r=>r.Target is "SetupDriversCheck" or "SetupDriverPathsEditor"),"driver setting searchable "+query);
+  return count;
+ }
+}

@@ -66,7 +66,7 @@ public partial class MainWindow : Window {
  private byte[] Generate(){if(Invalid(this))throw new ArgumentException("请修正输入框中的无效值（例如分区大小、密码到期天数或账户锁定参数）。");return vm.Service.Generate(vm.Plan);}
  private void PreviewClick(object s,RoutedEventArgs e)=>Run(()=>{vm.Preview=GeneratorService.Preview(Generate());vm.Status="配置与 XML 结构检查通过；预览已遮蔽密码和产品密钥";ExportPage.IsSelected=true;});
  private void ApplyRecommendationClick(object s,RoutedEventArgs e)=>Run(()=>{
-  if(MessageBox.Show(this,"应用推荐值将覆盖推荐涉及的开关和策略。\n保留账户、密码、密钥、Wi-Fi 信息、计算机名、语言区域、架构和 SKU。磁盘恢复为手动模式，危险操作确认将取消。\n是否继续？","应用推荐配置",MessageBoxButton.YesNo,MessageBoxImage.Question)!=MessageBoxResult.Yes)return;
+  if(MessageBox.Show(this,"应用推荐值将覆盖推荐涉及的开关和策略。\n保留账户、密码、密钥、Wi-Fi 信息、计算机名、语言区域、架构、SKU 和安装驱动目录。磁盘恢复为手动模式，危险操作确认将取消。\n是否继续？","应用推荐配置",MessageBoxButton.YesNo,MessageBoxImage.Question)!=MessageBoxResult.Yes)return;
   Recommendations.Apply(vm.Plan,vm.PendingRecommendation);vm.Preview="推荐配置已应用，请补齐账户与网络信息，再检查与预览。";vm.Status="推荐值已应用；所有设置均可修改";
  });
  private void RestoreRecommendationClick(object s,RoutedEventArgs e)=>Run(()=>{if(s is Button b&&b.Tag is string name){Recommendations.Restore(vm.Plan,name);vm.Preview="设置已更新，请重新检查与预览。";vm.Status="已恢复此项推荐值";}});

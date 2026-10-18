@@ -1,5 +1,6 @@
 using System.Text;using System.Xml;using UnattendLocal.Core;
 int count=0;var g=new GeneratorService();
+if(args.Contains("--setup-drivers-only")){Console.WriteLine($"V1.3 drivers: {SetupDriverTests.Run(g)} checks passed.");return;}
 if(args.Contains("--script-files-only")){Console.WriteLine($"V1.2 script files: {ScriptFileTests.Run(g)} checks passed.");return;}
 if(args.Contains("--partition-only")){Console.WriteLine($"V1.1 partition: {AutoPartitionTests.Run(g)} checks passed.");return;}
 if(args.Contains("--import-only")){Console.WriteLine($"V1.0.1 import: {ImportCompatibilityTests.Run(g)} checks passed.");return;}
@@ -1997,4 +1998,5 @@ count+=StaticNetworkTests.Run(g);
 count+=ImportCompatibilityTests.Run(g);
 count+=AutoPartitionTests.Run(g);
 count+=ScriptFileTests.Run(g);
-Console.WriteLine($"V1.2 total: {count} checks passed.");
+count+=SetupDriverTests.Run(g);
+Console.WriteLine($"V1.3 total: {count} checks passed.");

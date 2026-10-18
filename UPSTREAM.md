@@ -127,3 +127,5 @@ V1.0 · 2026-10-17：固定 vendor 保持不变。新增本地单网卡静态 IP
 V1.1 新增前核对 · 2026-10-17：官网发布仍标注 27237f82e9a8498d9c5bab7d398dc34b7682a1e8，对应该提交 Disk.cs 下载后与固定 vendor 逐字节一致。GitHub commits API 本轮返回 403，未声称已确认尚未发布的仓库最新变更。只把系统分区大小与分区前暂停接入本地既有自动分区路径；不更新 vendor，不将其描述为完整 PE 流程已接入。微软当前 GPT 文档列出 512/512e 至少 200 MB、4K 原生扇区至少 300 MB；本工具不查询目标扇区，采用 GPT 300 MB 下限、8192 MB 应用上限，MBR 下限 100 MB。来源见 docs/AutoPartition.md。
 
 V1.2 核对 · 2026-10-18：官网发布仍为 27237f82e9a8498d9c5bab7d398dc34b7682a1e8。下载对应 modifier/Script.cs，与固定文件比较仅有 BOM 及 GetAllowedTypes 的等价 LINQ 写法差异，支持类型与 DefaultUser 排除 Vbs 的规则一致。GitHub commits API 返回 403，不宣称确认未发布仓库最新状态。本版新增本地脚本文本导入/另存，不修改 vendor 或应答文件提取时的原编码策略。Windows PowerShell 5.1 的 BOM 说明见 docs/ScriptFiles.md。
+
+V1.3 核对 · 2026-10-18：官网发布仍为 27237f82e9a8498d9c5bab7d398dc34b7682a1e8，下载对应 Disk.cs 与固定 vendor 逐字节相同。GitHub commits API 返回 403，未声称确认未发布最新提交。新增本地 Microsoft-Windows-PnpCustomizationsWinPE/DriverPaths 适配，依据微软当前 DriverPaths、PathAndCredentials、Path 文档与 XML 示例；该组件用于 windowsPE，Path 最长 259 字符。最多 8 个为本工具限制，不是微软上限。本版不修改 vendor、不接入整套 GeneratePESettings；自定义 PE 流程只读保护。原生设置存在已久，不将本地新增功能描述为微软本轮新发布的能力。来源与适用边界见 docs/SetupDrivers.md。
