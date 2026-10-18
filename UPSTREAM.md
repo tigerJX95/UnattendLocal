@@ -132,3 +132,6 @@ V1.3 核对 · 2026-10-18：官网发布仍为 27237f82e9a8498d9c5bab7d398dc34b7
 
 
 V1.4 核对 · 2026-10-18：原作者官网发布仍标注 27237f82e9a8498d9c5bab7d398dc34b7682a1e8；GitHub commits 接口本次未取得可用结果，不声称确认未发布仓库最新状态。本版接入微软已有的 Microsoft-Windows-Setup/DynamicUpdate（windowsPE），依据当前官方 DynamicUpdate、Enable 与 WillShowUI 文档；不修改固定 vendor，不接入整套 GeneratePESettings。实际介质及 Setup 支持和联网效果需 Windows SIM 与测试虚拟机验证。微软资料见 docs/SetupDynamicUpdates.md。
+
+
+V1.5 核对 · 2026-10-18：原作者官网仍标注发布提交 27237f8；GitHub commits 接口本次未取得可用结果，不声称确认未发布仓库状态。本版仅在本地适配层接入微软已有 RegisteredOwner/RegisteredOrganization，支持官方列出的五个执行阶段并保留导入字段的原阶段；最大长度 256、支持空元素依据当前微软文档。固定 vendor 不变，不接入完整 GeneratePESettings。输入范围、JSON/预览中的名称处理和实际部署边界见 docs/RegisteredInformation.md。

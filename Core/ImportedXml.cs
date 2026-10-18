@@ -1,5 +1,7 @@
 namespace UnattendLocal.Core;
 public class ImportedXml {
+ public int RegisteredInformationImportVersion {get;set;}
+ public bool RegisteredInformationReadOnly {get;set;}
  public int SetupDynamicUpdateImportVersion {get;set;}
  public bool SetupDynamicUpdateReadOnly {get;set;}
 

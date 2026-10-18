@@ -1,4 +1,4 @@
-<Window xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:local="clr-namespace:UnattendLocal.Desktop" xmlns:core="clr-namespace:UnattendLocal.Core;assembly=Core" x:Class="UnattendLocal.Desktop.MainWindow" Icon="Assets/App.ico" Title="Windows 无人值守配置工具 · V1.4" Width="1060" Height="780" MinWidth="850" MinHeight="620" Background="{DynamicResource CanvasBrush}" Foreground="{DynamicResource ForegroundBrush}" FontFamily="Microsoft YaHei UI" FontSize="14">
+<Window xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:local="clr-namespace:UnattendLocal.Desktop" xmlns:core="clr-namespace:UnattendLocal.Core;assembly=Core" x:Class="UnattendLocal.Desktop.MainWindow" Icon="Assets/App.ico" Title="Windows 无人值守配置工具 · V1.5" Width="1060" Height="780" MinWidth="850" MinHeight="620" Background="{DynamicResource CanvasBrush}" Foreground="{DynamicResource ForegroundBrush}" FontFamily="Microsoft YaHei UI" FontSize="14">
   <DockPanel>
     <Border DockPanel.Dock="Top" Background="{DynamicResource SurfaceBrush}" Padding="24,16">
       <Grid>
@@ -94,6 +94,8 @@
       <TabItem Header="基础设置" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch">
         <ScrollViewer VerticalScrollBarVisibility="Auto">
           <StackPanel Margin="24">
+
+
             <Border Style="{StaticResource Card}">
               <StackPanel>
                 <TextBlock x:Name="SettingAnchor005" Text="基础设置" FontSize="20" FontWeight="SemiBold" Margin="0,0,0,16" />
@@ -212,6 +214,17 @@
               <CheckBox x:Name="SettingAnchor040" Content="关闭鼠标“提高指针精确度”" IsChecked="{Binding Plan.DisablePointerPrecision}" ToolTip="{Binding DataContext.HelpTips[pointerprecision],RelativeSource={RelativeSource AncestorType=Window}}"/>
               <TextBlock Style="{StaticResource ExplanationText}" Text="　　减少 Windows 鼠标加速，不调整 DPI、指针速度或游戏内设置。只配置安装后的新建用户；默认遵循 Windows，驱动和应用可能另有独立设置。" Foreground="{DynamicResource SecondaryBrush}"/>
             </StackPanel></Border>
+          <Border Style="{StaticResource Card}"><StackPanel>
+            <TextBlock Text="Windows 注册信息" FontSize="20" FontWeight="SemiBold" Margin="0,0,0,16"/>
+            <CheckBox x:Name="RegisteredOwnerCheck" Content="设置注册所有者" IsChecked="{Binding Plan.UseRegisteredOwner}" IsEnabled="{Binding CanEditRegisteredInformation}" ToolTip="{Binding HelpTips[registeredowner]}"/>
+            <TextBox x:Name="RegisteredOwnerEditor" Text="{Binding Plan.RegisteredOwner,UpdateSourceTrigger=PropertyChanged}" IsEnabled="{Binding IsRegisteredOwner}" ToolTip="{Binding HelpTips[registeredowner]}"/>
+            <CheckBox x:Name="RegisteredOrganizationCheck" Content="设置组织名称" IsChecked="{Binding Plan.UseRegisteredOrganization}" IsEnabled="{Binding CanEditRegisteredInformation}" ToolTip="{Binding HelpTips[registeredorganization]}"/>
+            <TextBox x:Name="RegisteredOrganizationEditor" Text="{Binding Plan.RegisteredOrganization,UpdateSourceTrigger=PropertyChanged}" IsEnabled="{Binding IsRegisteredOrganization}" ToolTip="{Binding HelpTips[registeredorganization]}"/>
+            <TextBlock Style="{StaticResource ExplanationText}" Text="默认不写入覆盖；每项最多 256 字符，不含控制字符或首尾空白。勾选后留空会明确生成空元素；不勾选则省略。注册信息与登录账户、计算机名、激活和加域独立。" Foreground="{DynamicResource SecondaryBrush}"/>
+            <TextBlock Style="{StaticResource ExplanationText}" Text="名称会保存在方案与 XML 中，省略凭据不会移除，也不在预览中遮蔽。导入的完整原生设置保留原执行阶段。" Foreground="{DynamicResource SecondaryBrush}"/>
+            <TextBlock Style="{StaticResource ExplanationText}" Text="{Binding RegisteredInformationSummary}"/>
+            <TextBlock Style="{StaticResource ExplanationText}" Text="原 XML 注册信息未完整识别，本区域只读；请核对配置方案页的导入说明。" Foreground="{DynamicResource WarningBrush}" Visibility="{Binding HasReadonlyRegisteredInformation,Converter={StaticResource VisibleWhen}}"/>
+          </StackPanel></Border>
           </StackPanel>
         </ScrollViewer>
       </TabItem>

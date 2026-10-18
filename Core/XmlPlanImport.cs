@@ -49,6 +49,7 @@ public static class XmlPlanImport {
   var networkState=StaticIPv4Settings.ReadIntoPlan(doc,p,notes);
   var driverState=SetupDriverSettings.ReadIntoPlan(doc,p,notes);
   var dynamicUpdateState=SetupDynamicUpdateSettings.ReadIntoPlan(doc,p,notes);
+  var registeredInformationState=RegisteredInformationSettings.ReadIntoPlan(doc,p,notes);
   p.Architecture=arches.FirstOrDefault()??"amd64";
   p.ConfigurationMode="自定义配置";p.CustomStartingPoint="保留当前设置";p.RecommendationId="";p.RecommendationVersion=0;p.RecommendationWindows="";
   p.ClearDiskConsent();
@@ -72,6 +73,7 @@ public static class XmlPlanImport {
   StaticIPv4Settings.UpdateImportState(p.ImportedXml,networkState);
   SetupDriverSettings.UpdateImportState(p.ImportedXml,driverState);
   SetupDynamicUpdateSettings.UpdateImportState(p.ImportedXml,dynamicUpdateState);
+  RegisteredInformationSettings.UpdateImportState(p.ImportedXml,registeredInformationState);
   FirstLogonSettings.UpdateImportState(p.ImportedXml,p,firstLogonState);
   p.ClearDiskConsent();return p;
  }
@@ -255,6 +257,8 @@ public static class XmlPlanImport {
   if(copy.AccountMode!="自动创建本地账户")copy.Users.Clear();
   if(!WifiSettings.IsPreset(copy)){copy.Ssid="";copy.WifiPassword="";}
   if(!copy.UseSetupDrivers)copy.SetupDriverPaths="";
+  if(!copy.UseRegisteredOwner)copy.RegisteredOwner="";
+  if(!copy.UseRegisteredOrganization)copy.RegisteredOrganization="";
   if(!copy.UseAppLocker)copy.AppLockerPolicyXml="";
   if(copy.ComputerNameMode!=ComputerNamingSettings.Script)copy.ComputerNameScript="";
   if(copy.TaskbarIconsMode!=ShellSettings.CustomXml)copy.TaskbarIconsXml="";
@@ -277,6 +281,7 @@ public static class XmlPlanImport {
   StaticIPv4Settings.ValidateImported(p,source);
   SetupDriverSettings.ValidateImported(p,source);
   SetupDynamicUpdateSettings.ValidateImported(p,source);
+  RegisteredInformationSettings.ValidateImported(p,source);
   ComputerNamingSettings.ValidateImported(p,source);
   LanguagePreferences.ValidateImported(p,source);
   WifiSettings.ValidateImported(p,source);

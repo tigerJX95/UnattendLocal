@@ -16,6 +16,13 @@ public class UserEntry : Observable {
  private bool _NeedsPassword = false; public bool NeedsPassword {get=>_NeedsPassword;set=>Set(ref _NeedsPassword,value);}
 }
 public class InstallPlan : Observable {
+ private bool _UseRegisteredOwner;public bool UseRegisteredOwner {get=>_UseRegisteredOwner;set=>Set(ref _UseRegisteredOwner,value);}
+ private string _RegisteredOwner="";public string RegisteredOwner {get=>_RegisteredOwner;set=>Set(ref _RegisteredOwner,value);}
+ private string _RegisteredOwnerPass="specialize";public string RegisteredOwnerPass {get=>_RegisteredOwnerPass;set=>Set(ref _RegisteredOwnerPass,value);}
+ private bool _UseRegisteredOrganization;public bool UseRegisteredOrganization {get=>_UseRegisteredOrganization;set=>Set(ref _UseRegisteredOrganization,value);}
+ private string _RegisteredOrganization="";public string RegisteredOrganization {get=>_RegisteredOrganization;set=>Set(ref _RegisteredOrganization,value);}
+ private string _RegisteredOrganizationPass="specialize";public string RegisteredOrganizationPass {get=>_RegisteredOrganizationPass;set=>Set(ref _RegisteredOrganizationPass,value);}
+
  private string _SetupDynamicUpdateMode=SetupDynamicUpdateSettings.Default;public string SetupDynamicUpdateMode {get=>_SetupDynamicUpdateMode;set{if(_SetupDynamicUpdateMode==value)return;ClearDiskConsent();Set(ref _SetupDynamicUpdateMode,value);}}
  private string _SetupDynamicUpdateUi=SetupDynamicUpdateSettings.UiDefault;public string SetupDynamicUpdateUi {get=>_SetupDynamicUpdateUi;set=>Set(ref _SetupDynamicUpdateUi,value);}
 
