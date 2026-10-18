@@ -1,4 +1,4 @@
-<Window xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:local="clr-namespace:UnattendLocal.Desktop" xmlns:core="clr-namespace:UnattendLocal.Core;assembly=Core" x:Class="UnattendLocal.Desktop.MainWindow" Icon="Assets/App.ico" Title="Windows 无人值守配置工具 · V1.3" Width="1060" Height="780" MinWidth="850" MinHeight="620" Background="{DynamicResource CanvasBrush}" Foreground="{DynamicResource ForegroundBrush}" FontFamily="Microsoft YaHei UI" FontSize="14">
+<Window xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:local="clr-namespace:UnattendLocal.Desktop" xmlns:core="clr-namespace:UnattendLocal.Core;assembly=Core" x:Class="UnattendLocal.Desktop.MainWindow" Icon="Assets/App.ico" Title="Windows 无人值守配置工具 · V1.4" Width="1060" Height="780" MinWidth="850" MinHeight="620" Background="{DynamicResource CanvasBrush}" Foreground="{DynamicResource ForegroundBrush}" FontFamily="Microsoft YaHei UI" FontSize="14">
   <DockPanel>
     <Border DockPanel.Dock="Top" Background="{DynamicResource SurfaceBrush}" Padding="24,16">
       <Grid>
@@ -355,6 +355,18 @@
             <CheckBox x:Name="SettingAnchor053" Content="使用 $OEM$ 配置集（UseConfigurationSet）" IsChecked="{Binding Plan.UseConfigurationSet}" ToolTip="{Binding DataContext.HelpTips[configset],RelativeSource={RelativeSource AncestorType=Window}}"/>
             <TextBlock Style="{StaticResource ExplanationText}" Text="　　默认关闭。需自行准备与应答文件配套的 $OEM$ 目录；$$ 对应 Windows 目录，$1 对应系统盘根目录。本工具不创建、打包或复制介质文件，也不自动安装其中的应用。" Foreground="{DynamicResource SecondaryBrush}"/>
             <TextBlock Style="{StaticResource ExplanationText}" Text="　　由 Windows Setup 处理配置集，可能覆盖同路径文件。请核对介质内容；取消不删除已复制文件。自定义 PE 脚本中的复制流程仍需用原工具调整。" Foreground="{DynamicResource WarningBrush}" Visibility="{Binding Plan.UseConfigurationSet,Converter={StaticResource VisibleWhen}}"/>
+          </StackPanel></Border>
+
+          <Border Style="{StaticResource Card}"><StackPanel>
+            <TextBlock Text="安装阶段动态更新" FontSize="20" FontWeight="SemiBold" Margin="0,0,0,16"/>
+            <TextBlock Text="动态更新方式"/>
+            <ComboBox x:Name="SetupDynamicUpdateModeSelector" ItemsSource="{Binding SetupDynamicUpdateModes}" SelectedItem="{Binding Plan.SetupDynamicUpdateMode}" IsEnabled="{Binding CanEditSetupDynamicUpdate}" ToolTip="{Binding HelpTips[setupdynamicupdate]}"/>
+            <TextBlock Style="{StaticResource ExplanationText}" Text="默认不写入覆盖。控制 Windows Setup 安装时获取新的安装文件、驱动及其他安装所需文件。实际支持与联网结果取决于目标介质、安装程序和网络；不控制安装后的 Windows Update。更改更新方式后需重新确认危险磁盘操作。" Foreground="{DynamicResource SecondaryBrush}"/>
+            <TextBlock Text="动态更新界面显示"/>
+            <ComboBox x:Name="SetupDynamicUpdateUiSelector" ItemsSource="{Binding SetupDynamicUpdateUiModes}" SelectedItem="{Binding Plan.SetupDynamicUpdateUi}" IsEnabled="{Binding CanEditSetupDynamicUpdate}" ToolTip="{Binding HelpTips[setupdynamicui]}"/>
+            <TextBlock Style="{StaticResource ExplanationText}" Text="可独立保留默认行为，或选择仅出错时显示、不显示、始终显示。不显示更新界面仍可能出现严重错误提示；工具不会自动处理错误，也不配置 PE 网络。" Foreground="{DynamicResource SecondaryBrush}"/>
+            <TextBlock Style="{StaticResource ExplanationText}" Text="{Binding SetupDynamicUpdateSummary}"/>
+            <TextBlock Style="{StaticResource ExplanationText}" Text="原 XML 的动态更新或 PE 流程未完整识别，本区域只读；请核对配置方案页的导入说明。" Foreground="{DynamicResource WarningBrush}" Visibility="{Binding HasReadonlySetupDynamicUpdate,Converter={StaticResource VisibleWhen}}"/>
           </StackPanel></Border>
 
           <Border Style="{StaticResource Card}"><StackPanel>

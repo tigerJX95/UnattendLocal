@@ -1,5 +1,6 @@
 using System.Text;using System.Xml;using UnattendLocal.Core;
 int count=0;var g=new GeneratorService();
+if(args.Contains("--dynamic-update-only")){Console.WriteLine($"V1.4 dynamic updates: {SetupDynamicUpdateTests.Run(g)} checks passed.");return;}
 if(args.Contains("--setup-drivers-only")){Console.WriteLine($"V1.3 drivers: {SetupDriverTests.Run(g)} checks passed.");return;}
 if(args.Contains("--script-files-only")){Console.WriteLine($"V1.2 script files: {ScriptFileTests.Run(g)} checks passed.");return;}
 if(args.Contains("--partition-only")){Console.WriteLine($"V1.1 partition: {AutoPartitionTests.Run(g)} checks passed.");return;}
@@ -2000,3 +2001,6 @@ count+=AutoPartitionTests.Run(g);
 count+=ScriptFileTests.Run(g);
 count+=SetupDriverTests.Run(g);
 Console.WriteLine($"V1.3 total: {count} checks passed.");
+
+count+=SetupDynamicUpdateTests.Run(g);
+Console.WriteLine($"V1.4 total: {count} checks passed.");

@@ -36,7 +36,7 @@ public static class SetupDriverSettings {
  }
  private static XmlNamespaceManager Ns(XmlDocument doc){var ns=new XmlNamespaceManager(doc.NameTable);ns.AddNamespace("u",XmlMerge.Namespace);return ns;}
  private static XmlElement[] Nodes(XmlDocument doc)=>doc.SelectNodes("//u:component[@name='"+ComponentName+"']",Ns(doc))!.Cast<XmlElement>().ToArray();
- private static bool CustomPe(XmlDocument doc)=>doc.SelectNodes("//*[local-name()='PEScriptCopy']")!.Count>0||doc.SelectNodes("//u:settings[@pass='windowsPE']/u:component[@name='Microsoft-Windows-Setup']/u:RunSynchronous/u:RunSynchronousCommand/u:Path",Ns(doc))!.Cast<XmlElement>().Any(p=>Regex.IsMatch(p.InnerText,@"\bdism(?:\.exe)?\s+/Apply-Image\b|[A-Za-z]:\\[^\r\n]*\.cmd\b",RegexOptions.IgnoreCase,TimeSpan.FromSeconds(1)));
+ internal static bool CustomPe(XmlDocument doc)=>doc.SelectNodes("//*[local-name()='PEScriptCopy']")!.Count>0||doc.SelectNodes("//u:settings[@pass='windowsPE']/u:component[@name='Microsoft-Windows-Setup']/u:RunSynchronous/u:RunSynchronousCommand/u:Path",Ns(doc))!.Cast<XmlElement>().Any(p=>Regex.IsMatch(p.InnerText,@"\bdism(?:\.exe)?\s+/Apply-Image\b|[A-Za-z]:\\[^\r\n]*\.cmd\b",RegexOptions.IgnoreCase,TimeSpan.FromSeconds(1)));
  public static void Apply(XmlDocument doc,XmlNamespaceManager ns,InstallPlan p){
   if(!p.UseSetupDrivers)return;
   var paths=ReadPaths(p.SetupDriverPaths);

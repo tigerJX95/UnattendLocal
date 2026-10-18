@@ -4,7 +4,7 @@
 
 UnattendLocal is a Chinese-language Windows desktop tool based on [Christoph Schneegans’ UnattendGenerator](https://github.com/cschneegans/unattend-generator). It lets you edit, check, and generate `autounattend.xml` for Windows 10 / 11 locally.
 
-Current version: **V1.3**. This release adds installation driver directories alongside script-file import/save-as, static IPv4, automatic partitioning and XML import/editing. The tool prepares installation configuration; it does not run generated scripts on your current computer.
+Current version: **V1.4**. This release adds installation-stage Dynamic Update alongside driver directories, script-file import/save-as, static IPv4, automatic partitioning and XML import/editing. The tool prepares installation configuration; it does not run generated scripts on your current computer.
 
 ## 💡 Why this project exists
 
@@ -26,7 +26,7 @@ See [first-logon options](docs/FirstLogon.md) and [XML import behavior](docs/Xml
 | :---: | :---: |
 | ![Configuration plans in the light theme](docs/images/overview.png) | ![Edition and product key in the dark theme](docs/images/edition-and-key-dark.png) |
 
-These are actual V0.1 pre41 screenshots showing the light and dark themes. The current V1.3 release includes navigation changes and additional settings; refer to the current application for the latest interface. The application interface is currently in Chinese.
+These are actual V0.1 pre41 screenshots showing the light and dark themes. The current V1.4 release includes navigation changes and additional settings; refer to the current application for the latest interface. The application interface is currently in Chinese.
 
 ## ✨ Main features
 
@@ -37,6 +37,7 @@ These are actual V0.1 pre41 screenshots showing the light and dark themes. The c
 - Search settings through the toolbar magnifier or Ctrl+F using Chinese/English names and aliases, then navigate and highlight the result.
 - Configure architecture, display language, region, keyboard, time zone, computer name, installation edition, and product keys.
 - Configure image selection, existing or automatic partitioning, system-partition sizing and a pre-partition pause, and CompactOS. Destructive disk operations include risk explanations and confirmation.
+- Configure installation-stage Dynamic Update and UI behavior, plus INF driver directories accessible from target Windows PE.
 - Configure local accounts, passwords, initial sign-in, password expiration and lockout policies, Wi-Fi, offline installation, and OOBE.
 - Configure File Explorer, the Start menu, taskbar, desktop icons, visual effects, colors, backgrounds, and lock-screen images.
 - Select among 60 application and system capability removal items, with Chinese impact descriptions, keyword search, and a selection summary. Items are unchecked by default.
@@ -48,18 +49,19 @@ These are actual V0.1 pre41 screenshots showing the light and dark themes. The c
 - Save and restore JSON plans; review summaries, recommended-setting differences, checks, redacted previews, and XML exports.
 - Import existing XML and edit supported settings while preserving unknown content. Export stops with an explanation when changes cannot be merged reliably.
 
-## ✨ V1.3 updates
+## ✨ V1.4 updates
 
-- Added installation driver directories, allowing Windows Setup to read extracted INF packages from specified locations. Disabled by default.
-- Supports up to eight absolute drive-letter directories or UNC directories without credentials, one per line. Prepare drivers matching the target system and architecture.
-- Integrated saved plans, configuration summaries, help and setting search. Driver changes require renewed disk-operation consent.
-- Fully recognized native XML is editable. Credentials, additional fields and custom PE flows retain their source protection; driver-access passwords are masked in previews.
+- Added installation-stage Dynamic Update: leave Setup defaults unchanged, enable it or disable it. No override is written by default.
+- Independently configure update UI behavior: default, on error, never or always.
+- Integrated native XML import/editing, reset to defaults, saved plans, summaries, help and setting search.
+- Unrecognized update settings and custom PE flows are clearly read-only and retain their original XML. Older plans migrate only when the editing baseline can be matched reliably, preserving other pending edits.
+- The publishing script reads the project version and checks both EXEs, preventing stale version names.
 
-[Installation driver directories](docs/SetupDrivers.md)
+[Setup Dynamic Update](docs/SetupDynamicUpdates.md) · [Installation driver directories](docs/SetupDrivers.md)
 
 ## 📦 Download and usage
 
-Download and run the matching Windows x64 executable from the repository’s **Releases** page: `UnattendLocal_V1.3_x64_SelfContained.exe` or `UnattendLocal_V1.3_x64_FrameworkDependent.exe`. Choose `UnattendLocal_V1.3_x64_SelfContained.exe` for a bundled .NET runtime, or `UnattendLocal_V1.3_x64_FrameworkDependent.exe` if .NET 10 Desktop Runtime x64 is already installed. Both have the same features. Use a virtual machine for initial testing.
+Download and run the matching Windows x64 executable from the repository’s **Releases** page: `UnattendLocal_V1.4_x64_SelfContained.exe` or `UnattendLocal_V1.4_x64_FrameworkDependent.exe`. Choose `UnattendLocal_V1.4_x64_SelfContained.exe` for a bundled .NET runtime, or `UnattendLocal_V1.4_x64_FrameworkDependent.exe` if .NET 10 Desktop Runtime x64 is already installed. Both have the same features. Use a virtual machine for initial testing.
 
 1. Choose a recommended scenario or a custom configuration and enter the required account and image settings.
 2. Adjust system, appearance, and application removal options as needed.
@@ -96,7 +98,9 @@ Exported XML, JSON plans containing credentials, and custom scripts may contain 
 
 Use Visual Studio 2026 and the .NET 10 SDK with the .NET desktop development workload. Open `UnattendLocal.sln` at the repository root. The solution contains Desktop, Core, vendor/UnattendGenerator, and Tests; Desktop is the default startup project.
 
-Run from the source root:
+Run `build.cmd` to publish both single-file EXEs. The script reads the project version, checks the published EXE versions, and writes directly to `UnattendLocal-release/v1.4/` beside the source directory. Existing release files are not overwritten. Use `build.cmd -CreateZip` if additional ZIP archives are required.
+
+Alternatively, run these commands from the source root:
 
 ```powershell
 dotnet restore UnattendLocal.sln

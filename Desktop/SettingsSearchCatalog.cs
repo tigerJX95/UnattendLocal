@@ -61,6 +61,8 @@ public static class SettingsSearchCatalog
         new("绕过内存容量检查", "版本与密钥", 2, "SettingAnchor051", "hardwareram", "BypassRAMCheck Bypass RAMCheck  "),
         new("安装介质配置集", "镜像与分区", 3, "SettingAnchor052", "", "   "),
         new("使用 $OEM$ 配置集（UseConfigurationSet）", "镜像与分区", 3, "SettingAnchor053", "configset", "UseConfigurationSet Use Configuration Set  OEM $OEM$ 配置集 文件复制 distribution share UseConfigurationSet"),
+        new("安装阶段动态更新", "镜像与分区", 3, "SetupDynamicUpdateModeSelector", "setupdynamicupdate", "DynamicUpdate Enable windowsPE 安装更新 联网 安装文件 驱动更新 安装阶段"),
+        new("动态更新界面显示", "镜像与分区", 3, "SetupDynamicUpdateUiSelector", "setupdynamicui", "WillShowUI OnError Never Always 更新界面 错误 更新提示"),
         new("安装阶段驱动目录", "镜像与分区", 3, "SetupDriversCheck", "setupdrivers", "UseSetupDrivers DriverPaths PnpCustomizationsWinPE INF driver 驱动加载 安装驱动 存储驱动 RAID VMD VirtIO NVMe"),
         new("驱动目录路径", "镜像与分区", 3, "SetupDriverPathsEditor", "setupdriverpaths", "SetupDriverPaths UNC INF Drivers 驱动目录 驱动路径 网络驱动 驱动程序"),
         new("安装镜像", "镜像与分区", 3, "SettingAnchor054", "", "   "),

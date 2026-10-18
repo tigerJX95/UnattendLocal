@@ -129,3 +129,6 @@ V1.1 新增前核对 · 2026-10-17：官网发布仍标注 27237f82e9a8498d9c5ba
 V1.2 核对 · 2026-10-18：官网发布仍为 27237f82e9a8498d9c5bab7d398dc34b7682a1e8。下载对应 modifier/Script.cs，与固定文件比较仅有 BOM 及 GetAllowedTypes 的等价 LINQ 写法差异，支持类型与 DefaultUser 排除 Vbs 的规则一致。GitHub commits API 返回 403，不宣称确认未发布仓库最新状态。本版新增本地脚本文本导入/另存，不修改 vendor 或应答文件提取时的原编码策略。Windows PowerShell 5.1 的 BOM 说明见 docs/ScriptFiles.md。
 
 V1.3 核对 · 2026-10-18：官网发布仍为 27237f82e9a8498d9c5bab7d398dc34b7682a1e8，下载对应 Disk.cs 与固定 vendor 逐字节相同。GitHub commits API 返回 403，未声称确认未发布最新提交。新增本地 Microsoft-Windows-PnpCustomizationsWinPE/DriverPaths 适配，依据微软当前 DriverPaths、PathAndCredentials、Path 文档与 XML 示例；该组件用于 windowsPE，Path 最长 259 字符。最多 8 个为本工具限制，不是微软上限。本版不修改 vendor、不接入整套 GeneratePESettings；自定义 PE 流程只读保护。原生设置存在已久，不将本地新增功能描述为微软本轮新发布的能力。来源与适用边界见 docs/SetupDrivers.md。
+
+
+V1.4 核对 · 2026-10-18：原作者官网发布仍标注 27237f82e9a8498d9c5bab7d398dc34b7682a1e8；GitHub commits 接口本次未取得可用结果，不声称确认未发布仓库最新状态。本版接入微软已有的 Microsoft-Windows-Setup/DynamicUpdate（windowsPE），依据当前官方 DynamicUpdate、Enable 与 WillShowUI 文档；不修改固定 vendor，不接入整套 GeneratePESettings。实际介质及 Setup 支持和联网效果需 Windows SIM 与测试虚拟机验证。微软资料见 docs/SetupDynamicUpdates.md。

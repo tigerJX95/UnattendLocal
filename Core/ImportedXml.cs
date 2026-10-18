@@ -1,5 +1,8 @@
 namespace UnattendLocal.Core;
 public class ImportedXml {
+ public int SetupDynamicUpdateImportVersion {get;set;}
+ public bool SetupDynamicUpdateReadOnly {get;set;}
+
  public int SetupDriversImportVersion {get;set;}
  public bool SetupDriversReadOnly {get;set;}
  public bool AutoPartitionReadOnly {get;set;}

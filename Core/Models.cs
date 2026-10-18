@@ -16,6 +16,9 @@ public class UserEntry : Observable {
  private bool _NeedsPassword = false; public bool NeedsPassword {get=>_NeedsPassword;set=>Set(ref _NeedsPassword,value);}
 }
 public class InstallPlan : Observable {
+ private string _SetupDynamicUpdateMode=SetupDynamicUpdateSettings.Default;public string SetupDynamicUpdateMode {get=>_SetupDynamicUpdateMode;set{if(_SetupDynamicUpdateMode==value)return;ClearDiskConsent();Set(ref _SetupDynamicUpdateMode,value);}}
+ private string _SetupDynamicUpdateUi=SetupDynamicUpdateSettings.UiDefault;public string SetupDynamicUpdateUi {get=>_SetupDynamicUpdateUi;set=>Set(ref _SetupDynamicUpdateUi,value);}
+
  private bool _UseSetupDrivers;public bool UseSetupDrivers {get=>_UseSetupDrivers;set{if(_UseSetupDrivers==value)return;ClearDiskConsent();Set(ref _UseSetupDrivers,value);}}
  private string _SetupDriverPaths="";public string SetupDriverPaths {get=>_SetupDriverPaths;set{if(_SetupDriverPaths==value)return;ClearDiskConsent();Set(ref _SetupDriverPaths,value);}}
  private bool _UseStaticIPv4;public bool UseStaticIPv4 {get=>_UseStaticIPv4;set=>Set(ref _UseStaticIPv4,value);}

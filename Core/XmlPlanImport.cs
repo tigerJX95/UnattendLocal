@@ -48,6 +48,7 @@ public static class XmlPlanImport {
   var compactState=CompactOsSettings.ReadIntoPlan(doc,p,notes);
   var networkState=StaticIPv4Settings.ReadIntoPlan(doc,p,notes);
   var driverState=SetupDriverSettings.ReadIntoPlan(doc,p,notes);
+  var dynamicUpdateState=SetupDynamicUpdateSettings.ReadIntoPlan(doc,p,notes);
   p.Architecture=arches.FirstOrDefault()??"amd64";
   p.ConfigurationMode="自定义配置";p.CustomStartingPoint="保留当前设置";p.RecommendationId="";p.RecommendationVersion=0;p.RecommendationWindows="";
   p.ClearDiskConsent();
@@ -70,6 +71,7 @@ public static class XmlPlanImport {
   CompactOsSettings.UpdateImportState(p.ImportedXml,compactState);
   StaticIPv4Settings.UpdateImportState(p.ImportedXml,networkState);
   SetupDriverSettings.UpdateImportState(p.ImportedXml,driverState);
+  SetupDynamicUpdateSettings.UpdateImportState(p.ImportedXml,dynamicUpdateState);
   FirstLogonSettings.UpdateImportState(p.ImportedXml,p,firstLogonState);
   p.ClearDiskConsent();return p;
  }
@@ -274,6 +276,7 @@ public static class XmlPlanImport {
   CompactOsSettings.ValidateImported(p,source);
   StaticIPv4Settings.ValidateImported(p,source);
   SetupDriverSettings.ValidateImported(p,source);
+  SetupDynamicUpdateSettings.ValidateImported(p,source);
   ComputerNamingSettings.ValidateImported(p,source);
   LanguagePreferences.ValidateImported(p,source);
   WifiSettings.ValidateImported(p,source);

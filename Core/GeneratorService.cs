@@ -28,6 +28,7 @@ public class GeneratorService {
   CompactOsSettings.Validate(p);
   StaticIPv4Settings.Validate(p);
   SetupDriverSettings.Validate(p);
+  SetupDynamicUpdateSettings.Validate(p);
   InstallationSettings.Validate(p);
   ShellSettings.Validate(p);
   if(!p.InteractiveLanguage&&new[]{p.ImageLanguage,p.Locale,p.Keyboard,p.GeoId}.Any(string.IsNullOrWhiteSpace))throw new ArgumentException("请在基础设置中填写显示语言、区域格式、键盘和国家地区，或选择安装时手动设置语言与区域。");
@@ -103,6 +104,7 @@ public class GeneratorService {
   CompactOsSettings.Apply(doc,ns,p);
   StaticIPv4Settings.Apply(doc,ns,p);
   SetupDriverSettings.Apply(doc,ns,p);
+  SetupDynamicUpdateSettings.Apply(doc,ns,p);
   if(includeImport&&p.ImportedXml is {} imported){FirstLogonSettings.ValidateGenerated(p,doc);doc=AppRemovalSettings.MergeImported(p,doc);}
   using var schema=typeof(UnattendGenerator).Assembly.GetManifestResourceStream("Schneegans.Unattend.resource.autounattend.xsd")!;
   doc.Schemas.Add("urn:schemas-microsoft-com:unattend",XmlReader.Create(schema));

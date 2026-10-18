@@ -4,7 +4,7 @@
 
 UnattendLocal 是基于 [Christoph Schneegans 的 UnattendGenerator](https://github.com/cschneegans/unattend-generator) 开发的中文 Windows 桌面配置工具，用于在本地编辑、检查和生成 Windows 10 / 11 的 `autounattend.xml`。
 
-当前版本：**V1.3**。新增安装阶段驱动目录配置，支持脚本文件导入与另存、静态 IPv4、自动分区及 XML 导入编辑。工具用于准备安装配置，不会在当前电脑执行生成的安装脚本。
+当前版本：**V1.4**。新增安装阶段动态更新配置，支持安装驱动目录、脚本文件导入与另存、静态 IPv4、自动分区及 XML 导入编辑。工具用于准备安装配置，不会在当前电脑执行生成的安装脚本。
 
 ## 💡 开发初衷
 
@@ -24,7 +24,7 @@ UnattendLocal 是基于 [Christoph Schneegans 的 UnattendGenerator](https://git
 | :---: | :---: |
 | ![配置方案：浅色主题](docs/images/overview.png) | ![版本与密钥：深色主题](docs/images/edition-and-key-dark.png) |
 
-截图来自 V0.1 pre41 的实际运行界面，用于展示浅色与深色主题；当前 V1.3 已调整导航顺序并新增部分设置，实际界面以当前版本为准。
+截图来自 V0.1 pre41 的实际运行界面，用于展示浅色与深色主题；当前 V1.4 已调整导航顺序并新增部分设置，实际界面以当前版本为准。
 
 ## ✨ 主要功能
 
@@ -35,6 +35,7 @@ UnattendLocal 是基于 [Christoph Schneegans 的 UnattendGenerator](https://git
 - 通过顶部放大镜或 Ctrl+F 搜索中英文设置名称与别名，切页定位并高亮结果。
 - 配置安装架构、显示语言、区域、键盘、时区、计算机名及安装版本 / 产品密钥。
 - 配置镜像选择、已有分区或自动分区、系统分区大小、分区前暂停及 CompactOS；涉及清空或格式化时显示风险说明并要求核对。
+- 配置安装阶段动态更新与界面显示行为，以及目标 Windows PE 可访问的 INF 驱动目录。
 - 配置本地账户、内置 Administrator 首次登录、密码、密码到期与锁定策略，以及 WPA2 / WPA3 / 开放 Wi-Fi、无线配置 XML、离线安装和 OOBE。
 - 配置资源管理器、开始菜单、任务栏、系统桌面图标、视觉效果、配色、纯色或图片背景及锁屏图片。
 - 按项选择 60 个应用与系统能力移除项目，提供中文影响说明、关键词搜索和选择摘要，默认不勾选。
@@ -46,23 +47,24 @@ UnattendLocal 是基于 [Christoph Schneegans 的 UnattendGenerator](https://git
 - 保存和恢复 JSON 方案，提供配置摘要、推荐差异、检查、脱敏预览和 XML 导出。
 - 导入已有 XML 后编辑已支持设置，保留未知内容；遇到无法可靠合并的修改时停止导出并说明原因。
 
-## ✨ V1.3 更新
+## ✨ V1.4 更新
 
-- 新增“安装阶段驱动目录”，通过 Windows Setup 从指定目录读取已解压的 INF 驱动，默认关闭。
-- 支持最多 8 个本地盘符绝对目录或不带凭据的 UNC 目录，每行一个；驱动文件需自行准备并与目标系统、架构匹配。
-- 接入方案保存、配置摘要、帮助与设置搜索；修改驱动设置后需重新确认磁盘风险。
-- 完整识别的原生 XML 可导入编辑；含凭据、额外字段或自定义 PE 流程的配置保持原文保护。预览遮蔽驱动访问密码。
+- 新增“安装阶段动态更新”，可遵循安装程序默认、启用或禁用，默认不写入覆盖。
+- 可独立选择动态更新界面的默认行为、仅出错时显示、不显示或始终显示。
+- 支持原生 XML 导入后修改、恢复默认，以及方案保存、摘要、帮助和设置搜索。
+- 未完整识别的动态更新或自定义 PE 流程明确显示只读并保留原文；旧方案仅在能可靠匹配编辑基准时迁移，保留其他待处理修改。
+- 发布脚本自动读取项目版本并检查两种 EXE 的实际版本，避免产物名称沿用旧版本。
 
-[安装驱动目录说明](docs/SetupDrivers.md)
+[安装阶段动态更新说明](docs/SetupDynamicUpdates.md) · [安装驱动目录说明](docs/SetupDrivers.md)
 
 ## 📦 下载与使用
 
-从仓库的 **Releases** 页面下载并直接运行对应的 `UnattendLocal_V1.3_x64_SelfContained.exe` 或 `UnattendLocal_V1.3_x64_FrameworkDependent.exe`：
+从仓库的 **Releases** 页面下载并直接运行对应的 `UnattendLocal_V1.4_x64_SelfContained.exe` 或 `UnattendLocal_V1.4_x64_FrameworkDependent.exe`：
 
 | 程序文件 | 运行要求 |
 | --- | --- |
-| `UnattendLocal_V1.3_x64_SelfContained.exe` | 集成 .NET 运行时，无需单独安装；通常选择此版。 |
-| `UnattendLocal_V1.3_x64_FrameworkDependent.exe` | 文件较小，需安装 .NET 10 Desktop Runtime x64。 |
+| `UnattendLocal_V1.4_x64_SelfContained.exe` | 集成 .NET 运行时，无需单独安装；通常选择此版。 |
+| `UnattendLocal_V1.4_x64_FrameworkDependent.exe` | 文件较小，需安装 .NET 10 Desktop Runtime x64。 |
 
 两版功能相同。首次安装测试建议使用虚拟机。
 
@@ -99,7 +101,9 @@ WPA3 需目标系统、无线驱动和接入点支持；开放网络没有无线
 
 使用 Visual Studio 2026 与 .NET 10 SDK，安装“.NET 桌面开发”，打开仓库根目录的 `UnattendLocal.sln`。四个项目为 Desktop、Core、vendor/UnattendGenerator、Tests，默认将 Desktop 设为启动项目。
 
-在源码根目录执行：
+双击源码根目录的 `build.cmd` 可生成两种单文件 EXE，版本从项目自动读取，输出到源码目录同级的 `UnattendLocal-release/v1.4/`。发布后会核对 EXE 版本；默认直接输出 EXE，需要额外 ZIP 时可运行 `build.cmd -CreateZip`。已有同名产物不会自动覆盖。
+
+也可在源码根目录手动执行：
 
 ```powershell
 dotnet restore UnattendLocal.sln
