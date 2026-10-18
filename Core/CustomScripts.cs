@@ -32,7 +32,7 @@ public static class CustomScripts {
    if(row.IsRemovedType)throw new ArgumentException("JScript（.js）已停止支持；请停用、移除或手动改写该脚本后再导出。");
    if(!Enum.TryParse<ScriptPhase>(row.Phase,out var phase)||!Enum.IsDefined(phase)||row.Phase!=phase.ToString())throw new ArgumentException("请选择有效脚本阶段。");
    if(!Enum.TryParse<ScriptType>(row.Type,out var type)||!Enum.IsDefined(type)||row.Type!=type.ToString()||!phase.GetAllowedTypes().Contains(type))throw new ArgumentException("请选择有效脚本格式；DefaultUser 仅支持 CMD、PowerShell 和 REG。");
-   if(string.IsNullOrWhiteSpace(row.Content)||row.Content.Length>2*1024*1024||row.Content.Any(c=>!System.Xml.XmlConvert.IsXmlChar(c)))throw new ArgumentException("启用的脚本必须填写内容，且不超过 2 Mi 字符、不含 XML 非法字符。");
+   ScriptFiles.ValidateContent(row.Content);
    if(result.Count(s=>s.Phase==phase)>=15)throw new ArgumentException("每个执行阶段最多启用 15 条脚本。");
    result.Add(new Script(row.Content,phase,type));
   }

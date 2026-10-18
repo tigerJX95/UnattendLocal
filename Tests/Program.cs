@@ -1,5 +1,6 @@
 using System.Text;using System.Xml;using UnattendLocal.Core;
 int count=0;var g=new GeneratorService();
+if(args.Contains("--script-files-only")){Console.WriteLine($"V1.2 script files: {ScriptFileTests.Run(g)} checks passed.");return;}
 if(args.Contains("--partition-only")){Console.WriteLine($"V1.1 partition: {AutoPartitionTests.Run(g)} checks passed.");return;}
 if(args.Contains("--import-only")){Console.WriteLine($"V1.0.1 import: {ImportCompatibilityTests.Run(g)} checks passed.");return;}
 if(args.Contains("--network-only")){Console.WriteLine($"V1.0 network: {StaticNetworkTests.Run(g)} checks passed.");return;}
@@ -1995,4 +1996,5 @@ vm15.Plan=XmlPlanImport.Import(collisionDoc15.OuterXml,g);var preservedMode15=vm
 count+=StaticNetworkTests.Run(g);
 count+=ImportCompatibilityTests.Run(g);
 count+=AutoPartitionTests.Run(g);
-Console.WriteLine($"V1.1 total: {count} checks passed.");
+count+=ScriptFileTests.Run(g);
+Console.WriteLine($"V1.2 total: {count} checks passed.");

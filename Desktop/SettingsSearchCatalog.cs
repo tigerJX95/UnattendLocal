@@ -249,6 +249,8 @@ public static class SettingsSearchCatalog
         new("锁屏图片", "配色与背景", 12, "SettingAnchor228", "lockscreen", "   "),
         new("锁屏图片", "配色与背景", 12, "SettingAnchor229", "lockscreen", "LockScreenMode Lock Screen Mode 使用 Windows 默认锁屏 使用锁屏图片（脚本加载） "),
         new("LockScreenImageScript", "配色与背景", 12, "LockScreenImageEditor", "lockscreenimage", "LockScreenImageScript Lock Screen Image Script  "),
+        new("导入脚本文件", "自定义脚本", 13, "ImportScriptFileButton", "scriptfiles", "import script file ps1 cmd reg vbs UTF-8 UTF-16 BOM ANSI GBK 编码 导入命令 脚本文件"),
+        new("另存选中脚本", "自定义脚本", 13, "SaveScriptFileButton", "scriptfiles", "save export script file 导出脚本 保存脚本 另存为 编码"),
         new("按安装阶段执行脚本", "自定义脚本", 13, "SettingAnchor231", "customscripts", "custom scripts script phase script type script content 自定义脚本 执行阶段 脚本格式 脚本内容 System DefaultUser FirstLogon UserOnce PowerShell CMD REG VBS 复制脚本"),
         new("每个用户首次登录脚本结束后，重启资源管理器", "自定义脚本", 13, "SettingAnchor232", "", "RestartExplorerAfterScripts Restart Explorer After Scripts  "),
         new("检查与导出", "检查与导出", 14, "SettingAnchor233", "", "   "),

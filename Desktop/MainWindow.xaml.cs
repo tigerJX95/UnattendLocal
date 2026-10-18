@@ -89,6 +89,22 @@ public partial class MainWindow : Window {
   if(!string.IsNullOrWhiteSpace(LayoutContent(kind))&&MessageBox.Show(this,"载入示例将替换当前编辑器内容，是否继续？","载入布局示例",MessageBoxButton.YesNo,MessageBoxImage.Question)!=MessageBoxResult.Yes)return;
   SetLayoutContent(kind,kind switch {"taskbar"=>ShellSettings.TaskbarExample,"tiles"=>ShellSettings.TilesExample,"pins"=>ShellSettings.PinsExample,_=>throw new ArgumentException("布局类型无效。")});vm.Status="示例已载入，请按目标电脑的应用与快捷方式路径修改";
  });
+ private void ImportScriptFileClick(object s,RoutedEventArgs e){
+  var d=new OpenFileDialog{Title="导入脚本文件（新增并默认停用）",Filter="脚本文件 (*.ps1;*.cmd;*.reg;*.vbs)|*.ps1;*.cmd;*.reg;*.vbs",Multiselect=false};
+  if(d.ShowDialog(this)!=true){vm.Status="已取消脚本文件导入，脚本列表未改变。";return;}
+  try{_=vm.ImportScriptFile(d.FileName);vm.Status="脚本文件已新增，默认停用；请核对 System 阶段、格式与内容后再启用。";}
+  catch(Exception error){vm.Status="脚本文件导入失败，脚本列表未改变。";MessageBox.Show(this,error.Message,"脚本文件导入失败",MessageBoxButton.OK,MessageBoxImage.Warning);}
+ }
+ private void SaveScriptFileClick(object s,RoutedEventArgs e){
+  if(vm.SelectedScript is not {} row){vm.Status="请先选择要另存的脚本。";return;}
+  try{
+   string ext=ScriptFiles.Extension(row.Type);
+   var d=new SaveFileDialog{Title="另存选中脚本（不会执行）",Filter=$"脚本文件 (*{ext})|*{ext}",DefaultExt=ext,AddExtension=true,OverwritePrompt=true,FileName="script"+ext};
+   if(d.ShowDialog(this)!=true){vm.Status="已取消脚本另存。";return;}
+   ScriptFiles.Write(row,d.FileName);
+   vm.Status="脚本已另存；"+ScriptFiles.EncodingHint(row.Type);
+  }catch(Exception error){vm.Status="脚本另存失败。";MessageBox.Show(this,error.Message,"脚本另存失败",MessageBoxButton.OK,MessageBoxImage.Warning);}
+ }
  private void DuplicateScriptClick(object s,RoutedEventArgs e)=>Run(()=>{if(vm.DuplicateSelectedScript()!=null)vm.Status="脚本已复制到原条目下方，副本默认停用，请修改并核对后启用";});
  private void SelectFilteredAppsClick(object s,RoutedEventArgs e)=>Run(()=>{if(s is not Button {Tag:string mode})return;var count=vm.FilteredAppRemovalChoices.Count;if(count==0){vm.Status="当前没有匹配项目";return;}bool selected=mode=="select";if(selected&&MessageBox.Show(this,$"将勾选当前显示的 {count} 项，安装时会尝试移除这些应用或系统能力。是否继续？","批量选择应用移除",MessageBoxButton.YesNo,MessageBoxImage.Question)!=MessageBoxResult.Yes)return;vm.SelectFilteredApps(selected);vm.Status=$"已{(selected?"勾选":"取消")}当前显示的 {count} 项，其他项目保持原选择";});
  private void AddScriptClick(object s,RoutedEventArgs e)=>Run(()=>{if(vm.Plan.Scripts.Count>=60)throw new ArgumentException("最多 60 条脚本。");var row=new ScriptEntry();vm.Plan.Scripts.Add(row);vm.SelectedScript=row;});

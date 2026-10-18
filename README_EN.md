@@ -4,7 +4,7 @@
 
 UnattendLocal is a Chinese-language Windows desktop tool based on [Christoph Schneegans’ UnattendGenerator](https://github.com/cschneegans/unattend-generator). It lets you edit, check, and generate `autounattend.xml` for Windows 10 / 11 locally.
 
-Current version: **V1.1**. This release adds system-partition sizing and a pre-partition pause, supports static IPv4 and XML import/editing, and uses the MIT project license. The tool prepares installation configuration; it does not run generated scripts on your current computer.
+Current version: **V1.2**. This release adds script-file import and save-as, supports static IPv4, automatic partitioning and XML import/editing, and uses the MIT project license. The tool prepares installation configuration; it does not run generated scripts on your current computer.
 
 ## 💡 Why this project exists
 
@@ -26,7 +26,7 @@ See [first-logon options](docs/FirstLogon.md) and [XML import behavior](docs/Xml
 | :---: | :---: |
 | ![Configuration plans in the light theme](docs/images/overview.png) | ![Edition and product key in the dark theme](docs/images/edition-and-key-dark.png) |
 
-These are actual V0.1 pre41 screenshots showing the light and dark themes. The current V1.1 release includes navigation changes and additional settings; refer to the current application for the latest interface. The application interface is currently in Chinese.
+These are actual V0.1 pre41 screenshots showing the light and dark themes. The current V1.2 release includes navigation changes and additional settings; refer to the current application for the latest interface. The application interface is currently in Chinese.
 
 ## ✨ Main features
 
@@ -48,18 +48,19 @@ These are actual V0.1 pre41 screenshots showing the light and dark themes. The c
 - Save and restore JSON plans; review summaries, recommended-setting differences, checks, redacted previews, and XML exports.
 - Import existing XML and edit supported settings while preserving unknown content. Export stops with an explanation when changes cannot be merged reliably.
 
-## ✨ V1.1 updates
+## ✨ V1.2 updates
 
-- Added configurable system-partition size for automatic disk wiping/partitioning. A blank value retains the layout defaults: GPT 300 MB / MBR 500 MB.
-- Added an optional pause in target Windows PE before automatic partitioning, showing the target disk number and waiting for a keypress. Disabled by default.
-- Integrated both settings into saved plans, summaries, help, search and XML import/editing. Changes clear destructive-operation consent.
-- Altered or incomplete automatic-partition flows retain their source and cannot be overwritten through these controls.
+- Import `.ps1`, `.cmd`, `.reg` and `.vbs` files as new disabled scripts in the System phase; review the phase and content before enabling.
+- Save the selected script to a standalone file for backup and reuse. The file contains text only, without stage or enabled state; saving does not execute it.
+- Import UTF-8 or BOM-marked UTF-16. Unrecognized encodings, blank/oversized text and invalid XML characters produce explicit errors without changing existing entries.
+- Save with format-specific encodings and add a standard REG header in the output when missing. CMD text still requires a matching target code page; no commands are inserted.
+- Fixed rejection of valid supplementary Unicode characters in script validation; both file actions are searchable.
 
-[Automatic partition options](docs/AutoPartition.md)
+[Script file operations](docs/ScriptFiles.md)
 
 ## 📦 Download and usage
 
-Download and run the matching Windows x64 executable from the repository’s **Releases** page: `UnattendLocal_V1.1_x64_SelfContained.exe` or `UnattendLocal_V1.1_x64_FrameworkDependent.exe`. Choose `UnattendLocal_V1.1_x64_SelfContained.exe` for a bundled .NET runtime, or `UnattendLocal_V1.1_x64_FrameworkDependent.exe` if .NET 10 Desktop Runtime x64 is already installed. Both have the same features. Use a virtual machine for initial testing.
+Download and run the matching Windows x64 executable from the repository’s **Releases** page: `UnattendLocal_V1.2_x64_SelfContained.exe` or `UnattendLocal_V1.2_x64_FrameworkDependent.exe`. Choose `UnattendLocal_V1.2_x64_SelfContained.exe` for a bundled .NET runtime, or `UnattendLocal_V1.2_x64_FrameworkDependent.exe` if .NET 10 Desktop Runtime x64 is already installed. Both have the same features. Use a virtual machine for initial testing.
 
 1. Choose a recommended scenario or a custom configuration and enter the required account and image settings.
 2. Adjust system, appearance, and application removal options as needed.

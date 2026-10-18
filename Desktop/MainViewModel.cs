@@ -32,8 +32,9 @@ public class MainViewModel : Observable {
  private InstallPlan plan=InstallPlan.New();
  private readonly HashSet<UserEntry> observedUsers=new();
  private readonly HashSet<ScriptEntry> observedScripts=new();
- private ScriptEntry? selectedScript;public ScriptEntry? SelectedScript {get=>selectedScript;set=>Set(ref selectedScript,value);}
+ private ScriptEntry? selectedScript;public ScriptEntry? SelectedScript {get=>selectedScript;set{Set(ref selectedScript,value);Notify(nameof(HasSelectedScript));}}
  public bool HasSelectedScript=>SelectedScript!=null;
+ public ScriptEntry ImportScriptFile(string path){var row=ScriptFiles.Append(Plan,ScriptFiles.Read(path));SelectedScript=row;return row;}
  private void ObserveScripts(){foreach(var row in observedScripts.Where(s=>!Plan.Scripts.Contains(s)).ToArray()){row.PropertyChanged-=HelpSettingChanged;observedScripts.Remove(row);}foreach(var row in Plan.Scripts)if(observedScripts.Add(row))row.PropertyChanged+=HelpSettingChanged;}
  private void ScriptsChanged(object? sender,System.Collections.Specialized.NotifyCollectionChangedEventArgs e){ObserveScripts();if(SelectedScript==null||!Plan.Scripts.Contains(SelectedScript))SelectedScript=Plan.Scripts.FirstOrDefault();Notify(nameof(HasSelectedScript));RefreshAll();InvalidatePreview();}
  private bool updating;
@@ -53,7 +54,7 @@ public class MainViewModel : Observable {
   }finally{IsLoadingPlan=false;}
  }}
  private UserEntry? selected;public UserEntry? SelectedUser {get=>selected;set{Set(ref selected,value);RefreshHelp();}}
- private string preview="配置完成后，点击“检查与预览”。",status="就绪 · V1.1";
+ private string preview="配置完成后，点击“检查与预览”。",status="就绪 · V1.2";
  public string Preview {get=>preview;set=>Set(ref preview,value);} public string Status {get=>status;set=>Set(ref status,value);}
  public GeneratorService Service {get;}=new();
  public List<GeneratorService.Choice> Editions=>Service.Editions;
