@@ -4,7 +4,7 @@
 
 UnattendLocal 是基于 [Christoph Schneegans 的 UnattendGenerator](https://github.com/cschneegans/unattend-generator) 开发的中文 Windows 桌面配置工具，用于在本地编辑、检查和生成 Windows 10 / 11 的 `autounattend.xml`。
 
-当前版本：**V1.7**。新增安装工作组名称与 Windows PE 日志目录，支持设置搜索分类筛选、Windows 注册信息、安装阶段动态更新、安装驱动目录、脚本文件导入与另存、静态 IPv4、自动分区及 XML 导入编辑。工具用于准备安装配置，不会在当前电脑执行生成的安装脚本。
+当前版本：**V1.8**。完善安装提示、脚本图标、可视化选色、文件夹位置说明与应用移除布局，支持设置搜索分类筛选、Windows 注册信息、安装阶段动态更新、安装驱动目录、脚本文件导入与另存、静态 IPv4、自动分区及 XML 导入编辑。工具用于准备安装配置，不会在当前电脑执行生成的安装脚本。
 
 ## 💡 开发初衷
 
@@ -55,26 +55,25 @@ UnattendLocal 是基于 [Christoph Schneegans 的 UnattendGenerator](https://git
 - 保存和恢复 JSON 方案，提供配置摘要、推荐差异、检查、脱敏预览和 XML 导出。
 - 导入已有 XML 后编辑已支持设置，保留未知内容；遇到无法可靠合并的修改时停止导出并说明原因。
 
-## ✨ V1.7 更新
+## ✨ V1.8 更新
 
-- 新增安装工作组名称，在“网络”页配置；支持已识别原生 XML 的导入、修改和取消。
-- 新增 Windows PE 阶段日志目录，在“镜像与分区”页配置；仅影响 PE 日志，路径须为目标固定磁盘上的本地绝对目录。
-- 两项均接入方案保存、配置摘要、动态帮助与设置搜索，默认关闭；未知或冲突配置保留原文并明确只读。
-- 补齐域加入密码、计算机密码及离线加入数据的预览遮蔽，并阻止将这类遮蔽预览重新导入为安装配置。
-- 修正工作组取消后的空组件处理，支持导出、重新导入后再次启用。
-- 修复启动状态栏残留旧版号；窗口、关于页与状态栏统一读取实际程序集版本，构建前检查版本显示。
-- 更新配置方案、版本与密钥两页的浅色/深色实机截图，统一标注截图版本 V1.7。
+- 优化安装目标提示：区分自动分区、指定已有分区、自动选择可用分区及未指定目标，按实际 XML 提示可能需要的人工选择，不改变安装逻辑。
+- 自定义脚本导入与另存采用不同方向的图标及独立提示，保留现有格式、编码和执行阶段处理。
+- 点击强调色或纯色背景预览块打开可视化调色板，支持色相、饱和度、亮度、RGB 和 HEX 双向同步；确定才应用，取消不改原值，恢复默认也先作为待确认草稿。
+- 开始菜单文件夹标题旁新增位置示意入口，离线说明文件夹位于 Windows 11 电源按钮左侧，并明确标为示意图。
+- 应用移除清单改为双列复选框，详细影响说明改为悬停提示，保留说明关键词搜索、选择摘要和只读保护。
+- 两种发布方式使用独立构建中间目录，继续检查版本并拒绝覆盖已有产物；四张用户实机截图保持 V1.7 标注。
 
-[工作组说明](docs/Workgroup.md) · [PE 日志目录说明](docs/PeLogs.md)
+[界面改进使用说明](docs/UiImprovements.md)
 
 ## 📦 下载与使用
 
-从仓库的 **Releases** 页面下载并直接运行对应的 `UnattendLocal_V1.7_x64_SelfContained.exe` 或 `UnattendLocal_V1.7_x64_FrameworkDependent.exe`：
+从仓库的 **Releases** 页面下载并直接运行对应的 `UnattendLocal_V1.8_x64_SelfContained.exe` 或 `UnattendLocal_V1.8_x64_FrameworkDependent.exe`：
 
 | 程序文件 | 运行要求 |
 | --- | --- |
-| `UnattendLocal_V1.7_x64_SelfContained.exe` | 集成 .NET 运行时，无需单独安装；通常选择此版。 |
-| `UnattendLocal_V1.7_x64_FrameworkDependent.exe` | 文件较小，需安装 .NET 10 Desktop Runtime x64。 |
+| `UnattendLocal_V1.8_x64_SelfContained.exe` | 集成 .NET 运行时，无需单独安装；通常选择此版。 |
+| `UnattendLocal_V1.8_x64_FrameworkDependent.exe` | 文件较小，需安装 .NET 10 Desktop Runtime x64。 |
 
 两版功能相同。首次安装测试建议使用虚拟机。
 
@@ -111,7 +110,7 @@ WPA3 需目标系统、无线驱动和接入点支持；开放网络没有无线
 
 使用 Visual Studio 2026 与 .NET 10 SDK，安装“.NET 桌面开发”，打开仓库根目录的 `UnattendLocal.sln`。四个项目为 Desktop、Core、vendor/UnattendGenerator、Tests，默认将 Desktop 设为启动项目。
 
-双击源码根目录的 `build.cmd` 可生成两种单文件 EXE，版本从项目自动读取，输出到源码目录同级的 `UnattendLocal-release/v1.7/`。发布后会核对 EXE 版本；默认直接输出 EXE，需要额外 ZIP 时可运行 `build.cmd -CreateZip`。已有同名产物不会自动覆盖。
+双击源码根目录的 `build.cmd` 可生成两种单文件 EXE，版本从项目自动读取，输出到源码目录同级的 `UnattendLocal-release/v1.8/`。发布后会核对 EXE 版本；默认直接输出 EXE，需要额外 ZIP 时可运行 `build.cmd -CreateZip`。已有同名产物不会自动覆盖。
 
 也可在源码根目录手动执行：
 

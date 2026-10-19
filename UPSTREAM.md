@@ -138,3 +138,5 @@ V1.5 核对 · 2026-10-18：原作者官网仍标注发布提交 27237f8；GitHu
 
 
 V1.7 核对（2026-10-19）：官网发布标注仍为 27237f8；GitHub commits 接口本次未取得可用结果，不声称确认未发布仓库最新状态。工作组与 LogPath 使用微软已有的 specialize/windowsPE 原生能力，不接入整套 GeneratePESettings，不修改 vendor。官方字段说明和参考见 docs/Workgroup.md、docs/PeLogs.md。
+
+V1.8 核对：2026-10-19，官网仍显示发布 27237f8。成功读取 raw master Main.cs（除 BOM 外文本一致）和 modifier/Disk.cs（逐字节一致）；commits API 返回 403，不宣称整库最新提交已确认。本版五项界面改进不升级 vendor，也不改安装或脚本执行语义；网络增强留 V1.9。基线清单见 docs/V1.7Audit.md。

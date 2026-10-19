@@ -1,5 +1,6 @@
 using System.Text;using System.Xml;using UnattendLocal.Core;
 int count=0;var g=new GeneratorService();
+if(args.Contains("--ui-improvements-only")){Console.WriteLine($"V1.8 UI improvements: {UiImprovementTests.Run(g)} checks passed.");return;}
 if(args.Contains("--version-display-only")){VersionDisplayTests.Run();Console.WriteLine("Version display check passed.");return;}
 if(args.Contains("--native-deployment-only")){Console.WriteLine($"V1.7 native deployment: {NativeDeploymentTests.Run(g)} checks passed.");return;}
 if(args.Contains("--registered-info-only")){Console.WriteLine($"V1.5 registered information: {RegisteredInformationTests.Run(g)} checks passed.");return;}
@@ -133,7 +134,7 @@ Check(!p.InteractiveLanguage&&p.TimeZoneMode=="由 Windows 决定"&&p.TimeZone==
 Check(p.WifiMode=="隐藏无线网络选择页"&&!p.ConnectWifi&&p.BypassNetwork&&p.PrivacyMode=="关闭快捷隐私设置"&&p.HideEula&&p.HideOnlineAccount&&p.HideOEMRegistration,"custom OOBE and network defaults avoid prompts");
 Check(p.DiskMode==InstallationSettings.Manual&&p.TargetDiskId==null&&!p.FormatExistingPartition&&!p.ConfirmWipeDisk&&!p.BypassHardware&&p.HidePowerShellWindows,"safe disk defaults preserved");
 Check(Recommendations.MissingInputs(p).Contains("显示语言")&&Recommendations.MissingInputs(p).Contains("SKU")&&Recommendations.MissingInputs(p).Contains("本地账户"),"custom summary lists required preparation");
-Check(Recommendations.InteractiveSteps(p)=="磁盘与分区","custom summary accurately discloses remaining deliberate installation interaction");
+Check(Recommendations.InteractiveSteps(p)=="磁盘与分区（安装目标可能需要选择或核对）","custom summary accurately discloses remaining deliberate installation interaction");
 Reject(p,"unfilled custom plan cannot silently generate interactive XML");
 p.ImageLanguage="zh-CN";p.Locale="zh-Hans-CN";p.Keyboard=InstallPlan.New().Keyboard;p.GeoId="45";
 Reject(p,"automatic account needs a real user");p.Users.Add(new(){Name="",Password="Password123"});Reject(p,"blank custom account name rejected");p.Users[0].Name="CustomUser";Reject(p,"custom generic key requires an actual SKU selection");p.EditionId="home";xml=Xml(p);
@@ -2017,3 +2018,6 @@ Console.WriteLine($"V1.6 total: {count} checks passed.");
 count+=NativeDeploymentTests.Run(g);
 count+=VersionDisplayTests.Run();
 Console.WriteLine($"V1.7 total: {count} checks passed.");
+
+count+=UiImprovementTests.Run(g);
+Console.WriteLine($"V1.8 total: {count} checks passed.");

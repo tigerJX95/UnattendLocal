@@ -4,7 +4,7 @@
 
 UnattendLocal is a Chinese-language Windows desktop tool based on [Christoph Schneegans’ UnattendGenerator](https://github.com/cschneegans/unattend-generator). It lets you edit, check, and generate `autounattend.xml` for Windows 10 / 11 locally.
 
-Current version: **V1.7**. This release adds workgroup names and a Windows PE log directory alongside categorized settings search, Windows registration settings, Setup Dynamic Update, driver directories, script-file import/save-as, static IPv4, automatic partitioning and XML import/editing. The tool prepares installation configuration; it does not run generated scripts on your current computer.
+Current version: **V1.8**. This release improves setup notices, script actions, color selection, folder guidance and application-removal layout, alongside categorized settings search, Windows registration settings, Setup Dynamic Update, driver directories, script-file import/save-as, static IPv4, automatic partitioning and XML import/editing. The tool prepares installation configuration; it does not run generated scripts on your current computer.
 
 ## 💡 Why this project exists
 
@@ -57,21 +57,20 @@ The displayed product key is a public generic installation key for selecting an 
 - Save and restore JSON plans; review summaries, recommended-setting differences, checks, redacted previews, and XML exports.
 - Import existing XML and edit supported settings while preserving unknown content. Export stops with an explanation when changes cannot be merged reliably.
 
-## ✨ V1.7 updates
+## ✨ V1.8 updates
 
-- Added installation workgroup names on the Network page, with recognized native XML import, editing and cancellation.
-- Added a Windows PE log directory on the Image and partition page. It affects PE logs only and requires a local absolute directory on a fixed disk of the target computer.
-- Both options default to off and integrate saved plans, summaries, dynamic help and settings search. Unknown or conflicting imports retain their source and are visibly read-only.
-- Redacted domain-join passwords, machine passwords and offline-join data in previews, and blocked importing those redacted previews as installation configuration.
-- Fixed empty-component handling when cancelling a workgroup, allowing reimport and re-enabling after export.
-- Fixed an outdated startup status version. The title, About and status share the actual assembly version, checked before publishing.
-- Updated the configuration plans and edition/key screenshots for both themes, with screenshot version V1.7 explicitly labeled.
+- Improved installation-target notices: distinguish automatic partitioning, a specified existing target, automatic selection of an available partition and an unspecified target. Actual XML determines the pre-export notice; installation behavior is unchanged.
+- Script import and save-as now use distinct directional icons and precise tooltips, preserving existing format, encoding and execution-stage behavior.
+- Click an accent or solid-background preview to open a visual color picker with hue, saturation/value, RGB and HEX synchronization. Changes and Windows-default restoration apply only after confirmation; cancellation preserves the original settings.
+- Added an offline Windows 11 Start-menu folder-position illustration, clearly labeled as a diagram, showing the shortcuts to the left of the power button.
+- Changed application removal to two checkbox columns with detailed impact tooltips, preserving description-keyword search, selections and read-only protection.
+- Publish variants use separate intermediate build directories while retaining version checks and overwrite protection. The four user-provided screenshots remain accurately labeled V1.7.
 
-[Workgroup names](docs/Workgroup.md) · [PE log directory](docs/PeLogs.md)
+[UI improvement guide](docs/UiImprovements.md)
 
 ## 📦 Download and usage
 
-Download and run the matching Windows x64 executable from the repository’s **Releases** page: `UnattendLocal_V1.7_x64_SelfContained.exe` or `UnattendLocal_V1.7_x64_FrameworkDependent.exe`. Choose `UnattendLocal_V1.7_x64_SelfContained.exe` for a bundled .NET runtime, or `UnattendLocal_V1.7_x64_FrameworkDependent.exe` if .NET 10 Desktop Runtime x64 is already installed. Both have the same features. Use a virtual machine for initial testing.
+Download and run the matching Windows x64 executable from the repository’s **Releases** page: `UnattendLocal_V1.8_x64_SelfContained.exe` or `UnattendLocal_V1.8_x64_FrameworkDependent.exe`. Choose `UnattendLocal_V1.8_x64_SelfContained.exe` for a bundled .NET runtime, or `UnattendLocal_V1.8_x64_FrameworkDependent.exe` if .NET 10 Desktop Runtime x64 is already installed. Both have the same features. Use a virtual machine for initial testing.
 
 1. Choose a recommended scenario or a custom configuration and enter the required account and image settings.
 2. Adjust system, appearance, and application removal options as needed.
@@ -108,7 +107,7 @@ Exported XML, JSON plans containing credentials, and custom scripts may contain 
 
 Use Visual Studio 2026 and the .NET 10 SDK with the .NET desktop development workload. Open `UnattendLocal.sln` at the repository root. The solution contains Desktop, Core, vendor/UnattendGenerator, and Tests; Desktop is the default startup project.
 
-Run `build.cmd` to publish both single-file EXEs. The script reads the project version, checks the published EXE versions, and writes directly to `UnattendLocal-release/v1.7/` beside the source directory. Existing release files are not overwritten. Use `build.cmd -CreateZip` if additional ZIP archives are required.
+Run `build.cmd` to publish both single-file EXEs. The script reads the project version, checks the published EXE versions, and writes directly to `UnattendLocal-release/v1.8/` beside the source directory. Existing release files are not overwritten. Use `build.cmd -CreateZip` if additional ZIP archives are required.
 
 Alternatively, run these commands from the source root:
 

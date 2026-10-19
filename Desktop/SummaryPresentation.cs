@@ -33,7 +33,7 @@ public record SummaryPresentation(IReadOnlyList<SummarySection> Sections, IReadO
             if (line.StartsWith("请核对镜像、", StringComparison.Ordinal)) { notices.Add(line); continue; }
             int colon = line.IndexOf('：');
             string label = colon >= 0 ? line[..colon] : "补充说明", value = colon >= 0 ? line[(colon + 1)..].Trim() : line;
-            if (label is "生成前待填" or "安装时仍需操作")
+            if (label is "生成前待填" or "安装时仍需操作" or "安装时可能需要操作")
             {
                 bool needsAttention = label == "生成前待填" ? !value.StartsWith("未发现空缺必填项", StringComparison.Ordinal) : !value.StartsWith("所列步骤已预设", StringComparison.Ordinal);
                 reviews.Add(new(label, value, needsAttention)); continue;

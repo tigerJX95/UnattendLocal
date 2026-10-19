@@ -10,7 +10,7 @@ public static class InstallationSettings {
   DiskScriptSettings.Mode=>$"【危险】执行自定义 DiskPart 脚本（可能影响任意磁盘）；随后安装到磁盘 {p.TargetDiskId} / 分区 {p.TargetPartitionId}",
   Existing=>$"磁盘 {p.TargetDiskId} / 分区 {p.TargetPartitionId}；{(p.FormatExistingPartition?"【危险】格式化此分区，删除分区内全部数据":"不格式化；安装仍可能改动原有文件")}",
   Wipe=>$"【危险】清空磁盘 {p.TargetDiskId} 全部分区和数据；{p.DiskLayout} 自动分区；{AutoPartitionSettings.Summary(p)}",
-  _=>"安装时手动选择，不自动清空或格式化"};
+  _=>InstallationReview.ForPlan(p).Description};
  public static void Validate(InstallPlan p){
   if(p.ImageSelection is not ("由安装程序决定" or "按镜像名称" or "按镜像索引"))throw new ArgumentException("请选择有效镜像选择方式。");
   if(p.ImageSelection=="按镜像名称"&&(string.IsNullOrWhiteSpace(p.ImageName)||p.ImageName.Length>256||p.ImageName.Any(char.IsControl)))throw new ArgumentException("请填写安装镜像中的完整名称（不含控制字符）。");

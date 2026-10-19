@@ -912,7 +912,7 @@
         <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
           <StackPanel Margin="20">
             <TextBlock x:Name="SettingAnchor141" Text="按项选择要移除的应用与系统能力" FontSize="20" FontWeight="SemiBold" Margin="0,0,0,12"/>
-            <TextBlock Text="默认不勾选；只在目标 Windows 安装时执行。不存在的项目会跳过，取消勾选只影响新生成的配置。请先阅读每项影响说明。" TextWrapping="Wrap" Margin="0,0,0,12" ToolTip="{Binding HelpTips[appremoval]}"/>
+            <TextBlock Text="默认不勾选；只在目标 Windows 安装时执行。不存在的项目会跳过，取消勾选只影响新生成的配置。悬停项目可查看详细影响说明。" TextWrapping="Wrap" Margin="0,0,0,12" ToolTip="{Binding HelpTips[appremoval]}"/>
             <TextBlock Text="应用移除功能已支持；本文件的原脚本暂不能通过清单编辑，仍会保留并随 XML 导出。下方勾选仅表示已识别的项目，不代表原脚本没有其他移除操作。" TextWrapping="Wrap" Foreground="{DynamicResource WarningBrush}" Margin="0,0,0,12"><TextBlock.Style><Style TargetType="TextBlock" BasedOn="{StaticResource {x:Type TextBlock}}"><Setter Property="Visibility" Value="Collapsed"/><Style.Triggers><DataTrigger Binding="{Binding CanEditAppRemoval}" Value="False"><Setter Property="Visibility" Value="Visible"/></DataTrigger></Style.Triggers></Style></TextBlock.Style></TextBlock>
             <TextBlock Text="{Binding AppRemovalSummary}" TextWrapping="Wrap" FontWeight="SemiBold" Margin="0,0,0,16"/>
             <TextBlock Text="搜索应用或组件" Margin="0,0,0,4"/>
@@ -920,17 +920,14 @@
             <TextBlock Text="{Binding AppRemovalFilterSummary}" Foreground="{DynamicResource SecondaryBrush}" Margin="0,0,0,10"/>
             <WrapPanel IsEnabled="{Binding CanEditAppRemoval}" Margin="0,0,0,10"><Button Content="勾选当前筛选结果" Tag="select" Click="SelectFilteredAppsClick"/><Button Content="取消当前筛选结果" Tag="clear" Click="SelectFilteredAppsClick"/></WrapPanel>
             <ItemsControl x:Name="AppRemovalItems" IsEnabled="{Binding CanEditAppRemoval}" ItemsSource="{Binding FilteredAppRemovalChoices}">
-              <ItemsControl.ItemTemplate>
-                <DataTemplate>
-                  <Border BorderBrush="{DynamicResource BorderBrush}" BorderThickness="0,0,0,1" Padding="0,10">
-                    <StackPanel>
-                      <CheckBox Content="{Binding Label}" IsChecked="{Binding IsSelected,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}" ToolTip="{Binding Description}"/>
-                      <TextBlock Text="{Binding Group}" Foreground="{DynamicResource SecondaryBrush}" Margin="26,4,0,0" FontSize="12"/>
-                      <TextBlock Text="{Binding Description}" TextWrapping="Wrap" Foreground="{DynamicResource SecondaryBrush}" Margin="26,4,0,0" FontSize="12"/>
-                    </StackPanel>
-                  </Border>
-                </DataTemplate>
-              </ItemsControl.ItemTemplate>
+              <ItemsControl.ItemsPanel><ItemsPanelTemplate><UniformGrid Columns="2"/></ItemsPanelTemplate></ItemsControl.ItemsPanel>
+              <ItemsControl.ItemTemplate><DataTemplate>
+                <Border BorderBrush="{DynamicResource BorderBrush}" BorderThickness="0,0,0,1" Padding="4,10" Margin="0,0,12,0">
+                  <CheckBox IsChecked="{Binding IsSelected,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}" ToolTipService.ShowOnDisabled="True" ToolTip="{Binding Description}">
+                    <TextBlock Text="{Binding Label}" TextWrapping="Wrap"/>
+                  </CheckBox>
+                </Border>
+              </DataTemplate></ItemsControl.ItemTemplate>
             </ItemsControl>
           </StackPanel>
         </ScrollViewer>
@@ -1065,7 +1062,10 @@
             <TextBlock Style="{StaticResource ExplanationText}" Text="　　此项独立设置，只删除 Microsoft Edge.lnk 快捷方式，不会卸载 Edge。" TextWrapping="Wrap" Foreground="{DynamicResource SecondaryBrush}" FontSize="12" />
           </StackPanel></Border>
           <Border Style="{StaticResource Card}"><StackPanel>
-            <TextBlock x:Name="SettingAnchor185" Text="开始菜单电源按钮旁的文件夹" FontSize="18" FontWeight="SemiBold" />
+            <DockPanel LastChildFill="True">
+              <Button x:Name="StartFoldersIllustrationButton" DockPanel.Dock="Right" Content="查看文件夹位置示意" Click="StartFoldersIllustrationClick" ToolTip="查看 Windows 11 开始菜单电源按钮左侧的文件夹入口位置"/>
+              <TextBlock x:Name="SettingAnchor185" Text="开始菜单电源按钮旁的文件夹" FontSize="18" FontWeight="SemiBold" TextWrapping="Wrap" VerticalAlignment="Center"/>
+            </DockPanel>
             <TextBlock Style="{StaticResource ExplanationText}" Text="　　仅适用于 Windows 11；不改变开始菜单固定应用，也不会删除文件夹或文件。" TextWrapping="Wrap" Foreground="{DynamicResource SecondaryBrush}" />
             <ComboBox x:Name="SettingAnchor186" SelectedValue="{Binding Plan.StartFoldersMode}" SelectedValuePath="Content" ToolTip="{Binding DataContext.HelpTips[startfolders],RelativeSource={RelativeSource AncestorType=Window}}"><ComboBoxItem Content="使用 Windows 默认文件夹" /><ComboBoxItem Content="自定义开始菜单文件夹" /></ComboBox>
             <StackPanel IsEnabled="{Binding IsCustomStartFolders}">
@@ -1154,7 +1154,9 @@
             </ComboBox>
             <TextBlock Text="或填写自定义颜色（#RRGGBB）"/>
             <DockPanel Margin="0,4,0,12">
-              <Border DockPanel.Dock="Left" Width="32" Height="32" Background="{Binding AccentColorPreview}" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1" CornerRadius="5" Margin="0,0,10,0" VerticalAlignment="Center" ToolTip="{Binding DataContext.HelpTips[accentcolor],RelativeSource={RelativeSource AncestorType=Window}}"/>
+              <Button x:Name="AccentColorPickerButton" DockPanel.Dock="Left" Width="40" Height="36" Margin="0,0,10,0" Padding="4" Tag="accent" Click="ColorPickerClick" ToolTip="打开可视化调色板，选择Windows 强调色" AutomationProperties.Name="选择Windows 强调色">
+                <Button.Template><ControlTemplate TargetType="Button"><Border BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="1" CornerRadius="5" Padding="4" Background="{DynamicResource SurfaceBrush}"><Border Background="{Binding AccentColorPreview}" CornerRadius="2"/></Border><ControlTemplate.Triggers><Trigger Property="IsKeyboardFocused" Value="True"><Setter Property="BorderBrush" Value="{DynamicResource AccentBrush}"/></Trigger></ControlTemplate.Triggers></ControlTemplate></Button.Template>
+              </Button>
               <TextBox x:Name="SettingAnchor221" DockPanel.Dock="Left" Width="140" Text="{Binding Plan.AccentColorHex,UpdateSourceTrigger=PropertyChanged}" MaxLength="32" FontFamily="Consolas" FontSize="16" FontWeight="SemiBold" Margin="0,0,12,0" ToolTip="{Binding DataContext.HelpTips[accentcolor],RelativeSource={RelativeSource AncestorType=Window}}"/>
               <TextBlock Style="{StaticResource ExplanationText}" Text="{Binding AccentColorHint,StringFormat='　　{0}'}" TextWrapping="Wrap" VerticalAlignment="Center" Foreground="{DynamicResource SecondaryBrush}"/>
             </DockPanel>
@@ -1179,7 +1181,9 @@
               </ComboBox>
               <TextBlock Text="或填写自定义颜色（#RRGGBB）"/>
               <DockPanel Margin="0,4,0,12">
-                <Border DockPanel.Dock="Left" Width="32" Height="32" Background="{Binding WallpaperColorPreview}" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1" CornerRadius="5" Margin="0,0,10,0" VerticalAlignment="Center" ToolTip="{Binding DataContext.HelpTips[wallpapercolor],RelativeSource={RelativeSource AncestorType=Window}}"/>
+                <Button x:Name="WallpaperColorPickerButton" DockPanel.Dock="Left" Width="40" Height="36" Margin="0,0,10,0" Padding="4" Tag="wallpaper" Click="ColorPickerClick" ToolTip="打开可视化调色板，选择纯色桌面背景" AutomationProperties.Name="选择纯色桌面背景">
+                <Button.Template><ControlTemplate TargetType="Button"><Border BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="1" CornerRadius="5" Padding="4" Background="{DynamicResource SurfaceBrush}"><Border Background="{Binding WallpaperColorPreview}" CornerRadius="2"/></Border><ControlTemplate.Triggers><Trigger Property="IsKeyboardFocused" Value="True"><Setter Property="BorderBrush" Value="{DynamicResource AccentBrush}"/></Trigger></ControlTemplate.Triggers></ControlTemplate></Button.Template>
+              </Button>
                 <TextBox x:Name="SettingAnchor226" DockPanel.Dock="Left" Width="140" Text="{Binding Plan.WallpaperColorHex,UpdateSourceTrigger=PropertyChanged}" MaxLength="32" FontFamily="Consolas" FontSize="16" FontWeight="SemiBold" Margin="0,0,12,0" ToolTip="{Binding DataContext.HelpTips[wallpapercolor],RelativeSource={RelativeSource AncestorType=Window}}"/>
                 <TextBlock Style="{StaticResource ExplanationText}" Text="{Binding WallpaperColorHint,StringFormat='　　{0}'}" TextWrapping="Wrap" VerticalAlignment="Center" Foreground="{DynamicResource SecondaryBrush}"/>
               </DockPanel>
@@ -1222,7 +1226,7 @@
             <TextBlock Style="{StaticResource ExplanationText}" Text="　　System → DefaultUser → FirstLogon；UserOnce 在每个用户首次登录时运行。同阶段按下方列表顺序执行。各阶段包含工具生成的其他命令，自定义脚本不能替代其执行流程。" TextWrapping="Wrap"/>
             <TextBlock Style="{StaticResource ExplanationText}" Text="　　这些是 Windows 安装与登录阶段，不是 Sysprep 封装前后的钩子。首次登录不保证桌面已加载完成。脚本按原样嵌入应答文件；请自行核对权限、路径、网络、等待安装程序结束以及错误处理。" TextWrapping="Wrap" Foreground="{DynamicResource WarningBrush}"/>
             <WrapPanel><Button Content="添加脚本" Click="AddScriptClick"/><Button Content="复制脚本" Click="DuplicateScriptClick"/><Button Content="删除脚本" Click="RemoveScriptClick"/><Button Content="上移脚本" Tag="up" Click="MoveScriptClick"/><Button Content="下移脚本" Tag="down" Click="MoveScriptClick"/></WrapPanel>
-            <WrapPanel Margin="0,4,0,0"><Button x:Name="ImportScriptFileButton" Content="导入脚本文件…" Click="ImportScriptFileClick" ToolTip="{Binding HelpTips[scriptfiles]}"/><Button x:Name="SaveScriptFileButton" Content="另存选中脚本…" Click="SaveScriptFileClick" IsEnabled="{Binding HasSelectedScript}" ToolTip="{Binding HelpTips[scriptfiles]}"/></WrapPanel>
+            <WrapPanel Margin="0,4,0,0"><Button x:Name="ImportScriptFileButton" Content="导入脚本文件…" Click="ImportScriptFileClick" ToolTip="导入脚本文件，新增条目并默认停用"/><Button x:Name="SaveScriptFileButton" Content="另存选中脚本…" Click="SaveScriptFileClick" IsEnabled="{Binding HasSelectedScript}" ToolTip="导出选中脚本内容到文件"/></WrapPanel>
             <TextBlock Style="{StaticResource ExplanationText}" Text="文件导入新增一条默认停用的 System 脚本，不替换现有条目；支持 UTF-8 或带 BOM 的 UTF-16。请核对阶段与内容后启用。另存仅输出选中脚本正文，不包含执行阶段或启用状态。" TextWrapping="Wrap" Foreground="{DynamicResource SecondaryBrush}"/>
             <TextBlock Style="{StaticResource ExplanationText}" Text="另存编码：PS1 为带 BOM 的 UTF-8，REG / VBS 为带 BOM 的 UTF-16 LE，CMD 为无 BOM 的 UTF-8。中文 CMD 需代码页匹配；不会自动插入 chcp。REG 缺少标准文件头时仅在另存文件中补齐。" TextWrapping="Wrap" Foreground="{DynamicResource SecondaryBrush}"/>
             <ListBox ItemsSource="{Binding Plan.Scripts}" SelectedItem="{Binding SelectedScript}" DisplayMemberPath="Label" MaxHeight="170" MinHeight="65"/>
