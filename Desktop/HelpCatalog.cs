@@ -48,6 +48,7 @@ public static class HelpCatalog
             new("secrets", "密码编码与隐私文件", "Base64 可还原，不是加密。隐私文件保留选项位于 OOBE 页的“安装脚本与隐私文件”。默认在首次管理员登录阶段清理目标系统的应答文件与 Wi-Fi 文件；自动创建本地账户并关闭首次自动登录时需明确选择保留。安装介质上的原始 XML 需另行保管。")
         ],
         [
+            new("workgroup","目标系统工作组",WorkgroupSettings.Description),
             new("staticipv4", "静态 IPv4 配置", StaticIPv4Settings.Description),
             new("staticmac", "目标网卡 MAC 地址", "填写目标电脑或虚拟机网卡的 MAC，不是当前电脑的 MAC。支持横线、冒号或连续 12 位十六进制，导出统一使用大写横线格式。仅接受单播地址；不扫描、自动选择或改用其他网卡。Wi-Fi 随机 MAC 或克隆虚拟机后的 MAC 改变可能导致不匹配，需自行核对目标安装环境。"),
             new("staticgateway", "静态 IPv4 默认网关", "可留空。填写时须为同子网中其他有效主机地址，不能是本机、网络或广播地址。本版只生成一条默认路由，不提供跨子网网关、策略路由或 /31、/32 配置。留空不生成默认路由，并不保证能访问互联网。"),
@@ -78,6 +79,7 @@ public static class HelpCatalog
             new("virtiotools","VirtIO Guest Tools",VmGuestToolsSettings.Description("VirtIoGuestTools")),
             new("parallelstools","Parallels Tools",VmGuestToolsSettings.Description("ParallelsTools")),
             new("applocker","AppLocker 应用控制策略",AppControlSettings.Description),
+            new("pelog","Windows PE 阶段日志目录",PeLogSettings.Description),
             new("setupdynamicupdate","安装阶段动态更新",SetupDynamicUpdateSettings.Description),
             new("setupdynamicui","动态更新界面显示","遵循默认显示行为不写入覆盖。OnError 仅出错时显示；Never 不显示更新界面，但严重错误仍可能显示；Always 始终显示。此设置不自动重试或修复错误，也不控制安装后的 Windows Update 界面。"),
             new("setupdrivers","安装阶段驱动目录",SetupDriverSettings.Description),
@@ -196,6 +198,8 @@ public static class HelpCatalog
             "applocker"=>AppControlSettings.Summary(plan),
             "configset"=>ConfigurationSetSettings.Summary(plan),
             "registeredinformation" or "registeredowner" or "registeredorganization"=>RegisteredInformationSettings.Summary(plan),
+            "workgroup"=>WorkgroupSettings.Summary(plan),
+            "pelog"=>PeLogSettings.Summary(plan),
             "setupdynamicupdate" or "setupdynamicui"=>SetupDynamicUpdateSettings.Summary(plan),
             "setupdrivers" or "setupdriverpaths"=>SetupDriverSettings.Summary(plan),
             "sac" or "smartscreen" or "coreisolation" or "rootacl"=>SecurityOptions.HelpState(plan,topic.Id),

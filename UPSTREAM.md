@@ -135,3 +135,6 @@ V1.4 核对 · 2026-10-18：原作者官网发布仍标注 27237f82e9a8498d9c5ba
 
 
 V1.5 核对 · 2026-10-18：原作者官网仍标注发布提交 27237f8；GitHub commits 接口本次未取得可用结果，不声称确认未发布仓库状态。本版仅在本地适配层接入微软已有 RegisteredOwner/RegisteredOrganization，支持官方列出的五个执行阶段并保留导入字段的原阶段；最大长度 256、支持空元素依据当前微软文档。固定 vendor 不变，不接入完整 GeneratePESettings。输入范围、JSON/预览中的名称处理和实际部署边界见 docs/RegisteredInformation.md。
+
+
+V1.7 核对（2026-10-19）：官网发布标注仍为 27237f8；GitHub commits 接口本次未取得可用结果，不声称确认未发布仓库最新状态。工作组与 LogPath 使用微软已有的 specialize/windowsPE 原生能力，不接入整套 GeneratePESettings，不修改 vendor。官方字段说明和参考见 docs/Workgroup.md、docs/PeLogs.md。

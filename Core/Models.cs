@@ -16,6 +16,11 @@ public class UserEntry : Observable {
  private bool _NeedsPassword = false; public bool NeedsPassword {get=>_NeedsPassword;set=>Set(ref _NeedsPassword,value);}
 }
 public class InstallPlan : Observable {
+ private bool _UseWorkgroup;public bool UseWorkgroup {get=>_UseWorkgroup;set=>Set(ref _UseWorkgroup,value);}
+ private string _WorkgroupName="WORKGROUP";public string WorkgroupName {get=>_WorkgroupName;set=>Set(ref _WorkgroupName,value);}
+ private bool _UsePeLogPath;public bool UsePeLogPath {get=>_UsePeLogPath;set{if(_UsePeLogPath==value)return;ClearDiskConsent();Set(ref _UsePeLogPath,value);}}
+ private string _PeLogPath="";public string PeLogPath {get=>_PeLogPath;set{if(_PeLogPath==value)return;ClearDiskConsent();Set(ref _PeLogPath,value);}}
+
  private bool _UseRegisteredOwner;public bool UseRegisteredOwner {get=>_UseRegisteredOwner;set=>Set(ref _UseRegisteredOwner,value);}
  private string _RegisteredOwner="";public string RegisteredOwner {get=>_RegisteredOwner;set=>Set(ref _RegisteredOwner,value);}
  private string _RegisteredOwnerPass="specialize";public string RegisteredOwnerPass {get=>_RegisteredOwnerPass;set=>Set(ref _RegisteredOwnerPass,value);}

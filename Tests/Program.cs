@@ -1,5 +1,7 @@
 using System.Text;using System.Xml;using UnattendLocal.Core;
 int count=0;var g=new GeneratorService();
+if(args.Contains("--version-display-only")){VersionDisplayTests.Run();Console.WriteLine("Version display check passed.");return;}
+if(args.Contains("--native-deployment-only")){Console.WriteLine($"V1.7 native deployment: {NativeDeploymentTests.Run(g)} checks passed.");return;}
 if(args.Contains("--registered-info-only")){Console.WriteLine($"V1.5 registered information: {RegisteredInformationTests.Run(g)} checks passed.");return;}
 if(args.Contains("--dynamic-update-only")){Console.WriteLine($"V1.4 dynamic updates: {SetupDynamicUpdateTests.Run(g)} checks passed.");return;}
 if(args.Contains("--setup-drivers-only")){Console.WriteLine($"V1.3 drivers: {SetupDriverTests.Run(g)} checks passed.");return;}
@@ -2011,3 +2013,7 @@ Console.WriteLine($"V1.5 total: {count} checks passed.");
 
 count+=SettingsSearchTests.Run();
 Console.WriteLine($"V1.6 total: {count} checks passed.");
+
+count+=NativeDeploymentTests.Run(g);
+count+=VersionDisplayTests.Run();
+Console.WriteLine($"V1.7 total: {count} checks passed.");

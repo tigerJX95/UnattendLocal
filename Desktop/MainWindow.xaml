@@ -381,6 +381,15 @@
             <TextBlock Style="{StaticResource ExplanationText}" Text="{Binding SetupDynamicUpdateSummary}"/>
             <TextBlock Style="{StaticResource ExplanationText}" Text="原 XML 的动态更新或 PE 流程未完整识别，本区域只读；请核对配置方案页的导入说明。" Foreground="{DynamicResource WarningBrush}" Visibility="{Binding HasReadonlySetupDynamicUpdate,Converter={StaticResource VisibleWhen}}"/>
           </StackPanel></Border>
+          <Border Style="{StaticResource Card}"><StackPanel>
+            <TextBlock Text="Windows PE 阶段日志" FontSize="20" FontWeight="SemiBold" Margin="0,0,0,12"/>
+            <CheckBox x:Name="PeLogCheck" Content="指定 PE 日志目录" IsChecked="{Binding Plan.UsePeLogPath}" IsEnabled="{Binding CanEditPeLog}" ToolTip="{Binding HelpTips[pelog]}"/>
+            <TextBox x:Name="PeLogEditor" Text="{Binding Plan.PeLogPath,UpdateSourceTrigger=PropertyChanged}" IsEnabled="{Binding IsPeLog}" MaxLength="259" local:ExampleText.Value="D:\SetupLogs（请核对目标 PE 盘符）" Style="{StaticResource ExampleEditor}" ToolTip="{Binding HelpTips[pelog]}"/>
+            <TextBlock Style="{StaticResource ExplanationText}" Text="仅影响 windowsPE 阶段，不改变安装后系统的 Panther 日志位置。目录须位于目标电脑的固定磁盘并可写；不支持 UNC、变量或常见 PE 内存盘 X:。请避免被清空或格式化的分区；本工具不检测当前电脑目录。"/>
+            <TextBlock Style="{StaticResource ExplanationText}" Text="{Binding PeLogSummary}"/>
+            <TextBlock Style="{StaticResource ExplanationText}" Text="原 XML 的日志目录或 PE 流程未完整识别，原文只读保留；请到配置方案页查看导入说明。" Visibility="{Binding HasReadonlyPeLog,Converter={StaticResource VisibleWhen}}" Foreground="{DynamicResource WarningBrush}"/>
+          </StackPanel></Border>
+
 
           <Border Style="{StaticResource Card}"><StackPanel>
             <TextBlock Text="安装阶段驱动目录" FontSize="20" FontWeight="SemiBold" Margin="0,0,0,16"/>
@@ -623,6 +632,15 @@
       <TabItem Header="网络" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch">
         <ScrollViewer VerticalScrollBarVisibility="Auto">
           <StackPanel Margin="24">
+            <Border Style="{StaticResource Card}"><StackPanel>
+              <TextBlock Text="目标系统工作组" FontSize="20" FontWeight="SemiBold" Margin="0,0,0,12"/>
+              <CheckBox x:Name="WorkgroupCheck" Content="指定工作组名称" IsChecked="{Binding Plan.UseWorkgroup}" IsEnabled="{Binding CanEditWorkgroup}" ToolTip="{Binding HelpTips[workgroup]}"/>
+              <TextBox x:Name="WorkgroupEditor" Text="{Binding Plan.WorkgroupName,UpdateSourceTrigger=PropertyChanged}" IsEnabled="{Binding IsWorkgroup}" MaxLength="15" ToolTip="{Binding HelpTips[workgroup]}"/>
+              <TextBlock Style="{StaticResource ExplanationText}" Text="默认不指定。启用后在安装阶段设置工作组；不会加入域，也不会自动开启共享或网络发现。本版名称采用 1–15 个英文字母、数字或连字符，首尾为字母或数字且至少含一个字母。"/>
+              <TextBlock Style="{StaticResource ExplanationText}" Text="{Binding WorkgroupSummary}"/>
+              <TextBlock Style="{StaticResource ExplanationText}" Text="原 XML 的域/工作组配置未完整识别，原文只读保留；请到配置方案页查看导入说明。" Visibility="{Binding HasReadonlyWorkgroup,Converter={StaticResource VisibleWhen}}" Foreground="{DynamicResource WarningBrush}"/>
+            </StackPanel></Border>
+
             <Border Style="{StaticResource Card}"><StackPanel>
               <TextBlock x:Name="StaticIPv4Section" Text="静态 IPv4（目标系统）" FontSize="20" FontWeight="SemiBold" Margin="0,0,0,12"/>
               <CheckBox x:Name="StaticIPv4Enabled" Content="按目标网卡 MAC 地址指定静态 IPv4" IsChecked="{Binding Plan.UseStaticIPv4}" IsEnabled="{Binding CanEditStaticIPv4}" ToolTip="{Binding DataContext.HelpTips[staticipv4],RelativeSource={RelativeSource AncestorType=Window}}"/>

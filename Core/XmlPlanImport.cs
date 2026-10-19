@@ -15,6 +15,7 @@ public static class XmlPlanImport {
  private static bool IsTrue(string? text)=>text is "true" or "1";
  public static InstallPlan Import(string xml,GeneratorService service){
   var original=XmlMerge.Read(xml);var doc=XmlImportPaths.Inspection(original);var ns=new XmlNamespaceManager(doc.NameTable);ns.AddNamespace("u",XmlMerge.Namespace);
+  if(doc.SelectNodes("//u:component[@name='Microsoft-Windows-UnattendedJoin']//u:Credentials/u:Password | //u:component[@name='Microsoft-Windows-UnattendedJoin']//u:MachinePassword | //u:component[@name='Microsoft-Windows-UnattendedJoin']//u:Provisioning/u:AccountData",ns)!.Cast<XmlElement>().Any(n=>n.InnerText==GeneratorService.DomainCredentialPlaceholder))throw new ArgumentException("此 XML 是遮蔽后的域加入预览，请导入实际导出的原始 XML。");
   var arches=doc.SelectNodes("//u:component/@processorArchitecture",ns)!.Cast<XmlAttribute>().Select(a=>a.Value).Distinct().ToArray();
   if(arches.Length>1)throw new ArgumentException("此 XML 含多个安装架构，当前界面仅支持单一架构；请先在原工具中导出单一架构文件。");
   if(arches.Length==1&&arches[0] is not ("amd64" or "arm64" or "x86"))throw new ArgumentException("此 XML 使用了尚不支持的安装架构。");
@@ -50,6 +51,8 @@ public static class XmlPlanImport {
   var driverState=SetupDriverSettings.ReadIntoPlan(doc,p,notes);
   var dynamicUpdateState=SetupDynamicUpdateSettings.ReadIntoPlan(doc,p,notes);
   var registeredInformationState=RegisteredInformationSettings.ReadIntoPlan(doc,p,notes);
+  var workgroupState=WorkgroupSettings.ReadIntoPlan(doc,p,notes);
+  var peLogState=PeLogSettings.ReadIntoPlan(doc,p,notes);
   p.Architecture=arches.FirstOrDefault()??"amd64";
   p.ConfigurationMode="自定义配置";p.CustomStartingPoint="保留当前设置";p.RecommendationId="";p.RecommendationVersion=0;p.RecommendationWindows="";
   p.ClearDiskConsent();
@@ -74,6 +77,8 @@ public static class XmlPlanImport {
   SetupDriverSettings.UpdateImportState(p.ImportedXml,driverState);
   SetupDynamicUpdateSettings.UpdateImportState(p.ImportedXml,dynamicUpdateState);
   RegisteredInformationSettings.UpdateImportState(p.ImportedXml,registeredInformationState);
+  WorkgroupSettings.UpdateImportState(p.ImportedXml,workgroupState);
+  PeLogSettings.UpdateImportState(p.ImportedXml,peLogState);
   FirstLogonSettings.UpdateImportState(p.ImportedXml,p,firstLogonState);
   p.ClearDiskConsent();return p;
  }
@@ -257,6 +262,8 @@ public static class XmlPlanImport {
   if(copy.AccountMode!="自动创建本地账户")copy.Users.Clear();
   if(!WifiSettings.IsPreset(copy)){copy.Ssid="";copy.WifiPassword="";}
   if(!copy.UseSetupDrivers)copy.SetupDriverPaths="";
+  if(!copy.UseWorkgroup)copy.WorkgroupName="";
+  if(!copy.UsePeLogPath)copy.PeLogPath="";
   if(!copy.UseRegisteredOwner)copy.RegisteredOwner="";
   if(!copy.UseRegisteredOrganization)copy.RegisteredOrganization="";
   if(!copy.UseAppLocker)copy.AppLockerPolicyXml="";
@@ -282,6 +289,8 @@ public static class XmlPlanImport {
   SetupDriverSettings.ValidateImported(p,source);
   SetupDynamicUpdateSettings.ValidateImported(p,source);
   RegisteredInformationSettings.ValidateImported(p,source);
+  WorkgroupSettings.ValidateImported(p,source);
+  PeLogSettings.ValidateImported(p,source);
   ComputerNamingSettings.ValidateImported(p,source);
   LanguagePreferences.ValidateImported(p,source);
   WifiSettings.ValidateImported(p,source);

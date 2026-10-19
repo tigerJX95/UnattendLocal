@@ -5,6 +5,7 @@ using System.Text.RegularExpressions;
 using Schneegans.Unattend;
 namespace UnattendLocal.Core;
 public class GeneratorService {
+ internal const string DomainCredentialPlaceholder="[域加入凭据已遮蔽]";
  private readonly UnattendGenerator generator=new();
  public record Choice(string Id,string Label);
  public List<Choice> Languages=>generator.ImageLanguages.Values.Select(x=>new Choice(x.Id,ChoiceLocalization.Get("ImageLanguage",x.Id,x.DisplayName))).ToList();
@@ -30,6 +31,8 @@ public class GeneratorService {
   SetupDriverSettings.Validate(p);
   SetupDynamicUpdateSettings.Validate(p);
   RegisteredInformationSettings.Validate(p);
+  WorkgroupSettings.Validate(p);
+  PeLogSettings.Validate(p);
   InstallationSettings.Validate(p);
   ShellSettings.Validate(p);
   if(!p.InteractiveLanguage&&new[]{p.ImageLanguage,p.Locale,p.Keyboard,p.GeoId}.Any(string.IsNullOrWhiteSpace))throw new ArgumentException("请在基础设置中填写显示语言、区域格式、键盘和国家地区，或选择安装时手动设置语言与区域。");
@@ -107,7 +110,9 @@ public class GeneratorService {
   SetupDriverSettings.Apply(doc,ns,p);
   SetupDynamicUpdateSettings.Apply(doc,ns,p);
   RegisteredInformationSettings.Apply(doc,p);
-  if(includeImport&&p.ImportedXml is {} imported){FirstLogonSettings.ValidateGenerated(p,doc);doc=AppRemovalSettings.MergeImported(p,doc);}
+  WorkgroupSettings.Apply(doc,p);
+  PeLogSettings.Apply(doc,p);
+  if(includeImport&&p.ImportedXml is {} imported){FirstLogonSettings.ValidateGenerated(p,doc);doc=AppRemovalSettings.MergeImported(p,doc);WorkgroupSettings.FinishImported(doc,p);}
   using var schema=typeof(UnattendGenerator).Assembly.GetManifestResourceStream("Schneegans.Unattend.resource.autounattend.xsd")!;
   doc.Schemas.Add("urn:schemas-microsoft-com:unattend",XmlReader.Create(schema));
   doc.Validate((_,e)=>throw new ArgumentException("XML 结构验证失败："+e.Message));
@@ -120,6 +125,7 @@ public class GeneratorService {
   var ns=new XmlNamespaceManager(doc.NameTable);ns.AddNamespace("u","urn:schemas-microsoft-com:unattend");
   foreach(XmlNode n in doc.SelectNodes("//u:Password/u:Value | //u:AdministratorPassword/u:Value",ns)!)n.InnerText="[密码已遮蔽]";
   foreach(XmlNode n in doc.SelectNodes("//u:component[@name='Microsoft-Windows-PnpCustomizationsWinPE']//u:Credentials/u:Password",ns)!)n.InnerText="[驱动访问密码已遮蔽]";
+  foreach(XmlNode n in doc.SelectNodes("//u:component[@name='Microsoft-Windows-UnattendedJoin']//u:Credentials/u:Password | //u:component[@name='Microsoft-Windows-UnattendedJoin']//u:MachinePassword | //u:component[@name='Microsoft-Windows-UnattendedJoin']//u:Provisioning/u:AccountData",ns)!)n.InnerText=DomainCredentialPlaceholder;
   foreach(XmlNode n in doc.SelectNodes("//u:ProductKey/u:Key | //u:component[@name='Microsoft-Windows-Shell-Setup']/u:ProductKey",ns)!)n.InnerText="[产品密钥已遮蔽]";
   foreach(XmlNode n in doc.SelectNodes("//*[local-name()='File']",ns)!)
    if(n.Attributes?["path"]?.Value.EndsWith("Wifi.xml",StringComparison.OrdinalIgnoreCase)==true)

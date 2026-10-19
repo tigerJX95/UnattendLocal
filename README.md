@@ -4,7 +4,7 @@
 
 UnattendLocal 是基于 [Christoph Schneegans 的 UnattendGenerator](https://github.com/cschneegans/unattend-generator) 开发的中文 Windows 桌面配置工具，用于在本地编辑、检查和生成 Windows 10 / 11 的 `autounattend.xml`。
 
-当前版本：**V1.6**。增强设置搜索的分类筛选、输入响应与定位反馈，支持 Windows 注册信息、安装阶段动态更新、安装驱动目录、脚本文件导入与另存、静态 IPv4、自动分区及 XML 导入编辑。工具用于准备安装配置，不会在当前电脑执行生成的安装脚本。
+当前版本：**V1.7**。新增安装工作组名称与 Windows PE 日志目录，支持设置搜索分类筛选、Windows 注册信息、安装阶段动态更新、安装驱动目录、脚本文件导入与另存、静态 IPv4、自动分区及 XML 导入编辑。工具用于准备安装配置，不会在当前电脑执行生成的安装脚本。
 
 ## 💡 开发初衷
 
@@ -20,11 +20,17 @@ UnattendLocal 是基于 [Christoph Schneegans 的 UnattendGenerator](https://git
 
 ## 📸 运行截图
 
-| 配置方案 · 浅色主题 | 版本与密钥 · 深色主题 |
-| :---: | :---: |
-| ![配置方案：浅色主题](docs/images/overview.png) | ![版本与密钥：深色主题](docs/images/edition-and-key-dark.png) |
+截图版本：**V1.7**。以下为 Windows 上的实际运行界面，拍摄于 2026-10-19，保留原始 PNG。
 
-截图来自 V0.1 pre41 的实际运行界面，用于展示浅色与深色主题；当前 V1.6 已调整导航顺序并新增部分设置，实际界面以当前版本为准。
+| 配置方案 · 浅色主题 | 配置方案 · 深色主题 |
+| :---: | :---: |
+| ![V1.7 配置方案：浅色主题](docs/images/overview-light.png) | ![V1.7 配置方案：深色主题](docs/images/overview-dark.png) |
+
+| 版本与密钥 · 浅色主题 | 版本与密钥 · 深色主题 |
+| :---: | :---: |
+| ![V1.7 版本与密钥：浅色主题](docs/images/edition-and-key-light.png) | ![V1.7 版本与密钥：深色主题](docs/images/edition-and-key-dark.png) |
+
+图中的产品密钥为公开通用安装密钥，仅用于选择安装版本，不提供激活授权。
 
 ## ✨ 主要功能
 
@@ -33,6 +39,7 @@ UnattendLocal 是基于 [Christoph Schneegans 的 UnattendGenerator](https://git
 - 通过右上角“帮助与关于”查看版本、使用说明和内置第三方许可，支持离线查看与复制。
 
 - 通过顶部放大镜或 Ctrl+F 搜索中英文设置名称与别名，按页面分类筛选，切页定位并高亮结果。
+- 指定目标 Windows 的工作组名称与 PE 阶段日志目录，保留域加入等未知配置的原文。
 - 独立配置 Windows 注册所有者与组织名称，保留登录账户、计算机名与激活设置的独立性。
 - 配置安装架构、显示语言、区域、键盘、时区、计算机名及安装版本 / 产品密钥。
 - 配置镜像选择、已有分区或自动分区、系统分区大小、分区前暂停及 CompactOS；涉及清空或格式化时显示风险说明并要求核对。
@@ -48,23 +55,26 @@ UnattendLocal 是基于 [Christoph Schneegans 的 UnattendGenerator](https://git
 - 保存和恢复 JSON 方案，提供配置摘要、推荐差异、检查、脱敏预览和 XML 导出。
 - 导入已有 XML 后编辑已支持设置，保留未知内容；遇到无法可靠合并的修改时停止导出并说明原因。
 
-## ✨ V1.6 更新
+## ✨ V1.7 更新
 
-- 搜索设置新增分类筛选，可在全部设置或指定页面内查找，并保留本次会话的关键词与分类。
-- 优化连续输入响应；按 Enter 前刷新最新结果，避免使用上一轮关键词的定位目标。
-- 无结果时停用定位按钮，提供更换关键词或返回全部分类的提示；新增清空筛选和 Ctrl+L 重新输入。
-- 修正全角关键词的结果排序，统一窗口标题与关于页的实际版本来源。
+- 新增安装工作组名称，在“网络”页配置；支持已识别原生 XML 的导入、修改和取消。
+- 新增 Windows PE 阶段日志目录，在“镜像与分区”页配置；仅影响 PE 日志，路径须为目标固定磁盘上的本地绝对目录。
+- 两项均接入方案保存、配置摘要、动态帮助与设置搜索，默认关闭；未知或冲突配置保留原文并明确只读。
+- 补齐域加入密码、计算机密码及离线加入数据的预览遮蔽，并阻止将这类遮蔽预览重新导入为安装配置。
+- 修正工作组取消后的空组件处理，支持导出、重新导入后再次启用。
+- 修复启动状态栏残留旧版号；窗口、关于页与状态栏统一读取实际程序集版本，构建前检查版本显示。
+- 更新配置方案、版本与密钥两页的浅色/深色实机截图，统一标注截图版本 V1.7。
 
-[设置搜索说明](docs/SettingsSearch.md)
+[工作组说明](docs/Workgroup.md) · [PE 日志目录说明](docs/PeLogs.md)
 
 ## 📦 下载与使用
 
-从仓库的 **Releases** 页面下载并直接运行对应的 `UnattendLocal_V1.6_x64_SelfContained.exe` 或 `UnattendLocal_V1.6_x64_FrameworkDependent.exe`：
+从仓库的 **Releases** 页面下载并直接运行对应的 `UnattendLocal_V1.7_x64_SelfContained.exe` 或 `UnattendLocal_V1.7_x64_FrameworkDependent.exe`：
 
 | 程序文件 | 运行要求 |
 | --- | --- |
-| `UnattendLocal_V1.6_x64_SelfContained.exe` | 集成 .NET 运行时，无需单独安装；通常选择此版。 |
-| `UnattendLocal_V1.6_x64_FrameworkDependent.exe` | 文件较小，需安装 .NET 10 Desktop Runtime x64。 |
+| `UnattendLocal_V1.7_x64_SelfContained.exe` | 集成 .NET 运行时，无需单独安装；通常选择此版。 |
+| `UnattendLocal_V1.7_x64_FrameworkDependent.exe` | 文件较小，需安装 .NET 10 Desktop Runtime x64。 |
 
 两版功能相同。首次安装测试建议使用虚拟机。
 
@@ -101,7 +111,7 @@ WPA3 需目标系统、无线驱动和接入点支持；开放网络没有无线
 
 使用 Visual Studio 2026 与 .NET 10 SDK，安装“.NET 桌面开发”，打开仓库根目录的 `UnattendLocal.sln`。四个项目为 Desktop、Core、vendor/UnattendGenerator、Tests，默认将 Desktop 设为启动项目。
 
-双击源码根目录的 `build.cmd` 可生成两种单文件 EXE，版本从项目自动读取，输出到源码目录同级的 `UnattendLocal-release/v1.6/`。发布后会核对 EXE 版本；默认直接输出 EXE，需要额外 ZIP 时可运行 `build.cmd -CreateZip`。已有同名产物不会自动覆盖。
+双击源码根目录的 `build.cmd` 可生成两种单文件 EXE，版本从项目自动读取，输出到源码目录同级的 `UnattendLocal-release/v1.7/`。发布后会核对 EXE 版本；默认直接输出 EXE，需要额外 ZIP 时可运行 `build.cmd -CreateZip`。已有同名产物不会自动覆盖。
 
 也可在源码根目录手动执行：
 

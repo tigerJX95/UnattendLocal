@@ -1,5 +1,10 @@
 namespace UnattendLocal.Core;
 public class ImportedXml {
+ public int WorkgroupImportVersion {get;set;}
+ public bool WorkgroupReadOnly {get;set;}
+ public int PeLogImportVersion {get;set;}
+ public bool PeLogReadOnly {get;set;}
+
  public int RegisteredInformationImportVersion {get;set;}
  public bool RegisteredInformationReadOnly {get;set;}
  public int SetupDynamicUpdateImportVersion {get;set;}

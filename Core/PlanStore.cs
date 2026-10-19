@@ -44,6 +44,8 @@ public static class PlanStore {
    SetupDriverSettings.NormalizeLoaded(p,document.RootElement);
    SetupDynamicUpdateSettings.NormalizeLoaded(p,document.RootElement);
    RegisteredInformationSettings.NormalizeLoaded(p,document.RootElement);
+   WorkgroupSettings.NormalizeLoaded(p,document.RootElement);
+   PeLogSettings.NormalizeLoaded(p,document.RootElement);
   }
   p.ClearDiskConsent();
   return p;

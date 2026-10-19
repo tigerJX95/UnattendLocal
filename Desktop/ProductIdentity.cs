@@ -8,4 +8,5 @@ public static class ProductIdentity
         ?? typeof(ProductIdentity).Assembly.GetName().Version?.ToString(2) ?? "未知";
     public static string VersionLabel => "V" + Version;
     public static string WindowTitle => "Windows 无人值守配置工具 · " + VersionLabel;
+    public static string ReadyStatus => "就绪 · " + VersionLabel;
 }
