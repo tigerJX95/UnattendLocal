@@ -4,7 +4,7 @@
 
 UnattendLocal is a Chinese-language Windows desktop tool based on [Christoph Schneegans’ UnattendGenerator](https://github.com/cschneegans/unattend-generator). It lets you edit, check, and generate `autounattend.xml` for Windows 10 / 11 locally.
 
-Current version: **V1.5**. This release adds Windows registered-owner and organization settings alongside Setup Dynamic Update, driver directories, script-file import/save-as, static IPv4, automatic partitioning and XML import/editing. The tool prepares installation configuration; it does not run generated scripts on your current computer.
+Current version: **V1.6**. This release improves category filtering, typing and navigation in settings search, alongside Windows registration settings, Setup Dynamic Update, driver directories, script-file import/save-as, static IPv4, automatic partitioning and XML import/editing. The tool prepares installation configuration; it does not run generated scripts on your current computer.
 
 ## 💡 Why this project exists
 
@@ -26,7 +26,7 @@ See [first-logon options](docs/FirstLogon.md) and [XML import behavior](docs/Xml
 | :---: | :---: |
 | ![Configuration plans in the light theme](docs/images/overview.png) | ![Edition and product key in the dark theme](docs/images/edition-and-key-dark.png) |
 
-These are actual V0.1 pre41 screenshots showing the light and dark themes. The current V1.5 release includes navigation changes and additional settings; refer to the current application for the latest interface. The application interface is currently in Chinese.
+These are actual V0.1 pre41 screenshots showing the light and dark themes. The current V1.6 release includes navigation changes and additional settings; refer to the current application for the latest interface. The application interface is currently in Chinese.
 
 ## ✨ Main features
 
@@ -34,7 +34,7 @@ These are actual V0.1 pre41 screenshots showing the light and dark themes. The c
 
 - View the version, usage notices and embedded third-party licenses through Help and About, with offline reading and copying.
 
-- Search settings through the toolbar magnifier or Ctrl+F using Chinese/English names and aliases, then navigate and highlight the result.
+- Search settings through the toolbar magnifier or Ctrl+F using Chinese/English names and aliases, filter by page, then navigate and highlight the result.
 - Independently configure Windows registered-owner and organization information, without changing login accounts, computer names or activation.
 - Configure architecture, display language, region, keyboard, time zone, computer name, installation edition, and product keys.
 - Configure image selection, existing or automatic partitioning, system-partition sizing and a pre-partition pause, and CompactOS. Destructive disk operations include risk explanations and confirmation.
@@ -50,19 +50,18 @@ These are actual V0.1 pre41 screenshots showing the light and dark themes. The c
 - Save and restore JSON plans; review summaries, recommended-setting differences, checks, redacted previews, and XML exports.
 - Import existing XML and edit supported settings while preserving unknown content. Export stops with an explanation when changes cannot be merged reliably.
 
-## ✨ V1.5 updates
+## ✨ V1.6 updates
 
-- Added independent Windows registered-owner and organization settings, with no override by default.
-- Distinguishes explicit empty values from omitted settings. New configurations use specialize; recognized imported settings retain their original execution passes.
-- Integrated saved plans, summaries, help and setting search, including imported-field editing and removal.
-- Removing recognized fields preserves other settings in the same component. Unrecognized registration structures remain visibly read-only and retain their source XML.
-- Older plans migrate only with a reliably matched editing baseline, preserving other pending changes.
+- Added category filtering to settings search. Search all settings or a specific page; the query and category are retained for the current session.
+- Improved consecutive typing and flushes the latest query before Enter navigation, avoiding stale targets.
+- Disabled navigation when no settings match, with suggestions to change keywords or return to all categories. Added a reset action and Ctrl+L to edit the query.
+- Fixed full-width keyword ranking and unified the actual version source for the window title and About.
 
-[Windows registration information](docs/RegisteredInformation.md)
+[Settings search](docs/SettingsSearch.md)
 
 ## 📦 Download and usage
 
-Download and run the matching Windows x64 executable from the repository’s **Releases** page: `UnattendLocal_V1.5_x64_SelfContained.exe` or `UnattendLocal_V1.5_x64_FrameworkDependent.exe`. Choose `UnattendLocal_V1.5_x64_SelfContained.exe` for a bundled .NET runtime, or `UnattendLocal_V1.5_x64_FrameworkDependent.exe` if .NET 10 Desktop Runtime x64 is already installed. Both have the same features. Use a virtual machine for initial testing.
+Download and run the matching Windows x64 executable from the repository’s **Releases** page: `UnattendLocal_V1.6_x64_SelfContained.exe` or `UnattendLocal_V1.6_x64_FrameworkDependent.exe`. Choose `UnattendLocal_V1.6_x64_SelfContained.exe` for a bundled .NET runtime, or `UnattendLocal_V1.6_x64_FrameworkDependent.exe` if .NET 10 Desktop Runtime x64 is already installed. Both have the same features. Use a virtual machine for initial testing.
 
 1. Choose a recommended scenario or a custom configuration and enter the required account and image settings.
 2. Adjust system, appearance, and application removal options as needed.
@@ -99,7 +98,7 @@ Exported XML, JSON plans containing credentials, and custom scripts may contain 
 
 Use Visual Studio 2026 and the .NET 10 SDK with the .NET desktop development workload. Open `UnattendLocal.sln` at the repository root. The solution contains Desktop, Core, vendor/UnattendGenerator, and Tests; Desktop is the default startup project.
 
-Run `build.cmd` to publish both single-file EXEs. The script reads the project version, checks the published EXE versions, and writes directly to `UnattendLocal-release/v1.5/` beside the source directory. Existing release files are not overwritten. Use `build.cmd -CreateZip` if additional ZIP archives are required.
+Run `build.cmd` to publish both single-file EXEs. The script reads the project version, checks the published EXE versions, and writes directly to `UnattendLocal-release/v1.6/` beside the source directory. Existing release files are not overwritten. Use `build.cmd -CreateZip` if additional ZIP archives are required.
 
 Alternatively, run these commands from the source root:
 

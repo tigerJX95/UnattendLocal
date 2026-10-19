@@ -265,5 +265,15 @@ public static class SettingsSearchCatalog
     ];
     private static readonly IReadOnlyDictionary<string, HelpTopic> Topics = Enumerable.Range(0, HelpCatalog.PageCount).SelectMany(HelpCatalog.ForPage).DistinctBy(t => t.Id).ToDictionary(t => t.Id);
     public static IReadOnlyList<SettingSearchResult> All { get; } = Settings.Select(s => s with { Title = s.Title.StartsWith("Effect", StringComparison.Ordinal) && Topics.TryGetValue(s.HelpId, out var labelTopic) ? labelTopic.Title : s.Title, Description = Topics.TryGetValue(s.HelpId, out var topic) ? topic.Body : "定位到此设置或所属区域；未启用的内容会定位到所在卡片。" }).Concat(AppRemovalSettings.Items.Select(i => new SettingSearchResult("移除：" + i.Label, "应用移除", 7, "AppRemovalItems", "appremoval", i.Id + " " + i.Group, i.Description, i.Id))).ToArray();
-    public static IReadOnlyList<SettingSearchResult> Search(string? query) => All.Where(s => SearchTextMatcher.Matches(s.Title + " " + s.Page + " " + s.Aliases + " " + s.Description, query)).OrderBy(s => string.IsNullOrWhiteSpace(query) ? 0 : s.Title.Equals(query.Trim(), StringComparison.OrdinalIgnoreCase) ? 0 : SearchTextMatcher.Matches(s.Title, query) ? 1 : SearchTextMatcher.Matches(s.Aliases, query) ? 2 : 3).ThenBy(s => s.PageIndex).ToArray();
+    public sealed record Category(int? PageIndex, string Label);
+    public static IReadOnlyList<Category> Categories { get; } = new[] { new Category(null, "全部分类") }
+        .Concat(All.GroupBy(s => s.PageIndex).OrderBy(g => g.Key).Select(g => new Category(g.Key, g.First().Page))).ToArray();
+    public static int? NormalizeCategory(int? pageIndex) => Categories.Any(c => c.PageIndex == pageIndex) ? pageIndex : null;
+    public static IReadOnlyList<SettingSearchResult> Search(string? query, int? pageIndex = null)
+    {
+        pageIndex = NormalizeCategory(pageIndex);
+        return All.Where(s => (!pageIndex.HasValue || s.PageIndex == pageIndex) && SearchTextMatcher.Matches(s.Title + " " + s.Page + " " + s.Aliases + " " + s.Description, query))
+            .OrderBy(s => string.IsNullOrWhiteSpace(query) ? 0 : SearchTextMatcher.Exact(s.Title, query) ? 0 : SearchTextMatcher.Matches(s.Title, query) ? 1 : SearchTextMatcher.Matches(s.Aliases, query) ? 2 : 3)
+            .ThenBy(s => s.PageIndex).ToArray();
+    }
 }

@@ -12,5 +12,6 @@ public static class SearchTextMatcher {
   var haystack=Normalize(text);
   return Normalize(query??"").Split((char[]?)null,StringSplitOptions.RemoveEmptyEntries).All(word=>haystack.Contains(word,StringComparison.OrdinalIgnoreCase));
  }
+ public static bool Exact(string text,string? query)=>Normalize(text).Equals(Normalize(query??""),StringComparison.OrdinalIgnoreCase);
  private static string Normalize(string value)=>value.Normalize(NormalizationForm.FormKC).Trim();
 }

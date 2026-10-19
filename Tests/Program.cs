@@ -2008,3 +2008,6 @@ Console.WriteLine($"V1.4 total: {count} checks passed.");
 
 count+=RegisteredInformationTests.Run(g);
 Console.WriteLine($"V1.5 total: {count} checks passed.");
+
+count+=SettingsSearchTests.Run();
+Console.WriteLine($"V1.6 total: {count} checks passed.");

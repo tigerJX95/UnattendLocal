@@ -10,6 +10,7 @@ public partial class MainWindow
 {
     private int searchNavigationGeneration;
     private string lastSettingsQuery = "";
+    private int? lastSettingsCategory;
     private AdornerLayer? searchHighlightLayer;
     private SearchHighlight? searchHighlight;
     private DispatcherTimer? searchHighlightTimer;
@@ -23,8 +24,8 @@ public partial class MainWindow
     private void OpenSettingsSearch()
     {
         searchNavigationGeneration++; ClearSearchHighlight();
-        var dialog = new SettingsSearchWindow(lastSettingsQuery) { Owner = this };
-        bool? accepted = dialog.ShowDialog(); lastSettingsQuery = dialog.Query;
+        var dialog = new SettingsSearchWindow(lastSettingsQuery, lastSettingsCategory) { Owner = this };
+        bool? accepted = dialog.ShowDialog(); lastSettingsQuery = dialog.Query; lastSettingsCategory = dialog.PageIndex;
         if (accepted == true && dialog.Selected is {} selected) NavigateToSetting(selected);
     }
     private void NavigateToSetting(SettingSearchResult result)

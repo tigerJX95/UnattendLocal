@@ -20,8 +20,7 @@ public partial class AboutWindow : Window
         new("WPF · 第三方声明", "WpfThirdParty.txt")
     ];
     private static readonly Assembly ProductAssembly = typeof(AboutWindow).Assembly;
-    private static string ProductVersion => ProductAssembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion.Split('+')[0]
-        ?? ProductAssembly.GetName().Version?.ToString(2) ?? "未知";
+    private static string ProductVersion => ProductIdentity.Version;
 
     public AboutWindow(int section = 0)
     {
