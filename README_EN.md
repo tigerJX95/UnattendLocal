@@ -4,7 +4,7 @@
 
 UnattendLocal is a Chinese-language Windows desktop tool based on [Christoph Schneegans’ UnattendGenerator](https://github.com/cschneegans/unattend-generator). It lets you edit, check, and generate `autounattend.xml` for Windows 10 / 11 locally.
 
-Current version: **V1.8**. This release improves setup notices, script actions, color selection, folder guidance and application-removal layout, alongside categorized settings search, Windows registration settings, Setup Dynamic Update, driver directories, script-file import/save-as, static IPv4, automatic partitioning and XML import/editing. The tool prepares installation configuration; it does not run generated scripts on your current computer.
+Current version: **V1.8.1**. This release improves setup notices, script actions, color selection, folder guidance and application-removal layout, alongside categorized settings search, Windows registration settings, Setup Dynamic Update, driver directories, script-file import/save-as, static IPv4, automatic partitioning and XML import/editing. The tool prepares installation configuration; it does not run generated scripts on your current computer.
 
 ## 💡 Why this project exists
 
@@ -57,7 +57,13 @@ The displayed product key is a public generic installation key for selecting an 
 - Save and restore JSON plans; review summaries, recommended-setting differences, checks, redacted previews, and XML exports.
 - Import existing XML and edit supported settings while preserving unknown content. Export stops with an explanation when changes cannot be merged reliably.
 
-## ✨ V1.8 updates
+## ✨ V1.8.1 updates
+
+- Fixed empty removal-item tooltips so their impact descriptions are visible.
+- Fixed the clipped restore-default icon and duplicate color-picker action tooltips; each action has one line.
+- Select colors directly on the hue spectrum by clicking or dragging, with no separate slider underneath. Refine the selected color in the plane above.
+
+The V1.8 features remain included:
 
 - Improved installation-target notices: distinguish automatic partitioning, a specified existing target, automatic selection of an available partition and an unspecified target. Actual XML determines the pre-export notice; installation behavior is unchanged.
 - Script import and save-as now use distinct directional icons and precise tooltips, preserving existing format, encoding and execution-stage behavior.
@@ -70,7 +76,7 @@ The displayed product key is a public generic installation key for selecting an 
 
 ## 📦 Download and usage
 
-Download and run the matching Windows x64 executable from the repository’s **Releases** page: `UnattendLocal_V1.8_x64_SelfContained.exe` or `UnattendLocal_V1.8_x64_FrameworkDependent.exe`. Choose `UnattendLocal_V1.8_x64_SelfContained.exe` for a bundled .NET runtime, or `UnattendLocal_V1.8_x64_FrameworkDependent.exe` if .NET 10 Desktop Runtime x64 is already installed. Both have the same features. Use a virtual machine for initial testing.
+Download and run the matching Windows x64 executable from the repository’s [**Releases**](https://github.com/tigerJX95/UnattendLocal/releases/latest) page: `UnattendLocal_V1.8.1_x64_SelfContained.exe` or `UnattendLocal_V1.8.1_x64_FrameworkDependent.exe`. Choose `UnattendLocal_V1.8.1_x64_SelfContained.exe` for a bundled .NET runtime, or `UnattendLocal_V1.8.1_x64_FrameworkDependent.exe` if .NET 10 Desktop Runtime x64 is already installed. Both have the same features. Use a virtual machine for initial testing.
 
 1. Choose a recommended scenario or a custom configuration and enter the required account and image settings.
 2. Adjust system, appearance, and application removal options as needed.
@@ -107,7 +113,7 @@ Exported XML, JSON plans containing credentials, and custom scripts may contain 
 
 Use Visual Studio 2026 and the .NET 10 SDK with the .NET desktop development workload. Open `UnattendLocal.sln` at the repository root. The solution contains Desktop, Core, vendor/UnattendGenerator, and Tests; Desktop is the default startup project.
 
-Run `build.cmd` to publish both single-file EXEs. The script reads the project version, checks the published EXE versions, and writes directly to `UnattendLocal-release/v1.8/` beside the source directory. Existing release files are not overwritten. Use `build.cmd -CreateZip` if additional ZIP archives are required.
+Run `build.cmd` to publish both single-file EXEs. The script reads the project version, checks the published EXE versions, and writes directly to `UnattendLocal-release/v1.8.1/` beside the source directory. Existing release files are not overwritten. Use `build.cmd -CreateZip` if additional ZIP archives are required.
 
 Alternatively, run these commands from the source root:
 

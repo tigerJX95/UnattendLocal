@@ -1,5 +1,6 @@
 using System.Text;using System.Xml;using UnattendLocal.Core;
 int count=0;var g=new GeneratorService();
+if(args.Contains("--ui-hotfix-only")){Console.WriteLine($"V1.8.1 UI hotfix: {ColorPickerHotfixTests.Run()} checks passed.");return;}
 if(args.Contains("--ui-improvements-only")){Console.WriteLine($"V1.8 UI improvements: {UiImprovementTests.Run(g)} checks passed.");return;}
 if(args.Contains("--version-display-only")){VersionDisplayTests.Run();Console.WriteLine("Version display check passed.");return;}
 if(args.Contains("--native-deployment-only")){Console.WriteLine($"V1.7 native deployment: {NativeDeploymentTests.Run(g)} checks passed.");return;}
@@ -2020,4 +2021,5 @@ count+=VersionDisplayTests.Run();
 Console.WriteLine($"V1.7 total: {count} checks passed.");
 
 count+=UiImprovementTests.Run(g);
+count+=ColorPickerHotfixTests.Run();
 Console.WriteLine($"V1.8 total: {count} checks passed.");

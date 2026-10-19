@@ -923,7 +923,8 @@
               <ItemsControl.ItemsPanel><ItemsPanelTemplate><UniformGrid Columns="2"/></ItemsPanelTemplate></ItemsControl.ItemsPanel>
               <ItemsControl.ItemTemplate><DataTemplate>
                 <Border BorderBrush="{DynamicResource BorderBrush}" BorderThickness="0,0,0,1" Padding="4,10" Margin="0,0,12,0">
-                  <CheckBox IsChecked="{Binding IsSelected,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}" ToolTipService.ShowOnDisabled="True" ToolTip="{Binding Description}">
+                  <CheckBox IsChecked="{Binding IsSelected,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}" ToolTipService.ShowOnDisabled="True">
+                    <CheckBox.ToolTip><ToolTip Content="{Binding PlacementTarget.DataContext.Description,RelativeSource={RelativeSource Self}}"><ToolTip.ContentTemplate><DataTemplate><TextBlock Text="{Binding}" TextWrapping="Wrap"/></DataTemplate></ToolTip.ContentTemplate></ToolTip></CheckBox.ToolTip>
                     <TextBlock Text="{Binding Label}" TextWrapping="Wrap"/>
                   </CheckBox>
                 </Border>

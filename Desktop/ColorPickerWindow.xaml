@@ -9,8 +9,10 @@
         <Canvas IsHitTestVisible="False"><Ellipse x:Name="SelectionRing" Width="14" Height="14" Stroke="White" StrokeThickness="2" Fill="Transparent"/><Ellipse x:Name="SelectionOutline" Width="18" Height="18" Stroke="Black" StrokeThickness="1"/></Canvas>
       </Grid>
       <TextBlock Text="色相" Margin="0,12,0,4"/>
-      <Border Height="12" CornerRadius="3"><Border.Background><LinearGradientBrush StartPoint="0,0" EndPoint="1,0"><GradientStop Color="Red" Offset="0"/><GradientStop Color="Yellow" Offset="0.1667"/><GradientStop Color="Lime" Offset="0.3333"/><GradientStop Color="Cyan" Offset="0.5"/><GradientStop Color="Blue" Offset="0.6667"/><GradientStop Color="Magenta" Offset="0.8333"/><GradientStop Color="Red" Offset="1"/></LinearGradientBrush></Border.Background></Border>
-      <Slider Minimum="0" Maximum="360" Value="{Binding Hue,Mode=TwoWay}" AutomationProperties.Name="色相" Margin="0,2,0,10"/>
+      <Grid x:Name="HueStrip" Height="24" Margin="0,0,0,12" Background="Transparent" ClipToBounds="True" Focusable="True" MouseLeftButtonDown="HueDown" MouseMove="HueMove" MouseLeftButtonUp="HueUp" KeyDown="HueKeyDown" SizeChanged="HueSizeChanged" AutomationProperties.Name="色相彩条；点击或拖动选择颜色，左右方向键调整，Home 和 End 跳到两端">
+        <Border CornerRadius="3"><Border.Background><LinearGradientBrush StartPoint="0,0" EndPoint="1,0"><GradientStop Color="Red" Offset="0"/><GradientStop Color="Yellow" Offset="0.1666667"/><GradientStop Color="Lime" Offset="0.3333333"/><GradientStop Color="Cyan" Offset="0.5"/><GradientStop Color="Blue" Offset="0.6666667"/><GradientStop Color="Magenta" Offset="0.8333333"/><GradientStop Color="Red" Offset="1"/></LinearGradientBrush></Border.Background></Border>
+        <Canvas IsHitTestVisible="False"><Border x:Name="HueMarker" Width="6" Height="24" BorderBrush="Black" BorderThickness="1" CornerRadius="2"><Border BorderBrush="White" BorderThickness="1" CornerRadius="1"/></Border></Canvas>
+      </Grid>
       <Grid><Grid.ColumnDefinitions><ColumnDefinition Width="42"/><ColumnDefinition Width="*"/><ColumnDefinition Width="52"/></Grid.ColumnDefinitions><Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
         <TextBlock Text="红 R" VerticalAlignment="Center"/><Slider Grid.Column="1" Minimum="0" Maximum="255" TickFrequency="1" IsSnapToTickEnabled="True" Value="{Binding Red,Mode=TwoWay}" AutomationProperties.Name="红色分量 0–255"/><TextBlock Grid.Column="2" Text="{Binding Red}" HorizontalAlignment="Right"/>
         <TextBlock Grid.Row="1" Text="绿 G" VerticalAlignment="Center"/><Slider Grid.Row="1" Grid.Column="1" Minimum="0" Maximum="255" TickFrequency="1" IsSnapToTickEnabled="True" Value="{Binding Green,Mode=TwoWay}" AutomationProperties.Name="绿色分量 0–255"/><TextBlock Grid.Row="1" Grid.Column="2" Text="{Binding Green}" HorizontalAlignment="Right"/>
@@ -22,9 +24,9 @@
       <TextBlock Text="确定后应用；取消或关闭不改变打开前的颜色。恢复默认将停止该组自定义覆盖，并保留已填写的颜色。" Style="{StaticResource ExplanationText}" Foreground="{DynamicResource SecondaryBrush}"/>
     </StackPanel></ScrollViewer>
     <WrapPanel Grid.Row="1" HorizontalAlignment="Right" Margin="0,12,0,0">
-      <Button Content="恢复 Windows 默认" Width="155" Height="36" Click="DefaultClick"><Button.Template><ControlTemplate TargetType="Button"><Border Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="1" CornerRadius="4" Padding="8"><ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/></Border></ControlTemplate></Button.Template></Button>
-      <Button Content="取消" Width="80" Height="36" IsCancel="True"><Button.Template><ControlTemplate TargetType="Button"><Border Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="1" CornerRadius="4"><ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/></Border></ControlTemplate></Button.Template></Button>
-      <Button Content="确定" Width="80" Height="36" IsDefault="True" IsEnabled="{Binding CanAccept}" Click="AcceptClick"><Button.Template><ControlTemplate TargetType="Button"><Border Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="1" CornerRadius="4"><ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/></Border></ControlTemplate></Button.Template></Button>
+      <Button Content="恢复 Windows 默认" Click="DefaultClick"><Button.ToolTip><ToolTip ContentTemplate="{x:Null}" Content="恢复 Windows 默认"/></Button.ToolTip></Button>
+      <Button Content="取消" IsCancel="True"><Button.ToolTip><ToolTip ContentTemplate="{x:Null}" Content="取消"/></Button.ToolTip></Button>
+      <Button Content="确定" IsDefault="True" IsEnabled="{Binding CanAccept}" Click="AcceptClick"><Button.ToolTip><ToolTip ContentTemplate="{x:Null}" Content="确定"/></Button.ToolTip></Button>
     </WrapPanel>
   </Grid>
 </Window>

@@ -32,6 +32,14 @@ public sealed class ColorPickerModel : Observable
     public double Saturation => saturation;
     public double Brightness => brightness;
     public void SelectSaturationValue(double s, double v) { if (!double.IsFinite(s) || !double.IsFinite(v)) return; saturation = Math.Clamp(s,0,1); brightness = Math.Clamp(v,0,1); FromSelection(); }
+    // Selecting the spectrum chooses its visible, fully saturated color;
+    // the two-dimensional plane can then refine saturation and brightness.
+    public void SelectHuePosition(double position) {
+        if (!double.IsFinite(position)) return;
+        hue = Math.Clamp(position,0,1)*360;
+        saturation = brightness = 1;
+        FromSelection();
+    }
     private void FromSelection() { useWindowsDefault=false; (red,green,blue) = FromHsv(hue,saturation,brightness); hex = ColorHex; Refresh(); }
     private void FromRgb() { useWindowsDefault=false; (hue,saturation,brightness) = ToHsv(red,green,blue,hue); hex = ColorHex; Refresh(); }
     private void Refresh() { foreach (string name in new[]{nameof(Hex),nameof(ColorHex),nameof(HueHex),nameof(IsValid),nameof(UseWindowsDefault),nameof(CanAccept),nameof(ValidationMessage),nameof(Red),nameof(Green),nameof(Blue),nameof(Hue),nameof(Saturation),nameof(Brightness)}) Notify(name); }
