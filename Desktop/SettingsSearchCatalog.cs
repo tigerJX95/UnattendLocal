@@ -2,7 +2,10 @@ using UnattendLocal.Core;
 namespace UnattendLocal.Desktop;
 
 // Static labels only. Anchors correspond to named controls in MainWindow.xaml.
-public record SettingSearchResult(string Title, string Page, int PageIndex, string Target, string HelpId, string Aliases, string Description = "", string AppId = "");
+public record SettingSearchResult(string Title, string Page, int PageIndex, string Target, string HelpId, string Aliases, string Description = "", string AppId = "")
+{
+    public string TooltipDescription => AppId.Length > 0 ? HelpText.RemovalDescription(Description) : HelpText.Paragraphs(Description);
+}
 public static class SettingsSearchCatalog
 {
     private static readonly SettingSearchResult[] Settings =

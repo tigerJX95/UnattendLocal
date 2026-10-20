@@ -4,9 +4,13 @@ namespace UnattendLocal.Desktop;
 public record SummaryRow(string SourceLabel, string Label, string Value)
 {
     public string DisplayValue => Value;
+    public bool IsError => DiagnosticText.IsErrorSummary(SourceLabel + "：" + Value);
 }
 public record SummarySection(string Kind, string Title, IReadOnlyList<SummaryRow> Rows);
-public record SummaryReview(string Title, string Value, bool NeedsAttention);
+public record SummaryReview(string Title, string Value, bool NeedsAttention)
+{
+    public bool IsError => Title == "生成前待填" && NeedsAttention;
+}
 public record SummaryPresentation(IReadOnlyList<SummarySection> Sections, IReadOnlyList<SummaryReview> Reviews, IReadOnlyList<string> Notices)
 {
     private static readonly (string Kind, string Title, string[] Labels)[] Categories =

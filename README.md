@@ -4,7 +4,7 @@
 
 UnattendLocal 是基于 [Christoph Schneegans 的 UnattendGenerator](https://github.com/cschneegans/unattend-generator) 开发的中文 Windows 桌面配置工具，用于在本地编辑、检查和生成 Windows 10 / 11 的 `autounattend.xml`。
 
-当前版本：**V1.9**。支持静态 IPv4 / IPv6 双栈、子网掩码输入、设置搜索、安装驱动目录、动态更新、自动分区、OOBE 与账户配置，以及已有 XML 的导入编辑。
+当前版本：**V1.10**。支持静态 IPv4 / IPv6 双栈、子网掩码输入、设置搜索、安装驱动目录、动态更新、自动分区、OOBE 与账户配置，以及已有 XML 的导入编辑。
 
 ## 💡 开发初衷
 
@@ -55,24 +55,27 @@ UnattendLocal 是基于 [Christoph Schneegans 的 UnattendGenerator](https://git
 - 保存和恢复 JSON 方案，提供配置摘要、推荐差异、检查、脱敏预览和 XML 导出。
 - 导入已有 XML 后编辑已支持设置，保留未知内容；遇到无法可靠合并的修改时停止导出并说明原因。
 
-## ✨ V1.9 更新
+## ✨ V1.10 更新
 
-- IPv4、IPv6 独立选项卡，共用目标 MAC，切换保留输入，支持双栈。
-- IPv4 支持合法私网与公网、前缀 /0–/32 和等价掩码；/31 用于点对点，/32 为单地址且网关留空。
-- IPv6 支持静态单播地址、前缀 /0–/64、可选网关及最多三个 DNS。IPv6 网关支持链路本地地址。
-- 完整识别的原生网络 XML 可编辑；等价 MAC、IPv6 写法及数字 DNS 顺序键可识别，未编辑的原文保留。
-- 应用移除提示将影响说明与“匹配项”分开显示，匹配标识逐项换行。
+- 优化全软件设置帮助、按钮、下拉选项及应用移除的悬停说明，独立规则和注意事项分行显示；“待完善”统一改为“待配置”，待配置状态及具体原因使用红色，普通说明保持原色。
+- 改进 IP 输入纠错：启用静态 IPv4 后，前缀和子网掩码均可修改，实际编辑时选用对应方式，保留另一项内容；`/0` 校验失败后可直接改正。
+- 统一错误文字为适配浅色/深色主题的红色，覆盖配置阻止项、缺失凭据、导出检查、格式校验、无效颜色及操作失败弹窗；普通风险说明与错误区分显示。
+- 静态地址填写 `/0`（IPv4 掩码 `0.0.0.0`）时，在配置页显示明确提示，并阻止“检查与预览”和导出；保留输入供核对修改，不自动转换掩码。
+- 网络页的 IPv4 / IPv6 切换改为横向铺满、左右等宽的分段条，选中项使用圆角底色，并适配浅色/深色、悬停与键盘焦点。
+- 修正网络地址与前缀输入框的高度、圆角及底部对齐，统一 IPv4 / IPv6 前缀输入样式。
+- 新增 IPv4 网段实时预览：显示网络前缀、有效掩码、广播地址和主机位范围；单独处理 `/31` 点对点和 `/32` 单地址。
+- 已识别的 `/0` XML 可导入后修正；只读原文中的 `/0` 同样参与最终导出检查。正常 IPv4 / IPv6 默认路由不受影响。
 
-[IP 配置说明](docs/StaticIP.md) · [界面操作说明](docs/UiImprovements.md)
+[静态 IP 配置说明](docs/StaticIP.md) · [界面操作说明](docs/UiImprovements.md)
 
 ## 📦 下载与使用
 
-从仓库的 [**Releases**](https://github.com/tigerJX95/UnattendLocal/releases/latest) 页面下载并直接运行对应的 `UnattendLocal_V1.9_x64_SelfContained.exe` 或 `UnattendLocal_V1.9_x64_FrameworkDependent.exe`：
+从仓库的 [**Releases**](https://github.com/tigerJX95/UnattendLocal/releases/latest) 页面下载并直接运行对应的 `UnattendLocal_V1.10_x64_SelfContained.exe` 或 `UnattendLocal_V1.10_x64_FrameworkDependent.exe`：
 
 | 程序文件 | 运行要求 |
 | --- | --- |
-| `UnattendLocal_V1.9_x64_SelfContained.exe` | 集成 .NET 运行时，无需单独安装；通常选择此版。 |
-| `UnattendLocal_V1.9_x64_FrameworkDependent.exe` | 文件较小，需安装 .NET 10 Desktop Runtime x64。 |
+| `UnattendLocal_V1.10_x64_SelfContained.exe` | 集成 .NET 运行时，无需单独安装；通常选择此版。 |
+| `UnattendLocal_V1.10_x64_FrameworkDependent.exe` | 文件较小，需安装 .NET 10 Desktop Runtime x64。 |
 
 两版功能相同。首次安装测试建议使用虚拟机。
 

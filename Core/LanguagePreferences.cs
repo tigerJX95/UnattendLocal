@@ -86,7 +86,7 @@ public static class LanguagePreferences
         ReadIntoPlan(source, p, new()); var after = JsonSerializer.Deserialize<InstallPlan>(JsonSerializer.Serialize(before))!; ReadIntoPlan(source, after, new());
         try
         {
-            var g = new GeneratorService(); data.BaselineXml = XmlMerge.Apply(data.BaselineXml, Encoding.UTF8.GetString(g.GenerateStandalone(before)), XmlMerge.Read(Encoding.UTF8.GetString(g.GenerateStandalone(after)))).OuterXml;
+            var g = new GeneratorService(); data.BaselineXml = XmlMerge.Apply(data.BaselineXml, Encoding.UTF8.GetString(g.GenerateImportBaseline(before)), XmlMerge.Read(Encoding.UTF8.GetString(g.GenerateImportBaseline(after)))).OuterXml;
             data.Notices = data.Notices.Where(n => !n.StartsWith("检测到多个键盘/区域组合", StringComparison.Ordinal)).ToArray();
         }
         catch (Exception e) when (e is ArgumentException or ConfigurationException or XmlException) { data.Blockers = data.Blockers.Append("旧方案的额外语言与键盘基准无法可靠迁移，请重新导入原 XML。").Distinct().ToArray(); }

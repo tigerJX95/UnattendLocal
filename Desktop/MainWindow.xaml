@@ -52,12 +52,13 @@
         <ScrollViewer VerticalScrollBarVisibility="Auto"><StackPanel Margin="24">
           <Border Style="{StaticResource Card}" Visibility="{Binding HasImportedXml,Converter={StaticResource VisibleWhen}}"><StackPanel>
             <TextBlock x:Name="SettingAnchor000" Text="已导入的 XML" FontSize="20" FontWeight="SemiBold" Margin="0,0,0,16"/>
-            <TextBlock Text="{Binding XmlImportSummary}" FontWeight="SemiBold" TextWrapping="Wrap"/>
+            <TextBlock Text="{Binding XmlImportSummary}" FontWeight="SemiBold" TextWrapping="Wrap"><TextBlock.Style><Style TargetType="TextBlock"><Setter Property="Foreground" Value="{DynamicResource ForegroundBrush}"/><Style.Triggers><DataTrigger Binding="{Binding HasXmlImportErrors}" Value="True"><Setter Property="Foreground" Value="{DynamicResource ErrorBrush}"/></DataTrigger></Style.Triggers></Style></TextBlock.Style></TextBlock>
             <TextBlock Style="{StaticResource ExplanationText}" Text="　　已还原的设置可在分类页修改；未完全识别或尚未实现的内容保留在原 XML 中。检查与导出会尝试合并修改，冲突时停止，不自动丢弃原配置。" Foreground="{DynamicResource SecondaryBrush}"/>
-            <TextBlock Style="{StaticResource ExplanationText}" Text="{Binding XmlImportDetails}" Foreground="{DynamicResource WarningBrush}"/>
+            <TextBlock Style="{StaticResource ExplanationText}" Text="{Binding XmlImportNotices}" Foreground="{DynamicResource WarningBrush}"/>
+            <TextBlock Text="{Binding XmlImportErrors}" Style="{StaticResource ExplanationText}" Foreground="{DynamicResource ErrorBrush}" Visibility="{Binding HasXmlImportErrors,Converter={StaticResource VisibleWhen}}"/>
             <StackPanel Visibility="{Binding HasImportedXmlRisk,Converter={StaticResource VisibleWhen}}">
               <TextBlock Style="{StaticResource ExplanationText}" Text="　　原 XML 含磁盘配置或 Windows PE 命令，可能清空、格式化磁盘或执行其他命令。界面中的磁盘摘要不能代表全部原文操作范围，请重新核对原文件。" Foreground="{DynamicResource WarningBrush}"/>
-              <CheckBox Content="已核对导入 XML 中全部磁盘及 Windows PE 操作、完成备份并获得授权" IsChecked="{Binding Plan.ConfirmImportedXmlRisk}" ToolTip="此确认不会执行命令；导出时仍有危险操作确认。新建方案或修改磁盘配置后需要重新确认。"/>
+              <CheckBox Content="已核对导入 XML 中全部磁盘及 Windows PE 操作、完成备份并获得授权" IsChecked="{Binding Plan.ConfirmImportedXmlRisk}"><CheckBox.ToolTip><ToolTip ContentTemplate="{x:Null}"><TextBlock Text="此确认不会执行命令；&#10;导出时仍有危险操作确认。&#10;新建方案或修改磁盘配置后需要重新确认。" TextWrapping="Wrap"/></ToolTip></CheckBox.ToolTip></CheckBox>
             </StackPanel>
             <TextBlock Style="{StaticResource ExplanationText}" Text="　　新建配置会重新开始；应用推荐值只调整推荐涉及的设置，原文仍保留，相关内容冲突时将阻止导出。导入不会运行任何安装命令。" Foreground="{DynamicResource SecondaryBrush}"/>
           </StackPanel></Border>
@@ -65,10 +66,10 @@
             <TextBlock x:Name="SettingAnchor001" Text="推荐配置与自定义配置" FontSize="20" FontWeight="SemiBold" Margin="0,0,0,16" />
             <TextBlock Style="{StaticResource ExplanationText}" Text="　　推荐配置提供可修改的起点。自定义配置可从基础值开始，由你逐项选择或填写。所有模式均使用左侧各分类页面。" TextWrapping="Wrap" Foreground="{DynamicResource SecondaryBrush}" />
             <TextBlock Text="配置方式" Margin="0,12,0,0" />
-            <ComboBox x:Name="SettingAnchor002" SelectionChanged="ConfigurationModeChanged" SelectedValue="{Binding Plan.ConfigurationMode}" SelectedValuePath="Content"><ComboBoxItem Content="推荐配置"><ComboBoxItem.ToolTip><ToolTip ContentTemplate="{x:Null}"><TextBlock Text="先应用建议值，再逐项调整。所有设置均可修改。" TextWrapping="Wrap" /></ToolTip></ComboBoxItem.ToolTip></ComboBoxItem><ComboBoxItem Content="自定义配置"><ComboBoxItem.ToolTip><ToolTip ContentTemplate="{x:Null}"><TextBlock Text="切换时可选择从基础值重新开始，或明确保留当前设置；推荐场景将隐藏。" TextWrapping="Wrap" /></ToolTip></ComboBoxItem.ToolTip></ComboBoxItem></ComboBox>
+            <ComboBox x:Name="SettingAnchor002" SelectionChanged="ConfigurationModeChanged" SelectedValue="{Binding Plan.ConfigurationMode}" SelectedValuePath="Content"><ComboBoxItem Content="推荐配置"><ComboBoxItem.ToolTip><ToolTip ContentTemplate="{x:Null}"><TextBlock Text="先应用建议值，再逐项调整。&#10;所有设置均可修改。" TextWrapping="Wrap" /></ToolTip></ComboBoxItem.ToolTip></ComboBoxItem><ComboBoxItem Content="自定义配置"><ComboBoxItem.ToolTip><ToolTip ContentTemplate="{x:Null}"><TextBlock Text="切换时可选择从基础值重新开始，或明确保留当前设置；&#10;推荐场景将隐藏。" TextWrapping="Wrap" /></ToolTip></ComboBoxItem.ToolTip></ComboBoxItem></ComboBox>
             <StackPanel Visibility="{Binding IsRecommended,Converter={StaticResource VisibleWhen}}">
               <TextBlock Text="推荐场景" />
-              <ComboBox SelectedValue="{Binding PendingRecommendation}" SelectedValuePath="Tag"><ComboBoxItem Content="有线局域网" Tag="wired"><ComboBoxItem.ToolTip><ToolTip ContentTemplate="{x:Null}"><TextBlock Text="跳过 Wi-Fi 配置。默认使用 Windows 网络行为；静态 IPv4 可在网络页独立配置，不随推荐场景重置。" TextWrapping="Wrap" /></ToolTip></ComboBoxItem.ToolTip></ComboBoxItem><ComboBoxItem Content="预设 Wi-Fi" Tag="wifi"><ComboBoxItem.ToolTip><ToolTip ContentTemplate="{x:Null}"><TextBlock Text="选择后网络页立即切换为预设 Wi-Fi 并启用自动连接；请填写 SSID 和 WPA2 密码，并核对无线驱动。" TextWrapping="Wrap" /></ToolTip></ComboBoxItem.ToolTip></ComboBoxItem></ComboBox>
+              <ComboBox SelectedValue="{Binding PendingRecommendation}" SelectedValuePath="Tag"><ComboBoxItem Content="有线局域网" Tag="wired"><ComboBoxItem.ToolTip><ToolTip ContentTemplate="{x:Null}"><TextBlock Text="跳过 Wi-Fi 配置。&#10;默认使用 Windows 网络行为；&#10;静态 IPv4 可在网络页独立配置，不随推荐场景重置。" TextWrapping="Wrap" /></ToolTip></ComboBoxItem.ToolTip></ComboBoxItem><ComboBoxItem Content="预设 Wi-Fi" Tag="wifi"><ComboBoxItem.ToolTip><ToolTip ContentTemplate="{x:Null}"><TextBlock Text="选择后网络页立即切换为预设 Wi-Fi 并启用自动连接；&#10;请填写 SSID 和 WPA2 密码，并核对无线驱动。" TextWrapping="Wrap" /></ToolTip></ComboBoxItem.ToolTip></ComboBoxItem></ComboBox>
               <TextBlock Style="{StaticResource ExplanationText}" Text="　　未指定静态 IPv4 时，有线使用 Windows 默认网络行为；无线方案需要填写 SSID 和密码。切换场景立即同步网络页，其余策略可通过下方按钮应用或恢复。" Foreground="{DynamicResource SecondaryBrush}"/>
               <TextBlock Style="{StaticResource ExplanationText}" Text="　　共同推荐关闭 OOBE 快捷隐私、预设本地账户、首次自动登录一次、隐藏脚本窗口、阻止设备自动加密并清理安装凭据。" Foreground="{DynamicResource SecondaryBrush}"/>
               <TextBlock Style="{StaticResource ExplanationText}" Text="　　Windows 11 默认允许离线安装；硬件检查绕过默认关闭。" Foreground="{DynamicResource SecondaryBrush}"/>
@@ -136,7 +137,7 @@
                       <ToolTip ContentTemplate="{x:Null}">
                         <StackPanel>
                           <TextBlock Text="x86" FontWeight="SemiBold" TextWrapping="Wrap" Margin="0,0,0,8" />
-                          <TextBlock Text="适用于 32 位安装镜像。桌面工具本身的运行架构不随此项改变。" TextWrapping="Wrap" />
+                          <TextBlock Text="适用于 32 位安装镜像。&#10;桌面工具本身的运行架构不随此项改变。" TextWrapping="Wrap" />
                         </StackPanel>
                       </ToolTip>
                     </ComboBoxItem.ToolTip>
@@ -242,7 +243,7 @@
                       <ToolTip ContentTemplate="{x:Null}">
                         <StackPanel>
                           <TextBlock Text="按 SKU 使用通用安装密钥" FontWeight="SemiBold" TextWrapping="Wrap" Margin="0,0,0,8" />
-                          <TextBlock Text="选择 SKU 后使用公开安装密钥。它不提供激活授权，镜像须包含相应 SKU。" TextWrapping="Wrap" />
+                          <TextBlock Text="选择 SKU 后使用公开安装密钥。&#10;它不提供激活授权，镜像须包含相应 SKU。" TextWrapping="Wrap" />
                         </StackPanel>
                       </ToolTip>
                     </ComboBoxItem.ToolTip>
@@ -252,7 +253,7 @@
                       <ToolTip ContentTemplate="{x:Null}">
                         <StackPanel>
                           <TextBlock Text="指定自己的产品密钥" FontWeight="SemiBold" TextWrapping="Wrap" Margin="0,0,0,8" />
-                          <TextBlock Text="使用输入的密钥安装，并写入激活配置。另行指定激活密钥时，激活阶段使用另行指定的密钥。" TextWrapping="Wrap" />
+                          <TextBlock Text="使用输入的密钥安装，并写入激活配置。&#10;另行指定激活密钥时，激活阶段使用另行指定的密钥。" TextWrapping="Wrap" />
                         </StackPanel>
                       </ToolTip>
                     </ComboBoxItem.ToolTip>
@@ -272,7 +273,7 @@
                       <ToolTip ContentTemplate="{x:Null}">
                         <StackPanel>
                           <TextBlock Text="使用 BIOS/UEFI 固件密钥" FontWeight="SemiBold" TextWrapping="Wrap" Margin="0,0,0,8" />
-                          <TextBlock Text="安装程序使用目标电脑的固件密钥，适合重装预装 Windows 的设备；镜像需匹配其 SKU。" TextWrapping="Wrap" />
+                          <TextBlock Text="安装程序使用目标电脑的固件密钥，适合重装预装 Windows 的设备；&#10;镜像需匹配其 SKU。" TextWrapping="Wrap" />
                         </StackPanel>
                       </ToolTip>
                     </ComboBoxItem.ToolTip>
@@ -307,7 +308,7 @@
                   </StackPanel.Style>
                   <TextBlock Text="自定义产品密钥（五组，每组五位）" Foreground="{DynamicResource SecondaryBrush}" ToolTip="{Binding DataContext.HelpTips[installkey],RelativeSource={RelativeSource AncestorType=Window}}" />
                   <TextBox x:Name="SettingAnchor044" Text="{Binding Plan.CustomProductKey,UpdateSourceTrigger=PropertyChanged}" FontSize="18" FontWeight="SemiBold" FontFamily="Consolas" ToolTip="{Binding DataContext.HelpTips[installkey],RelativeSource={RelativeSource AncestorType=Window}}" />
-                  <TextBlock Text="密钥未随方案保存，请重新输入。" Foreground="{DynamicResource WarningBrush}" TextWrapping="Wrap">
+                  <TextBlock Text="密钥未随方案保存，请重新输入。" Foreground="{DynamicResource ErrorBrush}" TextWrapping="Wrap">
                     <TextBlock.Style>
                       <Style TargetType="TextBlock">
                         <Setter Property="Visibility" Value="Collapsed" />
@@ -331,7 +332,7 @@
                   <TextBlock Text="激活密钥（可与安装密钥不同）" Foreground="{DynamicResource SecondaryBrush}" ToolTip="{Binding DataContext.HelpTips[activation],RelativeSource={RelativeSource AncestorType=Window}}" />
                   <TextBox x:Name="SettingAnchor047" Text="{Binding Plan.ActivationProductKey,UpdateSourceTrigger=PropertyChanged}" FontSize="18" FontWeight="SemiBold" FontFamily="Consolas" ToolTip="{Binding DataContext.HelpTips[activation],RelativeSource={RelativeSource AncestorType=Window}}" />
                 </StackPanel>
-                <TextBlock Text="激活密钥未随方案保存，请重新输入。" Foreground="{DynamicResource WarningBrush}" TextWrapping="Wrap">
+                <TextBlock Text="激活密钥未随方案保存，请重新输入。" Foreground="{DynamicResource ErrorBrush}" TextWrapping="Wrap">
                   <TextBlock.Style>
                     <Style TargetType="TextBlock">
                       <Setter Property="Visibility" Value="Collapsed" />
@@ -400,7 +401,7 @@
               <TextBox x:Name="SetupDriverPathsEditor" Text="{Binding Plan.SetupDriverPaths,UpdateSourceTrigger=PropertyChanged}" AcceptsReturn="True" TextWrapping="NoWrap" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto" Height="125" FontFamily="Consolas" ToolTip="{Binding HelpTips[setupdriverpaths]}"/>
               <TextBlock Style="{StaticResource ExplanationText}" Text="例如 E:\Drivers\Storage 或 \\server\drivers\storage。不自动填入示例；请按目标 PE 的实际盘符填写，不支持变量、通配符或访问凭据。" Foreground="{DynamicResource SecondaryBrush}"/>
             </StackPanel>
-            <TextBlock Style="{StaticResource ExplanationText}" Text="{Binding SetupDriversSummary}"/>
+            <TextBlock Style="{StaticResource DiagnosticSummary}" Text="{Binding SetupDriversSummary}"/>
             <TextBlock Style="{StaticResource ExplanationText}" Text="网络目录需 PE 已有网络驱动和访问权限；介质盘符可能变化，驱动目录不能依赖随后被清空的分区。修改驱动设置后需重新确认磁盘风险。此功能不注入 boot.wim，也不替代虚拟机工具安装；导入的自定义 PE 驱动脚本仍按原文保留。" Foreground="{DynamicResource WarningBrush}"/>
             <TextBlock Style="{StaticResource ExplanationText}" Text="原 XML 的驱动或 PE 流程未完整映射，目录设置只读；请核对配置方案页的导入说明。" Foreground="{DynamicResource WarningBrush}" Visibility="{Binding HasReadonlySetupDrivers,Converter={StaticResource VisibleWhen}}"/>
           </StackPanel></Border>
@@ -443,7 +444,7 @@
               <TextBlock Style="{StaticResource ExplanationText}" Text="　　下方淡色内容是UEFI/GPT 示例，尚未填入，不参与生成。示例会清空磁盘 0，Windows 分区编号为 3；恢复分区 1000 MB，需按实际 WinRE 镜像调整。脚本可操作任意磁盘，上方安装目标不会限制脚本中的 SELECT DISK。" TextWrapping="Wrap" Foreground="{DynamicResource DangerBrush}"/>
               <DockPanel LastChildFill="True" Margin="0,4,0,4">
                 <Button DockPanel.Dock="Right" VerticalAlignment="Center" Content="复制示例" Command="{x:Static local:ExampleText.CopyCommand}" CommandParameter="{Binding ElementName=DiskPartExampleEditor}"/>
-                <TextBlock DockPanel.Dock="Right" Text="{Binding ElementName=DiskPartExampleEditor,Path=(local:ExampleText.CopyStatus)}" VerticalAlignment="Center" Margin="8,0" MaxWidth="220" TextWrapping="Wrap" Foreground="{DynamicResource SecondaryBrush}"/>
+                <TextBlock DockPanel.Dock="Right" Text="{Binding ElementName=DiskPartExampleEditor,Path=(local:ExampleText.CopyStatus)}" VerticalAlignment="Center" Margin="8,0" MaxWidth="220" TextWrapping="Wrap" Style="{StaticResource CopyFeedback}" local:ExampleText.HasCopyError="{Binding ElementName=DiskPartExampleEditor,Path=(local:ExampleText.HasCopyError)}"/>
                 <WrapPanel><Button Content="载入示例" Tag="diskpart" Click="DiskScriptExampleClick" HorizontalAlignment="Left" ToolTip="{Binding DataContext.HelpTips[diskscriptexample],RelativeSource={RelativeSource AncestorType=Window}}"/></WrapPanel>
               </DockPanel>
               <TextBox x:Name="DiskPartExampleEditor" Text="{Binding Plan.DiskPartScript,UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource ExampleEditor}" local:ExampleText.Value="{x:Static core:DiskScriptSettings.Example}" AcceptsReturn="True" AcceptsTab="True" TextWrapping="NoWrap" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto" Height="340" FontFamily="Consolas" FontSize="13" SpellCheck.IsEnabled="False" ToolTip="{Binding DataContext.HelpTips[diskscript],RelativeSource={RelativeSource AncestorType=Window}}"/>
@@ -495,7 +496,7 @@
                       <ToolTip ContentTemplate="{x:Null}">
                         <StackPanel>
                           <TextBlock Text="安装时创建本地账户" FontWeight="SemiBold" TextWrapping="Wrap" Margin="0,0,0,8" />
-                          <TextBlock Text="安装时显示本地账户创建引导；本页账户列表及首次自动登录选项不参与账户创建。" TextWrapping="Wrap" />
+                          <TextBlock Text="安装时显示本地账户创建引导；&#10;本页账户列表及首次自动登录选项不参与账户创建。" TextWrapping="Wrap" />
                         </StackPanel>
                       </ToolTip>
                     </ComboBoxItem.ToolTip>
@@ -505,7 +506,7 @@
                       <ToolTip ContentTemplate="{x:Null}">
                         <StackPanel>
                           <TextBlock Text="安装时添加微软账户" FontWeight="SemiBold" TextWrapping="Wrap" Margin="0,0,0,8" />
-                          <TextBlock Text="安装时联网添加微软账户；隐藏在线账户页面在此模式下不生效，也不能启用无网络安装绕过。" TextWrapping="Wrap" />
+                          <TextBlock Text="安装时联网添加微软账户；&#10;隐藏在线账户页面在此模式下不生效，也不能启用无网络安装绕过。" TextWrapping="Wrap" />
                         </StackPanel>
                       </ToolTip>
                     </ComboBoxItem.ToolTip>
@@ -540,7 +541,7 @@
                   <PasswordBox PasswordChanged="UserPasswordChanged" DataContextChanged="UserContextChanged" Loaded="UserPasswordLoaded" ToolTip="{Binding DataContext.HelpTips[empty],RelativeSource={RelativeSource AncestorType=Window}}" />
                   <CheckBox Content="管理员账户" IsChecked="{Binding Administrator}" ToolTip="{Binding DataContext.HelpTips[account],RelativeSource={RelativeSource AncestorType=Window}}" />
                   <CheckBox Content="明确允许空密码" IsChecked="{Binding AllowEmptyPassword}" ToolTip="{Binding DataContext.HelpTips[empty],RelativeSource={RelativeSource AncestorType=Window}}" />
-                  <TextBlock Text="此账户密码未随方案保存，请重新输入。" Foreground="{DynamicResource WarningBrush}">
+                  <TextBlock Text="此账户密码未随方案保存，请重新输入。" Foreground="{DynamicResource ErrorBrush}">
                     <TextBlock.Style>
                       <Style TargetType="TextBlock">
                         <Setter Property="Visibility" Value="Collapsed" />
@@ -565,7 +566,7 @@
                   <TextBlock Text="内置 Administrator 密码" Foreground="{DynamicResource SecondaryBrush}"/>
                   <PasswordBox x:Name="BuiltinAdministratorPassword" PasswordChanged="BuiltinPasswordChanged" Loaded="BuiltinPasswordLoaded" ToolTip="{Binding DataContext.HelpTips[builtinlogon],RelativeSource={RelativeSource AncestorType=Window}}"/>
                   <CheckBox x:Name="AllowEmptyBuiltinPassword" Content="明确允许内置账户使用空密码" IsChecked="{Binding Plan.AllowEmptyBuiltinAdministratorPassword}"/>
-                  <TextBlock Text="此密码未随方案保存，请重新输入。" Foreground="{DynamicResource WarningBrush}" Visibility="{Binding Plan.NeedsBuiltinAdministratorPassword,Converter={StaticResource VisibleWhen}}"/>
+                  <TextBlock Text="此密码未随方案保存，请重新输入。" Foreground="{DynamicResource ErrorBrush}" Visibility="{Binding Plan.NeedsBuiltinAdministratorPassword,Converter={StaticResource VisibleWhen}}"/>
                   <TextBlock Style="{StaticResource ExplanationText}" Text="启用内置 Administrator 并自动登录一次。本工具不会在之后自动停用该账户，请核对后续使用安排。" TextWrapping="Wrap" Foreground="{DynamicResource WarningBrush}"/>
                 </StackPanel>
                 <TextBlock Text="密码到期（Windows 默认：42 天）" Foreground="{DynamicResource SecondaryBrush}" ToolTip="{Binding DataContext.HelpTips[expiration],RelativeSource={RelativeSource AncestorType=Window}}" />
@@ -575,7 +576,7 @@
                       <ToolTip ContentTemplate="{x:Null}">
                         <StackPanel>
                           <TextBlock Text="永不过期" FontWeight="SemiBold" TextWrapping="Wrap" Margin="0,0,0,8" />
-                          <TextBlock Text="本地账户密码不按天数到期。此设置不会清空密码，也不等于允许空密码。" TextWrapping="Wrap" />
+                          <TextBlock Text="本地账户密码不按天数到期。&#10;此设置不会清空密码，也不等于允许空密码。" TextWrapping="Wrap" />
                         </StackPanel>
                       </ToolTip>
                     </ComboBoxItem.ToolTip>
@@ -585,7 +586,7 @@
                       <ToolTip ContentTemplate="{x:Null}">
                         <StackPanel>
                           <TextBlock Text="Windows 默认" FontWeight="SemiBold" TextWrapping="Wrap" Margin="0,0,0,8" />
-                          <TextBlock Text="使用 Windows 默认密码到期策略，通常为 42 天；本工具不额外覆盖系统默认策略。只适用于本地账户。" TextWrapping="Wrap" />
+                          <TextBlock Text="使用 Windows 默认密码到期策略，通常为 42 天；&#10;本工具不额外覆盖系统默认策略。&#10;只适用于本地账户。" TextWrapping="Wrap" />
                         </StackPanel>
                       </ToolTip>
                     </ComboBoxItem.ToolTip>
@@ -595,7 +596,7 @@
                       <ToolTip ContentTemplate="{x:Null}">
                         <StackPanel>
                           <TextBlock Text="指定天数" FontWeight="SemiBold" TextWrapping="Wrap" Margin="0,0,0,8" />
-                          <TextBlock Text="在下方填写 1–999 天，设置本地账户密码的最大使用天数。内置 Administrator 密码永不过期。" TextWrapping="Wrap" />
+                          <TextBlock Text="在下方填写 1–999 天，设置本地账户密码的最大使用天数。&#10;内置 Administrator 密码永不过期。" TextWrapping="Wrap" />
                         </StackPanel>
                       </ToolTip>
                     </ComboBoxItem.ToolTip>
@@ -603,7 +604,7 @@
                 </ComboBox>
                 <TextBlock Text="指定天数（1–999，仅指定天数模式生效）" Foreground="{DynamicResource SecondaryBrush}" ToolTip="{Binding DataContext.HelpTips[expiration],RelativeSource={RelativeSource AncestorType=Window}}" />
                 <TextBox x:Name="SettingAnchor075" IsEnabled="{Binding IsPasswordDays}" Text="{Binding Plan.PasswordDays,UpdateSourceTrigger=PropertyChanged,ValidatesOnExceptions=True}" ToolTip="{Binding DataContext.HelpTips[expiration],RelativeSource={RelativeSource AncestorType=Window}}" />
-                <TextBlock Style="{StaticResource ExplanationText}" Visibility="{Binding NeedsRetentionConsent,Converter={StaticResource VisibleWhen}}" Text="　　当前生成核心要求自动清理搭配首次自动登录。选择“不自动登录”时，请到 OOBE 页手动勾选“保留安装隐私文件”；程序不会代为勾选，未选择时检查与导出会停止。" TextWrapping="Wrap" Foreground="{DynamicResource WarningBrush}" />
+                <TextBlock Style="{StaticResource ExplanationText}" Visibility="{Binding NeedsRetentionConsent,Converter={StaticResource VisibleWhen}}" Text="　　当前生成核心要求自动清理搭配首次自动登录。选择“不自动登录”时，请到 OOBE 页手动勾选“保留安装隐私文件”；程序不会代为勾选，未选择时检查与导出会停止。" TextWrapping="Wrap" Foreground="{DynamicResource ErrorBrush}" />
                 <Button Content="安装脚本与隐私文件设置…" Click="InstallationOptionsClick" HorizontalAlignment="Left" />
                 <CheckBox x:Name="SettingAnchor076" Content="在应答文件中使用 Base64 隐藏账户密码" IsEnabled="{Binding IsAutomaticAccounts}" IsChecked="{Binding Plan.ObscurePasswords}" ToolTip="{Binding DataContext.HelpTips[secrets],RelativeSource={RelativeSource AncestorType=Window}}" />
                 <TextBlock Text="Base64 是可还原的编码，不是加密。" Foreground="{DynamicResource WarningBrush}" />
@@ -647,37 +648,85 @@
               <StackPanel IsEnabled="{Binding IsStaticIP}"><TextBlock Text="目标网卡 MAC 地址（IPv4 / IPv6 共用）" Foreground="{DynamicResource SecondaryBrush}"/>
                 <TextBox x:Name="StaticIPv4MacEditor" Text="{Binding Plan.StaticIPv4Mac,UpdateSourceTrigger=PropertyChanged}" MaxLength="32" local:ExampleText.Value="02-00-00-00-00-10（目标网卡）" Style="{StaticResource ExampleEditor}" ToolTip="{Binding HelpTips[staticmac]}"/>
               </StackPanel>
+              <TextBlock x:Name="StaticIPDeploymentWarningText" Style="{StaticResource ExplanationText}" Text="{Binding StaticIPDeploymentWarning}" Foreground="{DynamicResource ErrorBrush}" FontWeight="SemiBold" Visibility="{Binding HasStaticIPDeploymentWarning,Converter={StaticResource VisibleWhen}}"/>
               <TabControl x:Name="IPProtocolTabs" SelectedIndex="0">
-                <TabControl.Style><Style TargetType="TabControl"><Setter Property="Template"><Setter.Value><ControlTemplate TargetType="TabControl"><Grid><Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="*"/></Grid.RowDefinitions><TabPanel IsItemsHost="True"/><ContentPresenter Grid.Row="1" x:Name="PART_SelectedContentHost" ContentSource="SelectedContent" Margin="0,12,0,0"/></Grid></ControlTemplate></Setter.Value></Setter></Style></TabControl.Style>
-                <TabItem x:Name="IPv4ProtocolTab" Header="IPv4"><StackPanel>
+                <TabControl.Resources>
+                  <Style TargetType="TabItem">
+                    <Setter Property="Foreground" Value="{DynamicResource SecondaryBrush}"/>
+                    <Setter Property="Background" Value="Transparent"/>
+                    <Setter Property="Margin" Value="2"/>
+                    <Setter Property="Padding" Value="16,9"/>
+                    <Setter Property="MinHeight" Value="38"/>
+                    <Setter Property="HorizontalAlignment" Value="Stretch"/>
+                    <Setter Property="HorizontalContentAlignment" Value="Center"/>
+                    <Setter Property="VerticalContentAlignment" Value="Center"/>
+                    <Setter Property="Template"><Setter.Value>
+                      <ControlTemplate TargetType="TabItem">
+                        <Border x:Name="ProtocolSegment" Background="{TemplateBinding Background}" BorderBrush="Transparent" BorderThickness="1" CornerRadius="18" MinHeight="{TemplateBinding MinHeight}" Padding="{TemplateBinding Padding}" SnapsToDevicePixels="True">
+                          <ContentPresenter ContentSource="Header" RecognizesAccessKey="True" HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" VerticalAlignment="{TemplateBinding VerticalContentAlignment}" TextElement.Foreground="{TemplateBinding Foreground}"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                          <Trigger Property="IsMouseOver" Value="True"><Setter Property="Background" Value="{DynamicResource HoverBrush}"/></Trigger>
+                          <Trigger Property="IsSelected" Value="True"><Setter Property="Background" Value="{DynamicResource NavSelectedBrush}"/><Setter Property="Foreground" Value="{DynamicResource NavSelectedTextBrush}"/><Setter Property="FontWeight" Value="SemiBold"/></Trigger>
+                          <Trigger Property="IsKeyboardFocusWithin" Value="True"><Setter TargetName="ProtocolSegment" Property="BorderBrush" Value="{DynamicResource AccentBrush}"/></Trigger>
+                          <Trigger Property="IsEnabled" Value="False"><Setter Property="Foreground" Value="{DynamicResource DisabledBrush}"/></Trigger>
+                        </ControlTemplate.Triggers>
+                      </ControlTemplate>
+                    </Setter.Value></Setter>
+                  </Style>
+                </TabControl.Resources>
+                <TabControl.Style><Style TargetType="TabControl">
+                  <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+                  <Setter Property="VerticalContentAlignment" Value="Top"/>
+                  <Setter Property="Template"><Setter.Value>
+                    <ControlTemplate TargetType="TabControl">
+                      <Grid KeyboardNavigation.TabNavigation="Local" SnapsToDevicePixels="True">
+                        <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="*"/></Grid.RowDefinitions>
+                        <Border Background="{DynamicResource InputBrush}" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1" CornerRadius="22" Padding="3">
+                          <UniformGrid x:Name="ProtocolSegments" Rows="1" Columns="2" IsItemsHost="True" KeyboardNavigation.TabNavigation="Once"/>
+                        </Border>
+                        <ContentPresenter Grid.Row="1" x:Name="PART_SelectedContentHost" ContentSource="SelectedContent" Margin="0,12,0,0" HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" VerticalAlignment="{TemplateBinding VerticalContentAlignment}"/>
+                      </Grid>
+                    </ControlTemplate>
+                  </Setter.Value></Setter>
+                </Style></TabControl.Style>
+                <TabItem x:Name="IPv4ProtocolTab" Header="IPv4 配置" AutomationProperties.Name="IPv4 配置"><StackPanel>
               <CheckBox x:Name="StaticIPv4Enabled" Content="指定静态 IPv4" IsChecked="{Binding Plan.UseStaticIPv4}" IsEnabled="{Binding CanEditStaticIPv4}" ToolTip="{Binding HelpTips[staticipv4]}"/>
               <StackPanel IsEnabled="{Binding IsStaticIPv4}">
-                <Grid><Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="150"/></Grid.ColumnDefinitions>
-                  <StackPanel Margin="0,0,12,0"><TextBlock Text="IPv4 地址" Foreground="{DynamicResource SecondaryBrush}"/><TextBox x:Name="StaticIPv4AddressEditor" Text="{Binding Plan.StaticIPv4Address,UpdateSourceTrigger=PropertyChanged}" MaxLength="32" local:ExampleText.Value="192.168.10.20" Style="{StaticResource ExampleEditor}" ToolTip="{Binding DataContext.HelpTips[staticipv4],RelativeSource={RelativeSource AncestorType=Window}}"/></StackPanel>
-                  <StackPanel Grid.Column="1" IsEnabled="{Binding IsStaticIPv4Prefix}"><TextBlock Text="前缀长度（0–32）" Foreground="{DynamicResource SecondaryBrush}"/><TextBox x:Name="StaticIPv4PrefixEditor" Text="{Binding Plan.StaticIPv4Prefix,UpdateSourceTrigger=PropertyChanged,ValidatesOnExceptions=True}" ToolTip="{Binding HelpTips[staticprefix]}"/></StackPanel>
+                <Grid>
+                  <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="150"/></Grid.ColumnDefinitions>
+                  <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
+                  <TextBlock Text="IPv4 地址" Foreground="{DynamicResource SecondaryBrush}"/>
+                  <TextBlock Grid.Column="1" Text="前缀长度（1–32）" Foreground="{DynamicResource SecondaryBrush}" IsEnabled="{Binding IsStaticIPv4}"/>
+                  <TextBox x:Name="StaticIPv4AddressEditor" Grid.Row="1" Margin="0,4,12,12" VerticalAlignment="Stretch" Text="{Binding Plan.StaticIPv4Address,UpdateSourceTrigger=PropertyChanged}" MaxLength="32" local:ExampleText.Value="192.168.10.20" Style="{StaticResource ExampleEditor}" ToolTip="{Binding DataContext.HelpTips[staticipv4],RelativeSource={RelativeSource AncestorType=Window}}"/>
+                  <TextBox x:Name="StaticIPv4PrefixEditor" PreviewTextInput="IPv4InputTextEdit" PreviewKeyDown="IPv4InputKeyEdit" CommandManager.PreviewExecuted="IPv4InputCommandEdit" Grid.Row="1" Grid.Column="1" VerticalAlignment="Stretch" IsEnabled="{Binding IsStaticIPv4}" Style="{StaticResource ExampleEditor}" Text="{Binding Plan.StaticIPv4Prefix,UpdateSourceTrigger=PropertyChanged,ValidatesOnExceptions=True}" ToolTip="{Binding HelpTips[staticprefix]}"/>
                 </Grid>
-                <CheckBox x:Name="StaticIPv4MaskModeEditor" Content="改用子网掩码输入" IsChecked="{Binding Plan.UseStaticIPv4SubnetMask}" ToolTip="{Binding DataContext.HelpTips[staticmask],RelativeSource={RelativeSource AncestorType=Window}}"/>
-                <StackPanel IsEnabled="{Binding IsStaticIPv4SubnetMask}">
+                <CheckBox x:Name="StaticIPv4MaskModeEditor" Content="使用子网掩码输入（也可直接编辑任一输入框切换）" IsChecked="{Binding Plan.UseStaticIPv4SubnetMask}" ToolTip="{Binding DataContext.HelpTips[staticmask],RelativeSource={RelativeSource AncestorType=Window}}"/>
+                <TextBlock Text="{Binding StaticIPv4InputModeHint}" Style="{StaticResource ExplanationText}" Foreground="{DynamicResource SecondaryBrush}"/>
+                <StackPanel IsEnabled="{Binding IsStaticIPv4}">
                   <TextBlock Text="子网掩码（如 255.255.255.0）" Foreground="{DynamicResource SecondaryBrush}"/>
-                  <TextBox x:Name="StaticIPv4SubnetMaskEditor" Text="{Binding Plan.StaticIPv4SubnetMask,UpdateSourceTrigger=PropertyChanged}" MaxLength="15" local:ExampleText.Value="255.255.255.0" Style="{StaticResource ExampleEditor}" ToolTip="{Binding DataContext.HelpTips[staticmask],RelativeSource={RelativeSource AncestorType=Window}}"/>
+                  <TextBox x:Name="StaticIPv4SubnetMaskEditor" PreviewTextInput="IPv4InputTextEdit" PreviewKeyDown="IPv4InputKeyEdit" CommandManager.PreviewExecuted="IPv4InputCommandEdit" Text="{Binding Plan.StaticIPv4SubnetMask,UpdateSourceTrigger=PropertyChanged}" MaxLength="15" local:ExampleText.Value="255.255.255.0" Style="{StaticResource ExampleEditor}" ToolTip="{Binding DataContext.HelpTips[staticmask],RelativeSource={RelativeSource AncestorType=Window}}"/>
                 </StackPanel>
                 <TextBlock Text="默认网关（可留空）" Foreground="{DynamicResource SecondaryBrush}"/>
                 <TextBox x:Name="StaticIPv4GatewayEditor" Text="{Binding Plan.StaticIPv4Gateway,UpdateSourceTrigger=PropertyChanged}" MaxLength="32" local:ExampleText.Value="192.168.10.1" Style="{StaticResource ExampleEditor}" ToolTip="{Binding DataContext.HelpTips[staticgateway],RelativeSource={RelativeSource AncestorType=Window}}"/>
                 <TextBlock Text="IPv4 DNS（可留空，最多三个）" Foreground="{DynamicResource SecondaryBrush}"/>
                 <TextBox x:Name="StaticIPv4DnsEditor" Text="{Binding Plan.StaticIPv4Dns,UpdateSourceTrigger=PropertyChanged}" MaxLength="256" local:ExampleText.Value="192.168.10.1, 192.168.10.2" Style="{StaticResource ExampleEditor}" ToolTip="{Binding DataContext.HelpTips[staticdns],RelativeSource={RelativeSource AncestorType=Window}}"/>
               </StackPanel>
-              <TextBlock Text="{Binding StaticIPv4Summary}" Style="{StaticResource ExplanationText}" Foreground="{DynamicResource AccentTextBrush}"/>
+              <TextBlock Style="{StaticResource ExplanationText}" Text="静态地址 /0 覆盖全部地址范围，可能造成通信异常；本工具会阻止导出。请填写实际网络前缀或掩码，不会自动转换。" Foreground="{DynamicResource SecondaryBrush}"/>
+              <TextBlock x:Name="StaticIPv4SubnetPreviewText" Text="{Binding StaticIPv4SubnetPreview}" Style="{StaticResource DiagnosticSummary}"/>
+              <TextBlock Text="{Binding StaticIPv4Summary}" Style="{StaticResource DiagnosticSummary}"/>
               <TextBlock Style="{StaticResource ExplanationText}" Text="支持 10.0.0.0/8、172.16.0.0/12、192.168.0.0/16 及合法公网。/31 用于点对点，两端均可作主机；/32 为单地址，网关须留空，其他路由需另行配置。" Foreground="{DynamicResource SecondaryBrush}"/>
                 </StackPanel></TabItem>
-                <TabItem x:Name="IPv6ProtocolTab" Header="IPv6"><StackPanel>
+                <TabItem x:Name="IPv6ProtocolTab" Header="IPv6 配置" AutomationProperties.Name="IPv6 配置"><StackPanel>
                   <CheckBox x:Name="StaticIPv6Enabled" Content="指定静态 IPv6" IsChecked="{Binding Plan.UseStaticIPv6}" IsEnabled="{Binding CanEditStaticIPv4}" ToolTip="{Binding HelpTips[staticipv6]}"/>
                   <StackPanel IsEnabled="{Binding IsStaticIPv6}">
                     <TextBlock Text="IPv6 地址"/><TextBox x:Name="StaticIPv6AddressEditor" Text="{Binding Plan.StaticIPv6Address,UpdateSourceTrigger=PropertyChanged}" MaxLength="64" local:ExampleText.Value="2001:db8:10::20" Style="{StaticResource ExampleEditor}" ToolTip="{Binding HelpTips[staticipv6]}"/>
-                    <TextBlock Text="前缀长度（0–64，微软无人值守地址范围）"/><TextBox x:Name="StaticIPv6PrefixEditor" Text="{Binding Plan.StaticIPv6Prefix,UpdateSourceTrigger=PropertyChanged,ValidatesOnExceptions=True}" ToolTip="{Binding HelpTips[staticv6prefix]}"/>
+                    <TextBlock Text="前缀长度（1–64）"/><TextBox x:Name="StaticIPv6PrefixEditor" Style="{StaticResource ExampleEditor}" Text="{Binding Plan.StaticIPv6Prefix,UpdateSourceTrigger=PropertyChanged,ValidatesOnExceptions=True}" ToolTip="{Binding HelpTips[staticv6prefix]}"/>
                     <TextBlock Text="IPv6 默认网关（可留空）"/><TextBox x:Name="StaticIPv6GatewayEditor" Text="{Binding Plan.StaticIPv6Gateway,UpdateSourceTrigger=PropertyChanged}" MaxLength="64" local:ExampleText.Value="fe80::1" Style="{StaticResource ExampleEditor}" ToolTip="{Binding HelpTips[staticv6gateway]}"/>
                     <TextBlock Text="IPv6 DNS（可留空，最多三个）"/><TextBox x:Name="StaticIPv6DnsEditor" Text="{Binding Plan.StaticIPv6Dns,UpdateSourceTrigger=PropertyChanged}" MaxLength="256" local:ExampleText.Value="2001:db8:10::53, 2001:db8:10::54" Style="{StaticResource ExampleEditor}" ToolTip="{Binding HelpTips[staticv6dns]}"/>
                   </StackPanel>
-                  <TextBlock Text="{Binding StaticIPv6Summary}" Style="{StaticResource ExplanationText}" Foreground="{DynamicResource AccentTextBrush}"/>
+                  <TextBlock Style="{StaticResource ExplanationText}" Text="微软原生参数范围为 /0–/64；本工具按部署检查规则阻止静态地址 /0 导出。IPv6 默认路由 ::/0 不受此限制。"/>
+                  <TextBlock Text="{Binding StaticIPv6Summary}" Style="{StaticResource DiagnosticSummary}"/>
                   <TextBlock Style="{StaticResource ExplanationText}" Text="地址示例用于文档演示，请替换为目标网络地址。IPv6 网关可使用不带 %区域的链路本地地址；本界面关闭 DHCPv6 和路由器发现，未填写网关时不生成默认路由。"/>
                 </StackPanel></TabItem>
               </TabControl>
@@ -693,7 +742,7 @@
                       <ToolTip ContentTemplate="{x:Null}">
                         <StackPanel>
                           <TextBlock Text="隐藏无线网络选择页" FontWeight="SemiBold" TextWrapping="Wrap" Margin="0,0,0,8" />
-                          <TextBlock Text="跳过无线网络选择，适合已有有线连接的情况。不会断开已有网络，也不等于允许离线安装。" TextWrapping="Wrap" />
+                          <TextBlock Text="跳过无线网络选择，适合已有有线连接的情况。&#10;不会断开已有网络，也不等于允许离线安装。" TextWrapping="Wrap" />
                         </StackPanel>
                       </ToolTip>
                     </ComboBoxItem.ToolTip>
@@ -760,7 +809,7 @@
                       <ToolTip ContentTemplate="{x:Null}">
                         <StackPanel>
                           <TextBlock Text="关闭快捷隐私设置" FontWeight="SemiBold" TextWrapping="Wrap" Margin="0,0,0,8" />
-                          <TextBlock Text="关闭相应快捷隐私选项；具体效果取决于目标 Windows 版本。" TextWrapping="Wrap" />
+                          <TextBlock Text="关闭相应快捷隐私选项；&#10;具体效果取决于目标 Windows 版本。" TextWrapping="Wrap" />
                         </StackPanel>
                       </ToolTip>
                     </ComboBoxItem.ToolTip>
@@ -939,7 +988,7 @@
             <TextBlock Text="应用移除功能已支持；本文件的原脚本暂不能通过清单编辑，仍会保留并随 XML 导出。下方勾选仅表示已识别的项目，不代表原脚本没有其他移除操作。" TextWrapping="Wrap" Foreground="{DynamicResource WarningBrush}" Margin="0,0,0,12"><TextBlock.Style><Style TargetType="TextBlock" BasedOn="{StaticResource {x:Type TextBlock}}"><Setter Property="Visibility" Value="Collapsed"/><Style.Triggers><DataTrigger Binding="{Binding CanEditAppRemoval}" Value="False"><Setter Property="Visibility" Value="Visible"/></DataTrigger></Style.Triggers></Style></TextBlock.Style></TextBlock>
             <TextBlock Text="{Binding AppRemovalSummary}" TextWrapping="Wrap" FontWeight="SemiBold" Margin="0,0,0,16"/>
             <TextBlock Text="搜索应用或组件" Margin="0,0,0,4"/>
-            <TextBox Text="{Binding AppRemovalFilter,UpdateSourceTrigger=PropertyChanged}" ToolTip="输入中文名称、英文名称或功能关键词筛选；隐藏的选择仍保留。" Margin="0,0,0,6"/>
+            <TextBox Text="{Binding AppRemovalFilter,UpdateSourceTrigger=PropertyChanged}" Margin="0,0,0,6"><TextBox.ToolTip><ToolTip ContentTemplate="{x:Null}"><TextBlock Text="输入中文名称、英文名称或功能关键词筛选；&#10;隐藏的选择仍保留。" TextWrapping="Wrap"/></ToolTip></TextBox.ToolTip></TextBox>
             <TextBlock Text="{Binding AppRemovalFilterSummary}" Foreground="{DynamicResource SecondaryBrush}" Margin="0,0,0,10"/>
             <WrapPanel IsEnabled="{Binding CanEditAppRemoval}" Margin="0,0,0,10"><Button Content="勾选当前筛选结果" Tag="select" Click="SelectFilteredAppsClick"/><Button Content="取消当前筛选结果" Tag="clear" Click="SelectFilteredAppsClick"/></WrapPanel>
             <ItemsControl x:Name="AppRemovalItems" IsEnabled="{Binding CanEditAppRemoval}" ItemsSource="{Binding FilteredAppRemovalChoices}">
@@ -964,7 +1013,7 @@
             <ComboBox x:Name="SettingAnchor143" SelectedValue="{Binding Plan.HideFilesMode}" SelectedValuePath="Content" ToolTip="{Binding DataContext.HelpTips[explorerhidden],RelativeSource={RelativeSource AncestorType=Window}}">
               <ComboBoxItem Content="使用 Windows 默认设置"><ComboBoxItem.ToolTip><ToolTip ContentTemplate="{x:Null}"><TextBlock Text="隐藏带有 Hidden 属性的文件，沿用 Windows 默认显示行为。" TextWrapping="Wrap" /></ToolTip></ComboBoxItem.ToolTip></ComboBoxItem>
               <ComboBoxItem Content="隐藏受保护的操作系统文件"><ComboBoxItem.ToolTip><ToolTip ContentTemplate="{x:Null}"><TextBlock Text="显示普通隐藏文件，只隐藏同时带有 Hidden 和 System 属性的文件。" TextWrapping="Wrap" /></ToolTip></ComboBoxItem.ToolTip></ComboBoxItem>
-              <ComboBoxItem Content="显示全部文件"><ComboBoxItem.ToolTip><ToolTip ContentTemplate="{x:Null}"><TextBlock Text="显示普通隐藏文件和受保护的系统文件；不会改变属性或访问权限。" TextWrapping="Wrap" /></ToolTip></ComboBoxItem.ToolTip></ComboBoxItem>
+              <ComboBoxItem Content="显示全部文件"><ComboBoxItem.ToolTip><ToolTip ContentTemplate="{x:Null}"><TextBlock Text="显示普通隐藏文件和受保护的系统文件；&#10;不会改变属性或访问权限。" TextWrapping="Wrap" /></ToolTip></ComboBoxItem.ToolTip></ComboBoxItem>
             </ComboBox>
             <CheckBox x:Name="SettingAnchor144" Content="始终显示文件扩展名" IsChecked="{Binding Plan.ShowFileExtensions}" ToolTip="{Binding DataContext.HelpTips[explorerextensions],RelativeSource={RelativeSource AncestorType=Window}}" />
             <TextBlock Style="{StaticResource ExplanationText}" Text="　　例如显示完整文件名“说明.txt”“程序.exe”，便于确认文件类型。" TextWrapping="Wrap" Foreground="{DynamicResource SecondaryBrush}" />
@@ -1008,7 +1057,7 @@
             <StackPanel IsEnabled="{Binding IsCustomTaskbar}">
               <DockPanel LastChildFill="True" Margin="0,4,0,4">
                 <Button DockPanel.Dock="Right" VerticalAlignment="Center" Content="复制示例" Command="{x:Static local:ExampleText.CopyCommand}" CommandParameter="{Binding ElementName=TaskbarExampleEditor}"/>
-                <TextBlock DockPanel.Dock="Right" Text="{Binding ElementName=TaskbarExampleEditor,Path=(local:ExampleText.CopyStatus)}" VerticalAlignment="Center" Margin="8,0" MaxWidth="220" TextWrapping="Wrap" Foreground="{DynamicResource SecondaryBrush}"/>
+                <TextBlock DockPanel.Dock="Right" Text="{Binding ElementName=TaskbarExampleEditor,Path=(local:ExampleText.CopyStatus)}" VerticalAlignment="Center" Margin="8,0" MaxWidth="220" TextWrapping="Wrap" Style="{StaticResource CopyFeedback}" local:ExampleText.HasCopyError="{Binding ElementName=TaskbarExampleEditor,Path=(local:ExampleText.HasCopyError)}"/>
                 <WrapPanel><Button Content="导入 XML…" Tag="taskbar" Click="ImportLayoutClick" /><Button Content="载入示例" Tag="taskbar" Click="LayoutExampleClick" /><Button Content="检查 XML" Tag="taskbar" Click="ValidateLayoutClick" /></WrapPanel>
               </DockPanel>
               <TextBox x:Name="TaskbarExampleEditor" Style="{StaticResource ExampleEditor}" local:ExampleText.Value="{x:Static core:ShellSettings.TaskbarExample}" Text="{Binding Plan.TaskbarIconsXml,UpdateSourceTrigger=PropertyChanged}" AcceptsReturn="True" AcceptsTab="True" TextWrapping="NoWrap" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto" Height="200" FontFamily="Consolas" FontSize="13" SpellCheck.IsEnabled="False" ToolTip="{Binding DataContext.HelpTips[taskbaricons],RelativeSource={RelativeSource AncestorType=Window}}" />
@@ -1034,7 +1083,7 @@
               <TextBlock Style="{StaticResource ExplanationText}" Text="　　导入另一台 Windows 10 电脑用 Export-StartLayout 导出的 XML，或编辑示例。" TextWrapping="Wrap" Foreground="{DynamicResource SecondaryBrush}" />
               <DockPanel LastChildFill="True" Margin="0,4,0,4">
                 <Button DockPanel.Dock="Right" VerticalAlignment="Center" Content="复制示例" Command="{x:Static local:ExampleText.CopyCommand}" CommandParameter="{Binding ElementName=TilesExampleEditor}"/>
-                <TextBlock DockPanel.Dock="Right" Text="{Binding ElementName=TilesExampleEditor,Path=(local:ExampleText.CopyStatus)}" VerticalAlignment="Center" Margin="8,0" MaxWidth="220" TextWrapping="Wrap" Foreground="{DynamicResource SecondaryBrush}"/>
+                <TextBlock DockPanel.Dock="Right" Text="{Binding ElementName=TilesExampleEditor,Path=(local:ExampleText.CopyStatus)}" VerticalAlignment="Center" Margin="8,0" MaxWidth="220" TextWrapping="Wrap" Style="{StaticResource CopyFeedback}" local:ExampleText.HasCopyError="{Binding ElementName=TilesExampleEditor,Path=(local:ExampleText.HasCopyError)}"/>
                 <WrapPanel><Button Content="导入 XML…" Tag="tiles" Click="ImportLayoutClick" /><Button Content="载入示例" Tag="tiles" Click="LayoutExampleClick" /><Button Content="检查 XML" Tag="tiles" Click="ValidateLayoutClick" /></WrapPanel>
               </DockPanel>
               <TextBox x:Name="TilesExampleEditor" Style="{StaticResource ExampleEditor}" local:ExampleText.Value="{x:Static core:ShellSettings.TilesExample}" Text="{Binding Plan.StartTilesXml,UpdateSourceTrigger=PropertyChanged}" AcceptsReturn="True" AcceptsTab="True" TextWrapping="NoWrap" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto" Height="200" FontFamily="Consolas" FontSize="13" SpellCheck.IsEnabled="False" ToolTip="{Binding DataContext.HelpTips[starttiles],RelativeSource={RelativeSource AncestorType=Window}}" />
@@ -1048,7 +1097,7 @@
               <TextBlock Style="{StaticResource ExplanationText}" Text="　　导入另一台 Windows 11 电脑用 Export-StartLayout 导出的 JSON，根对象须包含 pinnedList 数组。" TextWrapping="Wrap" Foreground="{DynamicResource SecondaryBrush}" />
               <DockPanel LastChildFill="True" Margin="0,4,0,4">
                 <Button DockPanel.Dock="Right" VerticalAlignment="Center" Content="复制示例" Command="{x:Static local:ExampleText.CopyCommand}" CommandParameter="{Binding ElementName=PinsExampleEditor}"/>
-                <TextBlock DockPanel.Dock="Right" Text="{Binding ElementName=PinsExampleEditor,Path=(local:ExampleText.CopyStatus)}" VerticalAlignment="Center" Margin="8,0" MaxWidth="220" TextWrapping="Wrap" Foreground="{DynamicResource SecondaryBrush}"/>
+                <TextBlock DockPanel.Dock="Right" Text="{Binding ElementName=PinsExampleEditor,Path=(local:ExampleText.CopyStatus)}" VerticalAlignment="Center" Margin="8,0" MaxWidth="220" TextWrapping="Wrap" Style="{StaticResource CopyFeedback}" local:ExampleText.HasCopyError="{Binding ElementName=PinsExampleEditor,Path=(local:ExampleText.HasCopyError)}"/>
                 <WrapPanel><Button Content="导入 JSON…" Tag="pins" Click="ImportLayoutClick" /><Button Content="载入示例" Tag="pins" Click="LayoutExampleClick" /><Button Content="检查 JSON" Tag="pins" Click="ValidateLayoutClick" /></WrapPanel>
               </DockPanel>
               <TextBox x:Name="PinsExampleEditor" Style="{StaticResource ExampleEditor}" local:ExampleText.Value="{x:Static core:ShellSettings.PinsExample}" Text="{Binding Plan.StartPinsJson,UpdateSourceTrigger=PropertyChanged}" AcceptsReturn="True" AcceptsTab="True" TextWrapping="NoWrap" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto" Height="200" FontFamily="Consolas" FontSize="13" SpellCheck.IsEnabled="False" ToolTip="{Binding DataContext.HelpTips[startpins],RelativeSource={RelativeSource AncestorType=Window}}" />
@@ -1087,7 +1136,7 @@
           </StackPanel></Border>
           <Border Style="{StaticResource Card}"><StackPanel>
             <DockPanel LastChildFill="True">
-              <Button x:Name="StartFoldersIllustrationButton" DockPanel.Dock="Right" Content="查看文件夹位置示意" Click="StartFoldersIllustrationClick" ToolTip="查看 Windows 11 开始菜单电源按钮左侧的文件夹入口位置"/>
+              <Button x:Name="StartFoldersIllustrationButton" DockPanel.Dock="Right" Content="查看文件夹位置示意" Click="StartFoldersIllustrationClick"><Button.ToolTip><ToolTip ContentTemplate="{x:Null}"><TextBlock Text="查看 Windows 11 开始菜单电源按钮左侧的文件夹入口位置" TextWrapping="Wrap"/></ToolTip></Button.ToolTip></Button>
               <TextBlock x:Name="SettingAnchor185" Text="开始菜单电源按钮旁的文件夹" FontSize="18" FontWeight="SemiBold" TextWrapping="Wrap" VerticalAlignment="Center"/>
             </DockPanel>
             <TextBlock Style="{StaticResource ExplanationText}" Text="　　仅适用于 Windows 11；不改变开始菜单固定应用，也不会删除文件夹或文件。" TextWrapping="Wrap" Foreground="{DynamicResource SecondaryBrush}" />
@@ -1178,7 +1227,7 @@
             </ComboBox>
             <TextBlock Text="或填写自定义颜色（#RRGGBB）"/>
             <DockPanel Margin="0,4,0,12">
-              <Button x:Name="AccentColorPickerButton" DockPanel.Dock="Left" Width="40" Height="36" Margin="0,0,10,0" Padding="4" Tag="accent" Click="ColorPickerClick" ToolTip="打开可视化调色板，选择Windows 强调色" AutomationProperties.Name="选择Windows 强调色">
+              <Button x:Name="AccentColorPickerButton" DockPanel.Dock="Left" Width="40" Height="36" Margin="0,0,10,0" Padding="4" Tag="accent" Click="ColorPickerClick" AutomationProperties.Name="选择Windows 强调色"><Button.ToolTip><ToolTip ContentTemplate="{x:Null}"><TextBlock Text="打开可视化调色板，选择Windows 强调色" TextWrapping="Wrap"/></ToolTip></Button.ToolTip>
                 <Button.Template><ControlTemplate TargetType="Button"><Border BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="1" CornerRadius="5" Padding="4" Background="{DynamicResource SurfaceBrush}"><Border Background="{Binding AccentColorPreview}" CornerRadius="2"/></Border><ControlTemplate.Triggers><Trigger Property="IsKeyboardFocused" Value="True"><Setter Property="BorderBrush" Value="{DynamicResource AccentBrush}"/></Trigger></ControlTemplate.Triggers></ControlTemplate></Button.Template>
               </Button>
               <TextBox x:Name="SettingAnchor221" DockPanel.Dock="Left" Width="140" Text="{Binding Plan.AccentColorHex,UpdateSourceTrigger=PropertyChanged}" MaxLength="32" FontFamily="Consolas" FontSize="16" FontWeight="SemiBold" Margin="0,0,12,0" ToolTip="{Binding DataContext.HelpTips[accentcolor],RelativeSource={RelativeSource AncestorType=Window}}"/>
@@ -1205,7 +1254,7 @@
               </ComboBox>
               <TextBlock Text="或填写自定义颜色（#RRGGBB）"/>
               <DockPanel Margin="0,4,0,12">
-                <Button x:Name="WallpaperColorPickerButton" DockPanel.Dock="Left" Width="40" Height="36" Margin="0,0,10,0" Padding="4" Tag="wallpaper" Click="ColorPickerClick" ToolTip="打开可视化调色板，选择纯色桌面背景" AutomationProperties.Name="选择纯色桌面背景">
+                <Button x:Name="WallpaperColorPickerButton" DockPanel.Dock="Left" Width="40" Height="36" Margin="0,0,10,0" Padding="4" Tag="wallpaper" Click="ColorPickerClick" AutomationProperties.Name="选择纯色桌面背景"><Button.ToolTip><ToolTip ContentTemplate="{x:Null}"><TextBlock Text="打开可视化调色板，选择纯色桌面背景" TextWrapping="Wrap"/></ToolTip></Button.ToolTip>
                 <Button.Template><ControlTemplate TargetType="Button"><Border BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="1" CornerRadius="5" Padding="4" Background="{DynamicResource SurfaceBrush}"><Border Background="{Binding WallpaperColorPreview}" CornerRadius="2"/></Border><ControlTemplate.Triggers><Trigger Property="IsKeyboardFocused" Value="True"><Setter Property="BorderBrush" Value="{DynamicResource AccentBrush}"/></Trigger></ControlTemplate.Triggers></ControlTemplate></Button.Template>
               </Button>
                 <TextBox x:Name="SettingAnchor226" DockPanel.Dock="Left" Width="140" Text="{Binding Plan.WallpaperColorHex,UpdateSourceTrigger=PropertyChanged}" MaxLength="32" FontFamily="Consolas" FontSize="16" FontWeight="SemiBold" Margin="0,0,12,0" ToolTip="{Binding DataContext.HelpTips[wallpapercolor],RelativeSource={RelativeSource AncestorType=Window}}"/>
@@ -1217,7 +1266,7 @@
               <TextBlock Style="{StaticResource ExplanationText}" Text="　　脚本需返回图片原始字节，不是图片路径。本工具不执行脚本；示例需要安装时可读取的 wallpaper.jpg。" Foreground="{DynamicResource SecondaryBrush}"/>
               <DockPanel LastChildFill="True" Margin="0,4,0,4">
                 <Button DockPanel.Dock="Right" Content="复制示例" Command="{x:Static local:ExampleText.CopyCommand}" CommandParameter="{Binding ElementName=WallpaperImageEditor}"/>
-                <TextBlock DockPanel.Dock="Right" Text="{Binding ElementName=WallpaperImageEditor,Path=(local:ExampleText.CopyStatus)}" VerticalAlignment="Center" Margin="8,0" Foreground="{DynamicResource SecondaryBrush}"/>
+                <TextBlock DockPanel.Dock="Right" Text="{Binding ElementName=WallpaperImageEditor,Path=(local:ExampleText.CopyStatus)}" VerticalAlignment="Center" Margin="8,0" Style="{StaticResource CopyFeedback}" local:ExampleText.HasCopyError="{Binding ElementName=WallpaperImageEditor,Path=(local:ExampleText.HasCopyError)}"/>
                 <WrapPanel><Button Content="载入示例" Tag="wallpaper" Click="ImageScriptExampleClick" ToolTip="{Binding DataContext.HelpTips[imageexample],RelativeSource={RelativeSource AncestorType=Window}}"/></WrapPanel>
               </DockPanel>
               <TextBox x:Name="WallpaperImageEditor" Text="{Binding Plan.WallpaperImageScript,UpdateSourceTrigger=PropertyChanged}" local:ExampleText.Value="{Binding DesktopImageExample}" Style="{StaticResource ExampleEditor}" AcceptsReturn="True" AcceptsTab="True" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto" Height="260" FontFamily="Consolas" FontSize="13" SpellCheck.IsEnabled="False" ToolTip="{Binding DataContext.HelpTips[wallpaperimage],RelativeSource={RelativeSource AncestorType=Window}}"/>
@@ -1233,7 +1282,7 @@
               <TextBlock Style="{StaticResource ExplanationText}" Text="　　在安装阶段读取图片，脚本需返回原始字节，不是路径。示例需要安装时可读取的 lockscreen.jpg。" Foreground="{DynamicResource SecondaryBrush}"/>
               <DockPanel LastChildFill="True" Margin="0,4,0,4">
                 <Button DockPanel.Dock="Right" Content="复制示例" Command="{x:Static local:ExampleText.CopyCommand}" CommandParameter="{Binding ElementName=LockScreenImageEditor}"/>
-                <TextBlock DockPanel.Dock="Right" Text="{Binding ElementName=LockScreenImageEditor,Path=(local:ExampleText.CopyStatus)}" VerticalAlignment="Center" Margin="8,0" Foreground="{DynamicResource SecondaryBrush}"/>
+                <TextBlock DockPanel.Dock="Right" Text="{Binding ElementName=LockScreenImageEditor,Path=(local:ExampleText.CopyStatus)}" VerticalAlignment="Center" Margin="8,0" Style="{StaticResource CopyFeedback}" local:ExampleText.HasCopyError="{Binding ElementName=LockScreenImageEditor,Path=(local:ExampleText.HasCopyError)}"/>
                 <WrapPanel><Button Content="载入示例" Tag="lockscreen" Click="ImageScriptExampleClick" ToolTip="{Binding DataContext.HelpTips[imageexample],RelativeSource={RelativeSource AncestorType=Window}}"/></WrapPanel>
               </DockPanel>
               <TextBox x:Name="LockScreenImageEditor" Text="{Binding Plan.LockScreenImageScript,UpdateSourceTrigger=PropertyChanged}" local:ExampleText.Value="{Binding LockScreenImageExample}" Style="{StaticResource ExampleEditor}" AcceptsReturn="True" AcceptsTab="True" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto" Height="260" FontFamily="Consolas" FontSize="13" SpellCheck.IsEnabled="False" ToolTip="{Binding DataContext.HelpTips[lockscreenimage],RelativeSource={RelativeSource AncestorType=Window}}"/>
@@ -1250,7 +1299,7 @@
             <TextBlock Style="{StaticResource ExplanationText}" Text="　　System → DefaultUser → FirstLogon；UserOnce 在每个用户首次登录时运行。同阶段按下方列表顺序执行。各阶段包含工具生成的其他命令，自定义脚本不能替代其执行流程。" TextWrapping="Wrap"/>
             <TextBlock Style="{StaticResource ExplanationText}" Text="　　这些是 Windows 安装与登录阶段，不是 Sysprep 封装前后的钩子。首次登录不保证桌面已加载完成。脚本按原样嵌入应答文件；请自行核对权限、路径、网络、等待安装程序结束以及错误处理。" TextWrapping="Wrap" Foreground="{DynamicResource WarningBrush}"/>
             <WrapPanel><Button Content="添加脚本" Click="AddScriptClick"/><Button Content="复制脚本" Click="DuplicateScriptClick"/><Button Content="删除脚本" Click="RemoveScriptClick"/><Button Content="上移脚本" Tag="up" Click="MoveScriptClick"/><Button Content="下移脚本" Tag="down" Click="MoveScriptClick"/></WrapPanel>
-            <WrapPanel Margin="0,4,0,0"><Button x:Name="ImportScriptFileButton" Content="导入脚本文件…" Click="ImportScriptFileClick" ToolTip="导入脚本文件，新增条目并默认停用"/><Button x:Name="SaveScriptFileButton" Content="另存选中脚本…" Click="SaveScriptFileClick" IsEnabled="{Binding HasSelectedScript}" ToolTip="导出选中脚本内容到文件"/></WrapPanel>
+            <WrapPanel Margin="0,4,0,0"><Button x:Name="ImportScriptFileButton" Content="导入脚本文件…" Click="ImportScriptFileClick"><Button.ToolTip><ToolTip ContentTemplate="{x:Null}"><TextBlock Text="导入脚本文件，新增条目并默认停用" TextWrapping="Wrap"/></ToolTip></Button.ToolTip></Button><Button x:Name="SaveScriptFileButton" Content="另存选中脚本…" Click="SaveScriptFileClick" IsEnabled="{Binding HasSelectedScript}"><Button.ToolTip><ToolTip ContentTemplate="{x:Null}"><TextBlock Text="导出选中脚本内容到文件" TextWrapping="Wrap"/></ToolTip></Button.ToolTip></Button></WrapPanel>
             <TextBlock Style="{StaticResource ExplanationText}" Text="文件导入新增一条默认停用的 System 脚本，不替换现有条目；支持 UTF-8 或带 BOM 的 UTF-16。请核对阶段与内容后启用。另存仅输出选中脚本正文，不包含执行阶段或启用状态。" TextWrapping="Wrap" Foreground="{DynamicResource SecondaryBrush}"/>
             <TextBlock Style="{StaticResource ExplanationText}" Text="另存编码：PS1 为带 BOM 的 UTF-8，REG / VBS 为带 BOM 的 UTF-16 LE，CMD 为无 BOM 的 UTF-8。中文 CMD 需代码页匹配；不会自动插入 chcp。REG 缺少标准文件头时仅在另存文件中补齐。" TextWrapping="Wrap" Foreground="{DynamicResource SecondaryBrush}"/>
             <ListBox ItemsSource="{Binding Plan.Scripts}" SelectedItem="{Binding SelectedScript}" DisplayMemberPath="Label" MaxHeight="170" MinHeight="65"/>
@@ -1264,7 +1313,7 @@
               <TextBlock Style="{StaticResource ExplanationText}" Text="　　脚本内容：淡色内容只作参考，不参与生成。支持每个阶段最多 15 条，总计最多 60 条。" TextWrapping="Wrap" Foreground="{DynamicResource SecondaryBrush}"/>
               <DockPanel LastChildFill="True" Margin="0,4,0,4">
                 <Button DockPanel.Dock="Right" VerticalAlignment="Center" Content="复制示例" Command="{x:Static local:ExampleText.CopyCommand}" CommandParameter="{Binding ElementName=ScriptExampleEditor}"/>
-                <TextBlock DockPanel.Dock="Right" Text="{Binding ElementName=ScriptExampleEditor,Path=(local:ExampleText.CopyStatus)}" VerticalAlignment="Center" Margin="8,0" MaxWidth="220" TextWrapping="Wrap" Foreground="{DynamicResource SecondaryBrush}"/>
+                <TextBlock DockPanel.Dock="Right" Text="{Binding ElementName=ScriptExampleEditor,Path=(local:ExampleText.CopyStatus)}" VerticalAlignment="Center" Margin="8,0" MaxWidth="220" TextWrapping="Wrap" Style="{StaticResource CopyFeedback}" local:ExampleText.HasCopyError="{Binding ElementName=ScriptExampleEditor,Path=(local:ExampleText.HasCopyError)}"/>
                 <TextBlock Text="脚本内容" VerticalAlignment="Center"/>
               </DockPanel>
               <TextBox x:Name="ScriptExampleEditor" ToolTip="{Binding DataContext.HelpTips[scriptcontent],RelativeSource={RelativeSource AncestorType=Window}}" Text="{Binding Content,UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource ExampleEditor}" local:ExampleText.Value="{Binding Example}" AcceptsReturn="True" AcceptsTab="True" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto" Height="260" FontFamily="Consolas" FontSize="13" SpellCheck.IsEnabled="False"/>
@@ -1283,7 +1332,7 @@
               <StackPanel>
                 <TextBlock x:Name="SettingAnchor233" Text="检查与导出" FontSize="20" FontWeight="SemiBold" Margin="0,0,0,16" />
                 <TextBlock Style="{StaticResource ExplanationText}" Text="　　导出前重新检查当前配置。XML 可能包含账户及 Wi-Fi 凭据；预览默认遮蔽密码。" TextWrapping="Wrap" />
-                <TextBlock Style="{StaticResource ExplanationText}" Text="{Binding XmlImportSummary,StringFormat='　　{0}'}" Visibility="{Binding HasImportedXml,Converter={StaticResource VisibleWhen}}" Foreground="{DynamicResource WarningBrush}"/>
+                <TextBlock Text="{Binding XmlImportSummary,StringFormat='　　{0}'}" Visibility="{Binding HasImportedXml,Converter={StaticResource VisibleWhen}}"><TextBlock.Style><Style TargetType="TextBlock" BasedOn="{StaticResource ExplanationText}"><Setter Property="Foreground" Value="{DynamicResource WarningBrush}"/><Style.Triggers><DataTrigger Binding="{Binding HasXmlImportErrors}" Value="True"><Setter Property="Foreground" Value="{DynamicResource ErrorBrush}"/></DataTrigger></Style.Triggers></Style></TextBlock.Style></TextBlock>
                 <TextBlock Style="{StaticResource ExplanationText}" Text="　　导入的原 XML 含磁盘配置或 Windows PE 命令；下方磁盘设置仅涵盖已还原的部分，请核对原文件的全部操作范围。" Visibility="{Binding HasImportedXmlRisk,Converter={StaticResource VisibleWhen}}" Foreground="{DynamicResource WarningBrush}"/>
 
                 <local:ConfigurationSummaryView Summary="{Binding ConfigurationSummary}" ShowDetails="False" Margin="0,0,0,0"/>

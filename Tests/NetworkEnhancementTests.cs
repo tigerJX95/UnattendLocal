@@ -37,7 +37,7 @@ static class NetworkEnhancementTests
         }
         Check(!InstallPlan.New().UseStaticIPv4SubnetMask && !InstallPlan.NewCustom().UseStaticIPv4SubnetMask, "old and custom plans default to prefix mode");
         Check(StaticIPv4Settings.SubnetMask(24) == "255.255.255.0" && StaticIPv4Settings.PrefixFromMask("255.255.254.0") == 23, "known independent mask examples");
-        for (int prefix = 0; prefix <= 32; prefix++) {
+        for (int prefix = 1; prefix <= 32; prefix++) {
             string mask = string.Join(".", Enumerable.Range(0, 4).Select(i => Enumerable.Range(0, 8).Where(bit => i * 8 + bit < prefix).Sum(bit => 1 << (7 - bit))));
             var p = Plan(); p.StaticIPv4Address = "10.0.0.1"; p.StaticIPv4Gateway = p.StaticIPv4Dns = ""; p.UseStaticIPv4SubnetMask = true; p.StaticIPv4SubnetMask = mask; p.StaticIPv4Prefix = -99;
             Check(StaticIPv4Settings.Read(p).Prefix == prefix && StaticIPv4Settings.SubnetMask(prefix) == mask, "mask mode selects independently derived prefix /" + prefix);

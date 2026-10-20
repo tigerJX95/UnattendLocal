@@ -218,7 +218,7 @@ public static partial class AppRemovalSettings
         var notes=new List<string>();ReadIntoPlan(XmlMerge.Read(data.SourceXml),p,notes);data.Notices=data.Notices.Concat(notes).Distinct().ToArray();
         if(p.RemovedApps.Count==0)return;
         var after=JsonSerializer.Deserialize<InstallPlan>(JsonSerializer.Serialize(before))!;after.RemovedApps=new(p.RemovedApps);
-        try {var g=new GeneratorService();data.BaselineXml=XmlMerge.Apply(data.BaselineXml,Encoding.UTF8.GetString(g.GenerateStandalone(before)),XmlMerge.Read(Encoding.UTF8.GetString(g.GenerateStandalone(after)))).OuterXml;}
+        try {var g=new GeneratorService();data.BaselineXml=XmlMerge.Apply(data.BaselineXml,Encoding.UTF8.GetString(g.GenerateImportBaseline(before)),XmlMerge.Read(Encoding.UTF8.GetString(g.GenerateImportBaseline(after)))).OuterXml;}
         catch(Exception e)when(e is ArgumentException or ConfigurationException or XmlException){data.Blockers=data.Blockers.Append("旧方案的应用移除编辑基准无法可靠迁移，请重新导入原 XML 后再导出。").Distinct().ToArray();}
     }
 }

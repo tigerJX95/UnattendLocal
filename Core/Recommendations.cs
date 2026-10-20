@@ -99,6 +99,7 @@ public static class Recommendations {
  }
  public static string MissingInputs(InstallPlan p){
   var items=new List<string>();
+  string networkWarning=StaticIPv4Settings.DeploymentWarning(p);if(networkWarning.Length>0)items.Add(networkWarning);
   if(p.UseSetupDrivers){try{SetupDriverSettings.Validate(p);}catch(ArgumentException e){items.Add("安装驱动目录："+e.Message);}}
   if(p.UseStaticIPv4||p.UseStaticIPv6){try{StaticIPv4Settings.Validate(p);}catch(ArgumentException e){items.Add((p.UseStaticIPv4&&!p.UseStaticIPv6?"静态 IPv4：":p.UseStaticIPv6&&!p.UseStaticIPv4?"静态 IPv6：":"IP 配置：")+e.Message);}}
   if(p.UseAppLocker&&string.IsNullOrWhiteSpace(p.AppLockerPolicyXml))items.Add("AppLocker 策略 XML");

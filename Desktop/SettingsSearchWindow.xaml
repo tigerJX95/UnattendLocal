@@ -1,7 +1,7 @@
 <Window x:Class="UnattendLocal.Desktop.SettingsSearchWindow" xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" Title="搜索设置" Width="740" Height="610" MinWidth="540" MinHeight="410" WindowStartupLocation="CenterOwner" ShowInTaskbar="False" Background="{DynamicResource CanvasBrush}" Foreground="{DynamicResource ForegroundBrush}" FontFamily="Microsoft YaHei UI" FontSize="14" PreviewKeyDown="SearchKeyDown">
   <Grid Margin="20">
     <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
-    <TextBox x:Name="QueryBox" TextChanged="QueryChanged" AutomationProperties.Name="搜索中英文设置名称或关键词" Margin="0,0,0,8"><TextBox.ToolTip><ToolTip ContentTemplate="{x:Null}" Content="支持中文、英文名称、别名及多个关键词，例如 $OEM$、BitLocker、自动登录。Ctrl+L 重新输入。"/></TextBox.ToolTip></TextBox>
+    <TextBox x:Name="QueryBox" TextChanged="QueryChanged" AutomationProperties.Name="搜索中英文设置名称或关键词" Margin="0,0,0,8"><TextBox.ToolTip><ToolTip ContentTemplate="{x:Null}" Content="支持中文、英文名称、别名及多个关键词，例如 $OEM$、BitLocker、自动登录。&#10;Ctrl+L 重新输入。"/></TextBox.ToolTip></TextBox>
     <Grid Grid.Row="1" Margin="0,0,0,8">
       <Grid.ColumnDefinitions><ColumnDefinition Width="Auto"/><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
       <Label Content="分类" Target="{Binding ElementName=CategoryPicker}" VerticalAlignment="Center" Padding="0,0,12,0"/>
@@ -13,7 +13,7 @@
       <ListBox.ItemTemplate><DataTemplate><StackPanel Margin="8,7">
         <TextBlock Text="{Binding Title}" FontWeight="SemiBold" TextWrapping="Wrap"/>
         <TextBlock Text="{Binding Page,StringFormat=所在页面：{0}}" Foreground="{DynamicResource AccentTextBrush}" Margin="0,4,0,0"/>
-        <TextBlock Text="{Binding Description}" Foreground="{DynamicResource SecondaryBrush}" FontSize="12" TextWrapping="Wrap" MaxHeight="42" TextTrimming="CharacterEllipsis" Margin="0,4,0,0"><TextBlock.ToolTip><ToolTip ContentTemplate="{x:Null}"><TextBlock Text="{Binding Description}" TextWrapping="Wrap"/></ToolTip></TextBlock.ToolTip></TextBlock>
+        <TextBlock Text="{Binding Description}" Foreground="{DynamicResource SecondaryBrush}" FontSize="12" TextWrapping="Wrap" MaxHeight="42" TextTrimming="CharacterEllipsis" Margin="0,4,0,0"><TextBlock.ToolTip><ToolTip ContentTemplate="{x:Null}"><TextBlock Text="{Binding TooltipDescription}" TextWrapping="Wrap"/></ToolTip></TextBlock.ToolTip></TextBlock>
       </StackPanel></DataTemplate></ListBox.ItemTemplate>
     </ListBox>
     <DockPanel Grid.Row="4" Margin="0,12,0,0">

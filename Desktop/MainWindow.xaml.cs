@@ -15,7 +15,11 @@ public partial class MainWindow : Window {
  private void ThemeToggleClick(object s,RoutedEventArgs e){var saved=UiTheme.Apply(UiTheme.Current=="Dark"?"Light":"Dark");RefreshThemeIcon();if(!saved)vm.Status="主题已切换，但未能保存主题偏好";}
  private void AboutMenuClick(object s,RoutedEventArgs e){var menu=AboutMenuButton.ContextMenu;menu.PlacementTarget=AboutMenuButton;menu.Placement=System.Windows.Controls.Primitives.PlacementMode.Bottom;menu.IsOpen=true;}
  private void AboutSectionClick(object s,RoutedEventArgs e){if(s is MenuItem {Tag:string section}&&int.TryParse(section,out var index))Run(()=>new AboutWindow(index){Owner=this}.ShowDialog());}
- private void Run(Action action){try{action();}catch(Exception e){vm.Status="配置未通过检查";MessageBox.Show(this,e.Message,"请检查配置",MessageBoxButton.OK,MessageBoxImage.Warning);}}
+ private void Run(Action action){try{action();}catch(Exception e){vm.Status="配置未通过检查";ErrorDialog.Show(this,e.Message);}}
+ private void ActivateIPv4Input(object sender){if(sender is TextBox editor&&editor.IsEnabled){if(editor==StaticIPv4PrefixEditor)vm.SelectStaticIPv4InputMode(false);else if(editor==StaticIPv4SubnetMaskEditor)vm.SelectStaticIPv4InputMode(true);}}
+ private void IPv4InputTextEdit(object sender,System.Windows.Input.TextCompositionEventArgs e)=>ActivateIPv4Input(sender);
+ private void IPv4InputKeyEdit(object sender,System.Windows.Input.KeyEventArgs e){if(e.Key is System.Windows.Input.Key.Back or System.Windows.Input.Key.Delete)ActivateIPv4Input(sender);}
+ private void IPv4InputCommandEdit(object sender,System.Windows.Input.ExecutedRoutedEventArgs e){if(e.Command==System.Windows.Input.ApplicationCommands.Paste||e.Command==System.Windows.Input.ApplicationCommands.Cut||e.Command==System.Windows.Input.ApplicationCommands.Delete||e.Command==System.Windows.Input.ApplicationCommands.Undo||e.Command==System.Windows.Input.ApplicationCommands.Redo)ActivateIPv4Input(sender);}
  private void UserPasswordChanged(object s,RoutedEventArgs e){if(!loading&&!vm.IsLoadingPlan&&s is PasswordBox b&&b.DataContext is UserEntry u){u.Password=b.Password;u.NeedsPassword=false;}}
  private void UserContextChanged(object s,DependencyPropertyChangedEventArgs e){SyncUserPassword((PasswordBox)s);}
  private void UserPasswordLoaded(object s,RoutedEventArgs e){SyncUserPassword((PasswordBox)s);}
@@ -53,7 +57,7 @@ public partial class MainWindow : Window {
    bool accepted=vm.ImportXml(File.ReadAllText(d.FileName),()=>MessageBox.Show(this,"导入 XML 将替换当前界面中的配置，当前未保存的修改将被放弃。\nXML 中未识别的设置和脚本会保留原文；无法可靠合并的修改会在导出时被阻止。\n\n选择“是”：导入并替换当前配置。\n选择“否”：取消整次导入，保留当前配置。\n是否继续导入？","确认导入应答 XML",MessageBoxButton.YesNo,MessageBoxImage.Question,MessageBoxResult.No)==MessageBoxResult.Yes);
    if(!accepted){MessageBox.Show(this,vm.Status,"XML 导入已取消",MessageBoxButton.OK,MessageBoxImage.Information);return;}
    string status=vm.Status;Load(vm.Plan);Pages.SelectedIndex=0;vm.Status=status;
-  }catch(Exception error){vm.Status="XML 导入失败，当前配置未改变。";MessageBox.Show(this,error.Message,"XML 导入失败",MessageBoxButton.OK,MessageBoxImage.Warning);}
+  }catch(Exception error){vm.Status="XML 导入失败，当前配置未改变。";ErrorDialog.Show(this,error.Message,"XML 导入失败");}
   finally{loading=previous;}
  }
  private void ImportWifiProfileClick(object s,RoutedEventArgs e)=>Run(()=>{var d=new OpenFileDialog{Filter="无线配置 XML (*.xml)|*.xml",Title="导入 WLANProfile 无线配置"};if(d.ShowDialog(this)!=true)return;if(new FileInfo(d.FileName).Length>2*1024*1024)throw new ArgumentException("无线配置文件超过 2 MiB。");var text=File.ReadAllText(d.FileName);_=WifiSettings.ReadProfile(text);vm.Plan.WifiProfileXml=text;vm.Status="无线配置 XML 已导入，请核对内容和目标环境";});
@@ -62,7 +66,7 @@ public partial class MainWindow : Window {
  private void ValidateAppLockerClick(object s,RoutedEventArgs e)=>Run(()=>{_=AppControlSettings.ReadPolicy(vm.Plan.AppLockerPolicyXml);vm.Status="AppLocker XML 结构检查通过，不代表规则适合目标系统";});
  private void AppLockerExampleClick(object s,RoutedEventArgs e)=>Run(()=>{if(!string.IsNullOrWhiteSpace(vm.Plan.AppLockerPolicyXml)&&MessageBox.Show(this,"审核示例将替换当前策略内容，是否继续？","载入 AppLocker 示例",MessageBoxButton.YesNo,MessageBoxImage.Question)!=MessageBoxResult.Yes)return;vm.Plan.AppLockerPolicyXml=AppControlSettings.Example;vm.Status="已载入审核示例；仅供学习，请结合目标环境调整与验证";});
  private void SaveClick(object s,RoutedEventArgs e)=>Run(()=>{var d=new SaveFileDialog{Filter="配置方案 (*.json)|*.json",FileName="安装方案.json"};if(d.ShowDialog(this)!=true)return;var answer=MessageBox.Show(this,"是否将账户密码（含内置 Administrator）、Wi-Fi 密码、完整无线配置 XML 及自定义产品密钥写入方案？\n脚本始终按原文保存；脚本内的密码、令牌不会自动省略。\n导入 XML 时，选择“是”会同时保存完整 XML 原文；选择“否”不保存原文，下次须重新导入 XML 才能导出。\n选择“否”将省略密码、自定义密钥和整段无线配置 XML，下次载入需重新输入或导入。\n选择“是”会以明文保存密码和自定义密钥。","保存凭据",MessageBoxButton.YesNoCancel,MessageBoxImage.Question,MessageBoxResult.No);if(answer==MessageBoxResult.Cancel)return;File.WriteAllText(d.FileName,PlanStore.Serialize(vm.Plan,answer==MessageBoxResult.Yes),new UTF8Encoding(false));vm.Status="方案已保存";});
- private static bool Invalid(DependencyObject root){if(root is UIElement element&&!element.IsEnabled)return false;if(System.Windows.Controls.Validation.GetHasError(root))return true;for(int i=0;i<VisualTreeHelper.GetChildrenCount(root);i++)if(Invalid(VisualTreeHelper.GetChild(root,i)))return true;return false;}
+ private bool Invalid(DependencyObject root){if(root==StaticIPv4PrefixEditor&&vm.Plan.UseStaticIPv4SubnetMask||root==StaticIPv4SubnetMaskEditor&&!vm.Plan.UseStaticIPv4SubnetMask)return false;if(root is UIElement element&&!element.IsEnabled)return false;if(System.Windows.Controls.Validation.GetHasError(root))return true;for(int i=0;i<VisualTreeHelper.GetChildrenCount(root);i++)if(Invalid(VisualTreeHelper.GetChild(root,i)))return true;return false;}
  private byte[] Generate(){if(Invalid(this))throw new ArgumentException("请修正输入框中的无效值（例如分区大小、密码到期天数或账户锁定参数）。");return vm.Service.Generate(vm.Plan);}
  private void PreviewClick(object s,RoutedEventArgs e)=>Run(()=>{var bytes=Generate();vm.Preview=InstallationReview.ExportSummary(bytes)+"\n\n"+GeneratorService.Preview(bytes);vm.Status="配置与 XML 结构检查通过；"+InstallationReview.ExportSummary(bytes);ExportPage.IsSelected=true;});
  private void ApplyRecommendationClick(object s,RoutedEventArgs e)=>Run(()=>{
@@ -93,7 +97,7 @@ public partial class MainWindow : Window {
   var d=new OpenFileDialog{Title="导入脚本文件（新增并默认停用）",Filter="脚本文件 (*.ps1;*.cmd;*.reg;*.vbs)|*.ps1;*.cmd;*.reg;*.vbs",Multiselect=false};
   if(d.ShowDialog(this)!=true){vm.Status="已取消脚本文件导入，脚本列表未改变。";return;}
   try{_=vm.ImportScriptFile(d.FileName);vm.Status="脚本文件已新增，默认停用；请核对 System 阶段、格式与内容后再启用。";}
-  catch(Exception error){vm.Status="脚本文件导入失败，脚本列表未改变。";MessageBox.Show(this,error.Message,"脚本文件导入失败",MessageBoxButton.OK,MessageBoxImage.Warning);}
+  catch(Exception error){vm.Status="脚本文件导入失败，脚本列表未改变。";ErrorDialog.Show(this,error.Message,"脚本文件导入失败");}
  }
  private void SaveScriptFileClick(object s,RoutedEventArgs e){
   if(vm.SelectedScript is not {} row){vm.Status="请先选择要另存的脚本。";return;}
@@ -103,7 +107,7 @@ public partial class MainWindow : Window {
    if(d.ShowDialog(this)!=true){vm.Status="已取消脚本另存。";return;}
    ScriptFiles.Write(row,d.FileName);
    vm.Status="脚本已另存；"+ScriptFiles.EncodingHint(row.Type);
-  }catch(Exception error){vm.Status="脚本另存失败。";MessageBox.Show(this,error.Message,"脚本另存失败",MessageBoxButton.OK,MessageBoxImage.Warning);}
+  }catch(Exception error){vm.Status="脚本另存失败。";ErrorDialog.Show(this,error.Message,"脚本另存失败");}
  }
  private void DuplicateScriptClick(object s,RoutedEventArgs e)=>Run(()=>{if(vm.DuplicateSelectedScript()!=null)vm.Status="脚本已复制到原条目下方，副本默认停用，请修改并核对后启用";});
  private void SelectFilteredAppsClick(object s,RoutedEventArgs e)=>Run(()=>{if(s is not Button {Tag:string mode})return;var count=vm.FilteredAppRemovalChoices.Count;if(count==0){vm.Status="当前没有匹配项目";return;}bool selected=mode=="select";if(selected&&MessageBox.Show(this,$"将勾选当前显示的 {count} 项，安装时会尝试移除这些应用或系统能力。是否继续？","批量选择应用移除",MessageBoxButton.YesNo,MessageBoxImage.Question)!=MessageBoxResult.Yes)return;vm.SelectFilteredApps(selected);vm.Status=$"已{(selected?"勾选":"取消")}当前显示的 {count} 项，其他项目保持原选择";});

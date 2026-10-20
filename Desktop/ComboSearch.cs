@@ -31,7 +31,7 @@ public static class ComboSearch {
   private TextBox? input;private ListBox? list;private bool updating,editing,composing,alive;
   private List<Option> options=[];
   private readonly DependencyPropertyDescriptor sourceDescriptor=DependencyPropertyDescriptor.FromProperty(ItemsControl.ItemsSourceProperty,typeof(ComboBox));
-  private const string InteractionHint="单击展开选项；双击文字或直接打字进入筛选。↑↓选择，Enter 确认，Esc 取消。";
+  private const string InteractionHint="单击展开选项；\n双击文字或直接打字进入筛选。\n↑↓选择，Enter 确认，Esc 取消。";
   private readonly DependencyPropertyDescriptor tipDescriptor=DependencyPropertyDescriptor.FromProperty(FrameworkElement.ToolTipProperty,typeof(ComboBox));
   private readonly DependencyPropertyDescriptor templateDescriptor=DependencyPropertyDescriptor.FromProperty(Control.TemplateProperty,typeof(ComboBox));
   public void Attach(){
@@ -61,7 +61,7 @@ public static class ComboSearch {
   }
   private void TemplateChanged(object? sender,EventArgs e)=>Queue(()=>{DisconnectParts();combo.ApplyTemplate();ConnectParts();Reset();});
   private void TipChanged(object? sender,EventArgs e)=>UpdateTip();
-  private void UpdateTip(){if(input is not null)input.ToolTip=combo.ToolTip is HelpTopic tip?tip with {Body=tip.Body+"\n\n"+InteractionHint}:new HelpTopic("combosearch","选项选择",InteractionHint);}
+  private void UpdateTip(){if(input is not null)input.ToolTip=combo.ToolTip is HelpTopic tip?tip with {Body=tip.Body+"\n\n"+InteractionHint,Parts=[..tip.Sections,new(InteractionHint)]}:new HelpTopic("combosearch","选项选择",InteractionHint);}
   private void BeginEditing(){if(input is null||combo.IsReadOnly)return;editing=true;input.IsReadOnly=false;input.Focus();input.SelectAll();combo.SetCurrentValue(ComboBox.IsDropDownOpenProperty,true);}
   private static bool Inside(DependencyObject? element,DependencyObject? ancestor){while(element is not null){if(ReferenceEquals(element,ancestor))return true;element=element is Visual or System.Windows.Media.Media3D.Visual3D?VisualTreeHelper.GetParent(element):LogicalTreeHelper.GetParent(element);}return false;}
   private void ComboMouse(object sender,MouseButtonEventArgs e){

@@ -32,7 +32,7 @@ public static class SetupDriverSettings {
  public static string Summary(InstallPlan p){
   if(!CanEdit(p))return "安装驱动目录：原 XML 配置只读保留，请核对原文，不按界面默认值推断。";
   if(!p.UseSetupDrivers)return "安装驱动目录：不写入额外的原生目录设置。";
-  try{return "安装驱动目录："+string.Join("；",ReadPaths(p.SetupDriverPaths));}catch(ArgumentException){return "安装驱动目录：已启用，目录待完善。";}
+  try{return "安装驱动目录："+string.Join("；",ReadPaths(p.SetupDriverPaths));}catch(ArgumentException){return "安装驱动目录：已启用，目录待配置。";}
  }
  private static XmlNamespaceManager Ns(XmlDocument doc){var ns=new XmlNamespaceManager(doc.NameTable);ns.AddNamespace("u",XmlMerge.Namespace);return ns;}
  private static XmlElement[] Nodes(XmlDocument doc)=>doc.SelectNodes("//u:component[@name='"+ComponentName+"']",Ns(doc))!.Cast<XmlElement>().ToArray();

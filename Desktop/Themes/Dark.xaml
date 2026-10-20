@@ -15,6 +15,7 @@
   <SolidColorBrush x:Key="NavHoverBrush" Color="#2C3D50" />
   <SolidColorBrush x:Key="NavSelectedTextBrush" Color="#E0F1FF" />
   <SolidColorBrush x:Key="StatusBrush" Color="#FF9B9B" />
+  <SolidColorBrush x:Key="ErrorBrush" Color="#FF9B9B" />
   <SolidColorBrush x:Key="DangerBrush" Color="#FF9B9B" />
   <SolidColorBrush x:Key="DangerTintBrush" Color="#442A32" />
   <SolidColorBrush x:Key="WarningBrush" Color="#FFC780" />

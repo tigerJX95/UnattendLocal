@@ -23,7 +23,7 @@ public static class ConfigurationSetSettings
         if (json.TryGetProperty(nameof(InstallPlan.UseConfigurationSet), out _) || p.ImportedXml is not { OriginalOmitted: false } data || data.SourceXml.Length == 0 || data.BaselineXml.Length == 0 || !Inspect(XmlMerge.Read(data.SourceXml)).Enabled) return;
         var before = JsonSerializer.Deserialize<InstallPlan>(JsonSerializer.Serialize(p))!; before.ImportedXml = null; before.ConfirmWipeDisk = before.ConfirmFormatPartition = before.ConfirmDiskScript = true;
         var after = JsonSerializer.Deserialize<InstallPlan>(JsonSerializer.Serialize(before))!; p.UseConfigurationSet = after.UseConfigurationSet = true;
-        try { var g = new GeneratorService(); data.BaselineXml = XmlMerge.Apply(data.BaselineXml, Encoding.UTF8.GetString(g.GenerateStandalone(before)), XmlMerge.Read(Encoding.UTF8.GetString(g.GenerateStandalone(after)))).OuterXml; }
+        try { var g = new GeneratorService(); data.BaselineXml = XmlMerge.Apply(data.BaselineXml, Encoding.UTF8.GetString(g.GenerateImportBaseline(before)), XmlMerge.Read(Encoding.UTF8.GetString(g.GenerateImportBaseline(after)))).OuterXml; }
         catch (Exception e) when (e is ArgumentException or ConfigurationException or XmlException) { data.Blockers = data.Blockers.Append("旧方案的配置集编辑基准无法可靠迁移，请重新导入原 XML。").Distinct().ToArray(); }
     }
 }

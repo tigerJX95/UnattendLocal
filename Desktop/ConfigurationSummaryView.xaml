@@ -16,7 +16,7 @@
     <Style x:Key="SummaryValue" TargetType="TextBlock">
       <Setter Property="Foreground" Value="{DynamicResource ForegroundBrush}"/><Setter Property="FontWeight" Value="Normal"/>
       <Setter Property="FontSize" Value="14"/><Setter Property="TextWrapping" Value="Wrap"/><Setter Property="LineHeight" Value="22"/>
-      <Style.Triggers><MultiDataTrigger><MultiDataTrigger.Conditions>
+      <Style.Triggers><DataTrigger Binding="{Binding IsError}" Value="True"><Setter Property="Foreground" Value="{DynamicResource ErrorBrush}"/></DataTrigger><MultiDataTrigger><MultiDataTrigger.Conditions>
         <Condition Binding="{Binding SourceLabel}" Value="磁盘分区"/>
         <Condition Binding="{Binding IsDestructiveDisk,RelativeSource={RelativeSource AncestorType=local:ConfigurationSummaryView}}" Value="True"/>
       </MultiDataTrigger.Conditions><Setter Property="Foreground" Value="{DynamicResource DangerBrush}"/><Setter Property="FontWeight" Value="SemiBold"/></MultiDataTrigger></Style.Triggers>
@@ -48,9 +48,9 @@
       <ItemsControl ItemsSource="{Binding Presentation.Reviews,ElementName=Root}"><ItemsControl.ItemTemplate><DataTemplate>
         <Grid Margin="0,0,0,8"><Grid.ColumnDefinitions><ColumnDefinition Width="154"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
           <TextBlock Text="{Binding Title}" FontSize="13" FontWeight="SemiBold" TextWrapping="Wrap" Margin="0,2,16,0">
-            <TextBlock.Style><Style TargetType="TextBlock"><Setter Property="Foreground" Value="{DynamicResource AccentTextBrush}"/><Style.Triggers><DataTrigger Binding="{Binding NeedsAttention}" Value="True"><Setter Property="Foreground" Value="{DynamicResource WarningBrush}"/></DataTrigger></Style.Triggers></Style></TextBlock.Style>
+            <TextBlock.Style><Style TargetType="TextBlock"><Setter Property="Foreground" Value="{DynamicResource AccentTextBrush}"/><Style.Triggers><DataTrigger Binding="{Binding NeedsAttention}" Value="True"><Setter Property="Foreground" Value="{DynamicResource WarningBrush}"/></DataTrigger><DataTrigger Binding="{Binding IsError}" Value="True"><Setter Property="Foreground" Value="{DynamicResource ErrorBrush}"/></DataTrigger></Style.Triggers></Style></TextBlock.Style>
           </TextBlock>
-          <TextBlock Grid.Column="1" Text="{Binding Value}" TextWrapping="Wrap" FontSize="14" LineHeight="22" Foreground="{DynamicResource ForegroundBrush}"/>
+          <TextBlock Grid.Column="1" Text="{Binding Value}" TextWrapping="Wrap" FontSize="14" LineHeight="22"><TextBlock.Style><Style TargetType="TextBlock"><Setter Property="Foreground" Value="{DynamicResource ForegroundBrush}"/><Style.Triggers><DataTrigger Binding="{Binding IsError}" Value="True"><Setter Property="Foreground" Value="{DynamicResource ErrorBrush}"/></DataTrigger></Style.Triggers></Style></TextBlock.Style></TextBlock>
         </Grid>
       </DataTemplate></ItemsControl.ItemTemplate></ItemsControl>
     </StackPanel>

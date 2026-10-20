@@ -69,7 +69,7 @@ public static class AdvancedSystemSettings
         if(!missing.Any(i=>states[i.Property].Enabled))return;
         var after=JsonSerializer.Deserialize<InstallPlan>(JsonSerializer.Serialize(before))!;
         foreach(var item in missing)typeof(InstallPlan).GetProperty(item.Property)!.SetValue(after,states[item.Property].Enabled);
-        try {var g=new GeneratorService();data.BaselineXml=XmlMerge.Apply(data.BaselineXml,Encoding.UTF8.GetString(g.GenerateStandalone(before)),XmlMerge.Read(Encoding.UTF8.GetString(g.GenerateStandalone(after)))).OuterXml;}
+        try {var g=new GeneratorService();data.BaselineXml=XmlMerge.Apply(data.BaselineXml,Encoding.UTF8.GetString(g.GenerateImportBaseline(before)),XmlMerge.Read(Encoding.UTF8.GetString(g.GenerateImportBaseline(after)))).OuterXml;}
         catch(Exception e)when(e is ArgumentException or ConfigurationException or XmlException){data.Blockers=data.Blockers.Append("旧方案的远程桌面/执行策略编辑基准无法可靠迁移，请重新导入原 XML 后再导出。").Distinct().ToArray();}
     }
 }

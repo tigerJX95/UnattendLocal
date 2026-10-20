@@ -152,7 +152,7 @@ public static partial class AppRemovalSettings
             try
             {
                 var service=new GeneratorService();
-                string baseline=XmlMerge.Apply(data.BaselineXml,Encoding.UTF8.GetString(service.GenerateStandalone(before)),XmlMerge.Read(Encoding.UTF8.GetString(service.GenerateStandalone(after)))).OuterXml;
+                string baseline=XmlMerge.Apply(data.BaselineXml,Encoding.UTF8.GetString(service.GenerateImportBaseline(before)),XmlMerge.Read(Encoding.UTF8.GetString(service.GenerateImportBaseline(after)))).OuterXml;
                 data.BaselineXml=baseline;p.RemovedApps=new(state.Selected);
             }
             catch(Exception e) when(e is ArgumentException or ConfigurationException or XmlException)

@@ -2,15 +2,7 @@ using UnattendLocal.Core;
 namespace UnattendLocal.Desktop;
 public class AppRemovalChoice(AppRemovalSettings.Item item, Func<InstallPlan> current) : Observable {
  public string Id=>item.Id;public string Label=>item.Label;public string Group=>item.Group;public string Description=>item.Description;
- public string TooltipDescription {
-  get {
-   int split=Description.IndexOf("匹配项：",StringComparison.Ordinal);
-   if(split<0)return Description;
-   string body=Description[..split].TrimEnd();
-   var identifiers=Description[(split+4)..].Trim().TrimEnd('。').Split('；',StringSplitOptions.RemoveEmptyEntries|StringSplitOptions.TrimEntries);
-   return body+"\n\n匹配项：\n"+string.Join("\n",identifiers);
-  }
- }
+ public string TooltipDescription=>HelpText.RemovalDescription(Description);
  public bool IsSelected {get=>current().RemovedApps.Contains(Id);set{var list=current().RemovedApps;if(value&&!list.Contains(Id))list.Add(Id);else if(!value)list.Remove(Id);Notify(nameof(IsSelected));}}
  public void Refresh()=>Notify(nameof(IsSelected));
 }
@@ -111,9 +103,15 @@ public class MainViewModel : Observable {
  public bool IsStaticIPv6=>Plan.UseStaticIPv6&&CanEditStaticIPv4;
  public bool IsStaticIP=>CanEditStaticIPv4&&(Plan.UseStaticIPv4||Plan.UseStaticIPv6);
  public string StaticIPv6Summary=>StaticIPv4Settings.SummaryIPv6(Plan);
+ public string StaticIPDeploymentWarning=>StaticIPv4Settings.DeploymentWarning(Plan);
+ public bool HasStaticIPDeploymentWarning=>StaticIPDeploymentWarning.Length>0;
+ public string StaticIPv4SubnetPreview=>StaticIPv4Settings.SubnetPreview(Plan);
  public bool IsStaticIPv4Prefix=>IsStaticIPv4&&!Plan.UseStaticIPv4SubnetMask;
  public bool IsStaticIPv4SubnetMask=>IsStaticIPv4&&Plan.UseStaticIPv4SubnetMask;
- private void RefreshNetwork(){IsPresetWifi=WifiSettings.IsPreset(Plan);Notify(nameof(IsPasswordWifi));Notify(nameof(IsOpenWifi));Notify(nameof(IsXmlWifi));Notify(nameof(WifiSummary));Notify(nameof(CanEditStaticIPv4));Notify(nameof(IsStaticIPv4));Notify(nameof(StaticIPv4Summary));Notify(nameof(IsStaticIPv4Prefix));Notify(nameof(IsStaticIPv4SubnetMask));Notify(nameof(IsStaticIPv6));Notify(nameof(IsStaticIP));Notify(nameof(StaticIPv6Summary));}
+ public string StaticIPv4InputModeHint=>Plan.UseStaticIPv4SubnetMask?"当前输入方式：子网掩码。直接修改前缀长度会切换为前缀输入；两项内容均保留。":"当前输入方式：前缀长度。直接修改子网掩码会切换为掩码输入；两项内容均保留。";
+ public void SelectStaticIPv4InputMode(bool useSubnetMask){if(IsStaticIPv4)Plan.UseStaticIPv4SubnetMask=useSubnetMask;}
+
+ private void RefreshNetwork(){IsPresetWifi=WifiSettings.IsPreset(Plan);Notify(nameof(IsPasswordWifi));Notify(nameof(IsOpenWifi));Notify(nameof(IsXmlWifi));Notify(nameof(WifiSummary));Notify(nameof(CanEditStaticIPv4));Notify(nameof(IsStaticIPv4));Notify(nameof(StaticIPv4Summary));Notify(nameof(IsStaticIPv4Prefix));Notify(nameof(IsStaticIPv4SubnetMask));Notify(nameof(IsStaticIPv6));Notify(nameof(IsStaticIP));Notify(nameof(StaticIPv6Summary));Notify(nameof(StaticIPDeploymentWarning));Notify(nameof(HasStaticIPDeploymentWarning));Notify(nameof(StaticIPv4SubnetPreview));Notify(nameof(StaticIPv4InputModeHint));}
  public bool IsGenericEdition {get=>isGenericEdition;private set=>Set(ref isGenericEdition,value);}
  public bool IsCustomEdition {get=>isCustomEdition;private set=>Set(ref isCustomEdition,value);}
  public string SelectedEditionKey {get=>selectedEditionKey;private set=>Set(ref selectedEditionKey,value);}
@@ -163,8 +161,11 @@ public class MainViewModel : Observable {
  public bool HasImportedXml=>Plan.ImportedXml!=null;
  public bool HasImportedXmlRisk=>Plan.ImportedXml?.RequiresDiskReview==true;
  public string XmlImportSummary=>XmlPlanImport.Summary(Plan);
+ public string XmlImportErrors=>Plan.ImportedXml is {} data?string.Join("\n",(data.OriginalOmitted?new[]{"XML 原文未随方案保存，请重新导入原 XML 后再导出。"}:Array.Empty<string>()).Concat(data.Blockers)):"";
+ public string XmlImportNotices=>Plan.ImportedXml is {} data?string.Join("\n",data.Notices):"";
+ public bool HasXmlImportErrors=>XmlImportErrors.Length>0;
  public string XmlImportDetails=>Plan.ImportedXml is {} data?string.Join("\n",data.Blockers.Concat(data.Notices).Select(n=>"　　"+n)):"";
- private void RefreshXmlImport(){Notify(nameof(CanEditAppRemoval));Notify(nameof(HasImportedXml));Notify(nameof(HasImportedXmlRisk));Notify(nameof(XmlImportSummary));Notify(nameof(XmlImportDetails));}
+ private void RefreshXmlImport(){Notify(nameof(CanEditAppRemoval));Notify(nameof(HasImportedXml));Notify(nameof(HasImportedXmlRisk));Notify(nameof(XmlImportSummary));Notify(nameof(XmlImportDetails));Notify(nameof(XmlImportErrors));Notify(nameof(XmlImportNotices));Notify(nameof(HasXmlImportErrors));}
  public bool IsCustomStickyKeys=>Plan.StickyKeysMode==StickyKeySettings.Custom;
  public bool IsStickyKeysDisabled=>Plan.StickyKeysMode==StickyKeySettings.Disabled;
  public string StickyKeysSummary=>StickyKeySettings.ModeSummary(Plan);

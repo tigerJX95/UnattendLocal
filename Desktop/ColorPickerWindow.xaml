@@ -20,7 +20,7 @@
       </Grid>
       <TextBlock Text="HEX（#RRGGBB）" Margin="0,12,0,0"/>
       <DockPanel><Border DockPanel.Dock="Left" Width="54" Height="36" Background="{Binding ColorHex}" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1" CornerRadius="4" Margin="0,4,12,12"/><TextBox Text="{Binding Hex,UpdateSourceTrigger=PropertyChanged}" MaxLength="16" FontFamily="Consolas" FontSize="17" AutomationProperties.Name="十六进制颜色"/></DockPanel>
-      <TextBlock Text="{Binding ValidationMessage}" Style="{StaticResource ExplanationText}" Foreground="{DynamicResource SecondaryBrush}"/>
+      <TextBlock Text="{Binding ValidationMessage}"><TextBlock.Style><Style TargetType="TextBlock" BasedOn="{StaticResource ExplanationText}"><Setter Property="Foreground" Value="{DynamicResource SecondaryBrush}"/><Style.Triggers><DataTrigger Binding="{Binding CanAccept}" Value="False"><Setter Property="Foreground" Value="{DynamicResource ErrorBrush}"/></DataTrigger></Style.Triggers></Style></TextBlock.Style></TextBlock>
       <TextBlock Text="确定后应用；取消或关闭不改变打开前的颜色。恢复默认将停止该组自定义覆盖，并保留已填写的颜色。" Style="{StaticResource ExplanationText}" Foreground="{DynamicResource SecondaryBrush}"/>
     </StackPanel></ScrollViewer>
     <WrapPanel Grid.Row="1" HorizontalAlignment="Right" Margin="0,12,0,0">

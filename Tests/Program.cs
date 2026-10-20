@@ -1,5 +1,7 @@
 using System.Text;using System.Xml;using UnattendLocal.Core;
 int count=0;var g=new GeneratorService();
+if(args.Contains("--help-layout-only")){Console.WriteLine($"V1.10 help layout: {HelpLayoutTests.Run(g)} checks passed.");return;}
+if(args.Contains("--network-deployment-only")){Console.WriteLine($"Network deployment: {NetworkDeploymentTests.Run(g)} checks passed.");return;}
 if(args.Contains("--dual-stack-only")){Console.WriteLine($"V1.9 dual stack: {DualStackNetworkTests.Run(g)} checks passed.");return;}
 if(args.Contains("--ui-hotfix-only")){Console.WriteLine($"V1.8.1 UI hotfix: {ColorPickerHotfixTests.Run()} checks passed.");return;}
 if(args.Contains("--ui-improvements-only")){Console.WriteLine($"V1.8 UI improvements: {UiImprovementTests.Run(g)} checks passed.");return;}
@@ -2026,4 +2028,6 @@ count+=UiImprovementTests.Run(g);
 count+=ColorPickerHotfixTests.Run();
 count+=NetworkEnhancementTests.Run(g);
 count+=DualStackNetworkTests.Run(g);
-Console.WriteLine($"V1.9 total: {count} checks passed.");
+count+=NetworkDeploymentTests.Run(g);
+count+=HelpLayoutTests.Run(g);
+Console.WriteLine($"V1.10 total: {count} checks passed.");

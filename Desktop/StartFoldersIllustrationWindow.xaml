@@ -33,6 +33,6 @@
       <TextBlock Text="在“桌面与文件夹”页选择自定义开始菜单文件夹后，可按需显示文档、下载、设置等入口。示意图仅用文档和下载举例，不代表当前已勾选这两项。" Style="{StaticResource ExplanationText}"/>
       <TextBlock Text="这些入口位于开始菜单底部，不是固定应用区，也不是任务栏。取消入口不会删除文件夹或文件；此项仅适用于 Windows 11，实际布局可能随系统版本变化。" Style="{StaticResource ExplanationText}" Foreground="{DynamicResource SecondaryBrush}"/>
     </StackPanel></ScrollViewer>
-    <Button Grid.Row="1" Content="关闭" ToolTip="关闭位置示意图" IsCancel="True" HorizontalAlignment="Right" Margin="0,12,0,0"/>
+    <Button Grid.Row="1" Content="关闭" IsCancel="True" HorizontalAlignment="Right" Margin="0,12,0,0"><Button.ToolTip><ToolTip ContentTemplate="{x:Null}"><TextBlock Text="关闭位置示意图" TextWrapping="Wrap"/></ToolTip></Button.ToolTip></Button>
   </Grid>
 </Window>

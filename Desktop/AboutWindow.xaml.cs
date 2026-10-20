@@ -71,7 +71,7 @@ public partial class AboutWindow : Window
                  "生成核心：Christoph Schneegans · UnattendGenerator。独立本地中文界面与适配。\n" +
                  "MIT License · Copyright (c) 2026 tigerJX95\n感谢 ChatGPT Codex 提供开发协助。\n\n" + UpstreamLinks.Text
         };
-        try { Clipboard.SetText(text); StatusText.Text = "当前页面内容已复制。"; }
-        catch (System.Runtime.InteropServices.ExternalException) { StatusText.Text = "暂时无法访问剪贴板，请稍后重试，或选择文字手动复制。"; }
+        try { Clipboard.SetText(text); StatusText.SetResourceReference(System.Windows.Controls.TextBlock.ForegroundProperty, "SecondaryBrush"); StatusText.Text = "当前页面内容已复制。"; }
+        catch (System.Runtime.InteropServices.ExternalException) { StatusText.SetResourceReference(System.Windows.Controls.TextBlock.ForegroundProperty, "ErrorBrush"); StatusText.Text = "暂时无法访问剪贴板，请稍后重试，或选择文字手动复制。"; }
     }
 }

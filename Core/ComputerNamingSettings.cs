@@ -74,7 +74,7 @@ public static class ComputerNamingSettings
         before.ComputerName = Name(XmlMerge.Read(data.BaselineXml)); if (before.ComputerName == "*") before.ComputerName = "";
         var after = JsonSerializer.Deserialize<InstallPlan>(JsonSerializer.Serialize(before))!; ReadIntoPlan(source, after, new());
         if (p.ComputerName == before.ComputerName) { p.ComputerNameMode = after.ComputerNameMode; p.ComputerNameScript = after.ComputerNameScript; }
-        try { var g = new GeneratorService(); data.BaselineXml = XmlMerge.Apply(data.BaselineXml, Encoding.UTF8.GetString(g.GenerateStandalone(before)), XmlMerge.Read(Encoding.UTF8.GetString(g.GenerateStandalone(after)))).OuterXml; }
+        try { var g = new GeneratorService(); data.BaselineXml = XmlMerge.Apply(data.BaselineXml, Encoding.UTF8.GetString(g.GenerateImportBaseline(before)), XmlMerge.Read(Encoding.UTF8.GetString(g.GenerateImportBaseline(after)))).OuterXml; }
         catch (Exception e) when (e is ArgumentException or ConfigurationException or XmlException) { data.Blockers = data.Blockers.Append("旧方案的计算机命名基准无法可靠迁移，请重新导入原 XML。").Distinct().ToArray(); }
     }
 }

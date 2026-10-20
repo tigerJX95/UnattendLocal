@@ -69,7 +69,7 @@ public static class ProtectionSettings
         try
         {
             var service = new GeneratorService();
-            data.BaselineXml = XmlMerge.Apply(data.BaselineXml, Encoding.UTF8.GetString(service.GenerateStandalone(before)), XmlMerge.Read(Encoding.UTF8.GetString(service.GenerateStandalone(after)))).OuterXml;
+            data.BaselineXml = XmlMerge.Apply(data.BaselineXml, Encoding.UTF8.GetString(service.GenerateImportBaseline(before)), XmlMerge.Read(Encoding.UTF8.GetString(service.GenerateImportBaseline(after)))).OuterXml;
         }
         catch (Exception e) when (e is ArgumentException or ConfigurationException or XmlException)
         {

@@ -93,7 +93,7 @@ public static class SecurityOptions
         try
         {
             var service = new GeneratorService();
-            data.BaselineXml = XmlMerge.Apply(data.BaselineXml, Encoding.UTF8.GetString(service.GenerateStandalone(before)), XmlMerge.Read(Encoding.UTF8.GetString(service.GenerateStandalone(after)))).OuterXml;
+            data.BaselineXml = XmlMerge.Apply(data.BaselineXml, Encoding.UTF8.GetString(service.GenerateImportBaseline(before)), XmlMerge.Read(Encoding.UTF8.GetString(service.GenerateImportBaseline(after)))).OuterXml;
         }
         catch (Exception e) when (e is ArgumentException or ConfigurationException or XmlException)
         { data.Blockers = data.Blockers.Append("旧方案的应用与内核保护设置编辑基准无法可靠迁移，请重新导入原 XML。").Distinct().ToArray(); }

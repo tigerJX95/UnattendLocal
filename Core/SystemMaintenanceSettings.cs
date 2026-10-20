@@ -110,7 +110,7 @@ public static class SystemMaintenanceSettings
         try
         {
             var g = new GeneratorService();
-            data.BaselineXml = XmlMerge.Apply(data.BaselineXml, Encoding.UTF8.GetString(g.GenerateStandalone(before)), XmlMerge.Read(Encoding.UTF8.GetString(g.GenerateStandalone(after)))).OuterXml;
+            data.BaselineXml = XmlMerge.Apply(data.BaselineXml, Encoding.UTF8.GetString(g.GenerateImportBaseline(before)), XmlMerge.Read(Encoding.UTF8.GetString(g.GenerateImportBaseline(after)))).OuterXml;
         }
         catch (Exception e) when (e is ArgumentException or ConfigurationException or XmlException)
         {

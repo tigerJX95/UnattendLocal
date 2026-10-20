@@ -2,7 +2,12 @@ using UnattendLocal.Core;
 
 namespace UnattendLocal.Desktop;
 
-public record HelpTopic(string Id, string Title, string Body);
+public record HelpSection(string Text, bool IsError = false);
+public record HelpTopic(string Id, string Title, string Body)
+{
+    public HelpSection[]? Parts { get; init; }
+    public IReadOnlyList<HelpSection> Sections => Parts ?? [new(Body)];
+}
 
 // 中文整理：上游网站操作说明 + 当前固定版本的生成器行为。
 // 提示只描述设置，不读取或显示账户 / Wi-Fi 密码。
@@ -50,12 +55,12 @@ public static class HelpCatalog
         [
             new("workgroup","目标系统工作组",WorkgroupSettings.Description),
             new("staticipv6", "静态 IPv6 配置", StaticIPv4Settings.Description),
-            new("staticv6prefix", "IPv6 前缀长度", "微软 UnicastIpAddresses/IpAddress/Value 无人值守文档支持 0–64。本界面按此范围生成；/65–/128 不属于此原生设置输入范围。一般局域网使用 /64，请按实际网络填写。"),
+            new("staticv6prefix", "IPv6 前缀长度", "微软 UnicastIpAddresses/IpAddress/Value 无人值守文档支持 0–64。本工具允许导出 /1–/64，静态地址 /0 会提示并阻止导出；/65–/128 不属于此原生设置输入范围。一般局域网使用 /64，请按实际网络填写。"),
             new("staticv6gateway", "IPv6 默认网关", "可留空；填写时须为同前缀的其他单播地址，或目标网卡可达的链路本地地址（如 fe80::1），不带 %区域或括号。关闭路由器发现；网关留空不生成默认路由。"),
             new("staticv6dns", "IPv6 DNS", "可留空；最多三个不重复 IPv6 地址，空格、逗号或分号分隔。双栈 DNS 按 IPv4 列表再 IPv6 列表生成；不配置后缀或注册策略。"),
-            new("staticprefix", "IPv4 前缀长度", "支持 0–32 或等价连续子网掩码。10/8、172.16/12、192.168/16 与合法公网均可；并非只支持 192.168。/31 用于点对点，两端可用；/32 为单地址，本网关输入须留空，路由另行配置。"),
+            new("staticprefix", "IPv4 前缀长度", "可导出前缀为 1–32 或等价连续子网掩码。/0（0.0.0.0）覆盖全部 IPv4 地址，配置页提示并阻止检查和导出；须按实际网络修改，不会自动改为 /24。10/8、172.16/12、192.168/16 与合法公网均可；并非只支持 192.168。/31 用于点对点，两端可用；/32 为单地址，本网关输入须留空，路由另行配置。"),
             new("staticipv4", "静态 IPv4 配置", StaticIPv4Settings.Description),
-            new("staticmask", "IPv4 子网掩码", "可改用点分十进制子网掩码输入，例如 255.255.255.0 对应 /24。要求从高位起连续为 1，范围 /0–/32；不支持非连续掩码。/31 按点对点主机校验，/32 须留空网关。只使用当前选中的输入模式，切换时保留另一项输入，不自动套用示例值；请核对摘要中的实际前缀和掩码。网关及网络/广播地址检查使用该有效掩码。XML 始终输出地址/前缀；JSON 保留输入模式与两项内容。"),
+            new("staticmask", "IPv4 子网掩码", "可改用点分十进制子网掩码输入，例如 255.255.255.0 对应 /24。要求从高位起连续为 1，解析范围 /0–/32；部署检查会阻止 /0（0.0.0.0），请填写实际网络掩码；不支持非连续掩码。/31 按点对点主机校验，/32 须留空网关。启用静态 IPv4 后两种输入均可修改；实际输入、粘贴、剪切或删除会切换到对应模式，聚焦/复制/搜索不切换。只使用当前模式，保留另一项输入，不自动套用示例值；请核对摘要中的实际前缀和掩码。网关及网络/广播地址检查使用该有效掩码。XML 始终输出地址/前缀；JSON 保留输入模式与两项内容。"),
             new("staticmac", "目标网卡 MAC 地址", "填写目标电脑或虚拟机网卡的 MAC，不是当前电脑的 MAC。支持横线、冒号或连续 12 位十六进制，导出统一使用大写横线格式。仅接受单播地址；不扫描、自动选择或改用其他网卡。Wi-Fi 随机 MAC 或克隆虚拟机后的 MAC 改变可能导致不匹配，需自行核对目标安装环境。"),
             new("staticgateway", "静态 IPv4 默认网关", "可留空。填写时须为同子网中其他有效主机地址，不能是本机、网络或广播地址。每种协议只生成一条默认路由；/31 可使用另一端为网关，/32 请留空网关。留空不生成默认路由，并不保证能访问互联网。"),
             new("staticdns", "静态 IPv4 DNS", "最多三个不重复的 IPv4 DNS，用空格、逗号或分号分隔，按填写顺序写入编号。留空不写入 DNS 覆盖，不保证名称解析。请使用目标网络可访问且符合组织要求的 DNS；工具不测试解析服务，不改变 DNS 注册或后缀策略。"),
@@ -189,8 +194,10 @@ public static class HelpCatalog
     ];
 
     private static readonly HelpTopic[] RemovalTopics=[new("appremoval","应用移除","默认不勾选。仅在目标 Windows 安装时执行，不卸载本机应用；不存在的项跳过，实际效果由介质、版本和安装日志决定。应用包主要移除预配包，可选功能可能移除其有效载荷。部分选项还有额外用户策略，双列列表的详细影响说明可通过悬停查看；搜索仍包含说明关键词。取消勾选只影响新生成的配置，不会恢复已经安装的应用。")];
-    public static int PageCount => Pages.Length+1;
-    public static IReadOnlyList<HelpTopic> ForPage(int page) => page>=Pages.Length?RemovalTopics:Pages[Math.Clamp(page, 0, Pages.Length - 1)];
+    private static readonly HelpTopic[][] DisplayPages = Pages.Append(RemovalTopics)
+        .Select(page => page.Select(topic => topic with { Body = HelpText.Paragraphs(topic.Body) }).ToArray()).ToArray();
+    public static int PageCount => DisplayPages.Length;
+    public static IReadOnlyList<HelpTopic> ForPage(int page) => DisplayPages[Math.Clamp(page, 0, DisplayPages.Length - 1)];
 
     public static HelpTopic Current(int page, string? id, InstallPlan plan, UserEntry? user)
     {
@@ -270,7 +277,7 @@ public static class HelpCatalog
             },
             "logon" or "builtinlogon" => "当前："+FirstLogonSettings.Summary(plan)+"。",
             "staticipv6" or "staticv6prefix" or "staticv6gateway" or "staticv6dns" => StaticIPv4Settings.SummaryIPv6(plan),
-            "staticmac" => StaticIPv4Settings.Summary(plan)+"；"+StaticIPv4Settings.SummaryIPv6(plan),
+            "staticmac" => StaticIPv4Settings.Summary(plan)+"\n"+StaticIPv4Settings.SummaryIPv6(plan),
             "staticprefix" or "staticipv4" or "staticgateway" or "staticdns" or "staticmask" => StaticIPv4Settings.Summary(plan),
             "wifi" => plan.WifiMode=="隐藏无线网络选择页" ? "当前：有线局域网（跳过 Wi-Fi 配置）。" : $"当前：{WifiSettings.ModeLabel(plan.WifiMode)}。",
             "offline" => plan.BypassNetwork ? "当前已允许无网络安装；微软账户模式与此设置冲突。" : "当前未启用无网络安装绕过。",
@@ -309,6 +316,13 @@ public static class HelpCatalog
             "sensitivefiles" => plan.KeepSensitiveFiles ? "当前：保留安装隐私文件。" : "当前：在首次管理员登录阶段清理安装隐私文件。",
             _ => ""
         };
-        return topic with { Body = string.IsNullOrEmpty(state) ? topic.Body : state + "\n\n" + topic.Body };
+        bool network = topic.Id is "staticmac" or "staticprefix" or "staticipv4" or "staticgateway" or "staticdns" or "staticmask"
+            or "staticipv6" or "staticv6prefix" or "staticv6gateway" or "staticv6dns";
+        // Keep protocol states separate so an incomplete IPv4 configuration does not color normal IPv6 text red.
+        string[] states = topic.Id == "staticmac" ? [StaticIPv4Settings.Summary(plan), StaticIPv4Settings.SummaryIPv6(plan)]
+            : string.IsNullOrEmpty(state) ? [] : [state];
+        var sections = states.Select(value => new HelpSection(network ? HelpText.Paragraphs(value) : value, DiagnosticText.IsErrorSummary(value)))
+            .Append(new HelpSection(topic.Body)).ToArray();
+        return topic with { Body = string.Join("\n\n", sections.Select(section => section.Text)), Parts = sections };
     }
 }

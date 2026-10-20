@@ -89,8 +89,8 @@ public static class CommonSystemSettings
         try
         {
             var service = new GeneratorService();
-            var oldXml = Encoding.UTF8.GetString(service.GenerateStandalone(before));
-            var newXml = XmlMerge.Read(Encoding.UTF8.GetString(service.GenerateStandalone(after)));
+            var oldXml = Encoding.UTF8.GetString(service.GenerateImportBaseline(before));
+            var newXml = XmlMerge.Read(Encoding.UTF8.GetString(service.GenerateImportBaseline(after)));
             data.BaselineXml = XmlMerge.Apply(data.BaselineXml, oldXml, newXml).OuterXml;
         }
         catch (Exception e) when (e is ArgumentException or Schneegans.Unattend.ConfigurationException or XmlException)

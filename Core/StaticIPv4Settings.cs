@@ -12,11 +12,70 @@ public static class StaticIPv4Settings
     public const string Tcp = "Microsoft-Windows-TCPIP", Dns = "Microsoft-Windows-DNS-Client";
     private const string Wcm = "http://schemas.microsoft.com/WMIConfig/2002/State";
     public const string ReadOnlyNotice = "原 XML 含多网卡、非 MAC 标识或额外/修改过的 TCPIP、DNS 配置，网络原文保留；本版 IP 配置区域只读，不会用界面默认值覆盖。";
-    public const string Description = "IPv4 与 IPv6 可分别启用，也可同时启用，在 specialize 阶段配置同一个目标 MAC。切换协议页只切换显示，不清空另一页。每种协议最多一个静态地址、可选默认网关和三个 DNS；双栈 DNS 按 IPv4 列表再 IPv6 列表生成。IPv4 支持合法私网与公网地址，前缀 /0–/32 或等价连续掩码；/31 用于点对点，/32 是单地址且本界面网关须留空。IPv6 遵循微软无人值守地址设置范围 /0–/64，网关可为同前缀单播或链路本地地址。不填写 %区域、括号或 CIDR。目标网卡驱动须可用；不探测地址占用，不配置 Windows PE，也不创建 Wi-Fi 连接。";
+    public const string Description = "IPv4 与 IPv6 可分别启用，也可同时启用，在 specialize 阶段配置同一个目标 MAC。切换协议页只切换显示，不清空另一页。每种协议最多一个静态地址、可选默认网关和三个 DNS；双栈 DNS 按 IPv4 列表再 IPv6 列表生成。IPv4 支持合法私网与公网地址，可导出前缀 /1–/32 或等价连续掩码；静态地址 /0 覆盖全部地址范围，本工具会在配置页提示并阻止导出，保留输入且不自动转换；/31 用于点对点，/32 是单地址且本界面网关须留空。IPv6 遵循微软无人值守地址参数范围 /0–/64，本工具部署检查允许 /1–/64，网关可为同前缀单播或链路本地地址。不填写 %区域、括号或 CIDR。目标网卡驱动须可用；不探测地址占用，不配置 Windows PE，也不创建 Wi-Fi 连接。";
     public record Values(string Mac, string Address, int Prefix, string Gateway, string[] DnsServers);
     public record IPv6Values(string Mac, string Address, int Prefix, string Gateway, string[] DnsServers);
     public record Source(bool Present, bool Known, Values? Values) { public IPv6Values? IPv6 { get; init; } }
     public static bool CanEdit(InstallPlan p) => p.ImportedXml?.StaticIPv4ReadOnly != true;
+
+    public const string IPv4ZeroPrefixNotice = "静态 IPv4 的 /0（子网掩码 0.0.0.0）覆盖全部 IPv4 地址范围，可能导致直连判断及网关通信异常。本工具阻止此配置导出；请按实际网络修改前缀或子网掩码，不会自动改为 /24。";
+    public const string IPv6ZeroPrefixNotice = "静态 IPv6 的 /0 覆盖全部 IPv6 地址范围，可能导致直连判断及网关通信异常。本工具阻止此配置导出；请按实际网络修改前缀，不会自动改为 /64。";
+    private static IEnumerable<AddressFamily> ZeroPrefixFamilies(XmlDocument doc)
+    {
+        // Address prefixes only. Default-route prefixes and script text are unrelated.
+        foreach (XmlElement address in doc.SelectNodes("//u:component[@name='" + Tcp + "']/u:Interfaces/u:Interface/u:UnicastIpAddresses/u:IpAddress", Ns(doc))!) {
+            string[] parts = address.InnerText.Trim().Split('/');
+            if (parts.Length == 2 && int.TryParse(parts[1].Trim(), NumberStyles.None, CultureInfo.InvariantCulture, out int prefix) && prefix == 0 && IPAddress.TryParse(parts[0].Trim(), out var ip))
+                yield return ip.AddressFamily;
+        }
+    }
+    public static string DeploymentWarning(InstallPlan p)
+    {
+        bool ipv4 = false, ipv6 = p.UseStaticIPv6 && p.StaticIPv6Prefix == 0;
+        if (p.UseStaticIPv4) {
+            try { ipv4 = EffectivePrefix(p) == 0; } catch (ArgumentException) { /* Invalid mask has its own validation. */ }
+        }
+        if (!CanEdit(p) && p.ImportedXml is { OriginalOmitted: false, SourceXml.Length: > 0 } imported) {
+            try {
+                var families = ZeroPrefixFamilies(XmlMerge.Read(imported.SourceXml)).ToArray();
+                ipv4 |= families.Contains(AddressFamily.InterNetwork);
+                ipv6 |= families.Contains(AddressFamily.InterNetworkV6);
+            } catch (Exception e) when (e is XmlException or ArgumentException) { /* Invalid source is rejected by import validation. */ }
+        }
+        string warning = string.Join("\n", new[] { ipv4 ? IPv4ZeroPrefixNotice : "", ipv6 ? IPv6ZeroPrefixNotice : "" }.Where(s => s.Length > 0));
+        return warning.Length > 0 && !CanEdit(p) ? warning + "\n原 XML 的网络配置只读，请先在原工具修正后重新导入。" : warning;
+    }
+    public static void ValidateDeployment(InstallPlan p)
+    {
+        string warning = DeploymentWarning(p);
+        if (warning.Length > 0) throw new ArgumentException(warning);
+    }
+    public static void ValidateDeployment(XmlDocument doc)
+    {
+        var families = ZeroPrefixFamilies(doc).Distinct().ToArray();
+        if (families.Length > 0) throw new ArgumentException(string.Join("\n", families.Select(f => f == AddressFamily.InterNetwork ? IPv4ZeroPrefixNotice : IPv6ZeroPrefixNotice)) + "\n若来自只读 XML，请先在原工具修正后重新导入。");
+    }
+
+    public record IPv4Subnet(string Address, int Prefix, string Mask, string Network, string? Broadcast, string FirstHost, string LastHost, ulong HostCount);
+    public static IPv4Subnet CalculateSubnet(InstallPlan p)
+    {
+        uint ip = Address(p.StaticIPv4Address, "静态 IPv4", true);
+        int prefix = EffectivePrefix(p);
+        if (prefix == 0) throw new ArgumentException(IPv4ZeroPrefixNotice);
+        if (prefix is < 1 or > 32) throw new ArgumentException("静态 IPv4 网段预览需要 1–32 的前缀长度。");
+        uint network = ip & Mask(prefix), last = network | ~Mask(prefix);
+        uint firstHost = prefix >= 31 ? network : network + 1, lastHost = prefix >= 31 ? last : last - 1;
+        return new(Format(ip), prefix, SubnetMask(prefix), Format(network), prefix >= 31 ? null : Format(last), Format(firstHost), Format(lastHost), (ulong)lastHost - firstHost + 1);
+    }
+    public static string SubnetPreview(InstallPlan p)
+    {
+        if (!CanEdit(p) || !p.UseStaticIPv4 || DeploymentWarning(p).Length > 0) return "";
+        try {
+            var subnet = CalculateSubnet(p);
+            string range = subnet.Prefix == 32 ? "单地址：" + subnet.FirstHost : (subnet.Prefix == 31 ? "点对点两端：" : "主机位范围：") + subnet.FirstHost + " — " + subnet.LastHost;
+            return $"网段：{subnet.Network}/{subnet.Prefix} · 掩码：{subnet.Mask}\n广播地址：{subnet.Broadcast ?? "不适用（/31 点对点或 /32 单地址）"}\n{range}（{subnet.HostCount.ToString(CultureInfo.InvariantCulture)} 个地址）\n范围按掩码计算，未排除全部特殊用途地址；不代表地址可分配、未被占用或目标网络可达。";
+        } catch (ArgumentException e) { return "网段预览：" + e.Message; }
+    }
 
     public static string Mac(string? value)
     {
@@ -113,14 +172,14 @@ public static class StaticIPv4Settings
         if(!CanEdit(p))return "静态 IPv6：原 XML 的网络配置只读保留，界面默认值不代表原配置。";
         if(!p.UseStaticIPv6)return "静态 IPv6：不写入新的 IPv6 覆盖。";
         try {var v=ReadIPv6(p);return $"静态 IPv6：网卡 {v.Mac}；{v.Address}/{v.Prefix}；网关：{(v.Gateway.Length==0?"未指定":v.Gateway)}；DNS：{(v.DnsServers.Length==0?"未指定":string.Join("、",v.DnsServers))}";}
-        catch(ArgumentException e){return "静态 IPv6：待完善；"+e.Message;}
+        catch(ArgumentException e){return "静态 IPv6：待配置；"+e.Message;}
     }
     public static string Summary(InstallPlan p)
     {
         if (!CanEdit(p)) return "静态 IPv4：原 XML 的网络配置只读保留，界面默认值不代表原配置。";
         if (!p.UseStaticIPv4) return "静态 IPv4：不写入新的 IP / DNS 覆盖；导入的其他网络原文按合并规则保留。";
         try { var v = Read(p); return $"静态 IPv4：网卡 {v.Mac}；{v.Address}/{v.Prefix}（掩码 {SubnetMask(v.Prefix)}）；网关：{(v.Gateway.Length == 0 ? "未指定" : v.Gateway)}；DNS：{(v.DnsServers.Length == 0 ? "未指定" : string.Join("、", v.DnsServers))}"; }
-        catch (ArgumentException e) { return "静态 IPv4：待完善；" + e.Message; }
+        catch (ArgumentException e) { return "静态 IPv4：待配置；" + e.Message; }
     }
     private static XmlNamespaceManager Ns(XmlDocument doc) { var ns = new XmlNamespaceManager(doc.NameTable); ns.AddNamespace("u", XmlMerge.Namespace); return ns; }
     private static XmlElement Add(XmlNode parent, string name, string? text = null, bool list = false, string? key = null)

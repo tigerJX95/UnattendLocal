@@ -4,7 +4,7 @@
 
 UnattendLocal is a Chinese-language Windows desktop tool based on [Christoph Schneegans’ UnattendGenerator](https://github.com/cschneegans/unattend-generator). It lets you edit, check, and generate `autounattend.xml` for Windows 10 / 11 locally.
 
-Current version: **V1.9**. Includes static IPv4/IPv6 dual stack, subnet-mask input, settings search, setup driver directories, Dynamic Update, partitioning, OOBE and account settings, and existing XML import/editing.
+Current version: **V1.10**. Includes static IPv4/IPv6 dual stack, subnet-mask input, settings search, setup driver directories, Dynamic Update, partitioning, OOBE and account settings, and existing XML import/editing.
 
 ## 💡 Why this project exists
 
@@ -57,19 +57,22 @@ The displayed product key is a public generic installation key for selecting an 
 - Save and restore JSON plans; review summaries, recommended-setting differences, checks, redacted previews, and XML exports.
 - Import existing XML and edit supported settings while preserving unknown content. Export stops with an explanation when changes cannot be merged reliably.
 
-## ✨ V1.9 updates
+## ✨ V1.10 updates
 
-- Separate IPv4 and IPv6 tabs share the target MAC, retain entered values when switching, and support dual stack.
-- IPv4 accepts valid private and public unicast addresses, /0–/32 prefixes and equivalent subnet masks. /31 is for point-to-point links; /32 requires an empty gateway field.
-- IPv6 supports static unicast addresses, /0–/64 prefixes, an optional gateway and up to three DNS servers. Link-local gateways are supported.
-- Complete recognized native network XML remains editable. Equivalent MAC/IPv6 spellings and numeric DNS-order keys are recognized, while unedited source XML is preserved.
-- Removal-item tooltips separate impact descriptions from a matching-identifiers heading and list each identifier on its own line.
+- Improved tooltips across settings help, buttons, dropdown options and app removal: independent rules and notes start on separate lines. Renamed “待完善” to “待配置” (configuration pending); pending states and their specific reasons use red while ordinary instructions retain their normal color.
+- Improved IP correction: both IPv4 prefix and subnet-mask inputs remain editable when static IPv4 is enabled. Actual edits select the corresponding mode while retaining the other value, allowing direct correction after a `/0` validation failure.
+- Standardized error text on theme-aware red across blocking configuration issues, missing credentials, export checks, format validation, invalid colors and operation-failure dialogs. Ordinary risk information remains distinct.
+- Static address `/0` prefixes (IPv4 mask `0.0.0.0`) show a clear warning on the configuration page and block Check and Preview and XML export. Values remain available for correction; masks are never changed automatically.
+- The IPv4/IPv6 selector now spans the network card with two equally sized rounded segments, with theme-aware selection, hover and keyboard-focus states.
+- Aligned the network address and prefix input heights, rounded borders and bottom edges, with consistent IPv4/IPv6 prefix styling.
+- Added a live IPv4 subnet preview with network prefix, effective mask, broadcast address and host-bit range, with separate handling for `/31` point-to-point links and `/32` single addresses.
+- Recognized `/0` XML remains editable after import. Read-only source XML is also checked before export. Normal IPv4 and IPv6 default routes remain supported.
 
-[IP configuration guide](docs/StaticIP.md) · [UI operation guide](docs/UiImprovements.md)
+[Static IP configuration guide](docs/StaticIP.md) · [UI operation guide](docs/UiImprovements.md)
 
 ## 📦 Download and usage
 
-Download and run the matching Windows x64 executable from the repository’s [**Releases**](https://github.com/tigerJX95/UnattendLocal/releases/latest) page: `UnattendLocal_V1.9_x64_SelfContained.exe` or `UnattendLocal_V1.9_x64_FrameworkDependent.exe`. Choose `UnattendLocal_V1.9_x64_SelfContained.exe` for a bundled .NET runtime, or `UnattendLocal_V1.9_x64_FrameworkDependent.exe` if .NET 10 Desktop Runtime x64 is already installed. Both have the same features. Use a virtual machine for initial testing.
+Download and run the matching Windows x64 executable from the repository’s [**Releases**](https://github.com/tigerJX95/UnattendLocal/releases/latest) page: `UnattendLocal_V1.10_x64_SelfContained.exe` or `UnattendLocal_V1.10_x64_FrameworkDependent.exe`. Choose `UnattendLocal_V1.10_x64_SelfContained.exe` for a bundled .NET runtime, or `UnattendLocal_V1.10_x64_FrameworkDependent.exe` if .NET 10 Desktop Runtime x64 is already installed. Both have the same features. Use a virtual machine for initial testing.
 
 1. Choose a recommended scenario or a custom configuration and enter the required account and image settings.
 2. Adjust system, appearance, and application removal options as needed.

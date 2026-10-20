@@ -64,7 +64,7 @@ public static class XmlPlanImport {
   var clone=PlanStore.Deserialize(PlanStore.Serialize(p,true));clone.ImportedXml=null;
   clone.ConfirmWipeDisk=true;clone.ConfirmFormatPartition=true;clone.ConfirmDiskScript=true;
   string baseline="";
-  try{baseline=Encoding.UTF8.GetString(service.GenerateStandalone(clone));}
+  try{baseline=Encoding.UTF8.GetString(service.GenerateImportBaseline(clone));}
   catch(Exception e)when(e is ArgumentException or ConfigurationException or XmlException){
    blockers.Add("部分设置无法建立可靠的编辑基准，暂不能再导出。请先使用原工具调整后重新导入；原因："+SafeReason(e.Message));
   }

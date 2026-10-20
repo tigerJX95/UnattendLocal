@@ -65,7 +65,7 @@ public sealed class ActionHelpConverter : IValueConverter
     public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
     {
         var title = value?.ToString() ?? "操作";
-        return new HelpTopic("action", title, ActionIconConverter.Actions.TryGetValue(title, out var action) ? action.Body : title);
+        return new HelpTopic("action", title, ActionIconConverter.Actions.TryGetValue(title, out var action) ? HelpText.Paragraphs(action.Body) : title);
     }
     public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture) => throw new NotSupportedException();
 }

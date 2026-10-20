@@ -75,7 +75,7 @@ public static class AppControlSettings
         var source = XmlMerge.Read(data.SourceXml); var state = Inspect(source); if (!state.Enabled) return;
         var before = JsonSerializer.Deserialize<InstallPlan>(JsonSerializer.Serialize(p))!; before.ImportedXml = null; before.ConfirmWipeDisk = before.ConfirmFormatPartition = before.ConfirmDiskScript = true;
         var after = JsonSerializer.Deserialize<InstallPlan>(JsonSerializer.Serialize(before))!; ReadIntoPlan(source, after, new()); p.UseAppLocker = after.UseAppLocker; p.AppLockerPolicyXml = after.AppLockerPolicyXml;
-        try { var g = new GeneratorService(); data.BaselineXml = XmlMerge.Apply(data.BaselineXml, Encoding.UTF8.GetString(g.GenerateStandalone(before)), XmlMerge.Read(Encoding.UTF8.GetString(g.GenerateStandalone(after)))).OuterXml; }
+        try { var g = new GeneratorService(); data.BaselineXml = XmlMerge.Apply(data.BaselineXml, Encoding.UTF8.GetString(g.GenerateImportBaseline(before)), XmlMerge.Read(Encoding.UTF8.GetString(g.GenerateImportBaseline(after)))).OuterXml; }
         catch (Exception e) when (e is ArgumentException or ConfigurationException or XmlException) { data.Blockers = data.Blockers.Append("旧方案的 AppLocker 编辑基准无法可靠迁移，请重新导入原 XML。").Distinct().ToArray(); }
     }
 }

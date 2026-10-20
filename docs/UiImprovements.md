@@ -1,5 +1,15 @@
 # 界面操作说明
 
+## 💬 分行帮助与配置状态
+
+设置帮助、按钮、下拉选项、应用移除和搜索结果的悬停说明按独立规则分行。标题、当前状态与填写说明分开；应用移除的“匹配项：”继续独占一行，标识逐项列出。命令、路径和括号/引号内的技术内容保持完整。
+
+“待配置”表示当前已启用的配置缺项或不合法，后面显示具体原因，不代表功能未实现。该状态及具体原因使用适配浅色/深色的红色；未启用协议、只读保留状态和普通说明保持原色。配置修正后提示即时更新，灰色示例仍不作为实际输入。
+
+Settings help, buttons, dropdown options, app removal and search-result tooltips start independent rules on separate lines. Titles, current states and instructions are separated. Application matching identifiers retain a dedicated heading and one identifier per line. Commands, paths and technical content inside parentheses or quotation marks remain intact.
+
+“待配置” (configuration pending) means that an enabled configuration is incomplete or invalid; the following reason identifies what to correct. The pending state and its reason use theme-aware red, while disabled protocols, read-only preservation and ordinary instructions retain their normal color. Corrections update the state immediately; gray examples are not actual input.
+
 ## 📖 安装目标提示
 
 导出前检查区与配置摘要将磁盘操作和 Windows 安装目标分别说明：自动分区不等于必然已选好安装目标；指定已有分区不等于自动分区；InstallToAvailablePartition 表示安装程序选择可用分区。没有指定目标时，提示“可能需要选择”，不宣称一定手动选盘。

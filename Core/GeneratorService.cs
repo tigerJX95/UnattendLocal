@@ -23,7 +23,11 @@ public class GeneratorService {
  };
  public byte[] GenerateStandalone(InstallPlan p)=>GenerateDocument(p,false);
  public byte[] Generate(InstallPlan p)=>GenerateDocument(p,true);
- private byte[] GenerateDocument(InstallPlan p,bool includeImport) {
+ // Import baselines must retain editable source values, including a /0 awaiting correction.
+ // This internal path never writes a user export; public generation always checks deployment.
+ internal byte[] GenerateImportBaseline(InstallPlan p)=>GenerateDocument(p,false,false);
+ private byte[] GenerateDocument(InstallPlan p,bool includeImport,bool checkDeployment=true) {
+  if(checkDeployment)StaticIPv4Settings.ValidateDeployment(p);
   AppRemovalSettings.Validate(p);
   if(includeImport)XmlPlanImport.ValidateImported(p);
   CompactOsSettings.Validate(p);
@@ -116,6 +120,7 @@ public class GeneratorService {
   using var schema=typeof(UnattendGenerator).Assembly.GetManifestResourceStream("Schneegans.Unattend.resource.autounattend.xsd")!;
   doc.Schemas.Add("urn:schemas-microsoft-com:unattend",XmlReader.Create(schema));
   doc.Validate((_,e)=>throw new ArgumentException("XML 结构验证失败："+e.Message));
+  if(checkDeployment)StaticIPv4Settings.ValidateDeployment(doc);
   if(includeImport)XmlPlanImport.AddSnapshot(doc,p);
   return UnattendGenerator.Serialize(doc);
  }

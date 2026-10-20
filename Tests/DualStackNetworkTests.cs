@@ -42,7 +42,7 @@ static class DualStackNetworkTests
                 imported.ComputerName="DUALSTACK";Check(Same(d,XmlMerge.Read(Xml(imported))),"unrelated edit preserves network "+label+snapshot);
             }
         }
-        foreach(int prefix in Enumerable.Range(0,65)) {var p=Plan();p.StaticIPv6Prefix=prefix;Check(StaticIPv4Settings.ReadIPv6(p).Prefix==prefix,"native IPv6 prefix accepted /"+prefix);if(prefix is 0 or 64)Check(StaticIPv4Settings.Inspect(XmlMerge.Read(Xml(p))).Known,"IPv6 boundary prefix exports/imports /"+prefix);}
+        foreach(int prefix in Enumerable.Range(1,64)) {var p=Plan();p.StaticIPv6Prefix=prefix;Check(StaticIPv4Settings.ReadIPv6(p).Prefix==prefix,"native IPv6 prefix accepted /"+prefix);if(prefix is 1 or 64)Check(StaticIPv4Settings.Inspect(XmlMerge.Read(Xml(p))).Known,"IPv6 boundary prefix exports/imports /"+prefix);}
         foreach(int prefix in new[]{-1,65,127,128,129}){var p=Plan();p.StaticIPv6Prefix=prefix;Reject(()=>Xml(p),"unsupported native IPv6 prefix rejected /"+prefix);}
         foreach(string ip in new[]{"","::","::1","ff02::1","::ffff:192.0.2.1","::192.0.2.1","fe80::1%4","[2001:db8::1]","2001:db8::1/64","2001:db8:::1","192.168.1.2"}){var p=Plan();p.StaticIPv6Address=ip;Reject(()=>Xml(p),"invalid IPv6 host rejected "+ip);}
         foreach(string ip in new[]{"fd12:3456:789a::20","fe80::20","2001:DB8:A:0:0:0:0:20"}){var p=Plan();p.StaticIPv6Address=ip;Check(StaticIPv4Settings.ReadIPv6(p).Address.Length>0,"valid IPv6 spelling/scope "+ip);}
@@ -50,7 +50,7 @@ static class DualStackNetworkTests
         foreach(string gateway in new[]{"","fe80::1","2001:db8:a::1"}){var p=Plan();p.StaticIPv6Gateway=gateway;Check(StaticIPv4Settings.ReadIPv6(p).Gateway==gateway,"optional/link-local/same-prefix IPv6 gateway "+gateway);}
         foreach(string dns in new[]{"2001:db8::53,2001:0db8:0:0:0:0:0:53","2001:db8::1,2001:db8::2,2001:db8::3,2001:db8::4","192.0.2.53","ff02::1","::","fe80::1%2"}){var p=Plan();p.StaticIPv6Dns=dns;Reject(()=>Xml(p),"invalid/duplicate IPv6 DNS rejected "+dns);}
         var local=Plan();local.StaticIPv6Dns="::1";Check(StaticIPv4Settings.ReadIPv6(local).DnsServers.Single()=="::1","local DNS can intentionally use loopback");
-        foreach(var (address,prefix,gateway) in new[]{("10.1.2.3",8,"10.0.0.1"),("172.20.1.2",12,"172.16.0.1"),("192.168.5.20",16,"192.168.0.1"),("203.0.113.20",24,"203.0.113.1"),("192.0.2.0",31,"192.0.2.1"),("192.0.2.1",31,"192.0.2.0"),("192.0.2.0",32,""),("192.0.2.20",0,"198.51.100.1")}) {
+        foreach(var (address,prefix,gateway) in new[]{("10.1.2.3",8,"10.0.0.1"),("172.20.1.2",12,"172.16.0.1"),("192.168.5.20",16,"192.168.0.1"),("203.0.113.20",24,"203.0.113.1"),("192.0.2.0",31,"192.0.2.1"),("192.0.2.1",31,"192.0.2.0"),("192.0.2.0",32,"")}) {
             var p=Plan();p.UseStaticIPv4=true;p.UseStaticIPv6=false;p.StaticIPv4Address=address;p.StaticIPv4Prefix=prefix;p.StaticIPv4Gateway=gateway;p.StaticIPv4Dns="";
             Check(StaticIPv4Settings.Read(p).Address==address,"private/public/special IPv4 prefix "+address+"/"+prefix);
             Check(StaticIPv4Settings.Inspect(XmlMerge.Read(Xml(p))).Known,"special IPv4 native roundtrip "+prefix);
@@ -66,7 +66,7 @@ static class DualStackNetworkTests
         Check(vm.IsStaticIPv6&&vm.IsStaticIP&&vm.StaticIPv6Summary.Contains("::21")&&vm.HelpTips["staticipv6"].Body.Contains("::21")&&notices.Contains("StaticIPv6Summary"),"IPv6 edits update summary, help and bindings");
         foreach(string target in new[]{"StaticIPv6Enabled","StaticIPv6AddressEditor","StaticIPv6PrefixEditor","StaticIPv6GatewayEditor","StaticIPv6DnsEditor"})Check(SettingsSearchCatalog.Search("IPv6").Count(r=>r.Target==target)==1,"IPv6 search anchor unique "+target);
         var summary=SummaryPresentation.FromText(vm.ConfigurationSummary);Check(summary.Sections.Single(s=>s.Kind=="network").Rows.Any(row=>row.SourceLabel=="静态 IPv6"),"IPv6 appears in grouped configuration summary");
-        foreach(var item in vm.AppRemovalChoices){var lines=item.TooltipDescription.Split('\n');Check(item.Description.Contains("匹配项：") ? lines.Contains("匹配项：")&&!lines.Any(line=>line.Contains("。 匹配项")) : item.TooltipDescription==item.Description,"removal tooltip separates existing identifiers without inventing them "+item.Id);}
+        foreach(var item in vm.AppRemovalChoices){var lines=item.TooltipDescription.Split('\n');Check(item.Description.Contains("匹配项：") ? lines.Contains("匹配项：")&&!lines.Any(line=>line.Contains("。 匹配项")) : item.TooltipDescription.Replace("\n", "").Replace(" ", "")==item.Description.Replace(" ", ""),"removal tooltip separates existing identifiers without inventing them "+item.Id);}
 
         var variant=XmlMerge.Read(Strip(Xml(dual)));var ns2=Ns(variant);
         foreach(var c in Network(variant))c.RemoveAttribute("versionScope");
