@@ -12,7 +12,7 @@ public static class StaticIPv4Settings
     public const string Tcp = "Microsoft-Windows-TCPIP", Dns = "Microsoft-Windows-DNS-Client";
     private const string Wcm = "http://schemas.microsoft.com/WMIConfig/2002/State";
     public const string ReadOnlyNotice = "原 XML 含多网卡、非 MAC 标识或额外/修改过的 TCPIP、DNS 配置，网络原文保留；本版 IP 配置区域只读，不会用界面默认值覆盖。";
-    public const string Description = "IPv4 与 IPv6 可分别启用，也可同时启用，在 specialize 阶段配置同一个目标 MAC。切换协议页只切换显示，不清空另一页。每种协议最多一个静态地址、可选默认网关和三个 DNS；双栈 DNS 按 IPv4 列表再 IPv6 列表生成。IPv4 支持合法私网与公网地址，可导出前缀 /1–/32 或等价连续掩码；静态地址 /0 覆盖全部地址范围，本工具会在配置页提示并阻止导出，保留输入且不自动转换；/31 用于点对点，/32 是单地址且本界面网关须留空。IPv6 遵循微软无人值守地址参数范围 /0–/64，本工具部署检查允许 /1–/64，网关可为同前缀单播或链路本地地址。不填写 %区域、括号或 CIDR。目标网卡驱动须可用；不探测地址占用，不配置 Windows PE，也不创建 Wi-Fi 连接。";
+    public const string Description = "IPv4 与 IPv6 可分别启用，也可同时启用，在 specialize 阶段配置同一个目标 MAC。切换协议页只切换显示，不清空另一页。每种协议最多一个静态地址、可选默认网关和三个 DNS；双栈 DNS 按 IPv4 列表再 IPv6 列表生成。IPv4 支持合法私网与公网地址，在同一输入框填写 /1–/32 或等价点分十进制连续掩码（如 /24 或 255.255.255.0）；静态地址 /0 覆盖全部地址范围，本工具会在配置页提示并阻止导出，保留输入且不自动转换；/31 用于点对点，/32 是单地址且本界面网关须留空。IPv6 遵循微软无人值守地址参数范围 /0–/64，本工具部署检查允许 /1–/64，网关可为同前缀单播或链路本地地址。不填写 %区域、括号或 CIDR。目标网卡驱动须可用；不探测地址占用，不配置 Windows PE，也不创建 Wi-Fi 连接。";
     public record Values(string Mac, string Address, int Prefix, string Gateway, string[] DnsServers);
     public record IPv6Values(string Mac, string Address, int Prefix, string Gateway, string[] DnsServers);
     public record Source(bool Present, bool Known, Values? Values) { public IPv6Values? IPv6 { get; init; } }
@@ -45,15 +45,16 @@ public static class StaticIPv4Settings
         string warning = string.Join("\n", new[] { ipv4 ? IPv4ZeroPrefixNotice : "", ipv6 ? IPv6ZeroPrefixNotice : "" }.Where(s => s.Length > 0));
         return warning.Length > 0 && !CanEdit(p) ? warning + "\n原 XML 的网络配置只读，请先在原工具修正后重新导入。" : warning;
     }
+    private static bool IsZeroIPv4(InstallPlan p) { try { return EffectivePrefix(p) == 0; } catch (ArgumentException) { return false; } }
     public static void ValidateDeployment(InstallPlan p)
     {
         string warning = DeploymentWarning(p);
-        if (warning.Length > 0) throw new ArgumentException(warning);
+        if (warning.Length > 0) throw new ConfigurationValidationException(!CanEdit(p) ? nameof(InstallPlan.ImportedXml) : p.UseStaticIPv4 && IsZeroIPv4(p) ? nameof(InstallPlan.StaticIPv4SubnetMask) : nameof(InstallPlan.StaticIPv6Prefix), warning);
     }
     public static void ValidateDeployment(XmlDocument doc)
     {
         var families = ZeroPrefixFamilies(doc).Distinct().ToArray();
-        if (families.Length > 0) throw new ArgumentException(string.Join("\n", families.Select(f => f == AddressFamily.InterNetwork ? IPv4ZeroPrefixNotice : IPv6ZeroPrefixNotice)) + "\n若来自只读 XML，请先在原工具修正后重新导入。");
+        if (families.Length > 0) throw new ConfigurationValidationException(nameof(InstallPlan.ImportedXml), string.Join("\n", families.Select(f => f == AddressFamily.InterNetwork ? IPv4ZeroPrefixNotice : IPv6ZeroPrefixNotice)) + "\n若来自只读 XML，请先在原工具修正后重新导入。");
     }
 
     public record IPv4Subnet(string Address, int Prefix, string Mask, string Network, string? Broadcast, string FirstHost, string LastHost, ulong HostCount);
@@ -117,27 +118,39 @@ public static class StaticIPv4Settings
             throw new ArgumentException("子网掩码必须为连续的 1 后接连续的 0，且对应 /0–/32。");
         return prefix;
     }
-    public static int EffectivePrefix(InstallPlan p) => p.UseStaticIPv4SubnetMask ? PrefixFromMask(p.StaticIPv4SubnetMask) : p.StaticIPv4Prefix;
+    public static int PrefixFromInput(string? value)
+    {
+        string raw = (value ?? "").Trim();
+        if (raw.StartsWith('/')) {
+            if (!Regex.IsMatch(raw, @"\A/(?:0|[1-9][0-9]?)\z") || !int.TryParse(raw[1..], out int prefix) || prefix > 32)
+                throw new ArgumentException("前缀长度请填写 /1–/32，例如 /24；/0 可保留输入，但部署检查会阻止导出。");
+            return prefix;
+        }
+        if (!raw.Contains('.')) throw new ArgumentException("子网掩码/前缀长度请填写完整点分十进制（如 255.255.255.0）或 /24；不要只填 24。");
+        return PrefixFromMask(raw);
+    }
+    public static int EffectivePrefix(InstallPlan p) => ConfigurationValidationException.Read(nameof(InstallPlan.StaticIPv4SubnetMask),
+        () => p.UseStaticIPv4SubnetMask ? PrefixFromInput(p.StaticIPv4SubnetMask) : p.StaticIPv4Prefix);
     public static Values Read(InstallPlan p)
     {
-        string mac = Mac(p.StaticIPv4Mac);
-        uint ip = Address(p.StaticIPv4Address, "静态 IPv4", true);
+        string mac = ConfigurationValidationException.Read(nameof(InstallPlan.StaticIPv4Mac), () => Mac(p.StaticIPv4Mac));
+        uint ip = ConfigurationValidationException.Read(nameof(InstallPlan.StaticIPv4Address), () => Address(p.StaticIPv4Address, "静态 IPv4", true));
         int prefix = EffectivePrefix(p);
-        if (prefix is < 0 or > 32) throw new ArgumentException("静态 IPv4 前缀长度支持 0–32；/31 用于点对点，/32 为单地址。");
+        if (prefix is < 0 or > 32) throw new ConfigurationValidationException(nameof(InstallPlan.StaticIPv4SubnetMask), "静态 IPv4 前缀长度支持 0–32；/31 用于点对点，/32 为单地址。");
         uint mask = Mask(prefix), network = ip & mask, broadcast = network | ~mask;
-        if (prefix < 31 && (ip == network || ip == broadcast)) throw new ArgumentException("静态 IPv4 不能是所填前缀下的网络地址或广播地址。");
+        if (prefix < 31 && (ip == network || ip == broadcast)) throw new ConfigurationValidationException(nameof(InstallPlan.StaticIPv4Address), "静态 IPv4 不能是所填前缀下的网络地址或广播地址。");
         string gateway = (p.StaticIPv4Gateway ?? "").Trim();
         if (gateway.Length > 0) {
-            uint next = Address(gateway, "默认网关", true);
+            uint next = ConfigurationValidationException.Read(nameof(InstallPlan.StaticIPv4Gateway), () => Address(gateway, "默认网关", true));
             if (prefix == 32 || (next & mask) != network || prefix < 31 && (next == network || next == broadcast) || next == ip)
-                throw new ArgumentException("默认网关须为同一子网中的其他有效主机地址；/32 请留空网关，需要时在其他设置中配置路由。");
+                throw new ConfigurationValidationException(nameof(InstallPlan.StaticIPv4Gateway), "默认网关须为同一子网中的其他有效主机地址；/32 请留空网关，需要时在其他设置中配置路由。");
             gateway = Format(next);
         }
         string rawDns = p.StaticIPv4Dns ?? "";
-        if (rawDns.Length > 256) throw new ArgumentException("DNS 地址列表过长。");
+        if (rawDns.Length > 256) throw new ConfigurationValidationException(nameof(InstallPlan.StaticIPv4Dns), "DNS 地址列表过长。");
         string[] dns = rawDns.Split([',', ';', ' ', '\r', '\n', '\t', '，', '；'], StringSplitOptions.RemoveEmptyEntries)
-            .Select(s => Format(Address(s, "DNS", false))).ToArray();
-        if (dns.Length > 3 || dns.Distinct().Count() != dns.Length) throw new ArgumentException("最多填写三个不重复的 IPv4 DNS 地址，用空格、逗号或分号分隔。");
+            .Select(s => ConfigurationValidationException.Read(nameof(InstallPlan.StaticIPv4Dns), () => Format(Address(s, "DNS", false)))).ToArray();
+        if (dns.Length > 3 || dns.Distinct().Count() != dns.Length) throw new ConfigurationValidationException(nameof(InstallPlan.StaticIPv4Dns), "最多填写三个不重复的 IPv4 DNS 地址，用空格、逗号或分号分隔。");
         return new(mac, Format(ip), prefix, gateway, dns);
     }
     private static uint Mask(int prefix) => prefix == 0 ? 0u : uint.MaxValue << (32-prefix);
@@ -150,20 +163,20 @@ public static class StaticIPv4Settings
     }
     public static IPv6Values ReadIPv6(InstallPlan p)
     {
-        string mac=Mac(p.StaticIPv4Mac),address=IPv6Address(p.StaticIPv6Address,"静态 IPv6");
+        string mac=ConfigurationValidationException.Read(nameof(InstallPlan.StaticIPv4Mac),()=>Mac(p.StaticIPv4Mac)),address=ConfigurationValidationException.Read(nameof(InstallPlan.StaticIPv6Address),()=>IPv6Address(p.StaticIPv6Address,"静态 IPv6"));
         int prefix=p.StaticIPv6Prefix;
-        if(prefix is <0 or >64)throw new ArgumentException("微软无人值守 IPv6 静态地址前缀支持 0–64；此输入不接受 /65–/128。");
+        if(prefix is <0 or >64)throw new ConfigurationValidationException(nameof(InstallPlan.StaticIPv6Prefix), "微软无人值守 IPv6 静态地址前缀支持 0–64；此输入不接受 /65–/128。");
         string gateway=(p.StaticIPv6Gateway??"").Trim();
         if(gateway.Length>0) {
-            gateway=IPv6Address(gateway,"IPv6 默认网关");
+            gateway=ConfigurationValidationException.Read(nameof(InstallPlan.StaticIPv6Gateway),()=>IPv6Address(gateway,"IPv6 默认网关"));
             var next=IPAddress.Parse(gateway);var ip=IPAddress.Parse(address);
             byte[] a=ip.GetAddressBytes(),b=next.GetAddressBytes();
             bool same=true;for(int bit=0;bit<prefix;bit++)if((a[bit/8]&(1<<(7-bit%8)))!=(b[bit/8]&(1<<(7-bit%8)))){same=false;break;}
-            if(gateway==address||!next.IsIPv6LinkLocal&&!same)throw new ArgumentException("IPv6 网关须为同前缀的其他单播地址，或目标网卡可达的链路本地地址（如 fe80::1）；无需默认路由时可留空。");
+            if(gateway==address||!next.IsIPv6LinkLocal&&!same)throw new ConfigurationValidationException(nameof(InstallPlan.StaticIPv6Gateway), "IPv6 网关须为同前缀的其他单播地址，或目标网卡可达的链路本地地址（如 fe80::1）；无需默认路由时可留空。");
         }
-        string raw=p.StaticIPv6Dns??"";if(raw.Length>256)throw new ArgumentException("IPv6 DNS 地址列表过长。");
-        var dns=raw.Split([',',';',' ','\r','\n','\t','，','；'],StringSplitOptions.RemoveEmptyEntries).Select(a=>IPv6Address(a,"IPv6 DNS",false)).ToArray();
-        if(dns.Length>3||dns.Distinct().Count()!=dns.Length)throw new ArgumentException("最多填写三个不重复的 IPv6 DNS 地址，用空格、逗号或分号分隔。");
+        string raw=p.StaticIPv6Dns??"";if(raw.Length>256)throw new ConfigurationValidationException(nameof(InstallPlan.StaticIPv6Dns), "IPv6 DNS 地址列表过长。");
+        var dns=raw.Split([',',';',' ','\r','\n','\t','，','；'],StringSplitOptions.RemoveEmptyEntries).Select(a=>ConfigurationValidationException.Read(nameof(InstallPlan.StaticIPv6Dns),()=>IPv6Address(a,"IPv6 DNS",false))).ToArray();
+        if(dns.Length>3||dns.Distinct().Count()!=dns.Length)throw new ConfigurationValidationException(nameof(InstallPlan.StaticIPv6Dns), "最多填写三个不重复的 IPv6 DNS 地址，用空格、逗号或分号分隔。");
         return new(mac,address,prefix,gateway,dns);
     }
     public static void Validate(InstallPlan p) { if (p.UseStaticIPv4) _ = Read(p); if(p.UseStaticIPv6)_=ReadIPv6(p); }
@@ -321,7 +334,7 @@ public static class StaticIPv4Settings
         p.UseStaticIPv6 = source.IPv6 != null;
         if(source.IPv6 is {} v6){p.StaticIPv4Mac=v6.Mac;p.StaticIPv6Address=v6.Address;p.StaticIPv6Prefix=v6.Prefix;p.StaticIPv6Gateway=v6.Gateway;p.StaticIPv6Dns=string.Join(", ",v6.DnsServers);}
         if (source.Values is not {} v) return;
-        p.StaticIPv4Mac = v.Mac; p.StaticIPv4Address = v.Address; p.StaticIPv4Prefix = v.Prefix; if (p.UseStaticIPv4SubnetMask) p.StaticIPv4SubnetMask = SubnetMask(v.Prefix); p.StaticIPv4Gateway = v.Gateway; p.StaticIPv4Dns = string.Join(", ", v.DnsServers);
+        p.StaticIPv4Mac = v.Mac; p.StaticIPv4Address = v.Address; p.StaticIPv4Prefix = v.Prefix; if (p.UseStaticIPv4SubnetMask) p.StaticIPv4SubnetMask = (p.StaticIPv4SubnetMask??"").TrimStart().StartsWith('/') ? "/" + v.Prefix.ToString(CultureInfo.InvariantCulture) : SubnetMask(v.Prefix); p.StaticIPv4Gateway = v.Gateway; p.StaticIPv4Dns = string.Join(", ", v.DnsServers);
     }
     public static Source ReadIntoPlan(XmlDocument doc, InstallPlan p, List<string> notices)
     {

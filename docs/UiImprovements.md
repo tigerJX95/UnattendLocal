@@ -1,5 +1,15 @@
 # 界面操作说明
 
+## 🔎 配置错误定位 / Configuration error navigation
+
+V1.11 在检查与预览或导出失败时，为带明确字段标识的错误显示设置位置和“前往修改”。覆盖静态 IPv4/IPv6 的 MAC、地址、掩码/前缀、网关和 DNS，以及本地账户名称/密码、内置 Administrator 密码、密钥、驱动目录、密码天数和对应数字格式错误等。点击后定位、高亮并聚焦相关输入；账户错误会选中对应账户。默认“确定”、Enter、Esc 或关闭只关闭提示，不自动跳转。
+
+定位只改变界面显示和焦点，不自动启用设置或覆盖内容。原 XML 的阻止项提供“查看导入说明”；文件读取、导入候选文件及无法定位的错误仍显示原说明，不将候选文件错误误定位到当前方案。完整校验与原有拦截保持。
+
+V1.11 shows a setting location and Go to edit for errors with an explicit field identity during Check and Preview or export. Supported cases include static IPv4/IPv6 fields, local account names/passwords, the built-in Administrator password, keys, driver directories, password days and named numeric-format errors. Navigation locates, highlights and focuses the input, selecting the affected account when applicable. OK, Enter, Esc or closing the dialog dismisses it without navigation.
+
+Navigation only changes presentation and focus. It does not enable settings or overwrite values. Source XML blockers offer View import details. File read failures, candidate-file import errors and errors without a known destination keep their original explanation and do not incorrectly point to the current plan. Existing validation remains enforced.
+
 ## 💬 分行帮助与配置状态
 
 设置帮助、按钮、下拉选项、应用移除和搜索结果的悬停说明按独立规则分行。标题、当前状态与填写说明分开；应用移除的“匹配项：”继续独占一行，标识逐项列出。命令、路径和括号/引号内的技术内容保持完整。

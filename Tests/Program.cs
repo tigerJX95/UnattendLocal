@@ -1,5 +1,7 @@
 using System.Text;using System.Xml;using UnattendLocal.Core;
 int count=0;var g=new GeneratorService();
+if(args.Contains("--unified-network-only")){Console.WriteLine($"V1.11 unified network: {UnifiedSubnetTests.Run(g)} checks passed.");return;}
+if(args.Contains("--error-location-only")){Console.WriteLine($"V1.11 error location: {ErrorLocationTests.Run(g)} checks passed.");return;}
 if(args.Contains("--help-layout-only")){Console.WriteLine($"V1.10 help layout: {HelpLayoutTests.Run(g)} checks passed.");return;}
 if(args.Contains("--network-deployment-only")){Console.WriteLine($"Network deployment: {NetworkDeploymentTests.Run(g)} checks passed.");return;}
 if(args.Contains("--dual-stack-only")){Console.WriteLine($"V1.9 dual stack: {DualStackNetworkTests.Run(g)} checks passed.");return;}
@@ -2030,4 +2032,6 @@ count+=NetworkEnhancementTests.Run(g);
 count+=DualStackNetworkTests.Run(g);
 count+=NetworkDeploymentTests.Run(g);
 count+=HelpLayoutTests.Run(g);
-Console.WriteLine($"V1.10 total: {count} checks passed.");
+count+=UnifiedSubnetTests.Run(g);
+count+=ErrorLocationTests.Run(g);
+Console.WriteLine($"V1.11 total: {count} checks passed.");

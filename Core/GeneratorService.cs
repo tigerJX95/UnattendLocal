@@ -29,7 +29,7 @@ public class GeneratorService {
  private byte[] GenerateDocument(InstallPlan p,bool includeImport,bool checkDeployment=true) {
   if(checkDeployment)StaticIPv4Settings.ValidateDeployment(p);
   AppRemovalSettings.Validate(p);
-  if(includeImport)XmlPlanImport.ValidateImported(p);
+  if(includeImport)ConfigurationValidationException.Check(nameof(InstallPlan.ImportedXml),()=>XmlPlanImport.ValidateImported(p));
   CompactOsSettings.Validate(p);
   StaticIPv4Settings.Validate(p);
   SetupDriverSettings.Validate(p);
@@ -40,18 +40,18 @@ public class GeneratorService {
   InstallationSettings.Validate(p);
   ShellSettings.Validate(p);
   if(!p.InteractiveLanguage&&new[]{p.ImageLanguage,p.Locale,p.Keyboard,p.GeoId}.Any(string.IsNullOrWhiteSpace))throw new ArgumentException("请在基础设置中填写显示语言、区域格式、键盘和国家地区，或选择安装时手动设置语言与区域。");
-  if(p.TimeZoneMode=="指定时区"&&string.IsNullOrWhiteSpace(p.TimeZone))throw new ArgumentException("请选择要指定的时区，或改为由 Windows 决定。");
-  if(p.Architecture is not ("amd64" or "arm64" or "x86"))throw new ArgumentException("请选择有效架构。");
+  if(p.TimeZoneMode=="指定时区"&&string.IsNullOrWhiteSpace(p.TimeZone))throw new ConfigurationValidationException(nameof(InstallPlan.TimeZone), "请选择要指定的时区，或改为由 Windows 决定。");
+  if(p.Architecture is not ("amd64" or "arm64" or "x86"))throw new ConfigurationValidationException(nameof(InstallPlan.Architecture), "请选择有效架构。");
   IAccountSettings accounts=p.AccountMode switch {
    "安装时创建本地账户"=>new InteractiveLocalAccountSettings(),
    "安装时添加微软账户"=>new InteractiveMicrosoftAccountSettings(),
    "自动创建本地账户"=>CreateAccounts(p),
-   _=>throw new ArgumentException("请在用户与密码页明确选择账户创建方式。")
+   _=>throw new ConfigurationValidationException(nameof(InstallPlan.AccountMode), "请在用户与密码页明确选择账户创建方式。")
   };
   IWifiSettings wifi=WifiSettings.Build(p);
   if(p.BypassNetwork&&p.AccountMode=="安装时添加微软账户")throw new ArgumentException("微软账户模式需要联网，请关闭允许离线安装。");
-  if(p.AccountMode=="自动创建本地账户"&&p.PasswordExpiration=="指定天数"&&(p.PasswordDays<1||p.PasswordDays>999))throw new ArgumentException("密码到期天数应为 1–999。");
-  if(p.AccountMode=="自动创建本地账户"&&!p.AutoLogon&&!p.KeepSensitiveFiles)throw new ArgumentException("当前生成核心要求自动清理安装隐私文件搭配首次自动登录。请启用首次自动登录，或到 OOBE 页的“安装脚本与隐私文件”中手动勾选“保留安装隐私文件”。程序不会自动勾选；本次检查或导出已停止。");
+  if(p.AccountMode=="自动创建本地账户"&&p.PasswordExpiration=="指定天数"&&(p.PasswordDays<1||p.PasswordDays>999))throw new ConfigurationValidationException(nameof(InstallPlan.PasswordDays), "密码到期天数应为 1–999。");
+  if(p.AccountMode=="自动创建本地账户"&&!p.AutoLogon&&!p.KeepSensitiveFiles)throw new ConfigurationValidationException(nameof(InstallPlan.KeepSensitiveFiles), "当前生成核心要求自动清理安装隐私文件搭配首次自动登录。请启用首次自动登录，或到 OOBE 页的“安装脚本与隐私文件”中手动勾选“保留安装隐私文件”。程序不会自动勾选；本次检查或导出已停止。");
   var config=Configuration.Default with {
    Bloatwares=AppRemovalSettings.Build(generator,p),
    DeleteJunctions=p.DeleteJunctions,
@@ -63,7 +63,7 @@ public class GeneratorService {
    VMwareTools=p.VMwareTools,VBoxGuestAdditions=p.VBoxGuestAdditions,VirtIoGuestTools=p.VirtIoGuestTools,ParallelsTools=p.ParallelsTools,
    EnableRemoteDesktop=p.EnableRemoteDesktop,AllowPowerShellScripts=p.AllowPowerShellScripts,
    PreventAutomaticReboot=p.PreventAutomaticReboot,DisableLastAccess=p.DisableLastAccess,
-   ActivationKey=p.UseActivationKey?ValidateProductKey(p.ActivationProductKey,"单独指定的激活密钥"):null,
+   ActivationKey=p.UseActivationKey?ConfigurationValidationException.Read(nameof(InstallPlan.ActivationProductKey),()=>ValidateProductKey(p.ActivationProductKey,"单独指定的激活密钥")):null,
    KeepSensitiveFiles=p.KeepSensitiveFiles,
    HidePowerShellWindows=p.HidePowerShellWindows,
    PreventDeviceEncryption=p.PreventDeviceEncryption,
@@ -142,10 +142,10 @@ public class GeneratorService {
  }
  private IEditionSettings CreateEdition(InstallPlan p)=>p.EditionMode switch {
   "安装时输入密钥"=>new InteractiveEditionSettings(),
-  "按 SKU 使用通用安装密钥"=>new UnattendedEditionSettings(generator.Lookup<WindowsEdition>(!string.IsNullOrWhiteSpace(p.EditionId)?p.EditionId:throw new ArgumentException("请在版本与密钥页选择要安装的 SKU。"))),
-  "指定自己的产品密钥"=>new CustomEditionSettings(ValidateProductKey(p.CustomProductKey,"安装产品密钥")),
+  "按 SKU 使用通用安装密钥"=>new UnattendedEditionSettings(generator.Lookup<WindowsEdition>(!string.IsNullOrWhiteSpace(p.EditionId)?p.EditionId:throw new ConfigurationValidationException(nameof(InstallPlan.EditionId), "请在版本与密钥页选择要安装的 SKU。"))),
+  "指定自己的产品密钥"=>new CustomEditionSettings(ConfigurationValidationException.Read(nameof(InstallPlan.CustomProductKey),()=>ValidateProductKey(p.CustomProductKey,"安装产品密钥"))),
   "使用 BIOS/UEFI 固件密钥"=>new FirmwareEditionSettings(),
-  _=>throw new ArgumentException("请选择有效的安装版本与密钥方式。")
+  _=>throw new ConfigurationValidationException(nameof(InstallPlan.EditionMode), "请选择有效的安装版本与密钥方式。")
  };
  private static ProductKey ValidateProductKey(string? value,string label) {
   var key=value?.Trim().ToUpperInvariant()??"";
@@ -155,8 +155,14 @@ public class GeneratorService {
  private static void SetOobe(XmlDocument doc,XmlNamespaceManager ns,XmlElement parent,string name,bool value) {var node=parent.SelectSingleNode("u:"+name,ns) as XmlElement;if(node==null){node=doc.CreateElement(name,"urn:schemas-microsoft-com:unattend");parent.AppendChild(node);}node.InnerText=value?"true":"false";}
  private static IAccountSettings CreateAccounts(InstallPlan p) {
   FirstLogonSettings.Validate(p);
-  if(p.Users.Count==0&&!FirstLogonSettings.IsBuiltin(p))throw new ArgumentException("请至少添加一个本地账户。");
-  foreach(var u in p.Users){if(string.IsNullOrWhiteSpace(u.Name))throw new ArgumentException("请填写每个本地账户的名称。");if(u.NeedsPassword&&!(u.AllowEmptyPassword&&string.IsNullOrEmpty(u.Password)))throw new ArgumentException($"请重新输入账户 {u.Name} 的密码，或明确允许空密码。");if(string.IsNullOrEmpty(u.Password)&&!u.AllowEmptyPassword)throw new ArgumentException($"账户 {u.Name} 未设置密码；如需空密码，请明确勾选允许空密码。");if(u.AllowEmptyPassword&&!string.IsNullOrEmpty(u.Password))throw new ArgumentException($"账户 {u.Name} 同时设置了密码和允许空密码，请选择一种。");}
+  if(p.Users.Count==0&&!FirstLogonSettings.IsBuiltin(p))throw new ConfigurationValidationException(nameof(InstallPlan.Users), "请至少添加一个本地账户。");
+  for(int i=0;i<p.Users.Count;i++) {
+   var u=p.Users[i];
+   if(string.IsNullOrWhiteSpace(u.Name))throw new ConfigurationValidationException("Users.Name", "请填写每个本地账户的名称。", userIndex:i);
+   if(u.NeedsPassword&&!(u.AllowEmptyPassword&&string.IsNullOrEmpty(u.Password)))throw new ConfigurationValidationException("Users.Password", $"请重新输入账户 {u.Name} 的密码，或明确允许空密码。", userIndex:i);
+   if(string.IsNullOrEmpty(u.Password)&&!u.AllowEmptyPassword)throw new ConfigurationValidationException("Users.Password", $"账户 {u.Name} 未设置密码；如需空密码，请明确勾选允许空密码。", userIndex:i);
+   if(u.AllowEmptyPassword&&!string.IsNullOrEmpty(u.Password))throw new ConfigurationValidationException("Users.Password", $"账户 {u.Name} 同时设置了密码和允许空密码，请选择一种。", userIndex:i);
+  }
   return new UnattendedAccountSettings(p.Users.Select(u=>new Account(u.Name,u.DisplayName,u.Password,u.Administrator?Constants.AdministratorsGroup:Constants.UsersGroup)).ToImmutableList(),FirstLogonSettings.Build(p),p.ObscurePasswords);
  }
 }

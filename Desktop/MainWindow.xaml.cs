@@ -15,11 +15,14 @@ public partial class MainWindow : Window {
  private void ThemeToggleClick(object s,RoutedEventArgs e){var saved=UiTheme.Apply(UiTheme.Current=="Dark"?"Light":"Dark");RefreshThemeIcon();if(!saved)vm.Status="主题已切换，但未能保存主题偏好";}
  private void AboutMenuClick(object s,RoutedEventArgs e){var menu=AboutMenuButton.ContextMenu;menu.PlacementTarget=AboutMenuButton;menu.Placement=System.Windows.Controls.Primitives.PlacementMode.Bottom;menu.IsOpen=true;}
  private void AboutSectionClick(object s,RoutedEventArgs e){if(s is MenuItem {Tag:string section}&&int.TryParse(section,out var index))Run(()=>new AboutWindow(index){Owner=this}.ShowDialog());}
- private void Run(Action action){try{action();}catch(Exception e){vm.Status="配置未通过检查";ErrorDialog.Show(this,e.Message);}}
- private void ActivateIPv4Input(object sender){if(sender is TextBox editor&&editor.IsEnabled){if(editor==StaticIPv4PrefixEditor)vm.SelectStaticIPv4InputMode(false);else if(editor==StaticIPv4SubnetMaskEditor)vm.SelectStaticIPv4InputMode(true);}}
- private void IPv4InputTextEdit(object sender,System.Windows.Input.TextCompositionEventArgs e)=>ActivateIPv4Input(sender);
- private void IPv4InputKeyEdit(object sender,System.Windows.Input.KeyEventArgs e){if(e.Key is System.Windows.Input.Key.Back or System.Windows.Input.Key.Delete)ActivateIPv4Input(sender);}
- private void IPv4InputCommandEdit(object sender,System.Windows.Input.ExecutedRoutedEventArgs e){if(e.Command==System.Windows.Input.ApplicationCommands.Paste||e.Command==System.Windows.Input.ApplicationCommands.Cut||e.Command==System.Windows.Input.ApplicationCommands.Delete||e.Command==System.Windows.Input.ApplicationCommands.Undo||e.Command==System.Windows.Input.ApplicationCommands.Redo)ActivateIPv4Input(sender);}
+ private void Run(Action action, bool locateConfiguration=false){try{action();}catch(Exception e){
+  vm.Status="配置未通过检查";
+  var location=locateConfiguration?ConfigurationErrorLocation.FromException(e):null;
+  if(ErrorDialog.Show(this,e.Message,location:location?.Path,actionText:location?.ActionText??"前往修改")&&location is not null){
+   if(location.UserIndex is int index&&index>=0&&index<vm.Plan.Users.Count)vm.SelectedUser=vm.Plan.Users[index];
+   NavigateToSetting(location.Setting,focusEditor:true);
+  }
+ }}
  private void UserPasswordChanged(object s,RoutedEventArgs e){if(!loading&&!vm.IsLoadingPlan&&s is PasswordBox b&&b.DataContext is UserEntry u){u.Password=b.Password;u.NeedsPassword=false;}}
  private void UserContextChanged(object s,DependencyPropertyChangedEventArgs e){SyncUserPassword((PasswordBox)s);}
  private void UserPasswordLoaded(object s,RoutedEventArgs e){SyncUserPassword((PasswordBox)s);}
@@ -66,9 +69,18 @@ public partial class MainWindow : Window {
  private void ValidateAppLockerClick(object s,RoutedEventArgs e)=>Run(()=>{_=AppControlSettings.ReadPolicy(vm.Plan.AppLockerPolicyXml);vm.Status="AppLocker XML 结构检查通过，不代表规则适合目标系统";});
  private void AppLockerExampleClick(object s,RoutedEventArgs e)=>Run(()=>{if(!string.IsNullOrWhiteSpace(vm.Plan.AppLockerPolicyXml)&&MessageBox.Show(this,"审核示例将替换当前策略内容，是否继续？","载入 AppLocker 示例",MessageBoxButton.YesNo,MessageBoxImage.Question)!=MessageBoxResult.Yes)return;vm.Plan.AppLockerPolicyXml=AppControlSettings.Example;vm.Status="已载入审核示例；仅供学习，请结合目标环境调整与验证";});
  private void SaveClick(object s,RoutedEventArgs e)=>Run(()=>{var d=new SaveFileDialog{Filter="配置方案 (*.json)|*.json",FileName="安装方案.json"};if(d.ShowDialog(this)!=true)return;var answer=MessageBox.Show(this,"是否将账户密码（含内置 Administrator）、Wi-Fi 密码、完整无线配置 XML 及自定义产品密钥写入方案？\n脚本始终按原文保存；脚本内的密码、令牌不会自动省略。\n导入 XML 时，选择“是”会同时保存完整 XML 原文；选择“否”不保存原文，下次须重新导入 XML 才能导出。\n选择“否”将省略密码、自定义密钥和整段无线配置 XML，下次载入需重新输入或导入。\n选择“是”会以明文保存密码和自定义密钥。","保存凭据",MessageBoxButton.YesNoCancel,MessageBoxImage.Question,MessageBoxResult.No);if(answer==MessageBoxResult.Cancel)return;File.WriteAllText(d.FileName,PlanStore.Serialize(vm.Plan,answer==MessageBoxResult.Yes),new UTF8Encoding(false));vm.Status="方案已保存";});
- private bool Invalid(DependencyObject root){if(root==StaticIPv4PrefixEditor&&vm.Plan.UseStaticIPv4SubnetMask||root==StaticIPv4SubnetMaskEditor&&!vm.Plan.UseStaticIPv4SubnetMask)return false;if(root is UIElement element&&!element.IsEnabled)return false;if(System.Windows.Controls.Validation.GetHasError(root))return true;for(int i=0;i<VisualTreeHelper.GetChildrenCount(root);i++)if(Invalid(VisualTreeHelper.GetChild(root,i)))return true;return false;}
- private byte[] Generate(){if(Invalid(this))throw new ArgumentException("请修正输入框中的无效值（例如分区大小、密码到期天数或账户锁定参数）。");return vm.Service.Generate(vm.Plan);}
- private void PreviewClick(object s,RoutedEventArgs e)=>Run(()=>{var bytes=Generate();vm.Preview=InstallationReview.ExportSummary(bytes)+"\n\n"+GeneratorService.Preview(bytes);vm.Status="配置与 XML 结构检查通过；"+InstallationReview.ExportSummary(bytes);ExportPage.IsSelected=true;});
+ private FrameworkElement? Invalid(DependencyObject root){
+  if(root is UIElement element&&!element.IsEnabled)return null;
+  if(root is FrameworkElement field&&System.Windows.Controls.Validation.GetHasError(root))return field;
+  for(int i=0;i<VisualTreeHelper.GetChildrenCount(root);i++){var invalid=Invalid(VisualTreeHelper.GetChild(root,i));if(invalid is not null)return invalid;}
+  return null;
+ }
+ private byte[] Generate(){
+  // Named controls retain binding errors even when their tab is not in the visual tree.
+  var invalid=SettingsSearchCatalog.All.Select(setting=>FindName(setting.Target)).OfType<FrameworkElement>()
+   .FirstOrDefault(field=>field.IsEnabled&&System.Windows.Controls.Validation.GetHasError(field))??Invalid(this);
+  if(invalid is not null)throw new ConfigurationValidationException(invalid.Name,"请修正输入框中的无效值（例如分区大小、密码到期天数或账户锁定参数）。");return vm.Service.Generate(vm.Plan);}
+ private void PreviewClick(object s,RoutedEventArgs e)=>Run(()=>{var bytes=Generate();vm.Preview=InstallationReview.ExportSummary(bytes)+"\n\n"+GeneratorService.Preview(bytes);vm.Status="配置与 XML 结构检查通过；"+InstallationReview.ExportSummary(bytes);ExportPage.IsSelected=true;}, locateConfiguration:true);
  private void ApplyRecommendationClick(object s,RoutedEventArgs e)=>Run(()=>{
   if(MessageBox.Show(this,"应用推荐值将覆盖推荐涉及的开关和策略。\n保留账户、密码、密钥、Wi-Fi 信息、计算机名、语言区域、架构、SKU 和安装驱动目录。磁盘恢复为手动模式，危险操作确认将取消。\n是否继续？","应用推荐配置",MessageBoxButton.YesNo,MessageBoxImage.Question)!=MessageBoxResult.Yes)return;
   Recommendations.Apply(vm.Plan,vm.PendingRecommendation);vm.Preview="推荐配置已应用，请补齐账户与网络信息，再检查与预览。";vm.Status="推荐值已应用；所有设置均可修改";
@@ -136,5 +148,5 @@ public partial class MainWindow : Window {
   if(dialog.RestoreWindowsDefault){if(accent)vm.Plan.ColorSettingsMode=ColorSettings.Default;else vm.Plan.WallpaperMode=WallpaperSettings.Default;}
   else if(accent)vm.Plan.AccentColorHex=dialog.SelectedHex;else vm.Plan.WallpaperColorHex=dialog.SelectedHex;
  });
- private void ExportClick(object s,RoutedEventArgs e)=>Run(()=>{var bytes=Generate();if((InstallationSettings.Destructive(vm.Plan)||vm.HasImportedXmlRisk)&&MessageBox.Show(this,InstallationReview.ExportSummary(bytes)+"\n"+InstallationSettings.DiskSummary(vm.Plan)+(vm.HasImportedXmlRisk?"\n导入的原 XML 还包含磁盘配置或 Windows PE 命令；须核对全部原文操作范围。":"")+"\n\n"+DiskSafety.Risk+"\n\n"+DiskSafety.Preparation+"\n\n"+DiskSafety.Responsibility+"\n\n确认已核对完整操作范围、完成备份并获得授权，继续导出？","危险操作：导出前核对",MessageBoxButton.YesNo,MessageBoxImage.Warning,MessageBoxResult.No)!=MessageBoxResult.Yes)return;var d=new SaveFileDialog{Filter="应答文件 (*.xml)|*.xml",FileName="autounattend.xml"};if(d.ShowDialog(this)!=true)return;File.WriteAllBytes(d.FileName,bytes);vm.Status="应答文件已导出；"+InstallationReview.ExportSummary(bytes);});
+ private void ExportClick(object s,RoutedEventArgs e)=>Run(()=>{var bytes=Generate();if((InstallationSettings.Destructive(vm.Plan)||vm.HasImportedXmlRisk)&&MessageBox.Show(this,InstallationReview.ExportSummary(bytes)+"\n"+InstallationSettings.DiskSummary(vm.Plan)+(vm.HasImportedXmlRisk?"\n导入的原 XML 还包含磁盘配置或 Windows PE 命令；须核对全部原文操作范围。":"")+"\n\n"+DiskSafety.Risk+"\n\n"+DiskSafety.Preparation+"\n\n"+DiskSafety.Responsibility+"\n\n确认已核对完整操作范围、完成备份并获得授权，继续导出？","危险操作：导出前核对",MessageBoxButton.YesNo,MessageBoxImage.Warning,MessageBoxResult.No)!=MessageBoxResult.Yes)return;var d=new SaveFileDialog{Filter="应答文件 (*.xml)|*.xml",FileName="autounattend.xml"};if(d.ShowDialog(this)!=true)return;File.WriteAllBytes(d.FileName,bytes);vm.Status="应答文件已导出；"+InstallationReview.ExportSummary(bytes);}, locateConfiguration:true);
 }

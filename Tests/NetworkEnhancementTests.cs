@@ -48,7 +48,8 @@ static class NetworkEnhancementTests
         }
         foreach (string mask in new[] { "", "255.0.255.0", "255.255.255.1", "255.255.254.255", "255.255.255.253", "0.0.0.1", "255.255.256.0", "255.255.255", "255.255.0255.0", "/24", "24", "0xffffff00", "255.255.255.0/24", "::", "-1.0.0.0", "255..255.0" }) {
             var p = Plan(); p.UseStaticIPv4SubnetMask = true; p.StaticIPv4SubnetMask = mask;
-            Reject(() => Xml(p), "invalid mask cannot export: " + mask);
+            if(mask=="/24")Check(StaticIPv4Settings.Read(p).Prefix==24&&Xml(p).Length>0,"unified input accepts slash prefix");
+            else Reject(() => Xml(p), "invalid mask cannot export: " + mask);
         }
         foreach (string host in new[] { "192.168.10.16", "192.168.10.23" }) { var p = Plan(); p.UseStaticIPv4SubnetMask = true; p.StaticIPv4SubnetMask = "255.255.255.248"; p.StaticIPv4Address = host; Reject(() => Xml(p), "mask-specific network/broadcast rejected " + host); }
         foreach (string gateway in new[] { "192.168.10.1", "192.168.10.16", "192.168.10.23", "192.168.10.20" }) { var p = Plan(); p.UseStaticIPv4SubnetMask = true; p.StaticIPv4SubnetMask = "255.255.255.248"; p.StaticIPv4Gateway = gateway; Reject(() => Xml(p), "mask-specific invalid gateway rejected " + gateway); }
@@ -64,13 +65,13 @@ static class NetworkEnhancementTests
         var bareImport = XmlPlanImport.Import(Strip(Xml(snap)), generator);
         Check(!bareImport.UseStaticIPv4SubnetMask && bareImport.StaticIPv4Prefix == 24, "native XML without snapshot defaults to effective prefix");
         var vm = new MainViewModel { Plan = Plan() }; var events = new List<string>(); vm.PropertyChanged += (_, e) => events.Add(e.PropertyName ?? "");
-        Check(vm.IsStaticIPv4Prefix && !vm.IsStaticIPv4SubnetMask, "prefix editor initially active");
+        Check(vm.IsStaticIPv4 && vm.StaticIPv4SubnetInput == "/24", "legacy prefix projects into unified editor");
         vm.Plan.UseStaticIPv4SubnetMask = true; vm.Plan.StaticIPv4SubnetMask = "255.255.255.0";
-        Check(!vm.IsStaticIPv4Prefix && vm.IsStaticIPv4SubnetMask && events.Contains(nameof(vm.IsStaticIPv4SubnetMask)) && vm.HelpTips["staticmask"].ToString()!.Contains("255.255.255.0"), "mode change refreshes bindings and dynamic help");
-        vm.Plan.UseStaticIPv4 = false; Check(!vm.IsStaticIPv4Prefix && !vm.IsStaticIPv4SubnetMask, "both editors disabled with network option");
+        Check(vm.StaticIPv4SubnetInput == "255.255.255.0" && events.Contains(nameof(vm.StaticIPv4SubnetInput)) && vm.HelpTips["staticmask"].ToString()!.Contains("255.255.255.0"), "legacy mask restore refreshes unified binding and help");
+        vm.Plan.UseStaticIPv4 = false; Check(!vm.IsStaticIPv4 && vm.StaticIPv4SubnetInput == "255.255.255.0", "unified editor disabled with network option");
         var recommendation = PlanStore.Deserialize(PlanStore.Serialize(snap, true)); Recommendations.Apply(recommendation, "wired");
         Check(recommendation.UseStaticIPv4SubnetMask && recommendation.StaticIPv4SubnetMask == snap.StaticIPv4SubnetMask, "recommendations preserve explicit network mask");
-        foreach (string term in new[] { "子网掩码", "subnet mask", "StaticIPv4SubnetMask", "255.255.255.0" }) Check(SettingsSearchCatalog.Search(term).Any(r => r.Target == "StaticIPv4SubnetMaskEditor"), "mask setting searchable " + term);
+        foreach (string term in new[] { "子网掩码", "subnet mask", "StaticIPv4SubnetMask", "255.255.255.0" }) Check(SettingsSearchCatalog.Search(term).Any(r => r.Target == "StaticIPv4SubnetEditor"), "mask setting searchable " + term);
 
         foreach (string arch in new[] { "amd64", "arm64", "x86" }) {
             var p = Plan(); p.Architecture = arch; string variant = Variant(Xml(p)); var original = XmlMerge.Read(variant);

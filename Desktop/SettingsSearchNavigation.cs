@@ -28,7 +28,7 @@ public partial class MainWindow
         bool? accepted = dialog.ShowDialog(); lastSettingsQuery = dialog.Query; lastSettingsCategory = dialog.PageIndex;
         if (accepted == true && dialog.Selected is {} selected) NavigateToSetting(selected);
     }
-    private void NavigateToSetting(SettingSearchResult result)
+    private void NavigateToSetting(SettingSearchResult result, bool focusEditor = false)
     {
         ClearSearchHighlight();
         if (result.AppId.Length > 0) vm.AppRemovalFilter = result.AppId;
@@ -61,6 +61,10 @@ public partial class MainWindow
             }
             if (target == null) { vm.Status = "已切换到设置页面，请在该页查看此项"; return; }
             target.BringIntoView();
+            if (focusEditor && target.IsVisible && target.IsEnabled && target.Focusable) {
+                target.Focus(); Keyboard.Focus(target);
+                if (target is TextBox editor) editor.SelectAll();
+            }
             vm.Status = $"已定位：{result.Page} → {result.Title}" + (hidden ? "；此项在当前模式下隐藏，已定位到所属区域" : !target.IsEnabled ? "；此项在当前模式下不可编辑" : "");
             var anchor = target;
             Dispatcher.BeginInvoke(DispatcherPriority.ContextIdle, new Action(() => { if (ticket == searchNavigationGeneration && Pages.SelectedIndex == result.PageIndex && anchor.IsVisible) HighlightSearchTarget(anchor); }));

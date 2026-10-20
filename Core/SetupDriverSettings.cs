@@ -28,7 +28,7 @@ public static class SetupDriverSettings {
   if(paths.Select(p=>p.TrimEnd('\\')).Distinct(StringComparer.OrdinalIgnoreCase).Count()!=paths.Length)throw new ArgumentException("驱动目录不能重复（忽略大小写和末尾反斜线）。");
   return paths;
  }
- public static void Validate(InstallPlan p){if(p.UseSetupDrivers)_=ReadPaths(p.SetupDriverPaths);}
+ public static void Validate(InstallPlan p){if(p.UseSetupDrivers)_=ConfigurationValidationException.Read(nameof(InstallPlan.SetupDriverPaths),()=>ReadPaths(p.SetupDriverPaths));}
  public static string Summary(InstallPlan p){
   if(!CanEdit(p))return "安装驱动目录：原 XML 配置只读保留，请核对原文，不按界面默认值推断。";
   if(!p.UseSetupDrivers)return "安装驱动目录：不写入额外的原生目录设置。";

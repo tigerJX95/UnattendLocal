@@ -8,11 +8,21 @@ Static IP configuration (IPv4 / IPv6)
 
 Under Network → IP configuration, use the full-width selector with two equally sized segments, IPv4 configuration and IPv6 configuration. The selected segment has a rounded background, with keyboard/search navigation and light/dark theme support. Both protocols have independent enable switches and share one target MAC. Switching tabs or disabling a protocol retains entered values. Both are off by default. Settings apply during specialize in the target Windows installation; PE drivers and Wi-Fi connections are configured separately.
 
-## 输入方式与纠错 / Input mode and correction
+## 子网掩码/前缀长度 / Subnet mask/prefix length
 
-启用静态 IPv4 后，前缀长度和子网掩码两框均可编辑。实际输入、粘贴、剪切、删除或撤销/重做会使用对应输入方式；仅聚焦、复制、选择文字或搜索定位不改变方式。“使用子网掩码输入”仍可手动切换；界面显示当前方式。未使用的值保留且不参与最终配置检查。配置错误或 /0 拦截不会停用输入；修改后可重新检查与导出。只读 XML 的原有编辑保护保持。
+从 V1.11 起，IPv4 使用一个“子网掩码/前缀长度”输入框，填写完整点分十进制掩码（如 255.255.255.0）或带斜线的前缀（如 /24），二者任选一种，不要只填写 24。没有第二个前缀框或输入方式开关。有效输入实时更新摘要、网段预览与导出；正在键入的 /、空白或无效内容原样保留供修正，不能沿用旧前缀导出。检查失败不会停用输入。
 
-When static IPv4 is enabled, both prefix and mask inputs remain editable. Typing, pasting, cutting, deleting or undo/redo selects the corresponding input mode. Focusing, copying, selecting text or locating a search result does not switch it. The mask checkbox still allows manual switching, and the page shows the current mode. Inactive values are retained and excluded from final configuration checks. Errors and /0 blocking do not disable correction. Existing read-only XML protection remains in place.
+From V1.11, IPv4 uses one Subnet mask/prefix length input. Enter a full dotted-decimal mask such as 255.255.255.0, or a slash-prefixed length such as /24; do not enter bare 24. There is no second prefix field or mode switch. Valid input updates the summary, subnet preview and export. An unfinished /, blank or invalid text remains available for correction and cannot silently reuse the previous prefix. A failed check does not disable editing.
+
+旧 JSON 方案按当时实际选用的前缀或掩码显示，未选用的旧值不影响生成；载入不会擅自套用示例或改写方案。新编辑的文本随 JSON 保存，包括格式和未完成输入。XML 始终使用原生地址/前缀格式；含完整本工具还原记录时保留所选输入格式，没有记录时根据实际原生前缀显示 /前缀。只读 XML 不可通过此框修改。
+
+Older JSON plans display their previously active prefix or mask, ignoring inactive legacy values for generation. Loading does not apply examples or rewrite the plan. JSON saves newly edited text, including its format and incomplete edits. XML uses native address/prefix notation. A valid application recovery record retains the chosen input format; XML without that record displays the actual native prefix as /prefix. Read-only XML remains protected.
+
+## 错误定位 / Error navigation
+
+检查与预览及导出遇到已识别的字段错误时，红色原因下方显示设置位置，可点击“前往修改”切换页面、选择协议页并聚焦输入。定位不启用协议、不填写示例、不修改其他值。导入原文的阻止项指向配置方案页并提供“查看导入说明”；无法明确定位的错误保持原说明，不猜测到某个字段。
+
+For recognized field errors during Check and Preview or export, the dialog shows the setting location below the red explanation. Go to edit switches pages/protocol tabs and focuses the input without enabling protocols, applying examples or changing other values. Source XML blockers point to the configuration page through View import details. Errors without an explicit destination retain their explanation without guessing a field.
 
 ## IPv4
 
@@ -20,9 +30,9 @@ When static IPv4 is enabled, both prefix and mask inputs remain editable. Typing
 
 Full dotted-decimal unicast addresses are accepted, including the private 10/8, 172.16/12 and 192.168/16 ranges and valid public addresses. Use addresses assigned for the target network. Zero, host-loopback, multicast/reserved and ambiguous abbreviated, hexadecimal or leading-zero forms are rejected.
 
-本工具允许导出的静态地址前缀为 /1–/32，可改用等价连续子网掩码；非当前输入模式的值保留，摘要显示实际前缀及掩码。/1–/30 检查网络/广播地址；/31 用于点对点，两端均可作主机，网关可为另一端；/32 为单地址，本网关输入须留空，需要的其他路由另行配置。
+本工具允许导出的静态地址前缀为 /1–/32，可在同一输入框填写等价连续子网掩码；摘要显示实际前缀及掩码。/1–/30 检查网络/广播地址；/31 用于点对点，两端均可作主机，网关可为另一端；/32 为单地址，本网关输入须留空，需要的其他路由另行配置。
 
-Static address prefixes allowed for export range from /1 to /32. Dotted subnet-mask mode accepts equivalent contiguous masks and retains the inactive input. The summary shows the effective prefix and mask. Network/broadcast host checks apply through /30. /31 permits both point-to-point endpoints and the peer as gateway. /32 is a single address and requires an empty gateway field; configure other required routes separately.
+Static address prefixes allowed for export range from /1 to /32. The same input accepts equivalent contiguous dotted masks. The summary shows the effective prefix and mask. Network/broadcast host checks apply through /30. /31 permits both point-to-point endpoints and the peer as gateway. /32 is a single address and requires an empty gateway field; configure other required routes separately.
 
 | 输入 / Input | 掩码 / Mask | 用途 / Meaning |
 | --- | --- | --- |
@@ -47,9 +57,9 @@ The gateway is optional. It must be another unicast address in the same prefix, 
 
 ## ⚠️ /0 部署检查 / Deployment check
 
-静态 IPv4 的 /0（等价掩码 0.0.0.0）和静态 IPv6 的 /0 覆盖各自协议的全部地址范围，可能导致直连判断或网关通信异常。从 V1.10 起，配置页以红色实时提示，“检查与预览”及导出会停止并以红色说明原因。保留用户输入，须按实际网络修改，不自动转换成 /24 或 /64。关闭静态协议后，其未使用的 /0 输入保留且不应用；另一输入模式中未使用的值不参与检查。
+静态 IPv4 的 /0（等价掩码 0.0.0.0）和静态 IPv6 的 /0 覆盖各自协议的全部地址范围，可能导致直连判断或网关通信异常。从 V1.10 起，配置页以红色实时提示，“检查与预览”及导出会停止并以红色说明原因。保留用户输入，须按实际网络修改，不自动转换成 /24 或 /64。关闭静态协议后，其未使用的 /0 输入保留且不应用；旧方案中未选用的兼容字段不参与检查。
 
-Static IPv4 /0 (mask 0.0.0.0) and static IPv6 /0 cover the entire address space of their protocol and may cause incorrect on-link decisions or gateway communication problems. From V1.10, the configuration page displays a live red error, and Check and Preview and export stop with a red explanation. Enter the prefix assigned to the actual network; the tool retains your input and never substitutes /24 or /64. Disabled protocol values and values in the inactive input mode are retained but not applied.
+Static IPv4 /0 (mask 0.0.0.0) and static IPv6 /0 cover the entire address space of their protocol and may cause incorrect on-link decisions or gateway communication problems. From V1.10, the configuration page displays a live red error, and Check and Preview and export stop with a red explanation. Enter the prefix assigned to the actual network; the tool retains your input and never substitutes /24 or /64. Disabled protocol values and inactive legacy compatibility fields are retained but not applied.
 
 可完整识别的 /0 原 XML 仍可导入，保持原值与编辑基准，修正前缀或明确取消该栈后可重新导出。含 /0 的只读网络原文会给出提示，须先在原工具修正后重新导入。最终检查合并后的原生地址，不能用界面默认值绕过。此规则针对网卡静态地址，不限制正常默认路由的 IPv4 0.0.0.0/0 或 IPv6 ::/0。
 

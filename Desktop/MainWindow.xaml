@@ -517,9 +517,9 @@
             <Border Style="{StaticResource Card}">
               <StackPanel IsEnabled="{Binding IsAutomaticAccounts}">
                 <TextBlock x:Name="SettingAnchor071" Text="本地账户列表" FontSize="20" FontWeight="SemiBold" Margin="0,0,0,16" ToolTip="{Binding DataContext.HelpTips[user],RelativeSource={RelativeSource AncestorType=Window}}" />
-                <ListBox ItemsSource="{Binding Plan.Users}" SelectedItem="{Binding SelectedUser}" DisplayMemberPath="Name" MinHeight="90" MaxHeight="150" ToolTip="{Binding DataContext.HelpTips[user],RelativeSource={RelativeSource AncestorType=Window}}" />
+                <ListBox x:Name="LocalUsersList" ItemsSource="{Binding Plan.Users}" SelectedItem="{Binding SelectedUser}" DisplayMemberPath="Name" MinHeight="90" MaxHeight="150" ToolTip="{Binding DataContext.HelpTips[user],RelativeSource={RelativeSource AncestorType=Window}}" />
                 <StackPanel Orientation="Horizontal">
-                  <Button Content="添加账户" Click="AddUser" />
+                  <Button x:Name="AddUserButton" Content="添加账户" Click="AddUser" />
                   <Button Content="移除账户" Click="RemoveUser" />
                 </StackPanel>
                 <StackPanel DataContext="{Binding SelectedUser}">
@@ -534,11 +534,11 @@
                     </Style>
                   </StackPanel.Style>
                   <TextBlock Text="用户名" Foreground="{DynamicResource SecondaryBrush}" ToolTip="{Binding DataContext.HelpTips[user],RelativeSource={RelativeSource AncestorType=Window}}" />
-                  <TextBox Text="{Binding Name,UpdateSourceTrigger=PropertyChanged}" ToolTip="{Binding DataContext.HelpTips[user],RelativeSource={RelativeSource AncestorType=Window}}" />
+                  <TextBox x:Name="UserNameEditor" Text="{Binding Name,UpdateSourceTrigger=PropertyChanged}" ToolTip="{Binding DataContext.HelpTips[user],RelativeSource={RelativeSource AncestorType=Window}}" />
                   <TextBlock Text="显示名（可选）" Foreground="{DynamicResource SecondaryBrush}" ToolTip="{Binding DataContext.HelpTips[user],RelativeSource={RelativeSource AncestorType=Window}}" />
                   <TextBox Text="{Binding DisplayName,UpdateSourceTrigger=PropertyChanged}" ToolTip="{Binding DataContext.HelpTips[user],RelativeSource={RelativeSource AncestorType=Window}}" />
                   <TextBlock Text="密码" Foreground="{DynamicResource SecondaryBrush}" ToolTip="{Binding DataContext.HelpTips[empty],RelativeSource={RelativeSource AncestorType=Window}}" />
-                  <PasswordBox PasswordChanged="UserPasswordChanged" DataContextChanged="UserContextChanged" Loaded="UserPasswordLoaded" ToolTip="{Binding DataContext.HelpTips[empty],RelativeSource={RelativeSource AncestorType=Window}}" />
+                  <PasswordBox x:Name="UserPasswordEditor" PasswordChanged="UserPasswordChanged" DataContextChanged="UserContextChanged" Loaded="UserPasswordLoaded" ToolTip="{Binding DataContext.HelpTips[empty],RelativeSource={RelativeSource AncestorType=Window}}" />
                   <CheckBox Content="管理员账户" IsChecked="{Binding Administrator}" ToolTip="{Binding DataContext.HelpTips[account],RelativeSource={RelativeSource AncestorType=Window}}" />
                   <CheckBox Content="明确允许空密码" IsChecked="{Binding AllowEmptyPassword}" ToolTip="{Binding DataContext.HelpTips[empty],RelativeSource={RelativeSource AncestorType=Window}}" />
                   <TextBlock Text="此账户密码未随方案保存，请重新输入。" Foreground="{DynamicResource ErrorBrush}">
@@ -693,20 +693,11 @@
                 <TabItem x:Name="IPv4ProtocolTab" Header="IPv4 配置" AutomationProperties.Name="IPv4 配置"><StackPanel>
               <CheckBox x:Name="StaticIPv4Enabled" Content="指定静态 IPv4" IsChecked="{Binding Plan.UseStaticIPv4}" IsEnabled="{Binding CanEditStaticIPv4}" ToolTip="{Binding HelpTips[staticipv4]}"/>
               <StackPanel IsEnabled="{Binding IsStaticIPv4}">
-                <Grid>
-                  <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="150"/></Grid.ColumnDefinitions>
-                  <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
-                  <TextBlock Text="IPv4 地址" Foreground="{DynamicResource SecondaryBrush}"/>
-                  <TextBlock Grid.Column="1" Text="前缀长度（1–32）" Foreground="{DynamicResource SecondaryBrush}" IsEnabled="{Binding IsStaticIPv4}"/>
-                  <TextBox x:Name="StaticIPv4AddressEditor" Grid.Row="1" Margin="0,4,12,12" VerticalAlignment="Stretch" Text="{Binding Plan.StaticIPv4Address,UpdateSourceTrigger=PropertyChanged}" MaxLength="32" local:ExampleText.Value="192.168.10.20" Style="{StaticResource ExampleEditor}" ToolTip="{Binding DataContext.HelpTips[staticipv4],RelativeSource={RelativeSource AncestorType=Window}}"/>
-                  <TextBox x:Name="StaticIPv4PrefixEditor" PreviewTextInput="IPv4InputTextEdit" PreviewKeyDown="IPv4InputKeyEdit" CommandManager.PreviewExecuted="IPv4InputCommandEdit" Grid.Row="1" Grid.Column="1" VerticalAlignment="Stretch" IsEnabled="{Binding IsStaticIPv4}" Style="{StaticResource ExampleEditor}" Text="{Binding Plan.StaticIPv4Prefix,UpdateSourceTrigger=PropertyChanged,ValidatesOnExceptions=True}" ToolTip="{Binding HelpTips[staticprefix]}"/>
-                </Grid>
-                <CheckBox x:Name="StaticIPv4MaskModeEditor" Content="使用子网掩码输入（也可直接编辑任一输入框切换）" IsChecked="{Binding Plan.UseStaticIPv4SubnetMask}" ToolTip="{Binding DataContext.HelpTips[staticmask],RelativeSource={RelativeSource AncestorType=Window}}"/>
-                <TextBlock Text="{Binding StaticIPv4InputModeHint}" Style="{StaticResource ExplanationText}" Foreground="{DynamicResource SecondaryBrush}"/>
-                <StackPanel IsEnabled="{Binding IsStaticIPv4}">
-                  <TextBlock Text="子网掩码（如 255.255.255.0）" Foreground="{DynamicResource SecondaryBrush}"/>
-                  <TextBox x:Name="StaticIPv4SubnetMaskEditor" PreviewTextInput="IPv4InputTextEdit" PreviewKeyDown="IPv4InputKeyEdit" CommandManager.PreviewExecuted="IPv4InputCommandEdit" Text="{Binding Plan.StaticIPv4SubnetMask,UpdateSourceTrigger=PropertyChanged}" MaxLength="15" local:ExampleText.Value="255.255.255.0" Style="{StaticResource ExampleEditor}" ToolTip="{Binding DataContext.HelpTips[staticmask],RelativeSource={RelativeSource AncestorType=Window}}"/>
-                </StackPanel>
+                <TextBlock Text="IPv4 地址" Foreground="{DynamicResource SecondaryBrush}"/>
+                <TextBox x:Name="StaticIPv4AddressEditor" Text="{Binding Plan.StaticIPv4Address,UpdateSourceTrigger=PropertyChanged}" MaxLength="32" local:ExampleText.Value="192.168.10.20" Style="{StaticResource ExampleEditor}" ToolTip="{Binding HelpTips[staticipv4]}"/>
+                <TextBlock Text="子网掩码/前缀长度" Foreground="{DynamicResource SecondaryBrush}"/>
+                <TextBox x:Name="StaticIPv4SubnetEditor" Text="{Binding StaticIPv4SubnetInput,UpdateSourceTrigger=PropertyChanged}" MaxLength="32" local:ExampleText.Value="255.255.255.0 或 /24" Style="{StaticResource ExampleEditor}" ToolTip="{Binding HelpTips[staticmask]}"/>
+                <TextBlock Text="填写点分十进制子网掩码（如 255.255.255.0）或带斜线的前缀（如 /24），二者任选一种。" Style="{StaticResource ExplanationText}" Foreground="{DynamicResource SecondaryBrush}"/>
                 <TextBlock Text="默认网关（可留空）" Foreground="{DynamicResource SecondaryBrush}"/>
                 <TextBox x:Name="StaticIPv4GatewayEditor" Text="{Binding Plan.StaticIPv4Gateway,UpdateSourceTrigger=PropertyChanged}" MaxLength="32" local:ExampleText.Value="192.168.10.1" Style="{StaticResource ExampleEditor}" ToolTip="{Binding DataContext.HelpTips[staticgateway],RelativeSource={RelativeSource AncestorType=Window}}"/>
                 <TextBlock Text="IPv4 DNS（可留空，最多三个）" Foreground="{DynamicResource SecondaryBrush}"/>

@@ -106,12 +106,22 @@ public class MainViewModel : Observable {
  public string StaticIPDeploymentWarning=>StaticIPv4Settings.DeploymentWarning(Plan);
  public bool HasStaticIPDeploymentWarning=>StaticIPDeploymentWarning.Length>0;
  public string StaticIPv4SubnetPreview=>StaticIPv4Settings.SubnetPreview(Plan);
- public bool IsStaticIPv4Prefix=>IsStaticIPv4&&!Plan.UseStaticIPv4SubnetMask;
- public bool IsStaticIPv4SubnetMask=>IsStaticIPv4&&Plan.UseStaticIPv4SubnetMask;
- public string StaticIPv4InputModeHint=>Plan.UseStaticIPv4SubnetMask?"当前输入方式：子网掩码。直接修改前缀长度会切换为前缀输入；两项内容均保留。":"当前输入方式：前缀长度。直接修改子网掩码会切换为掩码输入；两项内容均保留。";
- public void SelectStaticIPv4InputMode(bool useSubnetMask){if(IsStaticIPv4)Plan.UseStaticIPv4SubnetMask=useSubnetMask;}
+ public string StaticIPv4SubnetInput {
+  get=>Plan.UseStaticIPv4SubnetMask?(Plan.StaticIPv4SubnetMask??""):"/"+Plan.StaticIPv4Prefix.ToString(System.Globalization.CultureInfo.InvariantCulture);
+  set {
+   value??="";
+   if(updating||IsLoadingPlan||!IsStaticIPv4||value==StaticIPv4SubnetInput)return;
+   updating=true;
+   try {
+    // Keep the raw text (including an incomplete edit) in the existing persisted text field.
+    Plan.StaticIPv4SubnetMask=value;Plan.UseStaticIPv4SubnetMask=true;
+    try{Plan.StaticIPv4Prefix=StaticIPv4Settings.PrefixFromInput(value);}catch(ArgumentException){ }
+   }finally{updating=false;}
+   RefreshAll();InvalidatePreview();
+  }
+ }
 
- private void RefreshNetwork(){IsPresetWifi=WifiSettings.IsPreset(Plan);Notify(nameof(IsPasswordWifi));Notify(nameof(IsOpenWifi));Notify(nameof(IsXmlWifi));Notify(nameof(WifiSummary));Notify(nameof(CanEditStaticIPv4));Notify(nameof(IsStaticIPv4));Notify(nameof(StaticIPv4Summary));Notify(nameof(IsStaticIPv4Prefix));Notify(nameof(IsStaticIPv4SubnetMask));Notify(nameof(IsStaticIPv6));Notify(nameof(IsStaticIP));Notify(nameof(StaticIPv6Summary));Notify(nameof(StaticIPDeploymentWarning));Notify(nameof(HasStaticIPDeploymentWarning));Notify(nameof(StaticIPv4SubnetPreview));Notify(nameof(StaticIPv4InputModeHint));}
+ private void RefreshNetwork(){IsPresetWifi=WifiSettings.IsPreset(Plan);Notify(nameof(IsPasswordWifi));Notify(nameof(IsOpenWifi));Notify(nameof(IsXmlWifi));Notify(nameof(WifiSummary));Notify(nameof(CanEditStaticIPv4));Notify(nameof(IsStaticIPv4));Notify(nameof(StaticIPv4Summary));Notify(nameof(StaticIPv4SubnetInput));Notify(nameof(IsStaticIPv6));Notify(nameof(IsStaticIP));Notify(nameof(StaticIPv6Summary));Notify(nameof(StaticIPDeploymentWarning));Notify(nameof(HasStaticIPDeploymentWarning));Notify(nameof(StaticIPv4SubnetPreview));}
  public bool IsGenericEdition {get=>isGenericEdition;private set=>Set(ref isGenericEdition,value);}
  public bool IsCustomEdition {get=>isCustomEdition;private set=>Set(ref isCustomEdition,value);}
  public string SelectedEditionKey {get=>selectedEditionKey;private set=>Set(ref selectedEditionKey,value);}

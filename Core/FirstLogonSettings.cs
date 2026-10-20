@@ -16,10 +16,10 @@ public static class FirstLogonSettings
     public static void Validate(InstallPlan p)
     {
         if(!IsBuiltin(p))return;
-        if(p.NeedsBuiltinAdministratorPassword&&!(p.AllowEmptyBuiltinAdministratorPassword&&string.IsNullOrEmpty(p.BuiltinAdministratorPassword)))throw new ArgumentException("请重新输入内置 Administrator 密码，或明确允许空密码。");
-        if(string.IsNullOrEmpty(p.BuiltinAdministratorPassword)&&!p.AllowEmptyBuiltinAdministratorPassword)throw new ArgumentException("请设置内置 Administrator 密码；如需空密码，请明确勾选允许空密码。");
-        if(p.AllowEmptyBuiltinAdministratorPassword&&!string.IsNullOrEmpty(p.BuiltinAdministratorPassword))throw new ArgumentException("内置 Administrator 同时设置了密码和允许空密码，请选择一种。");
-        if(p.ComputerNameMode==ComputerNamingSettings.Existing&&string.Equals(p.ComputerName,"Administrator",StringComparison.OrdinalIgnoreCase))throw new ArgumentException("计算机名不能与内置 Administrator 账户同名。");
+        if(p.NeedsBuiltinAdministratorPassword&&!(p.AllowEmptyBuiltinAdministratorPassword&&string.IsNullOrEmpty(p.BuiltinAdministratorPassword)))throw new ConfigurationValidationException(nameof(InstallPlan.BuiltinAdministratorPassword), "请重新输入内置 Administrator 密码，或明确允许空密码。");
+        if(string.IsNullOrEmpty(p.BuiltinAdministratorPassword)&&!p.AllowEmptyBuiltinAdministratorPassword)throw new ConfigurationValidationException(nameof(InstallPlan.BuiltinAdministratorPassword), "请设置内置 Administrator 密码；如需空密码，请明确勾选允许空密码。");
+        if(p.AllowEmptyBuiltinAdministratorPassword&&!string.IsNullOrEmpty(p.BuiltinAdministratorPassword))throw new ConfigurationValidationException(nameof(InstallPlan.BuiltinAdministratorPassword), "内置 Administrator 同时设置了密码和允许空密码，请选择一种。");
+        if(p.ComputerNameMode==ComputerNamingSettings.Existing&&string.Equals(p.ComputerName,"Administrator",StringComparison.OrdinalIgnoreCase))throw new ConfigurationValidationException(nameof(InstallPlan.ComputerName), "计算机名不能与内置 Administrator 账户同名。");
     }
     public static IAutoLogonSettings Build(InstallPlan p)=>!p.AutoLogon?new NoneAutoLogonSettings():p.UseBuiltinAdministrator?new BuiltinAutoLogonSettings(p.BuiltinAdministratorPassword):new OwnAutoLogonSettings();
     public record Source(bool Mentioned,bool Known,string Password,bool Obscure);
