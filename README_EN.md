@@ -4,7 +4,7 @@
 
 UnattendLocal is a Chinese-language Windows desktop tool based on [Christoph Schneegans’ UnattendGenerator](https://github.com/cschneegans/unattend-generator). It lets you edit, check, and generate `autounattend.xml` for Windows 10 / 11 locally.
 
-Current version: **V1.8.1**. This release improves setup notices, script actions, color selection, folder guidance and application-removal layout, alongside categorized settings search, Windows registration settings, Setup Dynamic Update, driver directories, script-file import/save-as, static IPv4, automatic partitioning and XML import/editing. The tool prepares installation configuration; it does not run generated scripts on your current computer.
+Current version: **V1.9**. Includes static IPv4/IPv6 dual stack, subnet-mask input, settings search, setup driver directories, Dynamic Update, partitioning, OOBE and account settings, and existing XML import/editing.
 
 ## 💡 Why this project exists
 
@@ -36,7 +36,7 @@ The displayed product key is a public generic installation key for selecting an 
 
 ## ✨ Main features
 
-- Leave Windows networking unchanged by default, or configure a static IPv4 address, prefix, gateway and DNS by target adapter MAC without changing the current computer.
+- Configure static IPv4 and IPv6 independently for a target MAC, including dual-stack addresses, prefixes, gateways and DNS. IPv4 also supports dotted subnet masks.
 
 - View the version, usage notices and embedded third-party licenses through Help and About, with offline reading and copying.
 
@@ -57,26 +57,19 @@ The displayed product key is a public generic installation key for selecting an 
 - Save and restore JSON plans; review summaries, recommended-setting differences, checks, redacted previews, and XML exports.
 - Import existing XML and edit supported settings while preserving unknown content. Export stops with an explanation when changes cannot be merged reliably.
 
-## ✨ V1.8.1 updates
+## ✨ V1.9 updates
 
-- Fixed empty removal-item tooltips so their impact descriptions are visible.
-- Fixed the clipped restore-default icon and duplicate color-picker action tooltips; each action has one line.
-- Select colors directly on the hue spectrum by clicking or dragging, with no separate slider underneath. Refine the selected color in the plane above.
+- Separate IPv4 and IPv6 tabs share the target MAC, retain entered values when switching, and support dual stack.
+- IPv4 accepts valid private and public unicast addresses, /0–/32 prefixes and equivalent subnet masks. /31 is for point-to-point links; /32 requires an empty gateway field.
+- IPv6 supports static unicast addresses, /0–/64 prefixes, an optional gateway and up to three DNS servers. Link-local gateways are supported.
+- Complete recognized native network XML remains editable. Equivalent MAC/IPv6 spellings and numeric DNS-order keys are recognized, while unedited source XML is preserved.
+- Removal-item tooltips separate impact descriptions from a matching-identifiers heading and list each identifier on its own line.
 
-The V1.8 features remain included:
-
-- Improved installation-target notices: distinguish automatic partitioning, a specified existing target, automatic selection of an available partition and an unspecified target. Actual XML determines the pre-export notice; installation behavior is unchanged.
-- Script import and save-as now use distinct directional icons and precise tooltips, preserving existing format, encoding and execution-stage behavior.
-- Click an accent or solid-background preview to open a visual color picker with hue, saturation/value, RGB and HEX synchronization. Changes and Windows-default restoration apply only after confirmation; cancellation preserves the original settings.
-- Added an offline Windows 11 Start-menu folder-position illustration, clearly labeled as a diagram, showing the shortcuts to the left of the power button.
-- Changed application removal to two checkbox columns with detailed impact tooltips, preserving description-keyword search, selections and read-only protection.
-- Publish variants use separate intermediate build directories while retaining version checks and overwrite protection. The four user-provided screenshots remain accurately labeled V1.7.
-
-[UI improvement guide](docs/UiImprovements.md)
+[IP configuration guide](docs/StaticIP.md) · [UI operation guide](docs/UiImprovements.md)
 
 ## 📦 Download and usage
 
-Download and run the matching Windows x64 executable from the repository’s [**Releases**](https://github.com/tigerJX95/UnattendLocal/releases/latest) page: `UnattendLocal_V1.8.1_x64_SelfContained.exe` or `UnattendLocal_V1.8.1_x64_FrameworkDependent.exe`. Choose `UnattendLocal_V1.8.1_x64_SelfContained.exe` for a bundled .NET runtime, or `UnattendLocal_V1.8.1_x64_FrameworkDependent.exe` if .NET 10 Desktop Runtime x64 is already installed. Both have the same features. Use a virtual machine for initial testing.
+Download and run the matching Windows x64 executable from the repository’s [**Releases**](https://github.com/tigerJX95/UnattendLocal/releases/latest) page: `UnattendLocal_V1.9_x64_SelfContained.exe` or `UnattendLocal_V1.9_x64_FrameworkDependent.exe`. Choose `UnattendLocal_V1.9_x64_SelfContained.exe` for a bundled .NET runtime, or `UnattendLocal_V1.9_x64_FrameworkDependent.exe` if .NET 10 Desktop Runtime x64 is already installed. Both have the same features. Use a virtual machine for initial testing.
 
 1. Choose a recommended scenario or a custom configuration and enter the required account and image settings.
 2. Adjust system, appearance, and application removal options as needed.
@@ -87,7 +80,7 @@ Open a JSON plan to restore saved settings, or import an answer XML to continue 
 
 ## 📖 Scope and limitations
 
-See [static IPv4 configuration](docs/StaticIPv4.md) and [V1.0 scope](docs/V1Scope.md).
+See [IPv4 / IPv6 configuration](docs/StaticIP.md) and [V1.0 scope](docs/V1Scope.md).
 
 See [Help and About](docs/About.md) for the information window and license texts.
 
@@ -97,13 +90,11 @@ The second and third locale/keyboard pairs apply in fixed language/region mode. 
 
 The four options appear in system settings and are unchecked by default, leaving Windows behavior unchanged. Disabling SAC, SmartScreen, or core isolation reduces the corresponding protection. Re-enabling SAC may require a Windows reset or reinstall. The SmartScreen option also hides the Windows Security tray icon but does not disable the Defender antivirus engine. The core-isolation option does not uninstall Hyper-V, WSL2, or VM tools and does not guarantee better performance; Windows version, organization policies, and firmware locks can affect results. Restricting C: root permissions may affect programs that expect ordinary users to write there; it does not change permissions throughout the disk or on other drives.
 
-Clearing an option changes newly generated configuration only; it does not restore an installed system. The tool does not execute these commands on the current computer. XML editing is available for complete recognized native flows; unknown or modified content is preserved and unreliable replacements are rejected.
+Clearing an option changes newly generated configuration only; it does not restore an installed system. XML editing is available for complete recognized native flows; unknown or modified content is preserved and unreliable replacements are rejected.
 
 The `$OEM$` option generates installation settings only. Prepare the media folders alongside `autounattend.xml`: `$$` maps to the Windows directory and `$1` to the system-drive root. Copying can replace matching files and does not automatically install applications. Do not pre-create future users’ personal profile folders. Custom PE copying scripts are preserved and cannot be reliably controlled by this switch.
 
 AppLocker starts AppIDSvc and runs Set-AppLockerPolicy during specialize without `-Merge`, potentially replacing the existing local policy. Enforced rules can block setup scripts, system tools, or administrator applications; audit them in a VM and prepare recovery first. Structural checks cannot establish whether a policy is suitable. Results depend on Windows version, components, and organization policy. JSON always retains policy text, including when credentials are omitted; review paths, SIDs, and other entered information before sharing. Preview hides the entire policy XML. Clearing the option changes new configuration only and does not restore an installed system.
-
-This version is published as an ordinary GitHub Release. Some non-core upstream settings will be implemented later. The project uses a fixed generation core with selective synchronization and does not claim complete parity with the latest upstream features.
 
 WPA3 requires compatible Windows, wireless drivers, and access points. Open Wi-Fi does not encrypt the wireless link and may require a captive portal. Wireless profile XML may contain credentials; saving without credentials omits the whole profile. Automatic connection requires the profile name to match the SSID; encrypted keys are not portable. Prepare required certificates and drivers separately. Narrator remains enabled until adjusted in Windows accessibility settings; customized PE media may lack speech or audio support. The Edge option only attempts a policy-file change: it does not uninstall Edge or WebView2, and Windows updates may revert it. Disabling System Restore on C: can delete existing restore points and removes that recovery path. Disabling UAC reduces elevation protection. Blocking WPBT does not modify firmware or uninstall software and may affect programs provided through that mechanism. VM guest tools require attached official tool media compatible with the target Windows version and architecture. Missing media means no installation. VirtIO Guest Tools do not replace Windows PE drivers; existing PE driver scripts in imported XML are preserved. Command-line auditing writes arguments in plain text to the security log and may expose credentials. Enabling only auditing does not force existing command-line capture policies off. Restart behavior depends on Windows version, organization policies, update deadlines, and user-scheduled restarts; this option does not guarantee preventing every restart. Schedule restarts yourself to complete updates. Disabling NTFS last-access updates may affect archival, backup, or cleanup rules that depend on those timestamps. Desktop image scripts must return raw image bytes, and the image must be accessible during installation. Lock-screen behavior depends on Windows edition and policies. Removing applications may affect related features; clearing a removal selection does not restore applications on an already installed system. Remote Desktop requires a supported target edition. Higher-priority policies may override RemoteSigned.
 
@@ -113,14 +104,11 @@ Exported XML, JSON plans containing credentials, and custom scripts may contain 
 
 Use Visual Studio 2026 and the .NET 10 SDK with the .NET desktop development workload. Open `UnattendLocal.sln` at the repository root. The solution contains Desktop, Core, vendor/UnattendGenerator, and Tests; Desktop is the default startup project.
 
-Run `build.cmd` to publish both single-file EXEs. The script reads the project version, checks the published EXE versions, and writes directly to `UnattendLocal-release/v1.8.1/` beside the source directory. Existing release files are not overwritten. Use `build.cmd -CreateZip` if additional ZIP archives are required.
-
 Alternatively, run these commands from the source root:
 
 ```powershell
 dotnet restore UnattendLocal.sln
 dotnet build UnattendLocal.sln -c Release -m:1 -nr:false
-dotnet run --project Tests/Tests.csproj -c Release --no-build
 dotnet publish Desktop/Desktop.csproj -c Release -m:1 -nr:false -r win-x64 --self-contained true -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true -o publish/win-x64
 ```
 

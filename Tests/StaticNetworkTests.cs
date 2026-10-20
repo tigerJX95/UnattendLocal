@@ -35,7 +35,7 @@ static class StaticNetworkTests
         }
         foreach (string ip in new[] { "192.168.10.0", "192.168.10.255", "0.0.0.0", "127.0.0.1", "224.1.2.3", "255.255.255.255", "192.168.010.20", "192.168.1", "0xc0a80a14", "192.168.10.256", "192.168.10.20/24", "::1", "" }) { var p = Plan(); p.StaticIPv4Address = ip; Reject(p, "invalid host rejected: " + ip); }
         foreach (string mac in new[] { "", "00-00-00-00-00-00", "FF-FF-FF-FF-FF-FF", "01-00-00-00-00-10", "02:00-00:00-00:10", "02-00-00-00-00", "x2-00-00-00-00-10" }) { var p = Plan(); p.StaticIPv4Mac = mac; Reject(p, "invalid MAC rejected: " + mac); }
-        foreach (int prefix in new[] { -1, 0, 31, 32, 100 }) { var p = Plan(); p.StaticIPv4Prefix = prefix; Reject(p, "out of scope prefix rejected: " + prefix); }
+        foreach (int prefix in new[] { -1, 33, 34, 65, 100 }) { var p = Plan(); p.StaticIPv4Prefix = prefix; Reject(p, "out of scope prefix rejected: " + prefix); }
         foreach (string gateway in new[] { "192.168.20.1", "192.168.10.20", "192.168.10.0", "192.168.10.255", "bad" }) { var p = Plan(); p.StaticIPv4Gateway = gateway; Reject(p, "invalid gateway rejected: " + gateway); }
         foreach (string dns in new[] { "192.168.1.1,192.168.1.1", "1.1.1.1,2.2.2.2,3.3.3.3,4.4.4.4", "2001:db8::1", "0.0.0.0" }) { var p = Plan(); p.StaticIPv4Dns = dns; Reject(p, "invalid DNS rejected: " + dns); }
         var flat = Plan(); flat.StaticIPv4Mac = "020000000010"; flat.StaticIPv4Dns = "192.168.10.1； 192.168.10.2"; Check(StaticIPv4Settings.Read(flat).Mac == "02-00-00-00-00-10" && StaticIPv4Settings.Read(flat).DnsServers.Length == 2, "MAC and DNS separators normalized");

@@ -261,6 +261,8 @@ public static class XmlPlanImport {
   copy.Scripts=new(copy.Scripts.Where(s=>s.Enabled&&!s.IsRemovedType));
   if(copy.AccountMode!="自动创建本地账户")copy.Users.Clear();
   if(!WifiSettings.IsPreset(copy)){copy.Ssid="";copy.WifiPassword="";}
+  if(!copy.UseStaticIPv4){copy.UseStaticIPv4SubnetMask=false;copy.StaticIPv4SubnetMask="";}
+  else {copy.StaticIPv4Prefix=StaticIPv4Settings.EffectivePrefix(copy);if(!copy.UseStaticIPv4SubnetMask)copy.StaticIPv4SubnetMask="";}
   if(!copy.UseSetupDrivers)copy.SetupDriverPaths="";
   if(!copy.UseWorkgroup)copy.WorkgroupName="";
   if(!copy.UsePeLogPath)copy.PeLogPath="";

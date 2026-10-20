@@ -4,7 +4,7 @@
 
 UnattendLocal 是基于 [Christoph Schneegans 的 UnattendGenerator](https://github.com/cschneegans/unattend-generator) 开发的中文 Windows 桌面配置工具，用于在本地编辑、检查和生成 Windows 10 / 11 的 `autounattend.xml`。
 
-当前版本：**V1.8.1**。完善安装提示、脚本图标、可视化选色、文件夹位置说明与应用移除布局，支持设置搜索分类筛选、Windows 注册信息、安装阶段动态更新、安装驱动目录、脚本文件导入与另存、静态 IPv4、自动分区及 XML 导入编辑。工具用于准备安装配置，不会在当前电脑执行生成的安装脚本。
+当前版本：**V1.9**。支持静态 IPv4 / IPv6 双栈、子网掩码输入、设置搜索、安装驱动目录、动态更新、自动分区、OOBE 与账户配置，以及已有 XML 的导入编辑。
 
 ## 💡 开发初衷
 
@@ -20,7 +20,7 @@ UnattendLocal 是基于 [Christoph Schneegans 的 UnattendGenerator](https://git
 
 ## 📸 运行截图
 
-截图版本：**V1.7**。以下为 Windows 上的实际运行界面，拍摄于 2026-10-19，保留原始 PNG。
+截图版本：**V1.7**。以下为 Windows 上的实际运行界面，拍摄于 2026-10-19。
 
 | 配置方案 · 浅色主题 | 配置方案 · 深色主题 |
 | :---: | :---: |
@@ -34,7 +34,7 @@ UnattendLocal 是基于 [Christoph Schneegans 的 UnattendGenerator](https://git
 
 ## ✨ 主要功能
 
-- 默认保持 Windows 网络行为；可按目标网卡 MAC 指定静态 IPv4、前缀、网关和 DNS，不修改当前电脑网络。
+- 按目标网卡 MAC 分别配置静态 IPv4 / IPv6，可同时启用双栈；指定地址、前缀、网关和 DNS，IPv4 支持子网掩码输入。
 
 - 通过右上角“帮助与关于”查看版本、使用说明和内置第三方许可，支持离线查看与复制。
 
@@ -55,31 +55,24 @@ UnattendLocal 是基于 [Christoph Schneegans 的 UnattendGenerator](https://git
 - 保存和恢复 JSON 方案，提供配置摘要、推荐差异、检查、脱敏预览和 XML 导出。
 - 导入已有 XML 后编辑已支持设置，保留未知内容；遇到无法可靠合并的修改时停止导出并说明原因。
 
-## ✨ V1.8.1 更新
+## ✨ V1.9 更新
 
-- 修复应用移除悬停提示空白，恢复显示完整影响说明。
-- 修复选色窗口恢复默认图标裁切及底部按钮提示重复，三项操作均使用单行提示。
-- 色相彩条支持直接点击或拖动，取消下方独立滑条；即时选中彩条颜色，再在上方色板调整深浅。
+- IPv4、IPv6 独立选项卡，共用目标 MAC，切换保留输入，支持双栈。
+- IPv4 支持合法私网与公网、前缀 /0–/32 和等价掩码；/31 用于点对点，/32 为单地址且网关留空。
+- IPv6 支持静态单播地址、前缀 /0–/64、可选网关及最多三个 DNS。IPv6 网关支持链路本地地址。
+- 完整识别的原生网络 XML 可编辑；等价 MAC、IPv6 写法及数字 DNS 顺序键可识别，未编辑的原文保留。
+- 应用移除提示将影响说明与“匹配项”分开显示，匹配标识逐项换行。
 
-以下 V1.8 功能继续保留：
-
-- 优化安装目标提示：区分自动分区、指定已有分区、自动选择可用分区及未指定目标，按实际 XML 提示可能需要的人工选择，不改变安装逻辑。
-- 自定义脚本导入与另存采用不同方向的图标及独立提示，保留现有格式、编码和执行阶段处理。
-- 点击强调色或纯色背景预览块打开可视化调色板，支持色相、饱和度、亮度、RGB 和 HEX 双向同步；确定才应用，取消不改原值，恢复默认也先作为待确认草稿。
-- 开始菜单文件夹标题旁新增位置示意入口，离线说明文件夹位于 Windows 11 电源按钮左侧，并明确标为示意图。
-- 应用移除清单改为双列复选框，详细影响说明改为悬停提示，保留说明关键词搜索、选择摘要和只读保护。
-- 两种发布方式使用独立构建中间目录，继续检查版本并拒绝覆盖已有产物；四张用户实机截图保持 V1.7 标注。
-
-[界面改进使用说明](docs/UiImprovements.md)
+[IP 配置说明](docs/StaticIP.md) · [界面操作说明](docs/UiImprovements.md)
 
 ## 📦 下载与使用
 
-从仓库的 [**Releases**](https://github.com/tigerJX95/UnattendLocal/releases/latest) 页面下载并直接运行对应的 `UnattendLocal_V1.8.1_x64_SelfContained.exe` 或 `UnattendLocal_V1.8.1_x64_FrameworkDependent.exe`：
+从仓库的 [**Releases**](https://github.com/tigerJX95/UnattendLocal/releases/latest) 页面下载并直接运行对应的 `UnattendLocal_V1.9_x64_SelfContained.exe` 或 `UnattendLocal_V1.9_x64_FrameworkDependent.exe`：
 
 | 程序文件 | 运行要求 |
 | --- | --- |
-| `UnattendLocal_V1.8.1_x64_SelfContained.exe` | 集成 .NET 运行时，无需单独安装；通常选择此版。 |
-| `UnattendLocal_V1.8.1_x64_FrameworkDependent.exe` | 文件较小，需安装 .NET 10 Desktop Runtime x64。 |
+| `UnattendLocal_V1.9_x64_SelfContained.exe` | 集成 .NET 运行时，无需单独安装；通常选择此版。 |
+| `UnattendLocal_V1.9_x64_FrameworkDependent.exe` | 文件较小，需安装 .NET 10 Desktop Runtime x64。 |
 
 两版功能相同。首次安装测试建议使用虚拟机。
 
@@ -92,7 +85,7 @@ UnattendLocal 是基于 [Christoph Schneegans 的 UnattendGenerator](https://git
 
 ## 📖 使用说明
 
-静态网络操作与范围见 [静态 IPv4](docs/StaticIPv4.md)。V1.0 定位与范围见 [版本说明](docs/V1Scope.md)。关于与许可入口见 [帮助与关于](docs/About.md)。首次登录选项见 [首次登录说明](docs/FirstLogon.md)。XML 导入与取消行为见 [导入说明](docs/XmlImport.md)。设置搜索操作见 [搜索说明](docs/SettingsSearch.md)。兼容联接点选项按 ReparsePoint 属性删除指定范围的项目，可能包含其他重解析点；不恢复已删除的链接，请先在虚拟机验证。
+静态网络操作与范围见 [IPv4 / IPv6 配置](docs/StaticIP.md)。V1.0 定位与范围见 [版本说明](docs/V1Scope.md)。关于与许可入口见 [帮助与关于](docs/About.md)。首次登录选项见 [首次登录说明](docs/FirstLogon.md)。XML 导入与取消行为见 [导入说明](docs/XmlImport.md)。设置搜索操作见 [搜索说明](docs/SettingsSearch.md)。兼容联接点选项按 ReparsePoint 属性删除指定范围的项目，可能包含其他重解析点；不恢复已删除的链接，请先在虚拟机验证。
 
 在“基础设置”选择命名方式。固定名称留空时仍由 Windows 自动生成；安装时输入会中断无人值守流程，需完成有效输入才能继续。脚本必须返回一个有效计算机名（1–15 个字符，不能是纯数字或包含非法符号，也不应与本地账户同名）；工具不会执行或预先验证脚本结果。命名脚本按原文保存在方案和 XML 中，分享前检查敏感信息。
 
@@ -100,13 +93,11 @@ UnattendLocal 是基于 [Christoph Schneegans 的 UnattendGenerator](https://git
 
 四项设置位于系统设置页，默认均不勾选，遵循 Windows 默认行为。关闭 SAC、SmartScreen 或核心隔离会降低相应保护；SAC 关闭后重新启用可能需要重置或重装 Windows。SmartScreen 选项还会隐藏安全中心托盘图标，但不关闭 Defender 防病毒引擎。核心隔离选项不卸载 Hyper-V、WSL2 或虚拟机工具，不保证性能提升；系统版本、组织策略和固件锁定可能影响结果。根目录权限收紧可能影响依赖普通用户向 C 盘根目录写入的程序，不改变整个磁盘或其他盘的权限。
 
-取消勾选仅影响新生成配置，不恢复已安装系统；工具不在当前电脑执行这些命令。导入 XML 仅对完整识别的原生流程开放编辑，未知或修改过的内容保留原文并拒绝不可靠覆盖。
+取消勾选仅影响新生成配置，不恢复已安装系统。导入 XML 仅对完整识别的原生流程开放编辑，未知或修改过的内容保留原文并拒绝不可靠覆盖。
 
 `$OEM$` 开关只生成安装设置；需自行准备与 `autounattend.xml` 配套的介质目录。`$$` 对应 Windows 目录，`$1` 对应系统盘根目录。复制可能覆盖同路径内容，不会自动安装其中的应用；不要预先建立未来用户的个人目录。自定义 PE 脚本中的复制流程保留原文，不能由此开关可靠控制。
 
 AppLocker 在 specialize 阶段启动 AppIDSvc 并执行 Set-AppLockerPolicy，不带 `-Merge`，可能替换现有本地策略。强制规则可能拦截安装脚本、系统工具或管理员应用；先在虚拟机审核并准备恢复方案。结构检查不判断规则是否适合目标电脑，生效取决于 Windows 版本、组件和组织策略。策略始终保存在 JSON 中，省略凭据不会移除其中的路径、SID 或自行填写的信息；预览整体遮蔽策略 XML。取消仅改变新配置，不恢复已安装系统。
-
-当前使用普通 Release 发布，部分非核心上游设置将逐步补齐。当前使用固定生成核心及选择性同步，未宣称与上游最新功能完全对齐。
 
 WPA3 需目标系统、无线驱动和接入点支持；开放网络没有无线链路加密，可能仍需门户认证。无线配置 XML 可能含明文密码或其他认证资料，省略凭据时不保存整段无线 XML；自动连接时配置名称需与 SSID 一致，加密密钥不能可靠迁移。证书和驱动仍需另行准备。启用讲述人后不会自动关闭朗读；定制 PE 可能缺少语音或音频支持。允许卸载 Edge 只尝试调整系统策略文件，不实际卸载、不移除 WebView2，可能因系统版本、权限或更新而不生效。关闭 C 盘系统还原可能删除已有还原点，不能只当作暂停创建还原点。关闭 UAC 会降低权限提升保护；阻止 WPBT 不修改固件、不卸载已有软件，可能影响厂商通过该机制提供的程序。虚拟机工具需挂载官方工具介质并与目标 Windows / 架构匹配；未找到时不安装。VirtIO Guest Tools 不替代 Windows PE 阶段驱动，导入 XML 中已有的 PE 驱动脚本按原文保留。命令行审计会将参数明文写入安全日志，可能含凭据；仅启用审计时不会强制关闭已有命令行记录策略。更新重启策略受 Windows 版本、组织策略、截止期限或用户安排的重启影响，不保证阻止全部重启；启用后需自行安排重启完成更新。NTFS 最后访问时间设置可能影响依赖此时间的归档、备份或清理规则。桌面图片脚本必须返回图片原始字节，安装时需能访问图片；锁屏效果受版本和策略限制。应用移除可能影响相关功能，取消勾选不恢复已安装系统的应用。远程桌面需要目标版本支持，RemoteSigned 的有效策略可能被更高优先级策略覆盖。
 
@@ -116,14 +107,11 @@ WPA3 需目标系统、无线驱动和接入点支持；开放网络没有无线
 
 使用 Visual Studio 2026 与 .NET 10 SDK，安装“.NET 桌面开发”，打开仓库根目录的 `UnattendLocal.sln`。四个项目为 Desktop、Core、vendor/UnattendGenerator、Tests，默认将 Desktop 设为启动项目。
 
-双击源码根目录的 `build.cmd` 可生成两种单文件 EXE，版本从项目自动读取，输出到源码目录同级的 `UnattendLocal-release/v1.8.1/`。发布后会核对 EXE 版本；默认直接输出 EXE，需要额外 ZIP 时可运行 `build.cmd -CreateZip`。已有同名产物不会自动覆盖。
-
 也可在源码根目录手动执行：
 
 ```powershell
 dotnet restore UnattendLocal.sln
 dotnet build UnattendLocal.sln -c Release -m:1 -nr:false
-dotnet run --project Tests/Tests.csproj -c Release --no-build
 dotnet publish Desktop/Desktop.csproj -c Release -m:1 -nr:false -r win-x64 --self-contained true -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true -o publish/win-x64
 ```
 

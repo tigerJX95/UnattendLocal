@@ -642,22 +642,45 @@
             </StackPanel></Border>
 
             <Border Style="{StaticResource Card}"><StackPanel>
-              <TextBlock x:Name="StaticIPv4Section" Text="静态 IPv4（目标系统）" FontSize="20" FontWeight="SemiBold" Margin="0,0,0,12"/>
-              <CheckBox x:Name="StaticIPv4Enabled" Content="按目标网卡 MAC 地址指定静态 IPv4" IsChecked="{Binding Plan.UseStaticIPv4}" IsEnabled="{Binding CanEditStaticIPv4}" ToolTip="{Binding DataContext.HelpTips[staticipv4],RelativeSource={RelativeSource AncestorType=Window}}"/>
-              <TextBlock Style="{StaticResource ExplanationText}" Text="默认不启用。在目标 Windows 的 specialize 阶段配置，不配置 Windows PE，不改变 IPv6，也不修改当前电脑。MAC、地址和前缀须来自目标网络。" Foreground="{DynamicResource SecondaryBrush}"/>
+              <TextBlock x:Name="StaticIPv4Section" Text="IP 配置（目标系统）" FontSize="20" FontWeight="SemiBold" Margin="0,0,0,12"/>
+              <TextBlock Style="{StaticResource ExplanationText}" Text="IPv4 / IPv6 独立启用，可同时使用；切换选项卡保留两页输入。配置作用于目标 Windows 的 specialize 阶段。"/>
+              <StackPanel IsEnabled="{Binding IsStaticIP}"><TextBlock Text="目标网卡 MAC 地址（IPv4 / IPv6 共用）" Foreground="{DynamicResource SecondaryBrush}"/>
+                <TextBox x:Name="StaticIPv4MacEditor" Text="{Binding Plan.StaticIPv4Mac,UpdateSourceTrigger=PropertyChanged}" MaxLength="32" local:ExampleText.Value="02-00-00-00-00-10（目标网卡）" Style="{StaticResource ExampleEditor}" ToolTip="{Binding HelpTips[staticmac]}"/>
+              </StackPanel>
+              <TabControl x:Name="IPProtocolTabs" SelectedIndex="0">
+                <TabControl.Style><Style TargetType="TabControl"><Setter Property="Template"><Setter.Value><ControlTemplate TargetType="TabControl"><Grid><Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="*"/></Grid.RowDefinitions><TabPanel IsItemsHost="True"/><ContentPresenter Grid.Row="1" x:Name="PART_SelectedContentHost" ContentSource="SelectedContent" Margin="0,12,0,0"/></Grid></ControlTemplate></Setter.Value></Setter></Style></TabControl.Style>
+                <TabItem x:Name="IPv4ProtocolTab" Header="IPv4"><StackPanel>
+              <CheckBox x:Name="StaticIPv4Enabled" Content="指定静态 IPv4" IsChecked="{Binding Plan.UseStaticIPv4}" IsEnabled="{Binding CanEditStaticIPv4}" ToolTip="{Binding HelpTips[staticipv4]}"/>
               <StackPanel IsEnabled="{Binding IsStaticIPv4}">
-                <TextBlock Text="目标网卡 MAC 地址" Foreground="{DynamicResource SecondaryBrush}"/>
-                <TextBox x:Name="StaticIPv4MacEditor" Text="{Binding Plan.StaticIPv4Mac,UpdateSourceTrigger=PropertyChanged}" MaxLength="32" local:ExampleText.Value="02-00-00-00-00-10（请填写目标网卡）" Style="{StaticResource ExampleEditor}" ToolTip="{Binding DataContext.HelpTips[staticmac],RelativeSource={RelativeSource AncestorType=Window}}"/>
                 <Grid><Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="150"/></Grid.ColumnDefinitions>
                   <StackPanel Margin="0,0,12,0"><TextBlock Text="IPv4 地址" Foreground="{DynamicResource SecondaryBrush}"/><TextBox x:Name="StaticIPv4AddressEditor" Text="{Binding Plan.StaticIPv4Address,UpdateSourceTrigger=PropertyChanged}" MaxLength="32" local:ExampleText.Value="192.168.10.20" Style="{StaticResource ExampleEditor}" ToolTip="{Binding DataContext.HelpTips[staticipv4],RelativeSource={RelativeSource AncestorType=Window}}"/></StackPanel>
-                  <StackPanel Grid.Column="1"><TextBlock Text="前缀长度（1–30）" Foreground="{DynamicResource SecondaryBrush}"/><TextBox x:Name="StaticIPv4PrefixEditor" Text="{Binding Plan.StaticIPv4Prefix,UpdateSourceTrigger=PropertyChanged,ValidatesOnExceptions=True}" ToolTip="24 对应 255.255.255.0；本版不提供 /31 点对点或 /32 主机路由。"/></StackPanel>
+                  <StackPanel Grid.Column="1" IsEnabled="{Binding IsStaticIPv4Prefix}"><TextBlock Text="前缀长度（0–32）" Foreground="{DynamicResource SecondaryBrush}"/><TextBox x:Name="StaticIPv4PrefixEditor" Text="{Binding Plan.StaticIPv4Prefix,UpdateSourceTrigger=PropertyChanged,ValidatesOnExceptions=True}" ToolTip="{Binding HelpTips[staticprefix]}"/></StackPanel>
                 </Grid>
+                <CheckBox x:Name="StaticIPv4MaskModeEditor" Content="改用子网掩码输入" IsChecked="{Binding Plan.UseStaticIPv4SubnetMask}" ToolTip="{Binding DataContext.HelpTips[staticmask],RelativeSource={RelativeSource AncestorType=Window}}"/>
+                <StackPanel IsEnabled="{Binding IsStaticIPv4SubnetMask}">
+                  <TextBlock Text="子网掩码（如 255.255.255.0）" Foreground="{DynamicResource SecondaryBrush}"/>
+                  <TextBox x:Name="StaticIPv4SubnetMaskEditor" Text="{Binding Plan.StaticIPv4SubnetMask,UpdateSourceTrigger=PropertyChanged}" MaxLength="15" local:ExampleText.Value="255.255.255.0" Style="{StaticResource ExampleEditor}" ToolTip="{Binding DataContext.HelpTips[staticmask],RelativeSource={RelativeSource AncestorType=Window}}"/>
+                </StackPanel>
                 <TextBlock Text="默认网关（可留空）" Foreground="{DynamicResource SecondaryBrush}"/>
                 <TextBox x:Name="StaticIPv4GatewayEditor" Text="{Binding Plan.StaticIPv4Gateway,UpdateSourceTrigger=PropertyChanged}" MaxLength="32" local:ExampleText.Value="192.168.10.1" Style="{StaticResource ExampleEditor}" ToolTip="{Binding DataContext.HelpTips[staticgateway],RelativeSource={RelativeSource AncestorType=Window}}"/>
                 <TextBlock Text="IPv4 DNS（可留空，最多三个）" Foreground="{DynamicResource SecondaryBrush}"/>
                 <TextBox x:Name="StaticIPv4DnsEditor" Text="{Binding Plan.StaticIPv4Dns,UpdateSourceTrigger=PropertyChanged}" MaxLength="256" local:ExampleText.Value="192.168.10.1, 192.168.10.2" Style="{StaticResource ExampleEditor}" ToolTip="{Binding DataContext.HelpTips[staticdns],RelativeSource={RelativeSource AncestorType=Window}}"/>
               </StackPanel>
               <TextBlock Text="{Binding StaticIPv4Summary}" Style="{StaticResource ExplanationText}" Foreground="{DynamicResource AccentTextBrush}"/>
+              <TextBlock Style="{StaticResource ExplanationText}" Text="支持 10.0.0.0/8、172.16.0.0/12、192.168.0.0/16 及合法公网。/31 用于点对点，两端均可作主机；/32 为单地址，网关须留空，其他路由需另行配置。" Foreground="{DynamicResource SecondaryBrush}"/>
+                </StackPanel></TabItem>
+                <TabItem x:Name="IPv6ProtocolTab" Header="IPv6"><StackPanel>
+                  <CheckBox x:Name="StaticIPv6Enabled" Content="指定静态 IPv6" IsChecked="{Binding Plan.UseStaticIPv6}" IsEnabled="{Binding CanEditStaticIPv4}" ToolTip="{Binding HelpTips[staticipv6]}"/>
+                  <StackPanel IsEnabled="{Binding IsStaticIPv6}">
+                    <TextBlock Text="IPv6 地址"/><TextBox x:Name="StaticIPv6AddressEditor" Text="{Binding Plan.StaticIPv6Address,UpdateSourceTrigger=PropertyChanged}" MaxLength="64" local:ExampleText.Value="2001:db8:10::20" Style="{StaticResource ExampleEditor}" ToolTip="{Binding HelpTips[staticipv6]}"/>
+                    <TextBlock Text="前缀长度（0–64，微软无人值守地址范围）"/><TextBox x:Name="StaticIPv6PrefixEditor" Text="{Binding Plan.StaticIPv6Prefix,UpdateSourceTrigger=PropertyChanged,ValidatesOnExceptions=True}" ToolTip="{Binding HelpTips[staticv6prefix]}"/>
+                    <TextBlock Text="IPv6 默认网关（可留空）"/><TextBox x:Name="StaticIPv6GatewayEditor" Text="{Binding Plan.StaticIPv6Gateway,UpdateSourceTrigger=PropertyChanged}" MaxLength="64" local:ExampleText.Value="fe80::1" Style="{StaticResource ExampleEditor}" ToolTip="{Binding HelpTips[staticv6gateway]}"/>
+                    <TextBlock Text="IPv6 DNS（可留空，最多三个）"/><TextBox x:Name="StaticIPv6DnsEditor" Text="{Binding Plan.StaticIPv6Dns,UpdateSourceTrigger=PropertyChanged}" MaxLength="256" local:ExampleText.Value="2001:db8:10::53, 2001:db8:10::54" Style="{StaticResource ExampleEditor}" ToolTip="{Binding HelpTips[staticv6dns]}"/>
+                  </StackPanel>
+                  <TextBlock Text="{Binding StaticIPv6Summary}" Style="{StaticResource ExplanationText}" Foreground="{DynamicResource AccentTextBrush}"/>
+                  <TextBlock Style="{StaticResource ExplanationText}" Text="地址示例用于文档演示，请替换为目标网络地址。IPv6 网关可使用不带 %区域的链路本地地址；本界面关闭 DHCPv6 和路由器发现，未填写网关时不生成默认路由。"/>
+                </StackPanel></TabItem>
+              </TabControl>
               <TextBlock Style="{StaticResource ExplanationText}" Text="留空网关不生成默认路由；留空 DNS 不写入 DNS 覆盖，不保证名称解析或互联网访问。工具不检测地址占用；请核对地址冲突、驱动与目标 MAC。Wi-Fi 连接仍需单独配置，其他脚本或组织策略可能覆盖这些设置。" Foreground="{DynamicResource SecondaryBrush}"/>
             </StackPanel></Border>
             <Border Style="{StaticResource Card}">
@@ -924,7 +947,7 @@
               <ItemsControl.ItemTemplate><DataTemplate>
                 <Border BorderBrush="{DynamicResource BorderBrush}" BorderThickness="0,0,0,1" Padding="4,10" Margin="0,0,12,0">
                   <CheckBox IsChecked="{Binding IsSelected,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}" ToolTipService.ShowOnDisabled="True">
-                    <CheckBox.ToolTip><ToolTip Content="{Binding PlacementTarget.DataContext.Description,RelativeSource={RelativeSource Self}}"><ToolTip.ContentTemplate><DataTemplate><TextBlock Text="{Binding}" TextWrapping="Wrap"/></DataTemplate></ToolTip.ContentTemplate></ToolTip></CheckBox.ToolTip>
+                    <CheckBox.ToolTip><ToolTip Content="{Binding PlacementTarget.DataContext.TooltipDescription,RelativeSource={RelativeSource Self}}"><ToolTip.ContentTemplate><DataTemplate><TextBlock Text="{Binding}" TextWrapping="Wrap"/></DataTemplate></ToolTip.ContentTemplate></ToolTip></CheckBox.ToolTip>
                     <TextBlock Text="{Binding Label}" TextWrapping="Wrap"/>
                   </CheckBox>
                 </Border>

@@ -1,4 +1,6 @@
 using System.Globalization;
+using System.Net;
+using System.Net.Sockets;
 using System.Text.Json;
 using System.Text.RegularExpressions;
 using System.Xml;
@@ -9,10 +11,11 @@ public static class StaticIPv4Settings
 {
     public const string Tcp = "Microsoft-Windows-TCPIP", Dns = "Microsoft-Windows-DNS-Client";
     private const string Wcm = "http://schemas.microsoft.com/WMIConfig/2002/State";
-    public const string ReadOnlyNotice = "原 XML 含多网卡、非 MAC 标识或额外/修改过的 TCPIP、DNS 配置，网络原文保留；本版静态 IPv4 区域只读，不会用界面默认值覆盖。";
-    public const string Description = "默认不启用，不写入新的 IP 或 DNS 设置。启用后按目标网卡的 MAC 地址，在 specialize 阶段设置一个静态 IPv4、1–30 位前缀、可选同子网网关和最多三个 IPv4 DNS。只适用于目标 Windows，不配置 Windows PE，不改变 IPv6，不创建 Wi-Fi 连接，不修改当前电脑。MAC 必须来自目标电脑/虚拟机，不能使用当前电脑的 MAC 代替；目标网卡驱动须可用。网关留空不生成默认路由，DNS 留空不写入 DNS 覆盖，不保证名称解析或互联网访问。重复地址、MAC 不匹配、组织策略或其他脚本都可能影响实际联网；本工具不探测可用地址。关闭只影响新生成配置，不恢复已安装系统。方案会保存 MAC、IP 和 DNS。";
+    public const string ReadOnlyNotice = "原 XML 含多网卡、非 MAC 标识或额外/修改过的 TCPIP、DNS 配置，网络原文保留；本版 IP 配置区域只读，不会用界面默认值覆盖。";
+    public const string Description = "IPv4 与 IPv6 可分别启用，也可同时启用，在 specialize 阶段配置同一个目标 MAC。切换协议页只切换显示，不清空另一页。每种协议最多一个静态地址、可选默认网关和三个 DNS；双栈 DNS 按 IPv4 列表再 IPv6 列表生成。IPv4 支持合法私网与公网地址，前缀 /0–/32 或等价连续掩码；/31 用于点对点，/32 是单地址且本界面网关须留空。IPv6 遵循微软无人值守地址设置范围 /0–/64，网关可为同前缀单播或链路本地地址。不填写 %区域、括号或 CIDR。目标网卡驱动须可用；不探测地址占用，不配置 Windows PE，也不创建 Wi-Fi 连接。";
     public record Values(string Mac, string Address, int Prefix, string Gateway, string[] DnsServers);
-    public record Source(bool Present, bool Known, Values? Values);
+    public record IPv6Values(string Mac, string Address, int Prefix, string Gateway, string[] DnsServers);
+    public record Source(bool Present, bool Known, Values? Values) { public IPv6Values? IPv6 { get; init; } }
     public static bool CanEdit(InstallPlan p) => p.ImportedXml?.StaticIPv4ReadOnly != true;
 
     public static string Mac(string? value)
@@ -37,18 +40,38 @@ public static class StaticIPv4Settings
         return parts.Aggregate(0u, (n, octet) => (n << 8) | (uint)octet);
     }
     private static string Format(uint ip) => string.Join(".", new[] { ip >> 24, ip >> 16 & 255, ip >> 8 & 255, ip & 255 });
+    public static string SubnetMask(int prefix)
+    {
+        if (prefix is < 0 or > 32) throw new ArgumentException("静态 IPv4 前缀长度支持 0–32。");
+        return Format(Mask(prefix));
+    }
+    public static int PrefixFromMask(string? value)
+    {
+        string raw = (value ?? "").Trim();
+        if (!Regex.IsMatch(raw, @"\A(?:0|[1-9][0-9]{0,2})(?:\.(?:0|[1-9][0-9]{0,2})){3}\z"))
+            throw new ArgumentException("子网掩码应为完整点分十进制，例如 255.255.255.0。");
+        var octets = raw.Split('.').Select(int.Parse).ToArray();
+        if (octets.Any(n => n > 255)) throw new ArgumentException("子网掩码的每一段须为 0–255。");
+        uint mask = octets.Aggregate(0u, (n, octet) => (n << 8) | (uint)octet);
+        int prefix = System.Numerics.BitOperations.PopCount(mask);
+        if (prefix is < 0 or > 32 || mask != Mask(prefix))
+            throw new ArgumentException("子网掩码必须为连续的 1 后接连续的 0，且对应 /0–/32。");
+        return prefix;
+    }
+    public static int EffectivePrefix(InstallPlan p) => p.UseStaticIPv4SubnetMask ? PrefixFromMask(p.StaticIPv4SubnetMask) : p.StaticIPv4Prefix;
     public static Values Read(InstallPlan p)
     {
         string mac = Mac(p.StaticIPv4Mac);
         uint ip = Address(p.StaticIPv4Address, "静态 IPv4", true);
-        if (p.StaticIPv4Prefix is < 1 or > 30) throw new ArgumentException("本版静态 IPv4 前缀长度支持 1–30；/31 点对点及 /32 主机路由暂不在本功能范围内。");
-        uint mask = uint.MaxValue << (32 - p.StaticIPv4Prefix), network = ip & mask, broadcast = network | ~mask;
-        if (ip == network || ip == broadcast) throw new ArgumentException("静态 IPv4 不能是所填前缀下的网络地址或广播地址。");
+        int prefix = EffectivePrefix(p);
+        if (prefix is < 0 or > 32) throw new ArgumentException("静态 IPv4 前缀长度支持 0–32；/31 用于点对点，/32 为单地址。");
+        uint mask = Mask(prefix), network = ip & mask, broadcast = network | ~mask;
+        if (prefix < 31 && (ip == network || ip == broadcast)) throw new ArgumentException("静态 IPv4 不能是所填前缀下的网络地址或广播地址。");
         string gateway = (p.StaticIPv4Gateway ?? "").Trim();
         if (gateway.Length > 0) {
             uint next = Address(gateway, "默认网关", true);
-            if ((next & mask) != network || next == network || next == broadcast || next == ip)
-                throw new ArgumentException("默认网关须为同一子网中的其他有效主机地址；无需默认路由时可留空。");
+            if (prefix == 32 || (next & mask) != network || prefix < 31 && (next == network || next == broadcast) || next == ip)
+                throw new ArgumentException("默认网关须为同一子网中的其他有效主机地址；/32 请留空网关，需要时在其他设置中配置路由。");
             gateway = Format(next);
         }
         string rawDns = p.StaticIPv4Dns ?? "";
@@ -56,14 +79,47 @@ public static class StaticIPv4Settings
         string[] dns = rawDns.Split([',', ';', ' ', '\r', '\n', '\t', '，', '；'], StringSplitOptions.RemoveEmptyEntries)
             .Select(s => Format(Address(s, "DNS", false))).ToArray();
         if (dns.Length > 3 || dns.Distinct().Count() != dns.Length) throw new ArgumentException("最多填写三个不重复的 IPv4 DNS 地址，用空格、逗号或分号分隔。");
-        return new(mac, Format(ip), p.StaticIPv4Prefix, gateway, dns);
+        return new(mac, Format(ip), prefix, gateway, dns);
     }
-    public static void Validate(InstallPlan p) { if (p.UseStaticIPv4) _ = Read(p); }
+    private static uint Mask(int prefix) => prefix == 0 ? 0u : uint.MaxValue << (32-prefix);
+    public static string IPv6Address(string? value, string label, bool host = true)
+    {
+        string raw=(value??"").Trim();
+        if(raw.IndexOfAny(['%', '/', '[', ']', '.'])>=0 || !IPAddress.TryParse(raw,out var ip) || ip.AddressFamily!=AddressFamily.InterNetworkV6 || ip.IsIPv4MappedToIPv6 || ip.Equals(IPAddress.IPv6Any) || ip.IsIPv6Multicast || host && ip.Equals(IPAddress.IPv6Loopback))
+            throw new ArgumentException(label+"须为完整 IPv6 单播地址，例如 2001:db8:10::20；不要填写前缀、方括号或 %区域。");
+        return ip.ToString();
+    }
+    public static IPv6Values ReadIPv6(InstallPlan p)
+    {
+        string mac=Mac(p.StaticIPv4Mac),address=IPv6Address(p.StaticIPv6Address,"静态 IPv6");
+        int prefix=p.StaticIPv6Prefix;
+        if(prefix is <0 or >64)throw new ArgumentException("微软无人值守 IPv6 静态地址前缀支持 0–64；此输入不接受 /65–/128。");
+        string gateway=(p.StaticIPv6Gateway??"").Trim();
+        if(gateway.Length>0) {
+            gateway=IPv6Address(gateway,"IPv6 默认网关");
+            var next=IPAddress.Parse(gateway);var ip=IPAddress.Parse(address);
+            byte[] a=ip.GetAddressBytes(),b=next.GetAddressBytes();
+            bool same=true;for(int bit=0;bit<prefix;bit++)if((a[bit/8]&(1<<(7-bit%8)))!=(b[bit/8]&(1<<(7-bit%8)))){same=false;break;}
+            if(gateway==address||!next.IsIPv6LinkLocal&&!same)throw new ArgumentException("IPv6 网关须为同前缀的其他单播地址，或目标网卡可达的链路本地地址（如 fe80::1）；无需默认路由时可留空。");
+        }
+        string raw=p.StaticIPv6Dns??"";if(raw.Length>256)throw new ArgumentException("IPv6 DNS 地址列表过长。");
+        var dns=raw.Split([',',';',' ','\r','\n','\t','，','；'],StringSplitOptions.RemoveEmptyEntries).Select(a=>IPv6Address(a,"IPv6 DNS",false)).ToArray();
+        if(dns.Length>3||dns.Distinct().Count()!=dns.Length)throw new ArgumentException("最多填写三个不重复的 IPv6 DNS 地址，用空格、逗号或分号分隔。");
+        return new(mac,address,prefix,gateway,dns);
+    }
+    public static void Validate(InstallPlan p) { if (p.UseStaticIPv4) _ = Read(p); if(p.UseStaticIPv6)_=ReadIPv6(p); }
+    public static string SummaryIPv6(InstallPlan p)
+    {
+        if(!CanEdit(p))return "静态 IPv6：原 XML 的网络配置只读保留，界面默认值不代表原配置。";
+        if(!p.UseStaticIPv6)return "静态 IPv6：不写入新的 IPv6 覆盖。";
+        try {var v=ReadIPv6(p);return $"静态 IPv6：网卡 {v.Mac}；{v.Address}/{v.Prefix}；网关：{(v.Gateway.Length==0?"未指定":v.Gateway)}；DNS：{(v.DnsServers.Length==0?"未指定":string.Join("、",v.DnsServers))}";}
+        catch(ArgumentException e){return "静态 IPv6：待完善；"+e.Message;}
+    }
     public static string Summary(InstallPlan p)
     {
         if (!CanEdit(p)) return "静态 IPv4：原 XML 的网络配置只读保留，界面默认值不代表原配置。";
         if (!p.UseStaticIPv4) return "静态 IPv4：不写入新的 IP / DNS 覆盖；导入的其他网络原文按合并规则保留。";
-        try { var v = Read(p); return $"静态 IPv4：网卡 {v.Mac}；{v.Address}/{v.Prefix}；网关：{(v.Gateway.Length == 0 ? "未指定" : v.Gateway)}；DNS：{(v.DnsServers.Length == 0 ? "未指定" : string.Join("、", v.DnsServers))}"; }
+        try { var v = Read(p); return $"静态 IPv4：网卡 {v.Mac}；{v.Address}/{v.Prefix}（掩码 {SubnetMask(v.Prefix)}）；网关：{(v.Gateway.Length == 0 ? "未指定" : v.Gateway)}；DNS：{(v.DnsServers.Length == 0 ? "未指定" : string.Join("、", v.DnsServers))}"; }
         catch (ArgumentException e) { return "静态 IPv4：待完善；" + e.Message; }
     }
     private static XmlNamespaceManager Ns(XmlDocument doc) { var ns = new XmlNamespaceManager(doc.NameTable); ns.AddNamespace("u", XmlMerge.Namespace); return ns; }
@@ -84,52 +140,129 @@ public static class StaticIPv4Settings
     }
     public static void Apply(XmlDocument doc, XmlNamespaceManager ns, InstallPlan p)
     {
-        if (!p.UseStaticIPv4) return;
-        var v = Read(p);
-        if (Nodes(doc).Length > 0) throw new ArgumentException("生成基准中已有 TCPIP / DNS 组件，不能重复添加静态 IPv4。");
-        var settings = doc.SelectSingleNode("/u:unattend/u:settings[@pass='specialize']", ns) as XmlElement;
-        if (settings == null) { settings = Add(doc.DocumentElement!, "settings"); settings.SetAttribute("pass", "specialize"); }
-        var iface = Add(Add(Component(settings, Tcp, p.Architecture), "Interfaces"), "Interface", list: true);
-        // Microsoft requires IPv4 settings, identifier, unicast addresses, then routes in this order.
-        var ipv4 = Add(iface, "Ipv4Settings"); Add(ipv4, "DhcpEnabled", "false"); Add(ipv4, "RouterDiscoveryEnabled", "false");
-        Add(iface, "Identifier", v.Mac);
-        Add(Add(iface, "UnicastIpAddresses"), "IpAddress", v.Address + "/" + v.Prefix.ToString(CultureInfo.InvariantCulture), true, "1");
-        if (v.Gateway.Length > 0) {
-            var route = Add(Add(iface, "Routes"), "Route", list: true);
-            Add(route, "Identifier", "1"); Add(route, "Metric", "10"); Add(route, "NextHopAddress", v.Gateway); Add(route, "Prefix", "0");
+        if(!p.UseStaticIPv4&&!p.UseStaticIPv6)return;
+        var v4=p.UseStaticIPv4?Read(p):null;var v6=p.UseStaticIPv6?ReadIPv6(p):null;
+        if(Nodes(doc).Length>0)throw new ArgumentException("生成基准中已有 TCPIP / DNS 组件，不能重复添加 IP 配置。");
+        var settings=doc.SelectSingleNode("/u:unattend/u:settings[@pass='specialize']",ns) as XmlElement;
+        if(settings==null){settings=Add(doc.DocumentElement!,"settings");settings.SetAttribute("pass","specialize");}
+        var iface=Add(Add(Component(settings,Tcp,p.Architecture),"Interfaces"),"Interface",list:true);
+        // Native child order: IPv4, IPv6, Identifier, addresses, routes.
+        foreach(string protocol in new[]{v4!=null?"Ipv4Settings":"",v6!=null?"Ipv6Settings":""}.Where(s=>s.Length>0)) {
+            var option=Add(iface,protocol);Add(option,"DhcpEnabled","false");Add(option,"RouterDiscoveryEnabled","false");
         }
-        if (v.DnsServers.Length > 0) {
-            var dns = Add(Add(Component(settings, Dns, p.Architecture), "Interfaces"), "Interface", list: true);
-            Add(dns, "Identifier", v.Mac); var order = Add(dns, "DNSServerSearchOrder");
-            for (int i = 0; i < v.DnsServers.Length; i++) Add(order, "IpAddress", v.DnsServers[i], true, (i + 1).ToString(CultureInfo.InvariantCulture));
+        string mac=v4?.Mac??v6!.Mac;Add(iface,"Identifier",mac);
+        var addresses=Add(iface,"UnicastIpAddresses");int key=0;
+        if(v4!=null)Add(addresses,"IpAddress",v4.Address+"/"+v4.Prefix.ToString(CultureInfo.InvariantCulture),true,(++key).ToString(CultureInfo.InvariantCulture));
+        if(v6!=null)Add(addresses,"IpAddress",v6.Address+"/"+v6.Prefix.ToString(CultureInfo.InvariantCulture),true,(++key).ToString(CultureInfo.InvariantCulture));
+        var gateways=new[]{v4?.Gateway??"",v6?.Gateway??""}.Where(s=>s.Length>0).ToArray();
+        if(gateways.Length>0) {
+            var routes=Add(iface,"Routes");int id=0;
+            foreach(string gateway in gateways){var route=Add(routes,"Route",list:true);Add(route,"Identifier",(++id).ToString(CultureInfo.InvariantCulture));Add(route,"Metric","10");Add(route,"NextHopAddress",gateway);Add(route,"Prefix",gateway.Contains(':')?"::/0":"0");}
+        }
+        var servers=(v4?.DnsServers??[]).Concat(v6?.DnsServers??[]).ToArray();
+        if(servers.Length>0) {
+            var dns=Add(Add(Component(settings,Dns,p.Architecture),"Interfaces"),"Interface",list:true);Add(dns,"Identifier",mac);var order=Add(dns,"DNSServerSearchOrder");
+            for(int i=0;i<servers.Length;i++)Add(order,"IpAddress",servers[i],true,(i+1).ToString(CultureInfo.InvariantCulture));
         }
     }
-    private static XmlElement[] Nodes(XmlDocument doc) => doc.SelectNodes("//u:component[@name='" + Tcp + "' or @name='" + Dns + "']", Ns(doc))!.Cast<XmlElement>().ToArray();
+    private static XmlElement[] Nodes(XmlDocument doc) => NativeSetupXml.Components(doc, Tcp).Concat(NativeSetupXml.Components(doc, Dns)).ToArray();
+    // A comparison copy only: never normalize unrelated XML or write back an unedited component.
+    private static XmlElement Comparable(XmlElement source)
+    {
+        var node = (XmlElement)source.CloneNode(true); var ns = Ns(node.OwnerDocument!);
+        if (!node.HasAttribute("versionScope")) node.SetAttribute("versionScope", "nonSxS");
+        foreach (XmlElement e in node.SelectNodes(".//u:Identifier | .//u:DhcpEnabled | .//u:RouterDiscoveryEnabled | .//u:IpAddress | .//u:NextHopAddress | .//u:Metric | .//u:Prefix", ns)!)
+            if (e.ChildNodes.OfType<XmlElement>().Any()) throw new ArgumentException("网络标量设置含额外结构，不能可靠识别。");
+        foreach (XmlElement e in node.SelectNodes(".//u:Identifier", ns)!)
+            if (e.ParentNode is XmlElement parent && parent.LocalName == "Interface") {
+                // The documented native MAC spelling uses hyphens; aliases remain read-only.
+                if (!Regex.IsMatch(e.InnerText.Trim(), @"\A[0-9A-Fa-f]{2}(?:-[0-9A-Fa-f]{2}){5}\z")) throw new ArgumentException("非 MAC 网卡标识。");
+                e.InnerText = Mac(e.InnerText);
+            }
+        foreach (XmlElement e in node.SelectNodes(".//u:DhcpEnabled | .//u:RouterDiscoveryEnabled", ns)!)
+            if (e.InnerText.Trim() == "0") e.InnerText = "false";
+        foreach(XmlElement list in node.SelectNodes(".//u:UnicastIpAddresses",ns)!) {
+            var entries=list.ChildNodes.OfType<XmlElement>().ToArray();
+            if(entries.Any(e=>!Regex.IsMatch(e.GetAttribute("keyValue",Wcm),@"\A[A-Za-z0-9]{1,32}\z"))||entries.Select(e=>e.GetAttribute("keyValue",Wcm)).Distinct().Count()!=entries.Length)throw new ArgumentException("IP 列表键无效或重复。");
+            for(int i=0;i<entries.Length;i++)entries[i].SetAttribute("keyValue",Wcm,(i+1).ToString(CultureInfo.InvariantCulture));
+        }
+        var ids=node.SelectNodes(".//u:Route/u:Identifier",ns)!.Cast<XmlElement>().ToArray();
+        if(ids.Any(e=>!Regex.IsMatch(e.InnerText.Trim(),@"\A[1-9][0-9]{0,8}\z"))||ids.Select(e=>e.InnerText.Trim()).Distinct().Count()!=ids.Length)throw new ArgumentException("路由标识无效或重复。");
+        for(int i=0;i<ids.Length;i++)ids[i].InnerText=(i+1).ToString(CultureInfo.InvariantCulture);
+        foreach(XmlElement e in node.SelectNodes(".//u:IpAddress | .//u:NextHopAddress",ns)!) {
+            var parts=e.InnerText.Trim().Split('/');
+            if(parts[0].Contains(':')) {parts[0]=IPv6Address(parts[0],"导入 IPv6",false);e.InnerText=string.Join("/",parts);}
+        }
+        foreach (XmlElement list in node.SelectNodes(".//u:DNSServerSearchOrder", ns)!) {
+            var addresses = list.ChildNodes.OfType<XmlElement>().ToArray();
+            if (addresses.Any(e => e.LocalName != "IpAddress" || e.NamespaceURI != XmlMerge.Namespace || !Regex.IsMatch(e.GetAttribute("keyValue", Wcm), @"\A[1-9][0-9]{0,8}\z"))) throw new ArgumentException("DNS 顺序键无效。");
+            var ordered = addresses.OrderBy(e => int.Parse(e.GetAttribute("keyValue", Wcm), CultureInfo.InvariantCulture)).ToArray();
+            if (ordered.Select(e => e.GetAttribute("keyValue", Wcm)).Distinct().Count() != ordered.Length) throw new ArgumentException("DNS 顺序键重复。");
+            for (int i = 0; i < ordered.Length; i++) { ordered[i].SetAttribute("keyValue", Wcm, (i + 1).ToString(CultureInfo.InvariantCulture)); list.AppendChild(ordered[i]); }
+        }
+        return node;
+    }
+    private static bool SameValues(Values? a, Values? b) => a != null && b != null && a.Mac == b.Mac && a.Address == b.Address && a.Prefix == b.Prefix && a.Gateway == b.Gateway && a.DnsServers.SequenceEqual(b.DnsServers);
+    private static bool SameIPv6(IPv6Values? a,IPv6Values? b)=>a==null&&b==null||a!=null&&b!=null&&a.Mac==b.Mac&&a.Address==b.Address&&a.Prefix==b.Prefix&&a.Gateway==b.Gateway&&a.DnsServers.SequenceEqual(b.DnsServers);
+    internal static XmlDocument PrepareMergeSource(XmlDocument source, string baselineXml, XmlDocument updated)
+    {
+        var baseline = XmlMerge.Read(baselineXml); var before = Nodes(baseline); var after = Nodes(updated);
+        bool unchanged = before.Length == after.Length && before.All(n => after.Count(a => a.GetAttribute("name") == n.GetAttribute("name") && XmlMerge.Equal(a, n)) == 1);
+        if (unchanged || before.Length == 0) return source;
+        var state = Inspect(source); var previous = Inspect(baseline);
+        if (!state.Known || !previous.Known) return source;
+        if (!(state.Values==null&&previous.Values==null||SameValues(state.Values, previous.Values)) || !SameIPv6(state.IPv6,previous.IPv6))
+            throw new ArgumentException("XML 原网络与编辑基准不一致，网络修改存在冲突，未导出；请重新导入当前原 XML。");
+        var current = Nodes(source);
+        if (current.Length != before.Length || current.Any(n => !before.Any(e => e.GetAttribute("name") == n.GetAttribute("name") && e.GetAttribute("processorArchitecture") == n.GetAttribute("processorArchitecture")))) return source;
+        // All editable network values agree with the baseline. Only an explicit network edit
+        // permits replacing these owned components for the existing atomic three-way merge.
+        foreach (var n in current) n.ParentNode!.ReplaceChild(source.ImportNode(before.Single(e => e.GetAttribute("name") == n.GetAttribute("name")), true), n);
+        return source;
+    }
     public static Source Inspect(XmlDocument doc)
     {
         var nodes = Nodes(doc); if (nodes.Length == 0) return new(false, true, null);
         var unknown = new Source(true, false, null);
         try {
-            if (nodes.Any(n => n.ParentNode is not XmlElement s || s.LocalName != "settings" || s.GetAttribute("pass") != "specialize")) return unknown;
-            var tcp = nodes.Single(n => n.GetAttribute("name") == Tcp); var ns = Ns(doc);
+            if (nodes.Any(n => !NativeSetupXml.ValidComponent(doc, n, n.GetAttribute("name"), "specialize") || n.SelectNodes(".//*")!.Cast<XmlElement>().Prepend(n).Any(e => !NativeSetupXml.NoSignificantText(e) && e.ChildNodes.OfType<XmlElement>().Any()))) return unknown;
+            if (nodes.Select(n => n.GetAttribute("processorArchitecture")).Distinct().Count() != 1) return unknown;
+            var comparable = nodes.Select(Comparable).ToArray();
+            var tcp = comparable.Single(n => n.GetAttribute("name") == Tcp); var ns = Ns(doc);
             string Text(XmlNode node, string path) => node.SelectSingleNode(path, ns)?.InnerText ?? "";
-            var cidr = Text(tcp, "u:Interfaces/u:Interface/u:UnicastIpAddresses/u:IpAddress").Split('/');
-            if (cidr.Length != 2 || !int.TryParse(cidr[1], NumberStyles.None, CultureInfo.InvariantCulture, out int prefix)) return unknown;
-            var dns = nodes.SingleOrDefault(n => n.GetAttribute("name") == Dns);
-            var p = new InstallPlan { UseStaticIPv4 = true, Architecture = tcp.GetAttribute("processorArchitecture"), StaticIPv4Mac = Text(tcp, "u:Interfaces/u:Interface/u:Identifier"), StaticIPv4Address = cidr[0], StaticIPv4Prefix = prefix, StaticIPv4Gateway = Text(tcp, "u:Interfaces/u:Interface/u:Routes/u:Route/u:NextHopAddress"), StaticIPv4Dns = dns == null ? "" : string.Join(",", dns.SelectNodes("u:Interfaces/u:Interface/u:DNSServerSearchOrder/u:IpAddress", ns)!.Cast<XmlElement>().Select(e => e.InnerText)) };
-            var values = Read(p);
+            var dns = comparable.SingleOrDefault(n => n.GetAttribute("name") == Dns);
+            var addresses=tcp.SelectNodes("u:Interfaces/u:Interface/u:UnicastIpAddresses/u:IpAddress",ns)!.Cast<XmlElement>().Select(e=>e.InnerText.Split('/')).ToArray();
+            if(addresses.Length is <1 or >2 || addresses.Any(a=>a.Length!=2))return unknown;
+            var p=new InstallPlan{Architecture=tcp.GetAttribute("processorArchitecture"),StaticIPv4Mac=Text(tcp,"u:Interfaces/u:Interface/u:Identifier")};
+            foreach(var cidr in addresses) {
+                if(!int.TryParse(cidr[1],NumberStyles.None,CultureInfo.InvariantCulture,out int prefix))return unknown;
+                if(cidr[0].Contains(':')){if(p.UseStaticIPv6)return unknown;p.UseStaticIPv6=true;p.StaticIPv6Address=cidr[0];p.StaticIPv6Prefix=prefix;}
+                else{if(p.UseStaticIPv4)return unknown;p.UseStaticIPv4=true;p.StaticIPv4Address=cidr[0];p.StaticIPv4Prefix=prefix;}
+            }
+            foreach(XmlElement route in tcp.SelectNodes("u:Interfaces/u:Interface/u:Routes/u:Route",ns)!) {
+                string gateway=Text(route,"u:NextHopAddress");
+                if(gateway.Contains(':')){if(p.StaticIPv6Gateway.Length>0)return unknown;p.StaticIPv6Gateway=gateway;}
+                else{if(p.StaticIPv4Gateway.Length>0)return unknown;p.StaticIPv4Gateway=gateway;}
+            }
+            if(!p.UseStaticIPv4&&p.StaticIPv4Gateway.Length>0||!p.UseStaticIPv6&&p.StaticIPv6Gateway.Length>0)return unknown;
+            var servers=dns?.SelectNodes("u:Interfaces/u:Interface/u:DNSServerSearchOrder/u:IpAddress",ns)!.Cast<XmlElement>().Select(e=>e.InnerText).ToArray()??[];
+            p.StaticIPv4Dns=string.Join(",",servers.Where(a=>!a.Contains(':')));p.StaticIPv6Dns=string.Join(",",servers.Where(a=>a.Contains(':')));
+            if(!p.UseStaticIPv4&&p.StaticIPv4Dns.Length>0||!p.UseStaticIPv6&&p.StaticIPv6Dns.Length>0)return unknown;
+            var values=p.UseStaticIPv4?Read(p):null;var ipv6=p.UseStaticIPv6?ReadIPv6(p):null;
             var expected = XmlMerge.Read("<unattend xmlns='" + XmlMerge.Namespace + "'/>"); Apply(expected, Ns(expected), p);
             var generated = Nodes(expected);
-            if (generated.Length != nodes.Length || nodes.Any(n => !XmlMerge.Equal(n, generated.Single(g => g.GetAttribute("name") == n.GetAttribute("name"))))) return unknown;
-            return new(true, true, values);
+            if (generated.Length != comparable.Length || comparable.Any(n => !XmlMerge.Equal(n, generated.Single(g => g.GetAttribute("name") == n.GetAttribute("name"))))) return unknown;
+            return new(true, true, values){IPv6=ipv6};
         }
         catch (Exception e) when (e is ArgumentException or InvalidOperationException or FormatException or OverflowException) { return unknown; }
     }
     private static void Assign(InstallPlan p, Source source)
     {
         p.UseStaticIPv4 = source.Values != null;
+        p.UseStaticIPv6 = source.IPv6 != null;
+        if(source.IPv6 is {} v6){p.StaticIPv4Mac=v6.Mac;p.StaticIPv6Address=v6.Address;p.StaticIPv6Prefix=v6.Prefix;p.StaticIPv6Gateway=v6.Gateway;p.StaticIPv6Dns=string.Join(", ",v6.DnsServers);}
         if (source.Values is not {} v) return;
-        p.StaticIPv4Mac = v.Mac; p.StaticIPv4Address = v.Address; p.StaticIPv4Prefix = v.Prefix; p.StaticIPv4Gateway = v.Gateway; p.StaticIPv4Dns = string.Join(", ", v.DnsServers);
+        p.StaticIPv4Mac = v.Mac; p.StaticIPv4Address = v.Address; p.StaticIPv4Prefix = v.Prefix; if (p.UseStaticIPv4SubnetMask) p.StaticIPv4SubnetMask = SubnetMask(v.Prefix); p.StaticIPv4Gateway = v.Gateway; p.StaticIPv4Dns = string.Join(", ", v.DnsServers);
     }
     public static Source ReadIntoPlan(XmlDocument doc, InstallPlan p, List<string> notices)
     {
@@ -137,22 +270,22 @@ public static class StaticIPv4Settings
         if (!source.Known) notices.Add(ReadOnlyNotice);
         return source;
     }
-    public static void UpdateImportState(ImportedXml data, Source source) { data.StaticIPv4ReadOnly = !source.Known; data.StaticIPv4ImportVersion = 1; }
+    public static void UpdateImportState(ImportedXml data, Source source) { data.StaticIPv4ReadOnly = !source.Known; data.StaticIPv4ImportVersion = 3; }
     public static void ValidateImported(InstallPlan p, XmlDocument source)
     {
-        if (!Inspect(source).Known && p.UseStaticIPv4) throw new ArgumentException(ReadOnlyNotice);
+        if (!Inspect(source).Known && (p.UseStaticIPv4||p.UseStaticIPv6)) throw new ArgumentException(ReadOnlyNotice);
     }
     public static void NormalizeLoaded(InstallPlan p, JsonElement root)
     {
         if (p.ImportedXml is not { OriginalOmitted: false } data || data.SourceXml.Length == 0) return;
         var state = Inspect(XmlMerge.Read(data.SourceXml));
-        if (data.StaticIPv4ImportVersion < 1 && state.Present && state.Known) {
-            if (!root.TryGetProperty(nameof(InstallPlan.UseStaticIPv4), out _) && data.BaselineXml.Length > 0 && Nodes(XmlMerge.Read(data.BaselineXml)).Length == 0) {
+        if (data.StaticIPv4ImportVersion < 3 && state.Present && state.Known && data.BaselineXml.Length > 0 && Nodes(XmlMerge.Read(data.BaselineXml)).Length == 0) {
+            if (!root.TryGetProperty(nameof(InstallPlan.UseStaticIPv4), out _) || data.StaticIPv4ReadOnly && !p.UseStaticIPv4 && !p.UseStaticIPv6) {
                 Assign(p, state); var baseline = XmlMerge.Read(data.BaselineXml); Apply(baseline, Ns(baseline), p); data.BaselineXml = baseline.OuterXml;
             }
             else data.Blockers = data.Blockers.Append("旧方案的网络编辑基准不完整，请重新导入原 XML；当前待处理修改保留。").Distinct().ToArray();
         }
-        data.Notices = data.Notices.Where(n => n != "原文保留，未实现的组件：" + Tcp && n != "原文保留，未实现的组件：" + Dns && n != ReadOnlyNotice).ToArray();
+        data.Notices = data.Notices.Where(n => n != "原文保留，未实现的组件：" + Tcp && n != "原文保留，未实现的组件：" + Dns && n != ReadOnlyNotice && n != ReadOnlyNotice.Replace("IP 配置区域", "静态 IPv4 区域")).ToArray();
         if (!state.Known) data.Notices = data.Notices.Append(ReadOnlyNotice).ToArray();
         UpdateImportState(data, state);
     }

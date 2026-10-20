@@ -33,9 +33,16 @@ public class InstallPlan : Observable {
 
  private bool _UseSetupDrivers;public bool UseSetupDrivers {get=>_UseSetupDrivers;set{if(_UseSetupDrivers==value)return;ClearDiskConsent();Set(ref _UseSetupDrivers,value);}}
  private string _SetupDriverPaths="";public string SetupDriverPaths {get=>_SetupDriverPaths;set{if(_SetupDriverPaths==value)return;ClearDiskConsent();Set(ref _SetupDriverPaths,value);}}
+ private bool _UseStaticIPv6;public bool UseStaticIPv6 {get=>_UseStaticIPv6;set=>Set(ref _UseStaticIPv6,value);}
+ private string _StaticIPv6Address="";public string StaticIPv6Address {get=>_StaticIPv6Address;set=>Set(ref _StaticIPv6Address,value);}
+ private int _StaticIPv6Prefix=64;public int StaticIPv6Prefix {get=>_StaticIPv6Prefix;set=>Set(ref _StaticIPv6Prefix,value);}
+ private string _StaticIPv6Gateway="";public string StaticIPv6Gateway {get=>_StaticIPv6Gateway;set=>Set(ref _StaticIPv6Gateway,value);}
+ private string _StaticIPv6Dns="";public string StaticIPv6Dns {get=>_StaticIPv6Dns;set=>Set(ref _StaticIPv6Dns,value);}
  private bool _UseStaticIPv4;public bool UseStaticIPv4 {get=>_UseStaticIPv4;set=>Set(ref _UseStaticIPv4,value);}
  private string _StaticIPv4Mac="";public string StaticIPv4Mac {get=>_StaticIPv4Mac;set=>Set(ref _StaticIPv4Mac,value);}
  private string _StaticIPv4Address="";public string StaticIPv4Address {get=>_StaticIPv4Address;set=>Set(ref _StaticIPv4Address,value);}
+ private bool _UseStaticIPv4SubnetMask;public bool UseStaticIPv4SubnetMask {get=>_UseStaticIPv4SubnetMask;set=>Set(ref _UseStaticIPv4SubnetMask,value);}
+ private string _StaticIPv4SubnetMask="";public string StaticIPv4SubnetMask {get=>_StaticIPv4SubnetMask;set=>Set(ref _StaticIPv4SubnetMask,value);}
  private int _StaticIPv4Prefix=24;public int StaticIPv4Prefix {get=>_StaticIPv4Prefix;set=>Set(ref _StaticIPv4Prefix,value);}
  private string _StaticIPv4Gateway="";public string StaticIPv4Gateway {get=>_StaticIPv4Gateway;set=>Set(ref _StaticIPv4Gateway,value);}
  private string _StaticIPv4Dns="";public string StaticIPv4Dns {get=>_StaticIPv4Dns;set=>Set(ref _StaticIPv4Dns,value);}

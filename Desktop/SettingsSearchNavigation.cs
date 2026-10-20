@@ -44,6 +44,11 @@ public partial class MainWindow
                 var choice = vm.AppRemovalChoices.FirstOrDefault(i => i.Id == result.AppId);
                 target = AppRemovalItems.ItemContainerGenerator.ContainerFromItem(choice) as FrameworkElement ?? target;
             }
+            // A protocol tab is presentation state only; search selects it without
+            // enabling either protocol or changing any entered network values.
+            if (result.Target.StartsWith("StaticIPv6",StringComparison.Ordinal)) IPProtocolTabs.SelectedItem=IPv6ProtocolTab;
+            else if(result.Target.StartsWith("StaticIPv4",StringComparison.Ordinal)&&result.Target!="StaticIPv4MacEditor"&&result.Target!="StaticIPv4Section")IPProtocolTabs.SelectedItem=IPv4ProtocolTab;
+            UpdateLayout();
             bool hidden = target?.IsVisible == false;
             // Locate the visible containing section when a mode hides a conditional editor.
             FrameworkElement? hiddenBranch = null;

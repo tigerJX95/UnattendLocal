@@ -2,6 +2,15 @@ using UnattendLocal.Core;
 namespace UnattendLocal.Desktop;
 public class AppRemovalChoice(AppRemovalSettings.Item item, Func<InstallPlan> current) : Observable {
  public string Id=>item.Id;public string Label=>item.Label;public string Group=>item.Group;public string Description=>item.Description;
+ public string TooltipDescription {
+  get {
+   int split=Description.IndexOf("匹配项：",StringComparison.Ordinal);
+   if(split<0)return Description;
+   string body=Description[..split].TrimEnd();
+   var identifiers=Description[(split+4)..].Trim().TrimEnd('。').Split('；',StringSplitOptions.RemoveEmptyEntries|StringSplitOptions.TrimEntries);
+   return body+"\n\n匹配项：\n"+string.Join("\n",identifiers);
+  }
+ }
  public bool IsSelected {get=>current().RemovedApps.Contains(Id);set{var list=current().RemovedApps;if(value&&!list.Contains(Id))list.Add(Id);else if(!value)list.Remove(Id);Notify(nameof(IsSelected));}}
  public void Refresh()=>Notify(nameof(IsSelected));
 }
@@ -99,7 +108,12 @@ public class MainViewModel : Observable {
  public bool CanEditStaticIPv4=>StaticIPv4Settings.CanEdit(Plan);
  public bool IsStaticIPv4=>Plan.UseStaticIPv4&&CanEditStaticIPv4;
  public string StaticIPv4Summary=>StaticIPv4Settings.Summary(Plan);
- private void RefreshNetwork(){IsPresetWifi=WifiSettings.IsPreset(Plan);Notify(nameof(IsPasswordWifi));Notify(nameof(IsOpenWifi));Notify(nameof(IsXmlWifi));Notify(nameof(WifiSummary));Notify(nameof(CanEditStaticIPv4));Notify(nameof(IsStaticIPv4));Notify(nameof(StaticIPv4Summary));}
+ public bool IsStaticIPv6=>Plan.UseStaticIPv6&&CanEditStaticIPv4;
+ public bool IsStaticIP=>CanEditStaticIPv4&&(Plan.UseStaticIPv4||Plan.UseStaticIPv6);
+ public string StaticIPv6Summary=>StaticIPv4Settings.SummaryIPv6(Plan);
+ public bool IsStaticIPv4Prefix=>IsStaticIPv4&&!Plan.UseStaticIPv4SubnetMask;
+ public bool IsStaticIPv4SubnetMask=>IsStaticIPv4&&Plan.UseStaticIPv4SubnetMask;
+ private void RefreshNetwork(){IsPresetWifi=WifiSettings.IsPreset(Plan);Notify(nameof(IsPasswordWifi));Notify(nameof(IsOpenWifi));Notify(nameof(IsXmlWifi));Notify(nameof(WifiSummary));Notify(nameof(CanEditStaticIPv4));Notify(nameof(IsStaticIPv4));Notify(nameof(StaticIPv4Summary));Notify(nameof(IsStaticIPv4Prefix));Notify(nameof(IsStaticIPv4SubnetMask));Notify(nameof(IsStaticIPv6));Notify(nameof(IsStaticIP));Notify(nameof(StaticIPv6Summary));}
  public bool IsGenericEdition {get=>isGenericEdition;private set=>Set(ref isGenericEdition,value);}
  public bool IsCustomEdition {get=>isCustomEdition;private set=>Set(ref isCustomEdition,value);}
  public string SelectedEditionKey {get=>selectedEditionKey;private set=>Set(ref selectedEditionKey,value);}

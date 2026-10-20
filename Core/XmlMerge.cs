@@ -25,6 +25,10 @@ public static class XmlMerge {
   if(e.LocalName is "LocalAccount")id+="|Name="+e.ChildNodes.OfType<XmlElement>().FirstOrDefault(n=>n.LocalName=="Name")?.InnerText;
   if(e.LocalName is "Disk")id+="|DiskID="+e.ChildNodes.OfType<XmlElement>().FirstOrDefault(n=>n.LocalName=="DiskID")?.InnerText;
   if(e.LocalName is "MetaData")id+="|Key="+e.ChildNodes.OfType<XmlElement>().FirstOrDefault(n=>n.LocalName=="Key")?.InnerText;
+  // TCPIP Route entries use the native Identifier child as their list key.
+  // Scope this to that native hierarchy; unrelated XML keeps its original rules.
+  if(e.NamespaceURI==Namespace&&e.LocalName=="Route"&&e.ParentNode is XmlElement routes&&routes.LocalName=="Routes"&&routes.NamespaceURI==Namespace&&routes.ParentNode?.ParentNode?.ParentNode is XmlElement tcp&&tcp.LocalName=="component"&&tcp.GetAttribute("name")==StaticIPv4Settings.Tcp)
+   id+="|Identifier="+e.ChildNodes.OfType<XmlElement>().FirstOrDefault(n=>n.NamespaceURI==Namespace&&n.LocalName=="Identifier")?.InnerText;
   return id;
  }
  private static Dictionary<string,XmlElement> Children(XmlElement e){
