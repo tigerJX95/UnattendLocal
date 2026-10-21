@@ -10,7 +10,7 @@ using UnattendLocal.Core;
 namespace UnattendLocal.Desktop;
 public partial class MainWindow : Window {
  private readonly MainViewModel vm=new(); private bool loading;
- public MainWindow(){InitializeComponent();DataContext=vm;InitializeSettingsSearch();_ = new WindowScrollPosition(this,Pages);SourceInitialized+=(_,_)=>UiTheme.UpdateTitleBar(this);RefreshThemeIcon();}
+ public MainWindow(){InitializeComponent();DataContext=vm;InitializeSettingsSearch();_ = new WindowScrollPosition(this,Pages);SourceInitialized+=(_,_)=>UiTheme.UpdateTitleBar(this);RefreshThemeIcon();InitializeConfigurationDrop();}
  private void RefreshThemeIcon(){var dark=UiTheme.Current=="Dark";ThemeMoon.Visibility=dark?Visibility.Collapsed:Visibility.Visible;ThemeSun.Visibility=dark?Visibility.Visible:Visibility.Collapsed;var title=dark?"切换为浅色主题":"切换为深色主题";ThemeToggleTip.Content=title;System.Windows.Automation.AutomationProperties.SetName(ThemeToggleButton,title);}
  private void ThemeToggleClick(object s,RoutedEventArgs e){var saved=UiTheme.Apply(UiTheme.Current=="Dark"?"Light":"Dark");RefreshThemeIcon();if(!saved)vm.Status="主题已切换，但未能保存主题偏好";}
  private void AboutMenuClick(object s,RoutedEventArgs e){var menu=AboutMenuButton.ContextMenu;menu.PlacementTarget=AboutMenuButton;menu.Placement=System.Windows.Controls.Primitives.PlacementMode.Bottom;menu.IsOpen=true;}
@@ -50,25 +50,22 @@ public partial class MainWindow : Window {
   else if(result==false){vm.Plan.ConfigurationMode="自定义配置";vm.Plan.CustomStartingPoint="保留当前设置";}
   else{loading=true;try{vm.Plan.ConfigurationMode="推荐配置";}finally{loading=false;}}
  }
- private void OpenClick(object s,RoutedEventArgs e)=>Run(()=>{var d=new OpenFileDialog{Filter="配置方案 (*.json)|*.json"};if(d.ShowDialog(this)==true){var p=PlanStore.Deserialize(File.ReadAllText(d.FileName));if(Discard())Load(p);}});
+ private void OpenClick(object s,RoutedEventArgs e){
+  var dialog=new OpenFileDialog{Filter="配置方案 (*.json)|*.json",Title="打开 JSON 配置方案"};
+  if(dialog.ShowDialog(this)==true)ImportConfigurationFile(dialog.FileName);
+  else vm.Status="已取消 JSON 文件选择，当前配置未改变。";
+ }
  private void ImportAnswerClick(object s,RoutedEventArgs e){
-  var d=new OpenFileDialog{Filter="Windows 应答 XML (*.xml)|*.xml",Title="导入 Windows 应答配置"};
-  if(d.ShowDialog(this)!=true){vm.Status="已取消 XML 文件选择，当前配置未改变。";return;}
-  var previous=loading;loading=true;
-  try{
-   if(new FileInfo(d.FileName).Length>32*1024*1024)throw new ArgumentException("应答 XML 文件超过 32 MiB。");
-   bool accepted=vm.ImportXml(File.ReadAllText(d.FileName),()=>MessageBox.Show(this,"导入 XML 将替换当前界面中的配置，当前未保存的修改将被放弃。\nXML 中未识别的设置和脚本会保留原文；无法可靠合并的修改会在导出时被阻止。\n\n选择“是”：导入并替换当前配置。\n选择“否”：取消整次导入，保留当前配置。\n是否继续导入？","确认导入应答 XML",MessageBoxButton.YesNo,MessageBoxImage.Question,MessageBoxResult.No)==MessageBoxResult.Yes);
-   if(!accepted){MessageBox.Show(this,vm.Status,"XML 导入已取消",MessageBoxButton.OK,MessageBoxImage.Information);return;}
-   string status=vm.Status;Load(vm.Plan);Pages.SelectedIndex=0;vm.Status=status;
-  }catch(Exception error){vm.Status="XML 导入失败，当前配置未改变。";ErrorDialog.Show(this,error.Message,"XML 导入失败");}
-  finally{loading=previous;}
+  var dialog=new OpenFileDialog{Filter="Windows 应答 XML (*.xml)|*.xml",Title="导入 Windows 应答配置"};
+  if(dialog.ShowDialog(this)==true)ImportConfigurationFile(dialog.FileName);
+  else vm.Status="已取消 XML 文件选择，当前配置未改变。";
  }
  private void ImportWifiProfileClick(object s,RoutedEventArgs e)=>Run(()=>{var d=new OpenFileDialog{Filter="无线配置 XML (*.xml)|*.xml",Title="导入 WLANProfile 无线配置"};if(d.ShowDialog(this)!=true)return;if(new FileInfo(d.FileName).Length>2*1024*1024)throw new ArgumentException("无线配置文件超过 2 MiB。");var text=File.ReadAllText(d.FileName);_=WifiSettings.ReadProfile(text);vm.Plan.WifiProfileXml=text;vm.Status="无线配置 XML 已导入，请核对内容和目标环境";});
  private void ValidateWifiProfileClick(object s,RoutedEventArgs e)=>Run(()=>{_=WifiSettings.ReadProfile(vm.Plan.WifiProfileXml);vm.Status="无线配置 XML 结构检查通过；实际连接取决于目标环境";});
  private void ImportAppLockerClick(object s,RoutedEventArgs e)=>Run(()=>{var d=new OpenFileDialog{Filter="AppLocker 策略 XML (*.xml)|*.xml",Title="导入 AppLocker 策略"};if(d.ShowDialog(this)!=true)return;if(new FileInfo(d.FileName).Length>AppControlSettings.MaxLength*4L)throw new ArgumentException("AppLocker 策略文件超过 8 MiB。");var text=File.ReadAllText(d.FileName);_=AppControlSettings.ReadPolicy(text);if(!string.IsNullOrWhiteSpace(vm.Plan.AppLockerPolicyXml)&&MessageBox.Show(this,"导入将替换编辑器中的策略，是否继续？","导入 AppLocker 策略",MessageBoxButton.YesNo,MessageBoxImage.Question)!=MessageBoxResult.Yes)return;vm.Plan.AppLockerPolicyXml=text;vm.Status="策略结构检查通过；请在目标环境审核规则及恢复方案";});
  private void ValidateAppLockerClick(object s,RoutedEventArgs e)=>Run(()=>{_=AppControlSettings.ReadPolicy(vm.Plan.AppLockerPolicyXml);vm.Status="AppLocker XML 结构检查通过，不代表规则适合目标系统";});
  private void AppLockerExampleClick(object s,RoutedEventArgs e)=>Run(()=>{if(!string.IsNullOrWhiteSpace(vm.Plan.AppLockerPolicyXml)&&MessageBox.Show(this,"审核示例将替换当前策略内容，是否继续？","载入 AppLocker 示例",MessageBoxButton.YesNo,MessageBoxImage.Question)!=MessageBoxResult.Yes)return;vm.Plan.AppLockerPolicyXml=AppControlSettings.Example;vm.Status="已载入审核示例；仅供学习，请结合目标环境调整与验证";});
- private void SaveClick(object s,RoutedEventArgs e)=>Run(()=>{var d=new SaveFileDialog{Filter="配置方案 (*.json)|*.json",FileName="安装方案.json"};if(d.ShowDialog(this)!=true)return;var answer=MessageBox.Show(this,"是否将账户密码（含内置 Administrator）、Wi-Fi 密码、完整无线配置 XML 及自定义产品密钥写入方案？\n脚本始终按原文保存；脚本内的密码、令牌不会自动省略。\n导入 XML 时，选择“是”会同时保存完整 XML 原文；选择“否”不保存原文，下次须重新导入 XML 才能导出。\n选择“否”将省略密码、自定义密钥和整段无线配置 XML，下次载入需重新输入或导入。\n选择“是”会以明文保存密码和自定义密钥。","保存凭据",MessageBoxButton.YesNoCancel,MessageBoxImage.Question,MessageBoxResult.No);if(answer==MessageBoxResult.Cancel)return;File.WriteAllText(d.FileName,PlanStore.Serialize(vm.Plan,answer==MessageBoxResult.Yes),new UTF8Encoding(false));vm.Status="方案已保存";});
+ private void SaveClick(object s,RoutedEventArgs e)=>Run(()=>{var d=new SaveFileDialog{Filter="配置方案 (*.json)|*.json",FileName="安装方案.json"};if(d.ShowDialog(this)!=true)return;var answer=MessageBox.Show(this,"是否将账户密码（含内置 Administrator）、Wi-Fi 密码、完整无线配置 XML 及自定义产品密钥写入方案？\n脚本始终按原文保存；脚本内的密码、令牌不会自动省略。\n导入 XML 时，选择“是”会同时保存完整 XML 原文；选择“否”不保存原文，下次须重新导入 XML 才能导出。\n选择“否”将省略密码、自定义密钥和整段无线配置 XML，下次载入需重新输入或导入。\n选择“是”会以明文保存密码和自定义密钥。","保存凭据",MessageBoxButton.YesNoCancel,MessageBoxImage.Question,MessageBoxResult.No);if(answer==MessageBoxResult.Cancel)return;AtomicFile.WriteAllText(d.FileName,PlanStore.Serialize(vm.Plan,answer==MessageBoxResult.Yes),new UTF8Encoding(false));vm.Status="方案已保存";});
  private FrameworkElement? Invalid(DependencyObject root){
   if(root is UIElement element&&!element.IsEnabled)return null;
   if(root is FrameworkElement field&&System.Windows.Controls.Validation.GetHasError(root))return field;
@@ -148,5 +145,5 @@ public partial class MainWindow : Window {
   if(dialog.RestoreWindowsDefault){if(accent)vm.Plan.ColorSettingsMode=ColorSettings.Default;else vm.Plan.WallpaperMode=WallpaperSettings.Default;}
   else if(accent)vm.Plan.AccentColorHex=dialog.SelectedHex;else vm.Plan.WallpaperColorHex=dialog.SelectedHex;
  });
- private void ExportClick(object s,RoutedEventArgs e)=>Run(()=>{var bytes=Generate();if((InstallationSettings.Destructive(vm.Plan)||vm.HasImportedXmlRisk)&&MessageBox.Show(this,InstallationReview.ExportSummary(bytes)+"\n"+InstallationSettings.DiskSummary(vm.Plan)+(vm.HasImportedXmlRisk?"\n导入的原 XML 还包含磁盘配置或 Windows PE 命令；须核对全部原文操作范围。":"")+"\n\n"+DiskSafety.Risk+"\n\n"+DiskSafety.Preparation+"\n\n"+DiskSafety.Responsibility+"\n\n确认已核对完整操作范围、完成备份并获得授权，继续导出？","危险操作：导出前核对",MessageBoxButton.YesNo,MessageBoxImage.Warning,MessageBoxResult.No)!=MessageBoxResult.Yes)return;var d=new SaveFileDialog{Filter="应答文件 (*.xml)|*.xml",FileName="autounattend.xml"};if(d.ShowDialog(this)!=true)return;File.WriteAllBytes(d.FileName,bytes);vm.Status="应答文件已导出；"+InstallationReview.ExportSummary(bytes);}, locateConfiguration:true);
+ private void ExportClick(object s,RoutedEventArgs e)=>Run(()=>{var bytes=Generate();if((InstallationSettings.Destructive(vm.Plan)||vm.HasImportedXmlRisk)&&MessageBox.Show(this,InstallationReview.ExportSummary(bytes)+"\n"+InstallationSettings.DiskSummary(vm.Plan)+(vm.HasImportedXmlRisk?"\n导入的原 XML 还包含磁盘配置或 Windows PE 命令；须核对全部原文操作范围。":"")+"\n\n"+DiskSafety.Risk+"\n\n"+DiskSafety.Preparation+"\n\n"+DiskSafety.Responsibility+"\n\n确认已核对完整操作范围、完成备份并获得授权，继续导出？","危险操作：导出前核对",MessageBoxButton.YesNo,MessageBoxImage.Warning,MessageBoxResult.No)!=MessageBoxResult.Yes)return;var d=new SaveFileDialog{Filter="应答文件 (*.xml)|*.xml",FileName="autounattend.xml"};if(d.ShowDialog(this)!=true)return;AtomicFile.WriteAllBytes(d.FileName,bytes);vm.Status="应答文件已导出；"+InstallationReview.ExportSummary(bytes);}, locateConfiguration:true);
 }

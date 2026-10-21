@@ -1,5 +1,15 @@
 # 界面操作说明
 
+## 📂 V1.12 文件拖放与导入详情 / File dropping and import details
+
+将一个 Windows 应答 XML 或本程序保存的 JSON 方案拖入主窗口，输入框和脚本编辑区同样支持。读取检查后确认替换；选择“否”显示取消，当前配置保留。多文件、目录、无效文件及其他 JSON／XML 不替换当前方案。原按钮继续可用，JSON 省略的凭据仍需填写。
+
+完整识别的等效旧脚本映射到已有设置。导入说明按具体命令块列出未确认差异，不因日志或已知移除写法不同就报告功能缺失。版本与密钥页新增独立 MoSetup 旧版兼容项，支持搜索与摘要；无法可靠识别的来源保持只读。
+
+Drop one Windows answer XML or an application JSON plan anywhere in the main window, including editors. File checks precede replacement confirmation; No reports cancellation and keeps the current configuration. Multiple files, folders, invalid content and unrelated JSON/XML do not replace the plan. Existing buttons remain available; omitted credentials still require re-entry.
+
+Fully recognized equivalent historical scripts map to existing settings. Details locate unconfirmed differences by command block instead of treating logging or known removal variants as missing features. Edition and key includes a searchable independent legacy MoSetup option with a summary; unrecognized source variants stay read-only.
+
 ## 🔎 配置错误定位 / Configuration error navigation
 
 V1.11 在检查与预览或导出失败时，为带明确字段标识的错误显示设置位置和“前往修改”。覆盖静态 IPv4/IPv6 的 MAC、地址、掩码/前缀、网关和 DNS，以及本地账户名称/密码、内置 Administrator 密码、密钥、驱动目录、密码天数和对应数字格式错误等。点击后定位、高亮并聚焦相关输入；账户错误会选中对应账户。默认“确定”、Enter、Esc 或关闭只关闭提示，不自动跳转。

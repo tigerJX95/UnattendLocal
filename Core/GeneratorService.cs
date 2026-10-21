@@ -108,6 +108,7 @@ public class GeneratorService {
    SetOobe(doc,ns,oobe,"HideOnlineAccountScreens",p.AccountMode=="安装时添加微软账户"?false:p.HideOnlineAccount);
   }
   HardwareSettings.Apply(doc,ns,p);
+  LegacyUpgradeSettings.Apply(doc,p);
   InstallationSettings.Apply(doc,ns,p);
   CompactOsSettings.Apply(doc,ns,p);
   StaticIPv4Settings.Apply(doc,ns,p);
@@ -128,7 +129,7 @@ public class GeneratorService {
   var doc=new XmlDocument();doc.LoadXml(Encoding.UTF8.GetString(bytes));
   foreach(XmlComment comment in doc.SelectNodes("//comment()")!.Cast<XmlComment>().ToArray())comment.ParentNode!.RemoveChild(comment);
   var ns=new XmlNamespaceManager(doc.NameTable);ns.AddNamespace("u","urn:schemas-microsoft-com:unattend");
-  foreach(XmlNode n in doc.SelectNodes("//u:Password/u:Value | //u:AdministratorPassword/u:Value",ns)!)n.InnerText="[密码已遮蔽]";
+  foreach(XmlNode n in doc.SelectNodes("//u:Password/u:Value | //u:AdministratorPassword/u:Value | //u:Credentials/u:Password",ns)!)n.InnerText="[密码已遮蔽]";
   foreach(XmlNode n in doc.SelectNodes("//u:component[@name='Microsoft-Windows-PnpCustomizationsWinPE']//u:Credentials/u:Password",ns)!)n.InnerText="[驱动访问密码已遮蔽]";
   foreach(XmlNode n in doc.SelectNodes("//u:component[@name='Microsoft-Windows-UnattendedJoin']//u:Credentials/u:Password | //u:component[@name='Microsoft-Windows-UnattendedJoin']//u:MachinePassword | //u:component[@name='Microsoft-Windows-UnattendedJoin']//u:Provisioning/u:AccountData",ns)!)n.InnerText=DomainCredentialPlaceholder;
   foreach(XmlNode n in doc.SelectNodes("//u:ProductKey/u:Key | //u:component[@name='Microsoft-Windows-Shell-Setup']/u:ProductKey",ns)!)n.InnerText="[产品密钥已遮蔽]";
@@ -138,7 +139,7 @@ public class GeneratorService {
    else if(n.Attributes?["path"]?.Value.EndsWith("AppLockerPolicy.xml",StringComparison.OrdinalIgnoreCase)==true)
     n.InnerText="[AppLocker 策略 XML 已整体遮蔽，可能含路径和身份信息]";
   using var sw=new StringWriter();using(var w=XmlWriter.Create(sw,new XmlWriterSettings{Indent=true,OmitXmlDeclaration=true}))doc.Save(w);
-  return "预览（密码和产品密钥已遮蔽，不能用于安装）\n"+sw.ToString();
+  return "预览（原生密码字段和产品密钥已遮蔽，不能用于安装；自定义脚本中的敏感内容请自行核对）\n"+sw.ToString();
  }
  private IEditionSettings CreateEdition(InstallPlan p)=>p.EditionMode switch {
   "安装时输入密钥"=>new InteractiveEditionSettings(),
@@ -159,6 +160,7 @@ public class GeneratorService {
   for(int i=0;i<p.Users.Count;i++) {
    var u=p.Users[i];
    if(string.IsNullOrWhiteSpace(u.Name))throw new ConfigurationValidationException("Users.Name", "请填写每个本地账户的名称。", userIndex:i);
+   if(u.Name.Any(char.IsControl))throw new ConfigurationValidationException("Users.Name", "账户名称不能包含制表符、换行或其他控制字符。", userIndex:i);
    if(u.NeedsPassword&&!(u.AllowEmptyPassword&&string.IsNullOrEmpty(u.Password)))throw new ConfigurationValidationException("Users.Password", $"请重新输入账户 {u.Name} 的密码，或明确允许空密码。", userIndex:i);
    if(string.IsNullOrEmpty(u.Password)&&!u.AllowEmptyPassword)throw new ConfigurationValidationException("Users.Password", $"账户 {u.Name} 未设置密码；如需空密码，请明确勾选允许空密码。", userIndex:i);
    if(u.AllowEmptyPassword&&!string.IsNullOrEmpty(u.Password))throw new ConfigurationValidationException("Users.Password", $"账户 {u.Name} 同时设置了密码和允许空密码，请选择一种。", userIndex:i);

@@ -1,5 +1,7 @@
 using System.Text;using System.Xml;using UnattendLocal.Core;
 int count=0;var g=new GeneratorService();
+if(args.Contains("--security-audit-only")){Console.WriteLine($"V1.12.1 security audit: {SecurityAuditFixTests.Run(g)} checks passed.");return;}
+if(args.Contains("--import-enhancements-only")){Console.WriteLine($"V1.12 import enhancements: {ImportEnhancementTests.Run(g)} checks passed.");return;}
 if(args.Contains("--unified-network-only")){Console.WriteLine($"V1.11 unified network: {UnifiedSubnetTests.Run(g)} checks passed.");return;}
 if(args.Contains("--error-location-only")){Console.WriteLine($"V1.11 error location: {ErrorLocationTests.Run(g)} checks passed.");return;}
 if(args.Contains("--help-layout-only")){Console.WriteLine($"V1.10 help layout: {HelpLayoutTests.Run(g)} checks passed.");return;}
@@ -1565,7 +1567,7 @@ foreach(var change07 in new[]{"missingPE","duplicatePE","userOnceConditional","m
   var stage07=SetupFile07(doc07,"DefaultUser.ps1");stage07.InnerText=stage07.InnerText.Replace("/v \"UnattendedSetup\"","/v \"OtherSetup\"");
  }else if(change07 is "missingLoad" or "duplicateLoad"){
   var command07=doc07.SelectNodes("//*[local-name()='settings'][@pass='specialize']//*[local-name()='RunSynchronousCommand']")!.Cast<XmlElement>().Single(n=>n.InnerText.Contains("reg.exe load \"HKU\\DefaultUser\""));
-  if(change07=="missingLoad")command07.ParentNode!.RemoveChild(command07);else{var copy07=command07.CloneNode(true);copy07.SelectSingleNode("*[local-name()='Order']")!.InnerText="999";command07.ParentNode!.AppendChild(copy07);}
+  if(change07=="missingLoad")command07.ParentNode!.RemoveChild(command07);else{var copy07=command07.CloneNode(true);copy07.SelectSingleNode("*[local-name()='Order']")!.InnerText="6";command07.ParentNode!.AppendChild(copy07);}
  }else SetupFile07(doc07,"UserOnce.ps1").SetAttribute("path",@"C:\Windows\Setup\Scripts\OtherOnce.ps1");
  var loaded07=XmlPlanImport.Import(doc07.OuterXml,g);loaded07.ConfirmImportedXmlRisk=true;Check(!loaded07.UseNarrator&&loaded07.MakeEdgeUninstallable&&loaded07.DisableSystemRestore&&SameXml(doc07.OuterXml,Xml(loaded07)),"incomplete narrator group retained: "+change07);loaded07.UseNarrator=true;Reject(loaded07,"incomplete narrator pipeline blocks overwrite");
 }
@@ -2035,3 +2037,9 @@ count+=HelpLayoutTests.Run(g);
 count+=UnifiedSubnetTests.Run(g);
 count+=ErrorLocationTests.Run(g);
 Console.WriteLine($"V1.11 total: {count} checks passed.");
+
+count+=ImportEnhancementTests.Run(g);
+Console.WriteLine($"V1.12 total: {count} checks passed.");
+
+count+=SecurityAuditFixTests.Run(g);
+Console.WriteLine($"V1.12.1 final total: {count} tests passed.");

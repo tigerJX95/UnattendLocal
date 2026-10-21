@@ -63,16 +63,16 @@ public static class AdditionalSetupSettings
         var mentions = Commands(doc, "specialize").Where(c => c.Contains("Extensions.ExtractScript", StringComparison.OrdinalIgnoreCase)).ToArray();
         return actual.Length == 1 && Normal(actual[0].InnerText) == Normal(expected.SelectSingleNode("//*[local-name()='ExtractScript']")!.InnerText) && mentions.Length == 1 && Style(mentions[0]) == Style(call);
     }
-    internal static string[] KnownBlocks(XmlDocument doc, string name)
+    internal static string[] KnownBlocks(XmlDocument doc, string name, bool allowTrailingContent = false)
     {
         doc=XmlImportPaths.Inspection(doc);
         string path = Root + name;
         var stage = Files(doc).Where(f => f.GetAttribute("path").Equals(path, StringComparison.OrdinalIgnoreCase)).ToArray();
         var reference = Files(Expected.Value.Document).Single(f => f.GetAttribute("path") == path);
-        if (stage.Length != 1 || !ExtractionActive(doc) || Skeleton(stage[0].InnerText) != Skeleton(reference.InnerText)) return [];
+        if (stage.Length != 1 || !NativeScriptPipeline.StageActive(doc, name) || !ExtractionActive(doc) || (Skeleton(stage[0].InnerText) != Skeleton(reference.InnerText) && !(allowTrailingContent && Skeleton(stage[0].InnerText).StartsWith(Skeleton(reference.InnerText) + "\n", StringComparison.Ordinal)))) return [];
         if (name == "UserOnce.ps1")
         {
-            var defaultBlocks = KnownBlocks(doc, "DefaultUser.ps1");
+            var defaultBlocks = KnownBlocks(doc, "DefaultUser.ps1", allowTrailingContent);
             string registration = Expected.Value.FeatureBlocks[Root + "DefaultUser.ps1"].Single(b => b.Contains("UserOnce.ps1", StringComparison.Ordinal));
             var refs = Files(doc).SelectMany(f => Normal(f.InnerText).Split('\n')).Concat(Commands(doc, "specialize")).Where(l => l.Contains("UserOnce.ps1", StringComparison.OrdinalIgnoreCase)).ToArray();
             if (defaultBlocks.Count(b => Style(b) == Style(registration)) != 1 || refs.Length != 1 || Style(refs[0]) != Style(registration)) return [];
@@ -87,7 +87,7 @@ public static class AdditionalSetupSettings
             if (name == "DefaultUser.ps1")
             {
                 var chain = Commands(Expected.Value.Document, "specialize").Where(c => c.Contains("HKU\\DefaultUser", StringComparison.Ordinal) || c.Contains("DefaultUser.ps1", StringComparison.Ordinal)).Select(Style).ToArray();
-                var actualChain = commands.Where(c => c.Contains("HKU\\DefaultUser", StringComparison.OrdinalIgnoreCase) || c.Contains("DefaultUser.ps1", StringComparison.OrdinalIgnoreCase)).Select(Style).ToArray();
+                var actualChain = NativeScriptPipeline.OrderedCommands(doc, "specialize").Select(NativeScriptPipeline.Text).Where(c => c.Contains("HKU\\DefaultUser", StringComparison.OrdinalIgnoreCase) || c.Contains("DefaultUser.ps1", StringComparison.OrdinalIgnoreCase)).Select(Style).ToArray();
                 if (!actualChain.SequenceEqual(chain)) return [];
             }
         }

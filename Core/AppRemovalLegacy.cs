@@ -30,8 +30,9 @@ public static partial class AppRemovalSettings
         string legacy = LegacyNames.Single(n=>n.Current==name).Legacy;
         return tail[..start]+"$logfile = '"+Root+legacy[..^4]+".log';\n& {\n"+loop+"\n} *>&1 | Out-String -Width 1KB -Stream >> $logfile;";
     }
-    private static XmlDocument? NormalizeLegacy(XmlDocument source)
+    private static XmlDocument? NormalizeLegacy(XmlDocument source, bool preserveOriginal = false)
     {
+        var original = source;
         source=XmlImportPaths.Inspection(source);
         _ = Templates.Value;
         if (!HasLegacyRemoval(source)) return null;
@@ -74,16 +75,51 @@ public static partial class AppRemovalSettings
             var values=state.Selected.Order().SelectMany(id=>Templates.Value[id].Selectors.GetValueOrDefault(pair.Current,[]));
             files[0].InnerText="$selectors = @(\n"+string.Concat(values.Select(v=>"\t'"+v+"';\n"))+");\n"+helperTails[pair.Current];
         }
-        return doc;
+        if (!preserveOriginal) return doc;
+        // Apply only recognized removal edits to original payloads. The inspection
+        // view can normalize arbitrary quoted strings and must never be exported.
+        var retained = (XmlDocument)original.CloneNode(true);
+        var rawFiles = retained.SelectNodes("//*[local-name()='File']")!.Cast<XmlElement>().ToArray();
+        foreach (var pair in LegacyNames)
+        {
+            var converted = Files(doc, pair.Current);
+            var old = rawFiles.Where(f => XmlImportPaths.Path(f.GetAttribute("path")).Equals(Root + pair.Legacy, StringComparison.OrdinalIgnoreCase)).ToArray();
+            if (old.Length != 1 || converted.Length != 1) continue;
+            old[0].SetAttribute("path", Root + pair.Current);
+            old[0].InnerText = converted[0].InnerText;
+        }
+        var rawStage = rawFiles.Single(f => XmlImportPaths.Path(f.GetAttribute("path")).Equals(Root + "Specialize.ps1", StringComparison.OrdinalIgnoreCase));
+        // Replace by original match offsets; untouched text, including CRLF and
+        // unrelated doubled backslashes, remains byte-for-byte identical.
+        string raw = rawStage.InnerText;
+        string lf = raw.Replace("\r\n", "\n");
+        var replacements = RawBlocks(lf).Select(m => (Match: m, Key: Normal(XmlImportPaths.Command(m.Groups["body"].Value)))).Where(x => x.Key == OldOneDrive || LegacyNames.Any(n => x.Key == "& '" + Root + n.Legacy + "';")).ToArray();
+        foreach (var entry in replacements.Reverse())
+        {
+            string replacement = entry.Key == OldOneDrive ? oneDriveBlock : entry.Match.Value;
+            if (entry.Key != OldOneDrive)
+            {
+                var pair = LegacyNames.Single(n => entry.Key == "& '" + Root + n.Legacy + "';");
+                replacement = "\t{\n\t\t& '" + Root + pair.Current + "';\n\t};\n";
+            }
+            // Mixed newlines require mapping against the original prefix.
+            int Map(int offset) { int i = 0, j = 0; while (j < offset) { if (raw[i] == '\r' && i + 1 < raw.Length && raw[i+1] == '\n') i++; i++; j++; } return i; }
+            int start = Map(entry.Match.Index), end = Map(entry.Match.Index + entry.Match.Length);
+            if (raw[start..end].Contains("\r\n")) replacement = replacement.Replace("\n", "\r\n");
+            raw = raw[..start] + replacement + raw[end..];
+        }
+        rawStage.InnerText = raw;
+        return retained;
     }
+    internal static XmlDocument ComparisonDocument(XmlDocument source) => NormalizeLegacy(source) ?? XmlImportPaths.Inspection(source);
     internal static string[] KnownLegacyHelpers(XmlDocument source) => NormalizeLegacy(source)==null ? [] : LegacyNames.Where(n=>Files(source,n.Legacy).Length==1).Select(n=>n.Legacy).ToArray();
     internal static bool IsEditableLegacy(XmlDocument source) => NormalizeLegacy(source)!=null;
     internal static XmlDocument MergeImported(InstallPlan p,XmlDocument updated)
     {
         var imported=p.ImportedXml!;
         var source=StaticIPv4Settings.PrepareMergeSource(XmlMerge.Read(imported.SourceXml),imported.BaselineXml,updated);
-        var normalized=NormalizeLegacy(source);
-        if(normalized==null || InspectCurrent(normalized).Selected.Order().SequenceEqual(p.RemovedApps.Order()))
+        var normalized=NormalizeLegacy(source, preserveOriginal: true);
+        if(normalized==null || InspectCurrent(XmlImportPaths.Inspection(normalized)).Selected.Order().SequenceEqual(p.RemovedApps.Order()))
             return XmlMerge.Apply(source.OuterXml,imported.BaselineXml,updated);
         return XmlMerge.Apply(normalized.OuterXml,imported.BaselineXml,updated,MergeRemovalBlocks);
     }

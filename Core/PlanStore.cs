@@ -11,6 +11,8 @@ public static class PlanStore {
   return JsonSerializer.Serialize(copy,Options);
  }
  public static InstallPlan Deserialize(string json) {
+  using var input=JsonDocument.Parse(json);
+  PlanFileImport.ValidateJsonPlan(input.RootElement);
   var p=JsonSerializer.Deserialize<InstallPlan>(json,Options)??throw new ArgumentException("方案文件为空。");
   if(p.SchemaVersion!=1)throw new ArgumentException("不支持此方案版本。");
   if(p.Users==null||p.Users.Any(u=>u==null))throw new ArgumentException("账户列表无效。");
@@ -19,6 +21,7 @@ public static class PlanStore {
   HardwareSettings.NormalizeLegacy(p);
   AppRemovalSettings.Validate(p);
   if(p.ImportedXml is {} imported&&(imported.SourceXml==null||imported.BaselineXml==null||imported.SourceXml.Length>XmlMerge.MaxLength||imported.BaselineXml.Length>XmlMerge.MaxLength||imported.Notices==null||imported.Blockers==null))throw new ArgumentException("方案中的 XML 导入记录无效。");
+  if(p.ImportedXml is {} data&&(data.Notices.Any(n=>n==null)||data.Blockers.Any(n=>n==null)))throw new ArgumentException("方案中的 XML 导入说明无效。");
   using(var document=JsonDocument.Parse(json)){
    CompactOsSettings.NormalizeLoaded(p,document.RootElement.TryGetProperty(nameof(InstallPlan.CompactOsMode),out _));
    CommonSystemSettings.NormalizeLoaded(p,document.RootElement);
@@ -46,6 +49,8 @@ public static class PlanStore {
    RegisteredInformationSettings.NormalizeLoaded(p,document.RootElement);
    WorkgroupSettings.NormalizeLoaded(p,document.RootElement);
    PeLogSettings.NormalizeLoaded(p,document.RootElement);
+   LegacyUpgradeSettings.NormalizeLoaded(p,document.RootElement);
+   XmlPlanImport.RefreshRemainder(p);
   }
   p.ClearDiskConsent();
   return p;

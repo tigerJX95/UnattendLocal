@@ -140,11 +140,11 @@ public static partial class AppRemovalSettings
     private static Source InspectCurrent(XmlDocument doc)
     {
         var templates = Templates.Value; var selectors = new Dictionary<string,HashSet<string>>(); bool ambiguous = false;
-        var blocks = Stages.ToDictionary(s=>s,s=>Files(doc,s).SelectMany(f=>Blocks(f.InnerText)).ToArray());
+        var blocks = Stages.ToDictionary(s=>s,s=>AdditionalSetupSettings.KnownBlocks(doc,s));
         foreach(string stage in Stages)
         {
             var files=Files(doc,stage);
-            if(files.Length!=1 || Skeleton(files[0].InnerText)!=wrappers[stage])blocks[stage]=[];
+            if(files.Length!=1 || !NativeScriptPipeline.StageActive(doc,stage) || Skeleton(files[0].InnerText)!=wrappers[stage])blocks[stage]=[];
             if(stage!="UserOnce.ps1")
             {
                 var ns=new XmlNamespaceManager(doc.NameTable);ns.AddNamespace("u",XmlMerge.Namespace);

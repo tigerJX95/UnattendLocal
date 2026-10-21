@@ -26,6 +26,8 @@ public static class XmlPlanImport {
   if(!snapshot){
    ReadForm(doc,p,notes);ReadBasic(doc,ns,p,service,notes);ReadGeneratedSettings(original,ns,p,notes);
   }
+  // Recheck native flags even when an older reversible note is present.
+  BooleanScriptSettings.ReadIntoPlan(original,p,notes);
   // Credentials come from actual XML, never from form comments or the reversible settings note.
   ReadCredentials(doc,ns,p,notes);
   var firstLogonState=FirstLogonSettings.ReadIntoPlan(doc,p,notes);
@@ -39,6 +41,7 @@ public static class XmlPlanImport {
   SystemMaintenanceSettings.ReadIntoPlan(doc,p,notes);
   ProcessAuditSettings.ReadIntoPlan(doc,p,notes);
   ProtectionSettings.ReadIntoPlan(doc,p,notes);
+  LegacyUpgradeSettings.ReadIntoPlan(doc,p,notes);
   VmGuestToolsSettings.ReadIntoPlan(doc,p,notes);
   AdditionalSetupSettings.ReadIntoPlan(doc,p,notes);
   SecurityOptions.ReadIntoPlan(doc,p,notes);
@@ -71,6 +74,7 @@ public static class XmlPlanImport {
   XmlImportParameters.Reconcile(doc,p,appRemovalState,notes);
   if(baseline.Length>0)DescribeRemainder(doc,XmlMerge.Read(baseline),notes);
   p.ImportedXml=new ImportedXml{AppRemovalImportVersion=2,AppRemovalReadOnly=appRemovalState.Ambiguous,SourceXml=original.OuterXml,BaselineXml=baseline,Notices=notes.Distinct().ToArray(),Blockers=blockers.Distinct().ToArray(),RequiresDiskReview=disk};
+  p.ImportedXml.LegacyUpgradeReadOnly=LegacyUpgradeSettings.Inspect(doc).Ambiguous;
   p.ImportedXml.AutoPartitionReadOnly=partitionState.Mentioned&&!partitionState.Known;
   CompactOsSettings.UpdateImportState(p.ImportedXml,compactState);
   StaticIPv4Settings.UpdateImportState(p.ImportedXml,networkState);
@@ -150,9 +154,6 @@ public static class XmlPlanImport {
   p.LockKeyMode=KeyboardLockSettings.Default;p.StickyKeysMode=StickyKeySettings.Default;p.ColorSettingsMode=ColorSettings.Default;p.WallpaperMode=WallpaperSettings.Default;
   var files=doc.SelectNodes("//*[local-name()='File']")!.Cast<XmlElement>().ToArray();string body=doc.InnerText;
   string File(string name)=>files.FirstOrDefault(f=>f.GetAttribute("path").EndsWith("\\"+name,StringComparison.OrdinalIgnoreCase))?.InnerText??"";
-  foreach(var pair in new Dictionary<string,string>{
-   [nameof(p.DisableFastStartup)]="HiberbootEnabled",[nameof(p.EnableLongPaths)]="LongPathsEnabled",[nameof(p.DisableWindowsUpdate)]="-TaskName 'PauseWindowsUpdate'",[nameof(p.DisableAppSuggestions)]="DisableWindowsConsumerFeatures",[nameof(p.DisablePointerPrecision)]="MouseThreshold1",[nameof(p.HideEdgeFre)]="HideFirstRunExperience",[nameof(p.DisableEdgeStartupBoost)]="StartupBoostEnabled",[nameof(p.ClassicContextMenu)]="{86ca1aa0-34aa-4e8b-a509-50c905bae2a2}",[nameof(p.ShowFileExtensions)]="HideFileExt",[nameof(p.HideInfoTip)]="ShowInfoTip",[nameof(p.LaunchToThisPC)]="-Name 'LaunchTo'",[nameof(p.ShowEndTask)]="TaskbarEndTask",[nameof(p.DisableWidgets)]="AllowNewsAndInterests",[nameof(p.LeftTaskbar)]="TaskbarAl",[nameof(p.HideTaskViewButton)]="ShowTaskViewButton",[nameof(p.ShowAllTrayIcons)]="ShowAllTrayIcons.xml",[nameof(p.DisableBingResults)]="DisableSearchBoxSuggestions",[nameof(p.DeleteEdgeDesktopIcon)]="Microsoft Edge.lnk",[nameof(p.TurnOffSystemSounds)]="AppEvents\\Schemes",[nameof(p.PreventDeviceEncryption)]="PreventDeviceEncryption"})
-   typeof(InstallPlan).GetProperty(pair.Key)!.SetValue(p,body.Contains(pair.Value,StringComparison.OrdinalIgnoreCase));
   var hidden=Match(File("DefaultUser.ps1"),@"/v ""?ShowSuperHidden""?.*?/d 1");
   if(!hidden.Success)hidden=Match(File("DefaultUser.ps1"),@"/v ""?ShowSuperHidden""?");
   p.HideFilesMode=body.Contains("ShowSuperHidden")?ExplorerSettings.ShowAll:Match(body,@"/v ""?Hidden""? /t REG_DWORD /d 1").Success?ExplorerSettings.ProtectedOnly:ExplorerSettings.Default;
@@ -202,14 +203,27 @@ public static class XmlPlanImport {
   void ReadLayout(string name,string kind){string value=File(name);if(value.Length==0)return;try{ShellSettings.ValidateDocument(kind,value);if(kind=="taskbar"){p.TaskbarIconsXml=value;p.TaskbarIconsMode=value.Contains("#leaveempty")?"移除全部固定图标":ShellSettings.CustomXml;}else{p.StartTilesXml=value;p.StartTilesMode=ShellSettings.CustomXml;}}catch(ArgumentException){if(kind=="tiles"&&!value.Contains("Tile "))p.StartTilesMode="移除全部磁贴";else notes.Add("部分开始菜单/任务栏布局无法在界面还原，原布局保留。");}}
  }
  private static void DescribeRemainder(XmlDocument source,XmlDocument baseline,List<string> notes){
-  var legacyHelpers=AppRemovalSettings.KnownLegacyHelpers(source).ToHashSet(StringComparer.OrdinalIgnoreCase);
+  var comparison=AppRemovalSettings.ComparisonDocument(source);
   var generated=baseline.SelectNodes("//*[local-name()='File']")!.Cast<XmlElement>().ToDictionary(f=>f.GetAttribute("path"),StringComparer.OrdinalIgnoreCase);
-  foreach(XmlElement file in source.SelectNodes("//*[local-name()='File']")!) {
-   string path=file.GetAttribute("path");if(legacyHelpers.Contains(PathName(path)))continue;if(!generated.TryGetValue(path,out var other)||!XmlMerge.Equal(file,other))notes.Add("原文保留，未完全还原到界面："+PathName(path));
+  foreach(XmlElement file in comparison.SelectNodes("//*[local-name()='File']")!) {
+   string path=file.GetAttribute("path");
+   if(generated.TryGetValue(path,out var other)){
+    if(XmlMerge.Equal(file,other))continue;
+    if(ScriptImportDetails.Describe(comparison,file,other,notes)){file.InnerText=other.InnerText;continue;}
+   }
+   string prefix=path.EndsWith(".ps1",StringComparison.OrdinalIgnoreCase)?"脚本原文已保留，内容与界面生成版本存在差异：":"文件原文已保留，内容未完整映射为界面设置：";
+   notes.Add(prefix+PathName(path));
   }
   var known=baseline.SelectNodes("//*[local-name()='component']")!.Cast<XmlElement>().Select(XmlMerge.Identity).ToHashSet();
   foreach(XmlElement component in source.SelectNodes("//u:component",NamespaceManager(source))!)if(!known.Contains(XmlMerge.Identity(component))&&component.GetAttribute("name") is not (StaticIPv4Settings.Tcp or StaticIPv4Settings.Dns or SetupDriverSettings.ComponentName))notes.Add("原文保留，未实现的组件："+component.GetAttribute("name"));
-  if(!XmlMerge.Equal(source.DocumentElement,baseline.DocumentElement)&&notes.Count==0)notes.Add("原 XML 含无法完整还原的参数或组件内容；原文保留，修改发生冲突时将阻止导出。");
+  if(!XmlMerge.Equal(comparison.DocumentElement,baseline.DocumentElement)&&notes.Count==0)notes.Add("原 XML 含无法完整还原的参数或组件内容；原文保留，修改发生冲突时将阻止导出。");
+ }
+ internal static void RefreshRemainder(InstallPlan p){
+  if(p.ImportedXml is not {OriginalOmitted:false} data||data.SourceXml.Length==0||data.BaselineXml.Length==0)return;
+  var prefixes=new[]{"原文保留，未完全还原到界面：","脚本原文已保留，","文件原文已保留，","脚本原文已保留：","脚本中的设置已识别：","原文保留，未实现的组件：","原 XML 含无法完整还原的参数或组件内容；"};
+  var notes=data.Notices.Where(n=>!prefixes.Any(prefix=>n.StartsWith(prefix,StringComparison.Ordinal))).ToList();
+  DescribeRemainder(XmlMerge.Read(data.SourceXml),XmlMerge.Read(data.BaselineXml),notes);
+  data.Notices=notes.Distinct().ToArray();
  }
  private static void ReadForm(XmlDocument doc,InstallPlan p,List<string> notes){
   var values=XmlImportParameters.ReadValues(doc,notes);
@@ -304,6 +318,7 @@ public static class XmlPlanImport {
   SystemMaintenanceSettings.ValidateImported(p,source);
   ProcessAuditSettings.ValidateImported(p,source);
   ProtectionSettings.ValidateImported(p,source);
+  LegacyUpgradeSettings.ValidateImported(p,source);
   VmGuestToolsSettings.ValidateImported(p,source);
   AdditionalSetupSettings.ValidateImported(p,source);
   SecurityOptions.ValidateImported(p,source);

@@ -15,6 +15,7 @@ public static class SettingsSearchCatalog
         new("指定 Windows PE 日志目录", "镜像与分区", 3, "PeLogCheck", "pelog", "UsePeLogPath LogPath Setup Windows PE 安装日志"),
         new("PE 日志保存目录", "镜像与分区", 3, "PeLogEditor", "pelog", "PeLogPath LogPath log folder 日志 路径 目录 排错"),
 
+        new("旧版 MoSetup 升级兼容设置", "版本与密钥", 2, "LegacyUpgradeCheck", "legacyupgrade", "AllowUnsupportedUpgrade AllowUpgradesWithUnsupportedTPMOrCPU MoSetup 旧版 升级 TPM CPU 兼容"),
         new("已导入的 XML", "配置方案", 0, "SettingAnchor000", "", "   "),
         new("推荐配置与自定义配置", "配置方案", 0, "SettingAnchor001", "", "   "),
         new("配置方式", "配置方案", 0, "SettingAnchor002", "", "ConfigurationMode Configuration Mode 推荐配置 自定义配置 "),

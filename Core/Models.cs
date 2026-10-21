@@ -130,6 +130,7 @@ public class InstallPlan : Observable {
  private bool _EnableColorTransparency=true; public bool EnableColorTransparency {get=>_EnableColorTransparency;set=>Set(ref _EnableColorTransparency,value);}
  private bool _AccentColorOnStart; public bool AccentColorOnStart {get=>_AccentColorOnStart;set=>Set(ref _AccentColorOnStart,value);}
  private bool _AccentColorOnBorders; public bool AccentColorOnBorders {get=>_AccentColorOnBorders;set=>Set(ref _AccentColorOnBorders,value);}
+ private bool _AllowUnsupportedUpgrade; public bool AllowUnsupportedUpgrade {get=>_AllowUnsupportedUpgrade;set=>Set(ref _AllowUnsupportedUpgrade,value);}
  private bool _BypassTPMCheck; public bool BypassTPMCheck {get=>_BypassTPMCheck;set=>Set(ref _BypassTPMCheck,value);}
  private bool _BypassSecureBootCheck; public bool BypassSecureBootCheck {get=>_BypassSecureBootCheck;set=>Set(ref _BypassSecureBootCheck,value);}
  private bool _BypassRAMCheck; public bool BypassRAMCheck {get=>_BypassRAMCheck;set=>Set(ref _BypassRAMCheck,value);}

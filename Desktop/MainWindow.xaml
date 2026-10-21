@@ -50,6 +50,7 @@
     <TabControl x:Name="Pages" TabStripPlacement="Left" Background="{DynamicResource CanvasBrush}" BorderThickness="0" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch">
       <TabItem Header="配置方案" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch">
         <ScrollViewer VerticalScrollBarVisibility="Auto"><StackPanel Margin="24">
+          <TextBlock Margin="0,0,0,12" Text="可将一个 Windows 应答 XML 或本程序保存的 JSON 方案拖入窗口，检查后确认替换当前配置。" TextWrapping="Wrap" Foreground="{DynamicResource SecondaryBrush}"/>
           <Border Style="{StaticResource Card}" Visibility="{Binding HasImportedXml,Converter={StaticResource VisibleWhen}}"><StackPanel>
             <TextBlock x:Name="SettingAnchor000" Text="已导入的 XML" FontSize="20" FontWeight="SemiBold" Margin="0,0,0,16"/>
             <TextBlock Text="{Binding XmlImportSummary}" FontWeight="SemiBold" TextWrapping="Wrap"><TextBlock.Style><Style TargetType="TextBlock"><Setter Property="Foreground" Value="{DynamicResource ForegroundBrush}"/><Style.Triggers><DataTrigger Binding="{Binding HasXmlImportErrors}" Value="True"><Setter Property="Foreground" Value="{DynamicResource ErrorBrush}"/></DataTrigger></Style.Triggers></Style></TextBlock.Style></TextBlock>
@@ -357,6 +358,10 @@
               <CheckBox x:Name="SettingAnchor049" Content="绕过 TPM 2.0 检查" IsChecked="{Binding Plan.BypassTPMCheck}" ToolTip="{Binding DataContext.HelpTips[hardwaretpm],RelativeSource={RelativeSource AncestorType=Window}}" />
               <CheckBox x:Name="SettingAnchor050" Content="绕过安全启动检查" IsChecked="{Binding Plan.BypassSecureBootCheck}" ToolTip="{Binding DataContext.HelpTips[hardwareboot],RelativeSource={RelativeSource AncestorType=Window}}" />
               <CheckBox x:Name="SettingAnchor051" Content="绕过内存容量检查" IsChecked="{Binding Plan.BypassRAMCheck}" ToolTip="{Binding DataContext.HelpTips[hardwareram],RelativeSource={RelativeSource AncestorType=Window}}" />
+              <CheckBox x:Name="LegacyUpgradeCheck" ToolTipService.ShowOnDisabled="True" Content="写入旧版 MoSetup 升级兼容设置" IsChecked="{Binding Plan.AllowUnsupportedUpgrade}" IsEnabled="{Binding CanEditLegacyUpgrade}" Margin="0,14,0,0" ToolTip="{Binding DataContext.HelpTips[legacyupgrade],RelativeSource={RelativeSource AncestorType=Window}}"/>
+              <TextBlock Style="{StaticResource ExplanationText}" Text="　　原 MoSetup 命令未完整识别，当前只读保留。请查看配置方案页的导入说明。" Foreground="{DynamicResource WarningBrush}" Visibility="{Binding HasReadonlyLegacyUpgrade,Converter={StaticResource VisibleWhen}}"/>
+              <TextBlock Style="{StaticResource ExplanationText}" Text="　　兼容旧 XML 的 AllowUpgradesWithUnsupportedTPMOrCPU=1，与上方三项安装检查独立。此设置不保证当前 Windows 安装程序采用。" Foreground="{DynamicResource SecondaryBrush}"/>
+
               <TextBlock Style="{StaticResource ExplanationText}" Text="　　只影响安装阶段的要求检查，不关闭固件中的 TPM 或安全启动；不会增加内存。效果取决于安装镜像，不保证绕过 CPU 指令集等其他要求。" TextWrapping="Wrap" Foreground="{DynamicResource SecondaryBrush}" />
             </StackPanel></Border>
           </StackPanel>
@@ -1345,7 +1350,7 @@
                   </Grid>
                 </Border>
                 <Button Content="检查与预览" Click="PreviewClick" HorizontalAlignment="Left" />
-                <TextBox Text="{Binding Preview,Mode=OneWay}" IsReadOnly="True" FontFamily="Consolas" FontSize="12" Height="360" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto" />
+                <TextBox Text="{Binding Preview,Mode=OneWay}" IsReadOnly="True" FontFamily="Consolas" FontSize="14" Height="360" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto" />
                 <Button Content="导出 autounattend.xml" Click="ExportClick" HorizontalAlignment="Left" />
               </StackPanel>
             </Border>

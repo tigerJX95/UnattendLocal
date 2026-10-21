@@ -50,7 +50,7 @@ public static class SystemMaintenanceSettings
         var extraction = doc.SelectNodes("//*[local-name()='ExtractScript']")!.Cast<XmlElement>().ToArray();
         bool extracted = extraction.Length == 1 && Normal(extraction[0].InnerText) == expected.Extraction && paths.Count(p => WindowStyle(p.InnerText) == WindowStyle(expected.ExtractionCommand)) == 1;
         bool active = paths.Count(p => Regex.IsMatch(p.InnerText, "^powershell\\.exe -WindowStyle \"(?:Hidden|Normal)\" -ExecutionPolicy \"Unrestricted\" -NoProfile -File \"" + Regex.Escape(StagePath) + "\"$", RegexOptions.IgnoreCase, TimeSpan.FromSeconds(1))) == 1;
-        bool knownStage = extracted && stage.Length == 1 && active && Skeleton(stage[0].InnerText) == expected.Wrapper;
+        bool knownStage = NativeScriptPipeline.StageActive(doc, "Specialize.ps1") && extracted && stage.Length == 1 && active && Skeleton(stage[0].InnerText) == expected.Wrapper;
         return knownStage ? Regex.Matches(stage[0].InnerText.Replace("\r\n", "\n"), BlockPattern, RegexOptions.None, TimeSpan.FromSeconds(1)).Select(m => Normal(m.Groups["body"].Value)).ToArray() : [];
     }
     public record State(bool Enabled, bool Ambiguous);

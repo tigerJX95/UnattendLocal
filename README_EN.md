@@ -4,7 +4,7 @@
 
 UnattendLocal is a Chinese-language Windows desktop tool based on [Christoph Schneegans’ UnattendGenerator](https://github.com/cschneegans/unattend-generator). It lets you edit, check, and generate `autounattend.xml` for Windows 10 / 11 locally.
 
-Current version: **V1.11**. Includes static IPv4/IPv6 dual stack, subnet-mask input, settings search, setup driver directories, Dynamic Update, partitioning, OOBE and account settings, and existing XML import/editing.
+Current version: **V1.12.1**. Includes static IPv4/IPv6 dual stack, subnet-mask input, settings search, setup driver directories, Dynamic Update, partitioning, OOBE and account settings, and existing XML import/editing.
 
 ## 💡 Why this project exists
 
@@ -57,19 +57,18 @@ The displayed product key is a public generic installation key for selecting an 
 - Save and restore JSON plans; review summaries, recommended-setting differences, checks, redacted previews, and XML exports.
 - Import existing XML and edit supported settings while preserving unknown content. Export stops with an explanation when changes cannot be merged reliably.
 
-## ✨ V1.11 updates
+## ✨ V1.12.1 updates
 
-- **One IPv4 subnet input:** Replaced the separate prefix field and mode checkbox with “Subnet mask/prefix length”, accepting `255.255.255.0` or `/24`.
-- **Live updates and correction:** Valid input updates the summary, subnet preview and XML output. Blank, incomplete or invalid text is retained for correction and blocks export without reverting to a previous value.
-- **Configuration error navigation:** Recognized field errors during Check and Preview or export show their page and setting. “Go to edit” locates, highlights and focuses the relevant input, selecting the affected account when needed.
-- **Existing configuration compatibility:** Older plans use their previously active prefix or mask. JSON retains the entered format, imported XML remains editable when recognized, and unknown network configurations stay read-only.
-- Retained `/0` deployment blocking, red errors and multiline help. Source XML errors offer “View import details”; navigation never guesses from free text or changes configuration automatically.
+- Redact native command credentials in previews and clarify the boundary for secrets in custom scripts.
+- Preserve unrelated script text when converting historical app-removal settings.
+- Match complete native commands and values instead of bare registry markers; verify numeric execution order.
+- Save JSON/XML through a same-directory temporary file before replacing the destination.
+- Reject control characters in account names and locate the affected account field.
 
-[Static IP configuration guide](docs/StaticIP.md) · [UI operation guide](docs/UiImprovements.md)
 
 ## 📦 Download and usage
 
-Download and run the matching Windows x64 executable from the repository’s [**Releases**](https://github.com/tigerJX95/UnattendLocal/releases/latest) page: `UnattendLocal_V1.11_x64_SelfContained.exe` or `UnattendLocal_V1.11_x64_FrameworkDependent.exe`. Choose `UnattendLocal_V1.11_x64_SelfContained.exe` for a bundled .NET runtime, or `UnattendLocal_V1.11_x64_FrameworkDependent.exe` if .NET 10 Desktop Runtime x64 is already installed. Both have the same features. Use a virtual machine for initial testing.
+Download and run the matching Windows x64 executable from the repository’s [**Releases**](https://github.com/tigerJX95/UnattendLocal/releases/latest) page: `UnattendLocal_V1.12.1_x64_SelfContained.exe` or `UnattendLocal_V1.12.1_x64_FrameworkDependent.exe`. Choose `UnattendLocal_V1.12.1_x64_SelfContained.exe` for a bundled .NET runtime, or `UnattendLocal_V1.12.1_x64_FrameworkDependent.exe` if .NET 10 Desktop Runtime x64 is already installed. Both have the same features. Use a virtual machine for initial testing.
 
 1. Choose a recommended scenario or a custom configuration and enter the required account and image settings.
 2. Adjust system, appearance, and application removal options as needed.
@@ -80,25 +79,131 @@ Open a JSON plan to restore saved settings, or import an answer XML to continue 
 
 ## 📖 Scope and limitations
 
-See [IPv4 / IPv6 configuration](docs/StaticIP.md) and [V1.0 scope](docs/V1Scope.md).
+### Related guides
 
-See [Help and About](docs/About.md) for the information window and license texts.
+- See [IPv4 / IPv6 configuration](docs/StaticIP.md) and [V1.0 scope](docs/V1Scope.md).
+- See [Help and About](docs/About.md) for the information window and license texts.
+- See [First logon](docs/FirstLogon.md) for sign-in options.
+- See [XML import](docs/XmlImport.md) for importing and cancelling.
+- See [Settings search](docs/SettingsSearch.md) for finding options.
 
-Choose the naming mode in basic settings. Leaving the fixed name empty still lets Windows generate it. The installation-time dialog requires valid input before setup can continue. A naming script must return a valid computer name (1–15 characters, not entirely numeric, without invalid characters, and different from local account names). The tool does not run the script or verify its runtime result. Scripts are stored verbatim in plans and XML; check for sensitive information before sharing.
+### Compatibility junctions
 
-The second and third locale/keyboard pairs apply in fixed language/region mode. They do not install language packs or change this tool’s Chinese interface. Interactive language selection retains these settings in the plan without writing fixed language settings.
+- The compatibility-junction option removes items within its specified scope based on the ReparsePoint attribute, which may include other reparse points.
+- Deleted links are not restored; validate the operation in a virtual machine first.
 
-The four options appear in system settings and are unchecked by default, leaving Windows behavior unchanged. Disabling SAC, SmartScreen, or core isolation reduces the corresponding protection. Re-enabling SAC may require a Windows reset or reinstall. The SmartScreen option also hides the Windows Security tray icon but does not disable the Defender antivirus engine. The core-isolation option does not uninstall Hyper-V, WSL2, or VM tools and does not guarantee better performance; Windows version, organization policies, and firmware locks can affect results. Restricting C: root permissions may affect programs that expect ordinary users to write there; it does not change permissions throughout the disk or on other drives.
+### Computer naming
 
-Clearing an option changes newly generated configuration only; it does not restore an installed system. XML editing is available for complete recognized native flows; unknown or modified content is preserved and unreliable replacements are rejected.
+- Choose the naming mode in basic settings.
+- Leaving the fixed name empty still lets Windows generate it.
+- The installation-time dialog requires valid input before setup can continue.
+- A naming script must return a valid computer name (1–15 characters, not entirely numeric, without invalid characters, and different from local account names).
+- The tool does not run the script or verify its runtime result.
+- Scripts are stored verbatim in plans and XML; check for sensitive information before sharing.
 
-The `$OEM$` option generates installation settings only. Prepare the media folders alongside `autounattend.xml`: `$$` maps to the Windows directory and `$1` to the system-drive root. Copying can replace matching files and does not automatically install applications. Do not pre-create future users’ personal profile folders. Custom PE copying scripts are preserved and cannot be reliably controlled by this switch.
+### Languages and keyboards
 
-AppLocker starts AppIDSvc and runs Set-AppLockerPolicy during specialize without `-Merge`, potentially replacing the existing local policy. Enforced rules can block setup scripts, system tools, or administrator applications; audit them in a VM and prepare recovery first. Structural checks cannot establish whether a policy is suitable. Results depend on Windows version, components, and organization policy. JSON always retains policy text, including when credentials are omitted; review paths, SIDs, and other entered information before sharing. Preview hides the entire policy XML. Clearing the option changes new configuration only and does not restore an installed system.
+- The second and third locale/keyboard pairs apply in fixed language/region mode.
+- They do not install language packs or change this tool’s Chinese interface.
+- Interactive language selection retains these settings in the plan without writing fixed language settings.
 
-WPA3 requires compatible Windows, wireless drivers, and access points. Open Wi-Fi does not encrypt the wireless link and may require a captive portal. Wireless profile XML may contain credentials; saving without credentials omits the whole profile. Automatic connection requires the profile name to match the SSID; encrypted keys are not portable. Prepare required certificates and drivers separately. Narrator remains enabled until adjusted in Windows accessibility settings; customized PE media may lack speech or audio support. The Edge option only attempts a policy-file change: it does not uninstall Edge or WebView2, and Windows updates may revert it. Disabling System Restore on C: can delete existing restore points and removes that recovery path. Disabling UAC reduces elevation protection. Blocking WPBT does not modify firmware or uninstall software and may affect programs provided through that mechanism. VM guest tools require attached official tool media compatible with the target Windows version and architecture. Missing media means no installation. VirtIO Guest Tools do not replace Windows PE drivers; existing PE driver scripts in imported XML are preserved. Command-line auditing writes arguments in plain text to the security log and may expose credentials. Enabling only auditing does not force existing command-line capture policies off. Restart behavior depends on Windows version, organization policies, update deadlines, and user-scheduled restarts; this option does not guarantee preventing every restart. Schedule restarts yourself to complete updates. Disabling NTFS last-access updates may affect archival, backup, or cleanup rules that depend on those timestamps. Desktop image scripts must return raw image bytes, and the image must be accessible during installation. Lock-screen behavior depends on Windows edition and policies. Removing applications may affect related features; clearing a removal selection does not restore applications on an already installed system. Remote Desktop requires a supported target edition. Higher-priority policies may override RemoteSigned.
+### System protection and root permissions
 
-Exported XML, JSON plans containing credentials, and custom scripts may contain sensitive data. Remove passwords, keys, and tokens before sharing. Preview hides the whole wireless profile, but does not automatically identify secrets inside arbitrary scripts. Disk wiping and formatting may delete data; verify the target disk and back up first.
+- The four options appear in system settings and are unchecked by default, leaving Windows behavior unchanged.
+- Disabling SAC, SmartScreen, or core isolation reduces the corresponding protection.
+- Re-enabling SAC may require a Windows reset or reinstall.
+- The SmartScreen option also hides the Windows Security tray icon but does not disable the Defender antivirus engine.
+- The core-isolation option does not uninstall Hyper-V, WSL2, or VM tools and does not guarantee better performance; Windows version, organization policies, and firmware locks can affect results.
+- Restricting C: root permissions may affect programs that expect ordinary users to write there; it does not change permissions throughout the disk or on other drives.
+
+### Setting changes and XML editing
+
+- Clearing an option changes newly generated configuration only; it does not restore an installed system.
+- XML editing is available for complete recognized native flows; unknown or modified content is preserved and unreliable replacements are rejected.
+
+### `$OEM$` configuration sets
+
+- The `$OEM$` option generates installation settings only.
+- Prepare the media folders alongside `autounattend.xml`: `$$` maps to the Windows directory and `$1` to the system-drive root.
+- Copying can replace matching files and does not automatically install applications.
+- Do not pre-create future users’ personal profile folders.
+- Custom PE copying scripts are preserved and cannot be reliably controlled by this switch.
+
+### AppLocker policy
+
+- AppLocker starts AppIDSvc and runs Set-AppLockerPolicy during specialize without `-Merge`, potentially replacing the existing local policy.
+- Enforced rules can block setup scripts, system tools, or administrator applications; audit them in a VM and prepare recovery first.
+- Structural checks cannot establish whether a policy is suitable.
+- Results depend on Windows version, components, and organization policy.
+- JSON always retains policy text, including when credentials are omitted; review paths, SIDs, and other entered information before sharing.
+- Preview hides the entire policy XML.
+- Clearing the option changes new configuration only and does not restore an installed system.
+
+### Wireless networks and profile XML
+
+- WPA3 requires compatible Windows, wireless drivers, and access points.
+- Open Wi-Fi does not encrypt the wireless link and may require a captive portal.
+- Wireless profile XML may contain credentials; saving without credentials omits the whole profile.
+- Automatic connection requires the profile name to match the SSID; encrypted keys are not portable.
+- Prepare required certificates and drivers separately.
+
+### Narrator
+
+- Narrator remains enabled until adjusted in Windows accessibility settings; customized PE media may lack speech or audio support.
+
+### Edge uninstall entry
+
+- The Edge option only attempts a policy-file change: it does not uninstall Edge or WebView2, and Windows updates may revert it.
+
+### System Restore on C:
+
+- Disabling System Restore on C: can delete existing restore points and removes that recovery path.
+
+### UAC and WPBT
+
+- Disabling UAC reduces elevation protection.
+- Blocking WPBT does not modify firmware or uninstall software and may affect programs provided through that mechanism.
+
+### VM guest tools and PE drivers
+
+- VM guest tools require attached official tool media compatible with the target Windows version and architecture.
+- Missing media means no installation.
+- VirtIO Guest Tools do not replace Windows PE drivers; existing PE driver scripts in imported XML are preserved.
+
+### Command-line auditing
+
+- Command-line auditing writes arguments in plain text to the security log and may expose credentials.
+- Enabling only auditing does not force existing command-line capture policies off.
+
+### Windows Update and restarts
+
+- Restart behavior depends on Windows version, organization policies, update deadlines, and user-scheduled restarts; this option does not guarantee preventing every restart.
+- Schedule restarts yourself to complete updates.
+
+### NTFS last-access timestamps
+
+- Disabling NTFS last-access updates may affect archival, backup, or cleanup rules that depend on those timestamps.
+
+### Desktop and lock-screen images
+
+- Desktop image scripts must return raw image bytes, and the image must be accessible during installation.
+- Lock-screen behavior depends on Windows edition and policies.
+
+### Application removal
+
+- Removing applications may affect related features; clearing a removal selection does not restore applications on an already installed system.
+
+### Remote Desktop and PowerShell policy
+
+- Remote Desktop requires a supported target edition.
+- Higher-priority policies may override RemoteSigned.
+
+### Sensitive information and disk operations
+
+- Exported XML, JSON plans containing credentials, and custom scripts may contain sensitive data.
+- Remove passwords, keys, and tokens before sharing.
+- Preview hides the whole wireless profile, but does not automatically identify secrets inside arbitrary scripts.
+- Disk wiping and formatting may delete data; verify the target disk and back up first.
 
 ## 🛠️ Build from source
 

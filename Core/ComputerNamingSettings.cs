@@ -19,7 +19,7 @@ public static class ComputerNamingSettings
             return new ScriptComputerNameSettings(PromptScript);
         }
         if (p.ComputerNameMode != Script) throw new ArgumentException("请选择有效的计算机命名方式。");
-        if (string.IsNullOrWhiteSpace(p.ComputerNameScript) || p.ComputerNameScript.Length > 65536) throw new ArgumentException("请填写计算机命名脚本，最多 64 Ki 字符；淡色示例不参与生成。");
+        if (string.IsNullOrWhiteSpace(p.ComputerNameScript) || p.ComputerNameScript.Length > 65536) throw new ArgumentException("请填写计算机命名脚本，最多 65,536 个字符；淡色示例不参与生成。");
         return new ScriptComputerNameSettings(p.ComputerNameScript);
     }
     public const string Description = "固定名称留空时由 Windows 自动生成，继续兼容既有方案。安装时输入或脚本生成沿用原生脚本命名流程：安装阶段暂用 TEMPNAME，再读取脚本返回的名称并应用。输入模式使用独立对话框，可配合隐藏 PowerShell；无效或取消输入时继续提示，需完成输入才能继续。返回值应为一个有效名称：1–15 字符，不使用空白、纯数字或 Windows 不允许的符号，也不应与本地账户同名。脚本结果在目标安装时才能确定，本工具不执行脚本，不能预先保证名称有效。脚本需自行处理失败、网络及设备信息；不要把密码或令牌写入脚本。取消仅影响新生成配置，不重命名当前电脑或已安装系统。";

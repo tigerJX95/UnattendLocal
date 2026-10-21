@@ -67,9 +67,16 @@ Recognized source XML containing /0 remains importable and editable with its ori
 
 ## 🔎 IPv4 网段预览 / IPv4 subnet preview
 
-随地址、前缀或掩码输入实时显示网络前缀、掩码、广播地址及主机位范围；/31 显示两个点对点端点，/32 显示单地址，两者不显示广播地址。预览只按掩码计算范围，不核验真实网络分配、特殊用途地址、地址占用、网关或 DNS 可达性；可计算预览不代表配置整体通过校验。不会填写或修改地址、网关、前缀或掩码。未启用或只读网络不根据默认值显示预览。
+- 随地址、前缀或掩码输入实时显示网络前缀、掩码、广播地址及主机位范围；/31 显示两个点对点端点，/32 显示单地址，两者不显示广播地址。
+- 预览只按掩码计算范围，不核验真实网络分配、特殊用途地址、地址占用、网关或 DNS 可达性；可计算预览不代表配置整体通过校验。
+- 不会填写或修改地址、网关、前缀或掩码。
+- 未启用或只读网络不根据默认值显示预览。
 
-The preview updates with the address, prefix or mask and shows the network prefix, mask, broadcast address and host-bit range. /31 shows the two point-to-point endpoints; /32 shows one address; neither has a broadcast entry. It calculates boundaries only and does not verify real network assignments, all special-purpose addresses, address availability, or gateway/DNS reachability. A calculated preview does not mean the whole configuration is valid. No values are filled or changed automatically. Disabled and read-only networks do not show a preview based on form defaults.
+- The preview updates with the address, prefix or mask and shows the network prefix, mask, broadcast address and host-bit range. /31 shows the two point-to-point endpoints; /32 shows one address; neither has a broadcast entry.
+- It calculates boundaries only and does not verify real network assignments, all special-purpose addresses, address availability, or gateway/DNS reachability.
+- A calculated preview does not mean the whole configuration is valid.
+- No values are filled or changed automatically.
+- Disabled and read-only networks do not show a preview based on form defaults.
 
 ## DNS 与双栈 / DNS and dual stack
 

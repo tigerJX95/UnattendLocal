@@ -25,8 +25,15 @@ public class MainViewModel : Observable {
  private void RefreshApps(){ObserveApps();foreach(var choice in AppRemovalChoices)choice.Refresh();Notify(nameof(AppRemovalSummary));}
  private void AppsChanged(object? sender,System.Collections.Specialized.NotifyCollectionChangedEventArgs e){RefreshApps();RefreshAll();InvalidatePreview();}
 
+ public bool HasReadonlyLegacyUpgrade=>Plan.ImportedXml?.LegacyUpgradeReadOnly==true;
+ public bool CanEditLegacyUpgrade=>Plan.ImportedXml?.LegacyUpgradeReadOnly!=true;
+ public bool ImportJson(string json,Func<bool> confirm){
+  InstallPlan candidate;try{candidate=PlanStore.Deserialize(json);PlanFileImport.ValidateForDisplay(candidate);}catch{Status="JSON 方案导入失败，当前配置未改变。";throw;}
+  if(!confirm()){Status="已取消 JSON 方案导入，当前配置未改变。";return false;}
+  Plan=candidate;Status="JSON 方案已载入；请核对配置，未保存的密码和密钥需重新输入。";return true;
+ }
  public bool ImportXml(string xml,Func<bool> confirm){
-  InstallPlan candidate;try{candidate=XmlPlanImport.Import(xml,Service);}catch{Status="XML 导入失败，当前配置未改变。";throw;}
+  InstallPlan candidate;try{candidate=XmlPlanImport.Import(xml,Service);PlanFileImport.ValidateForDisplay(candidate);}catch{Status="XML 导入失败，当前配置未改变。";throw;}
   if(!confirm()){Status="已取消 XML 导入，当前配置未改变。";return false;}
   Plan=candidate;Status=candidate.ImportedXml!.Blockers.Length>0?"XML 已导入；存在阻止导出的项目，请查看配置方案页。":"XML 已导入为自定义配置；已识别设置可编辑，其他原文保留，请查看导入说明。";return true;
  }
@@ -175,7 +182,7 @@ public class MainViewModel : Observable {
  public string XmlImportNotices=>Plan.ImportedXml is {} data?string.Join("\n",data.Notices):"";
  public bool HasXmlImportErrors=>XmlImportErrors.Length>0;
  public string XmlImportDetails=>Plan.ImportedXml is {} data?string.Join("\n",data.Blockers.Concat(data.Notices).Select(n=>"　　"+n)):"";
- private void RefreshXmlImport(){Notify(nameof(CanEditAppRemoval));Notify(nameof(HasImportedXml));Notify(nameof(HasImportedXmlRisk));Notify(nameof(XmlImportSummary));Notify(nameof(XmlImportDetails));Notify(nameof(XmlImportErrors));Notify(nameof(XmlImportNotices));Notify(nameof(HasXmlImportErrors));}
+ private void RefreshXmlImport(){Notify(nameof(CanEditLegacyUpgrade));Notify(nameof(HasReadonlyLegacyUpgrade));Notify(nameof(CanEditAppRemoval));Notify(nameof(HasImportedXml));Notify(nameof(HasImportedXmlRisk));Notify(nameof(XmlImportSummary));Notify(nameof(XmlImportDetails));Notify(nameof(XmlImportErrors));Notify(nameof(XmlImportNotices));Notify(nameof(HasXmlImportErrors));}
  public bool IsCustomStickyKeys=>Plan.StickyKeysMode==StickyKeySettings.Custom;
  public bool IsStickyKeysDisabled=>Plan.StickyKeysMode==StickyKeySettings.Disabled;
  public string StickyKeysSummary=>StickyKeySettings.ModeSummary(Plan);

@@ -1,5 +1,6 @@
 namespace UnattendLocal.Core;
 public class ImportedXml {
+ public bool LegacyUpgradeReadOnly {get;set;}
  public int WorkgroupImportVersion {get;set;}
  public bool WorkgroupReadOnly {get;set;}
  public int PeLogImportVersion {get;set;}
