@@ -14,6 +14,7 @@ public partial class AboutWindow : Window
         new("组件与授权说明", "Components.txt"),
         new("UnattendGenerator · MIT", "UnattendGenerator.txt"),
         new("Newtonsoft.Json 13.0.4 · MIT", "Newtonsoft.Json.txt"),
+        new("DiscUtils 0.16.13 · MIT", "DiscUtils.txt"),
         new(".NET Runtime · MIT", "DotNetRuntime.txt"),
         new("Windows Desktop / WPF · MIT", "WindowsDesktop.txt"),
         new(".NET Runtime · 第三方声明", "DotNetThirdParty.txt"),

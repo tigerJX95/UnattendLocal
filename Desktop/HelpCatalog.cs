@@ -1,4 +1,4 @@
-using UnattendLocal.Core;
+﻿using UnattendLocal.Core;
 
 namespace UnattendLocal.Desktop;
 
@@ -120,7 +120,9 @@ public static class HelpCatalog
         ],
         [
             new("preview", "检查与预览", "检查当前配置并验证 XML 结构，预览会遮蔽账户与 Wi-Fi 密码。预览文本不能直接用于安装；修改配置后应重新检查。"),
-            new("export", "导出与安装", "导出会重新检查当前设置，并生成完整 autounattend.xml。将文件放到安装 U 盘根目录或虚拟机可读取的安装介质。安装镜像与分区可在“镜像与分区”页配置，默认手动选择。清空磁盘或格式化时必须再次核对风险。"),
+            new("exportfilename", "应答文件名称", AnswerFileExport.Usage(true)+" 此选择保存在 JSON 方案中，不改变 XML 的安装设置。"),
+            new("exportiso", "导出应答文件 ISO", "光盘根目录使用当前选择的 XML 文件名。选择 notautounattend.xml 时，需在 Windows PE 中通过 setup.exe /Unattend:实际路径 手动加载。实际盘符以 Windows PE 为准。ISO 可能包含账户密码或产品密钥，请妥善保管。"),
+            new("export", "导出与安装", "导出会重新检查当前设置，并生成完整应答 XML；可选择 autounattend.xml 或 notautounattend.xml，也可封装为 ISO。将文件放到安装 U 盘根目录或虚拟机可读取的安装介质。安装镜像与分区可在“镜像与分区”页配置，默认手动选择。清空磁盘或格式化时必须再次核对风险。"),
             new("save", "方案保存与载入", "默认不保存密码和自定义产品密钥；载入后需重新输入。选择包含凭据时，JSON 会明文保存这些内容。导出的 XML 可能含可还原凭据，请妥善保管。"),
             new("verify", "安装验证", "结构检查不能替代真实安装。先在虚拟机核对用户、密码、首次登录、网络与 OOBE。工具生成安装配置，不会修改当前电脑的账户或网络。")
         ],

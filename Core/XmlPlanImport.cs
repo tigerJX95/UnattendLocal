@@ -272,6 +272,7 @@ public static class XmlPlanImport {
  public static void AddSnapshot(XmlDocument doc,InstallPlan plan){
   foreach(XmlComment c in doc.SelectNodes("//comment()")!.Cast<XmlComment>().ToArray())if(c.Value?.StartsWith(Marker)==true||c.Value?.TrimStart().StartsWith("https://schneegans.de/windows/unattend-generator/?")==true)c.ParentNode!.RemoveChild(c);
   var copy=PlanStore.Deserialize(PlanStore.Serialize(plan,true));copy.ImportedXml=null;
+  copy.ExportNonAutomaticFilename=false; // Output preference belongs to JSON, not installation settings.
   copy.Scripts=new(copy.Scripts.Where(s=>s.Enabled&&!s.IsRemovedType));
   if(copy.AccountMode!="自动创建本地账户")copy.Users.Clear();
   if(!WifiSettings.IsPreset(copy)){copy.Ssid="";copy.WifiPassword="";}

@@ -278,6 +278,8 @@ public static class SettingsSearchCatalog
         new("另存选中脚本", "自定义脚本", 13, "SaveScriptFileButton", "scriptfiles", "save export script file 导出脚本 保存脚本 另存为 编码"),
         new("按安装阶段执行脚本", "自定义脚本", 13, "SettingAnchor231", "customscripts", "custom scripts script phase script type script content 自定义脚本 执行阶段 脚本格式 脚本内容 System DefaultUser FirstLogon UserOnce PowerShell CMD REG VBS 复制脚本"),
         new("每个用户首次登录脚本结束后，重启资源管理器", "自定义脚本", 13, "SettingAnchor232", "", "RestartExplorerAfterScripts Restart Explorer After Scripts  "),
+        new("应答文件名称", "检查与导出", 14, "ExportManualFilename", "exportfilename", "notautounattend.xml 手动 显式调用 自动发现 文件名"),
+        new("导出应答文件 ISO", "检查与导出", 14, "ExportIsoButton", "exportiso", "iso 光盘 虚拟机 挂载 应答文件"),
         new("检查与导出", "检查与导出", 14, "SettingAnchor233", "", "   "),
     ];
     private static readonly IReadOnlyDictionary<string, HelpTopic> Topics = Enumerable.Range(0, HelpCatalog.PageCount).SelectMany(HelpCatalog.ForPage).DistinctBy(t => t.Id).ToDictionary(t => t.Id);

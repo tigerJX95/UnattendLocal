@@ -68,3 +68,7 @@ Microsoft 与项目贡献者提供运行时及桌面框架。
 许可文本逐字保留，本项目许可全文与第三方许可分别展示。自包含版集成运行时；依赖运行时版需另行安装。更新依赖或运行时版本时，应同步核对这些文件。
 
 License texts are preserved verbatim. The project MIT license and third-party licenses are shown separately. The self-contained edition bundles the runtime; the framework-dependent edition requires a separate installation. Review these files when updating dependencies or runtime versions.
+
+## DiscUtils 0.16.13
+
+ISO export uses DiscUtils.Iso9660 and its transitive DiscUtils.Core / DiscUtils.Streams dependencies under MIT. Full original license: [DiscUtils.txt](docs/licenses/DiscUtils.txt). Source: https://github.com/DiscUtils/DiscUtils .

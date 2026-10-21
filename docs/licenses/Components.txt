@@ -28,3 +28,9 @@ Newtonsoft.Json 13.0.4
 以上第三方许可分别适用于列明组件，其原有版权和许可声明继续保留；本项目 MIT 许可不移除第三方的署名及许可要求。
 
 本窗口不联网加载许可内容，英文许可证与声明按原文保留。
+
+DiscUtils.Iso9660、DiscUtils.Core、DiscUtils.Streams 0.16.13
+作者：Kenneth Bell、Quamotion 与 DiscUtils 贡献者
+用途：封装应答文件 ISO；不用于导入外部磁盘镜像
+许可：MIT，原文见 DiscUtils 条目
+源码：https://github.com/DiscUtils/DiscUtils

@@ -1,4 +1,4 @@
-using System.Globalization;
+﻿using System.Globalization;
 using System.Windows.Data;
 using System.Windows.Media;
 
@@ -52,7 +52,8 @@ public sealed class ActionIconConverter : IValueConverter
         Add("复制示例", "M8,7 H20 V21 H8 Z M4,17 H2 V2 H14 V5", "复制完整示例，不覆盖当前内容。复制成功后显示已复制提示。");
         Add("检查 XML|检查 JSON", "M9,2 A7,7 0 1 1 8.99,2 Z M14,14 L21,21 M5,9 L8,12 L12,6", "检查当前布局文档的结构；应用是否存在及实际效果仍需在目标 Windows 验证。");
         Add("检查与预览", "M2,11 Q11,0 20,11 Q11,22 2,11 Z M11,7 A4,4 0 1 1 10.99,7 Z", "检查当前配置并预览应答文件，预览会遮蔽密码和产品密钥。");
-        Add("导出 autounattend.xml", document+"M10,12 H22 M18,8 L22,12 L18,16", "检查并导出 autounattend.xml；自动磁盘操作会要求再次核对目标。");
+        Add("导出 autounattend.xml|导出 notautounattend.xml", document+"M10,12 H22 M18,8 L22,12 L18,16", "检查并导出 autounattend.xml；自动磁盘操作会要求再次核对目标。");
+        Add("导出应答文件 ISO", "M11,1 A10,10 0 1 1 11,21 A10,10 0 1 1 11,1 Z M11,8 A3,3 0 1 1 11,14 A3,3 0 1 1 11,8 Z M5,6 L7,8 M15,14 L17,16", "将应答文件导出为 ISO，供虚拟机挂载。");
         return actions;
     }
     public object Convert(object value, Type targetType, object parameter, CultureInfo culture) =>

@@ -16,6 +16,7 @@ public class UserEntry : Observable {
  private bool _NeedsPassword = false; public bool NeedsPassword {get=>_NeedsPassword;set=>Set(ref _NeedsPassword,value);}
 }
 public class InstallPlan : Observable {
+ private bool _ExportNonAutomaticFilename;public bool ExportNonAutomaticFilename {get=>_ExportNonAutomaticFilename;set=>Set(ref _ExportNonAutomaticFilename,value);}
  private bool _UseWorkgroup;public bool UseWorkgroup {get=>_UseWorkgroup;set=>Set(ref _UseWorkgroup,value);}
  private string _WorkgroupName="WORKGROUP";public string WorkgroupName {get=>_WorkgroupName;set=>Set(ref _WorkgroupName,value);}
  private bool _UsePeLogPath;public bool UsePeLogPath {get=>_UsePeLogPath;set{if(_UsePeLogPath==value)return;ClearDiskConsent();Set(ref _UsePeLogPath,value);}}

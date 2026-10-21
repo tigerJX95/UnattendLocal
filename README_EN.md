@@ -1,10 +1,10 @@
-# UnattendLocal — Windows Unattended Setup Configuration Tool
+﻿# UnattendLocal — Windows Unattended Setup Configuration Tool
 
 [简体中文](README.md) | **English**
 
 UnattendLocal is a Chinese-language Windows desktop tool based on [Christoph Schneegans’ UnattendGenerator](https://github.com/cschneegans/unattend-generator). It lets you edit, check, and generate `autounattend.xml` for Windows 10 / 11 locally.
 
-Current version: **V1.12.1**. Includes static IPv4/IPv6 dual stack, subnet-mask input, settings search, setup driver directories, Dynamic Update, partitioning, OOBE and account settings, and existing XML import/editing.
+Current version: **V1.13**. Includes static IPv4/IPv6 dual stack, subnet-mask input, settings search, setup driver directories, Dynamic Update, partitioning, OOBE and account settings, and existing XML import/editing.
 
 ## 💡 Why this project exists
 
@@ -57,18 +57,19 @@ The displayed product key is a public generic installation key for selecting an 
 - Save and restore JSON plans; review summaries, recommended-setting differences, checks, redacted previews, and XML exports.
 - Import existing XML and edit supported settings while preserving unknown content. Export stops with an explanation when changes cannot be merged reliably.
 
-## ✨ V1.12.1 updates
+## V1.13 answer-file export improvements
 
-- Redact native command credentials in previews and clarify the boundary for secrets in custom scripts.
-- Preserve unrelated script text when converting historical app-removal settings.
-- Match complete native commands and values instead of bare registry markers; verify numeric execution order.
-- Save JSON/XML through a same-directory temporary file before replacing the destination.
-- Reject control characters in account names and locate the affected account field.
+- Improve ISO export with a disc icon, concise paragraph-based on-page guidance and complementary tooltip details.
+- Choose `notautounattend.xml` for explicit `setup.exe /Unattend:path` invocation. The filename preference is saved in JSON plans; older plans retain the automatic filename by default.
+- Export a non-bootable ISO with one complete answer file at its root, suitable for mounting as a second virtual CD/DVD drive alongside Windows installation media.
+- XML and ISO share configuration validation, disk-risk confirmation and atomic saving. The filename choice does not change installation settings or imported XML merging.
+- Add help, settings search and offline licensing for the ISO component. Both output formats may contain installation credentials.
 
+For media preparation and explicit invocation, see [XML and ISO export](docs/AnswerFileExport.md).
 
 ## 📦 Download and usage
 
-Download and run the matching Windows x64 executable from the repository’s [**Releases**](https://github.com/tigerJX95/UnattendLocal/releases/latest) page: `UnattendLocal_V1.12.1_x64_SelfContained.exe` or `UnattendLocal_V1.12.1_x64_FrameworkDependent.exe`. Choose `UnattendLocal_V1.12.1_x64_SelfContained.exe` for a bundled .NET runtime, or `UnattendLocal_V1.12.1_x64_FrameworkDependent.exe` if .NET 10 Desktop Runtime x64 is already installed. Both have the same features. Use a virtual machine for initial testing.
+Download and run the matching Windows x64 executable from the repository’s [**Releases**](https://github.com/tigerJX95/UnattendLocal/releases/latest) page: `UnattendLocal_V1.13_x64_SelfContained.exe` or `UnattendLocal_V1.13_x64_FrameworkDependent.exe`. Choose `UnattendLocal_V1.13_x64_SelfContained.exe` for a bundled .NET runtime, or `UnattendLocal_V1.13_x64_FrameworkDependent.exe` if .NET 10 Desktop Runtime x64 is already installed. Both have the same features. Use a virtual machine for initial testing.
 
 1. Choose a recommended scenario or a custom configuration and enter the required account and image settings.
 2. Adjust system, appearance, and application removal options as needed.
