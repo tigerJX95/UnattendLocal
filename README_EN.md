@@ -4,7 +4,7 @@
 
 UnattendLocal is a Chinese-language Windows desktop tool based on [Christoph Schneegans’ UnattendGenerator](https://github.com/cschneegans/unattend-generator). It lets you edit, check, and generate `autounattend.xml` for Windows 10 / 11 locally.
 
-Current version: **V1.13**. Includes static IPv4/IPv6 dual stack, subnet-mask input, settings search, setup driver directories, Dynamic Update, partitioning, OOBE and account settings, and existing XML import/editing.
+Current version: **V1.14**. Includes static IPv4/IPv6 dual stack, subnet-mask input, settings search, setup driver directories, Dynamic Update, partitioning, OOBE and account settings, and existing XML import/editing.
 
 ## 💡 Why this project exists
 
@@ -57,6 +57,17 @@ The displayed product key is a public generic installation key for selecting an 
 - Save and restore JSON plans; review summaries, recommended-setting differences, checks, redacted previews, and XML exports.
 - Import existing XML and edit supported settings while preserving unknown content. Export stops with an explanation when changes cannot be merged reliably.
 
+## V1.14 quick presets and advanced XML components
+
+- Add a minimal preset that leaves language, edition, partitioning and accounts to Windows Setup, retaining installation-sensitive files by default.
+- Add the upstream local-account example: one Example administrator account with an empty password and one automatic logon; review or change its credentials before export.
+- Add up to 15 extra XML entries with component and configuration-pass selection. Independent child settings are added without replacing generated content; duplicate top-level settings stop export.
+- Include a disabled OEM support-information example, fragment checks, settings search and error navigation.
+- Support JSON saving and round-trip editing of this application's XML exports. Preview redacts custom XML; saving without sensitive content omits fragments and requires re-entry.
+- Improve paragraph-based on-page guidance and tooltip line spacing.
+
+See [Quick presets and advanced XML](docs/AdvancedXml.md). Structural checks do not validate setting values against the target Windows image.
+
 ## V1.13 answer-file export improvements
 
 - Improve ISO export with a disc icon, concise paragraph-based on-page guidance and complementary tooltip details.
@@ -69,7 +80,7 @@ For media preparation and explicit invocation, see [XML and ISO export](docs/Ans
 
 ## 📦 Download and usage
 
-Download and run the matching Windows x64 executable from the repository’s [**Releases**](https://github.com/tigerJX95/UnattendLocal/releases/latest) page: `UnattendLocal_V1.13_x64_SelfContained.exe` or `UnattendLocal_V1.13_x64_FrameworkDependent.exe`. Choose `UnattendLocal_V1.13_x64_SelfContained.exe` for a bundled .NET runtime, or `UnattendLocal_V1.13_x64_FrameworkDependent.exe` if .NET 10 Desktop Runtime x64 is already installed. Both have the same features. Use a virtual machine for initial testing.
+Download and run the matching Windows x64 executable from the repository’s [**Releases**](https://github.com/tigerJX95/UnattendLocal/releases/latest) page: `UnattendLocal_V1.14_x64_SelfContained.exe` or `UnattendLocal_V1.14_x64_FrameworkDependent.exe`. Choose `UnattendLocal_V1.14_x64_SelfContained.exe` for a bundled .NET runtime, or `UnattendLocal_V1.14_x64_FrameworkDependent.exe` if .NET 10 Desktop Runtime x64 is already installed. Both have the same features. Use a virtual machine for initial testing.
 
 1. Choose a recommended scenario or a custom configuration and enter the required account and image settings.
 2. Adjust system, appearance, and application removal options as needed.

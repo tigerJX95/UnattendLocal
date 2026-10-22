@@ -1,4 +1,4 @@
-using System.Text.Json;
+﻿using System.Text.Json;
 namespace UnattendLocal.Core;
 
 public enum PlanFileKind { AnswerXml, JsonPlan }
@@ -34,7 +34,7 @@ public static class PlanFileImport {
    foreach(var property in value.GetType().GetProperties().Where(p=>p.PropertyType==typeof(string)&&p.CanWrite))
     if(property.GetValue(value)==null)throw new ArgumentException("方案中的字段不能为 null："+property.Name+"。空文本请使用空字符串。");
   }
-  Strings(plan);foreach(var user in plan.Users)Strings(user);foreach(var script in plan.Scripts)Strings(script);
+  Strings(plan);foreach(var row in plan.XmlComponents)Strings(row);foreach(var user in plan.Users)Strings(user);foreach(var script in plan.Scripts)Strings(script);
   if(plan.ImportedXml is {} data){Strings(data);if(data.Notices.Any(n=>n==null)||data.Blockers.Any(n=>n==null))throw new ArgumentException("方案中的 XML 导入说明无效。");}
  }
 }

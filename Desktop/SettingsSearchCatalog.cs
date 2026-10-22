@@ -1,4 +1,4 @@
-using UnattendLocal.Core;
+﻿using UnattendLocal.Core;
 namespace UnattendLocal.Desktop;
 
 // Static labels only. Anchors correspond to named controls in MainWindow.xaml.
@@ -16,6 +16,9 @@ public static class SettingsSearchCatalog
         new("PE 日志保存目录", "镜像与分区", 3, "PeLogEditor", "pelog", "PeLogPath LogPath log folder 日志 路径 目录 排错"),
 
         new("旧版 MoSetup 升级兼容设置", "版本与密钥", 2, "LegacyUpgradeCheck", "legacyupgrade", "AllowUnsupportedUpgrade AllowUpgradesWithUnsupportedTPMOrCPU MoSetup 旧版 升级 TPM CPU 兼容"),
+        new("额外 XML 组件（高级）", "自定义脚本", 13, "AdditionalXmlSection", "additionalxml", "XmlComponents 微软 组件 OEMInformation SupportURL SupportProvider XML 高级"),
+        new("最小配置", "配置方案", 0, "MinimalPresetButton", "", "Minimal 原作者 快捷预设 最小输出"),
+        new("仅创建本地账户", "配置方案", 0, "LocalAccountPresetButton", "", "LocalUser 原作者 快捷预设 Example 本地账户"),
         new("已导入的 XML", "配置方案", 0, "SettingAnchor000", "", "   "),
         new("推荐配置与自定义配置", "配置方案", 0, "SettingAnchor001", "", "   "),
         new("配置方式", "配置方案", 0, "SettingAnchor002", "", "ConfigurationMode Configuration Mode 推荐配置 自定义配置 "),

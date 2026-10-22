@@ -1,4 +1,4 @@
-using System.ComponentModel;
+﻿using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Collections.ObjectModel;
 namespace UnattendLocal.Core;
@@ -16,6 +16,9 @@ public class UserEntry : Observable {
  private bool _NeedsPassword = false; public bool NeedsPassword {get=>_NeedsPassword;set=>Set(ref _NeedsPassword,value);}
 }
 public class InstallPlan : Observable {
+ public ObservableCollection<XmlComponentEntry> XmlComponents {get;set;}=new();
+ private bool _ConfirmAdditionalXml;public bool ConfirmAdditionalXml {get=>_ConfirmAdditionalXml;set=>Set(ref _ConfirmAdditionalXml,value);}
+
  private bool _ExportNonAutomaticFilename;public bool ExportNonAutomaticFilename {get=>_ExportNonAutomaticFilename;set=>Set(ref _ExportNonAutomaticFilename,value);}
  private bool _UseWorkgroup;public bool UseWorkgroup {get=>_UseWorkgroup;set=>Set(ref _UseWorkgroup,value);}
  private string _WorkgroupName="WORKGROUP";public string WorkgroupName {get=>_WorkgroupName;set=>Set(ref _WorkgroupName,value);}
@@ -211,7 +214,7 @@ public class InstallPlan : Observable {
  private bool _ConfirmFormatPartition; public bool ConfirmFormatPartition {get=>_ConfirmFormatPartition;set=>Set(ref _ConfirmFormatPartition,value);}
  private string _DiskPartScript=""; public string DiskPartScript {get=>_DiskPartScript;set{if(_DiskPartScript==value)return;ClearDiskConsent();Set(ref _DiskPartScript,value);}}
  private bool _ConfirmDiskScript; public bool ConfirmDiskScript {get=>_ConfirmDiskScript;set=>Set(ref _ConfirmDiskScript,value);}
- public void ClearDiskConsent(){ConfirmImportedXmlRisk=false;ConfirmDiskScript=false;ConfirmWipeDisk=false;ConfirmFormatPartition=false;}
+ public void ClearDiskConsent(){ConfirmAdditionalXml=false;ConfirmImportedXmlRisk=false;ConfirmDiskScript=false;ConfirmWipeDisk=false;ConfirmFormatPartition=false;}
  private string _CustomStartingPoint="保留当前设置"; public string CustomStartingPoint {get=>_CustomStartingPoint;set=>Set(ref _CustomStartingPoint,value);}
  private string _TimeZoneMode="指定时区"; public string TimeZoneMode {get=>_TimeZoneMode;set=>Set(ref _TimeZoneMode,value);}
  private string _ConfigurationMode="自定义配置"; public string ConfigurationMode {get=>_ConfigurationMode;set=>Set(ref _ConfigurationMode,value);}

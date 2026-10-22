@@ -1,4 +1,4 @@
-using System.Collections.ObjectModel;
+﻿using System.Collections.ObjectModel;
 using System.Reflection;
 using System.Security.Cryptography;
 using System.Text;
@@ -273,6 +273,7 @@ public static class XmlPlanImport {
   foreach(XmlComment c in doc.SelectNodes("//comment()")!.Cast<XmlComment>().ToArray())if(c.Value?.StartsWith(Marker)==true||c.Value?.TrimStart().StartsWith("https://schneegans.de/windows/unattend-generator/?")==true)c.ParentNode!.RemoveChild(c);
   var copy=PlanStore.Deserialize(PlanStore.Serialize(plan,true));copy.ImportedXml=null;
   copy.ExportNonAutomaticFilename=false; // Output preference belongs to JSON, not installation settings.
+  copy.XmlComponents=new(copy.XmlComponents.Where(row=>row.Enabled));
   copy.Scripts=new(copy.Scripts.Where(s=>s.Enabled&&!s.IsRemovedType));
   if(copy.AccountMode!="自动创建本地账户")copy.Users.Clear();
   if(!WifiSettings.IsPreset(copy)){copy.Ssid="";copy.WifiPassword="";}
@@ -291,7 +292,11 @@ public static class XmlPlanImport {
   if(copy.DiskMode!=DiskScriptSettings.Mode)copy.DiskPartScript="";
   if(!WallpaperSettings.IsScript(copy))copy.WallpaperImageScript="";
   if(!ImageBackgroundSettings.IsLockScript(copy))copy.LockScreenImageScript="";
-  var payload=Convert.ToBase64String(Encoding.UTF8.GetBytes(PlanStore.Serialize(copy,false)));
+  // Active fragment elements already exist in the export. Retain only those elements
+  // in its editable snapshot; omit disabled drafts and comments outside the elements.
+  var snapshot=System.Text.Json.Nodes.JsonNode.Parse(PlanStore.Serialize(copy,false))!;
+  for(int i=0;i<copy.XmlComponents.Count;i++)snapshot[nameof(InstallPlan.XmlComponents)]![i]![nameof(XmlComponentEntry.Content)]=string.Concat(AdditionalXmlSettings.Parse(copy.XmlComponents[i]).DocumentElement!.ChildNodes.OfType<XmlElement>().Select(element=>element.OuterXml));
+  var payload=Convert.ToBase64String(Encoding.UTF8.GetBytes(snapshot.ToJsonString()));
   doc.DocumentElement!.PrependChild(doc.CreateComment(Marker+Digest(doc)+" "+payload));
  }
  public static string Summary(InstallPlan p)=>p.ImportedXml is not {} data?"未导入 XML":data.OriginalOmitted?"XML 原文未随方案保存，请重新导入原 XML 后导出":data.Blockers.Length>0?"已导入；存在阻止导出的项目":data.Notices.Length>0?"已导入；部分内容原文保留，修改冲突时停止导出":"已导入；可修改已还原的配置";

@@ -1,4 +1,4 @@
-using System.IO;
+﻿using System.IO;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Windows;
@@ -33,7 +33,20 @@ public partial class MainWindow : Window {
  private void AddUser(object s,RoutedEventArgs e){int i=1;while(vm.Plan.Users.Any(u=>u.Name.Equals("User"+i,StringComparison.OrdinalIgnoreCase)))i++;var u=new UserEntry{Name=vm.Plan.ConfigurationMode=="自定义配置"&&vm.Plan.CustomStartingPoint=="基础配置"?"":"User"+i,Administrator=vm.Plan.Users.Count==0};vm.Plan.Users.Add(u);vm.SelectedUser=u;}
  private void RemoveUser(object s,RoutedEventArgs e){if(vm.SelectedUser is {} u)vm.Plan.Users.Remove(u);vm.SelectedUser=vm.Plan.Users.FirstOrDefault();}
  private bool Discard()=>MessageBox.Show(this,"是否放弃当前未保存的修改？","切换方案",MessageBoxButton.YesNo,MessageBoxImage.Question)==MessageBoxResult.Yes;
- private void Load(InstallPlan p){var previous=loading;loading=true;try{vm.Plan=p;vm.SelectedUser=p.Users.FirstOrDefault();WifiPassword.Password=p.WifiPassword;BuiltinAdministratorPassword.Password=p.BuiltinAdministratorPassword;vm.Preview="方案已载入，请检查与预览。";vm.Status=p.Scripts.Any(row=>row.IsRemovedType)?"方案已载入；旧 JScript 脚本已停用，内容保留，请移除或手动改写":"方案已载入；未保存的密码和密钥需重新输入";}finally{loading=previous;}}
+ private void Load(InstallPlan p){var previous=loading;loading=true;try{vm.Plan=p;vm.SelectedUser=p.Users.FirstOrDefault();WifiPassword.Password=p.WifiPassword;BuiltinAdministratorPassword.Password=p.BuiltinAdministratorPassword;vm.Preview="方案已载入，请检查与预览。";vm.Status=p.XmlComponents.Any(row=>row.Enabled&&string.IsNullOrWhiteSpace(row.Content))?"方案已载入；启用的额外 XML 片段未保存，请重新填写后导出":p.Scripts.Any(row=>row.IsRemovedType)?"方案已载入；旧 JScript 脚本已停用，内容保留，请移除或手动改写":"方案已载入；未保存的密码和密钥需重新输入";}finally{loading=previous;}}
+ private void AddXmlComponentClick(object s,RoutedEventArgs e)=>Run(()=>{if(vm.Plan.XmlComponents.Count>=AdditionalXmlSettings.MaxCount)throw new ArgumentException("额外 XML 最多 15 项。");var row=new XmlComponentEntry();vm.Plan.XmlComponents.Add(row);vm.SelectedXmlComponent=row;});
+ private void RemoveXmlComponentClick(object s,RoutedEventArgs e){if(vm.SelectedXmlComponent is {} row)vm.Plan.XmlComponents.Remove(row);}
+ private void XmlComponentExampleClick(object s,RoutedEventArgs e)=>Run(()=>{if(vm.Plan.XmlComponents.Count>=AdditionalXmlSettings.MaxCount)throw new ArgumentException("额外 XML 最多 15 项。");var row=new XmlComponentEntry{Content=AdditionalXmlSettings.Example};vm.Plan.XmlComponents.Add(row);vm.SelectedXmlComponent=row;vm.Status="已新增 OEM 支持信息示例，默认停用；请替换示例名称与网址后启用。";});
+ private void CheckXmlComponentClick(object s,RoutedEventArgs e)=>Run(()=>{if(vm.SelectedXmlComponent is not {} row)throw new ArgumentException("请先选择额外 XML 条目。");_=AdditionalXmlSettings.Parse(row);vm.Status="XML 片段结构检查通过；请再检查与预览以核对重复设置，实际兼容性需使用目标镜像验证。";});
+ private void QuickPresetClick(object s,RoutedEventArgs e){
+  if(s is not Button {Tag:string kind})return;
+  var plan=QuickPresets.Create(kind);
+  string details=kind==QuickPresets.LocalAccount
+   ? "此预设创建管理员账户 Example，允许空密码并首次自动登录一次。\n\n可在“用户与密码”页修改账户名、权限和密码；其余常用设置保留 Windows 默认行为。"
+   : "此预设将语言、版本、分区和账户交由安装程序处理，不添加应用移除或系统优化。\n\n为避免首次登录清理脚本，默认保留安装隐私文件；可在 OOBE 页调整。";
+  if(MessageBox.Show(this,details+"\n\n将放弃当前未保存的修改，是否新建？","新建"+kind,MessageBoxButton.YesNo,MessageBoxImage.Question,MessageBoxResult.No)!=MessageBoxResult.Yes)return;
+  Load(plan);Pages.SelectedIndex=0;vm.Status="已新建"+kind+"，可继续调整后检查与导出。";
+ }
  private void NewCustomClick(object s,RoutedEventArgs e){if(Discard()){Load(InstallPlan.NewCustom());vm.Status="已新建自定义配置，请逐项选择或填写";}}
  private void NewClick(object s,RoutedEventArgs e){if(Discard())Load(InstallPlan.New());}
  private void ConfigurationModeChanged(object s,SelectionChangedEventArgs e){
@@ -65,7 +78,7 @@ public partial class MainWindow : Window {
  private void ImportAppLockerClick(object s,RoutedEventArgs e)=>Run(()=>{var d=new OpenFileDialog{Filter="AppLocker 策略 XML (*.xml)|*.xml",Title="导入 AppLocker 策略"};if(d.ShowDialog(this)!=true)return;if(new FileInfo(d.FileName).Length>AppControlSettings.MaxLength*4L)throw new ArgumentException("AppLocker 策略文件超过 8 MiB。");var text=File.ReadAllText(d.FileName);_=AppControlSettings.ReadPolicy(text);if(!string.IsNullOrWhiteSpace(vm.Plan.AppLockerPolicyXml)&&MessageBox.Show(this,"导入将替换编辑器中的策略，是否继续？","导入 AppLocker 策略",MessageBoxButton.YesNo,MessageBoxImage.Question)!=MessageBoxResult.Yes)return;vm.Plan.AppLockerPolicyXml=text;vm.Status="策略结构检查通过；请在目标环境审核规则及恢复方案";});
  private void ValidateAppLockerClick(object s,RoutedEventArgs e)=>Run(()=>{_=AppControlSettings.ReadPolicy(vm.Plan.AppLockerPolicyXml);vm.Status="AppLocker XML 结构检查通过，不代表规则适合目标系统";});
  private void AppLockerExampleClick(object s,RoutedEventArgs e)=>Run(()=>{if(!string.IsNullOrWhiteSpace(vm.Plan.AppLockerPolicyXml)&&MessageBox.Show(this,"审核示例将替换当前策略内容，是否继续？","载入 AppLocker 示例",MessageBoxButton.YesNo,MessageBoxImage.Question)!=MessageBoxResult.Yes)return;vm.Plan.AppLockerPolicyXml=AppControlSettings.Example;vm.Status="已载入审核示例；仅供学习，请结合目标环境调整与验证";});
- private void SaveClick(object s,RoutedEventArgs e)=>Run(()=>{var d=new SaveFileDialog{Filter="配置方案 (*.json)|*.json",FileName="安装方案.json"};if(d.ShowDialog(this)!=true)return;var answer=MessageBox.Show(this,"是否将账户密码（含内置 Administrator）、Wi-Fi 密码、完整无线配置 XML 及自定义产品密钥写入方案？\n脚本始终按原文保存；脚本内的密码、令牌不会自动省略。\n导入 XML 时，选择“是”会同时保存完整 XML 原文；选择“否”不保存原文，下次须重新导入 XML 才能导出。\n选择“否”将省略密码、自定义密钥和整段无线配置 XML，下次载入需重新输入或导入。\n选择“是”会以明文保存密码和自定义密钥。","保存凭据",MessageBoxButton.YesNoCancel,MessageBoxImage.Question,MessageBoxResult.No);if(answer==MessageBoxResult.Cancel)return;AtomicFile.WriteAllText(d.FileName,PlanStore.Serialize(vm.Plan,answer==MessageBoxResult.Yes),new UTF8Encoding(false));vm.Status="方案已保存";});
+ private void SaveClick(object s,RoutedEventArgs e)=>Run(()=>{var d=new SaveFileDialog{Filter="配置方案 (*.json)|*.json",FileName="安装方案.json"};if(d.ShowDialog(this)!=true)return;var answer=MessageBox.Show(this,"是否将账户密码（含内置 Administrator）、Wi-Fi 密码、完整无线配置 XML 及自定义产品密钥写入方案？\n脚本始终按原文保存；脚本内的密码、令牌不会自动省略。\n导入 XML 时，选择“是”会同时保存完整 XML 原文；选择“否”不保存原文，下次须重新导入 XML 才能导出。\n选择“否”将省略密码、自定义密钥、整段无线配置 XML 及额外 XML 片段，下次载入需重新输入或导入。\n选择“是”会以明文保存密码和自定义密钥。","保存凭据",MessageBoxButton.YesNoCancel,MessageBoxImage.Question,MessageBoxResult.No);if(answer==MessageBoxResult.Cancel)return;AtomicFile.WriteAllText(d.FileName,PlanStore.Serialize(vm.Plan,answer==MessageBoxResult.Yes),new UTF8Encoding(false));vm.Status="方案已保存";});
  private FrameworkElement? Invalid(DependencyObject root){
   if(root is UIElement element&&!element.IsEnabled)return null;
   if(root is FrameworkElement field&&System.Windows.Controls.Validation.GetHasError(root))return field;
@@ -77,7 +90,7 @@ public partial class MainWindow : Window {
   var invalid=SettingsSearchCatalog.All.Select(setting=>FindName(setting.Target)).OfType<FrameworkElement>()
    .FirstOrDefault(field=>field.IsEnabled&&System.Windows.Controls.Validation.GetHasError(field))??Invalid(this);
   if(invalid is not null)throw new ConfigurationValidationException(invalid.Name,"请修正输入框中的无效值（例如分区大小、密码到期天数或账户锁定参数）。");return vm.Service.Generate(vm.Plan);}
- private void PreviewClick(object s,RoutedEventArgs e)=>Run(()=>{var bytes=Generate();vm.Preview=InstallationReview.ExportSummary(bytes)+"\n\n"+GeneratorService.Preview(bytes);vm.Status="配置与 XML 结构检查通过；"+InstallationReview.ExportSummary(bytes);ExportPage.IsSelected=true;}, locateConfiguration:true);
+ private void PreviewClick(object s,RoutedEventArgs e)=>Run(()=>{var bytes=Generate();vm.Preview=InstallationReview.ExportSummary(bytes)+"\n\n"+GeneratorService.Preview(bytes,vm.Plan);vm.Status="配置与 XML 结构检查通过；"+InstallationReview.ExportSummary(bytes);ExportPage.IsSelected=true;}, locateConfiguration:true);
  private void ApplyRecommendationClick(object s,RoutedEventArgs e)=>Run(()=>{
   if(MessageBox.Show(this,"应用推荐值将覆盖推荐涉及的开关和策略。\n保留账户、密码、密钥、Wi-Fi 信息、计算机名、语言区域、架构、SKU 和安装驱动目录。磁盘恢复为手动模式，危险操作确认将取消。\n是否继续？","应用推荐配置",MessageBoxButton.YesNo,MessageBoxImage.Question)!=MessageBoxResult.Yes)return;
   Recommendations.Apply(vm.Plan,vm.PendingRecommendation);vm.Preview="推荐配置已应用，请补齐账户与网络信息，再检查与预览。";vm.Status="推荐值已应用；所有设置均可修改";

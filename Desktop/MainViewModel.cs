@@ -45,6 +45,15 @@ public class MainViewModel : Observable {
  public ScriptEntry ImportScriptFile(string path){var row=ScriptFiles.Append(Plan,ScriptFiles.Read(path));SelectedScript=row;return row;}
  private void ObserveScripts(){foreach(var row in observedScripts.Where(s=>!Plan.Scripts.Contains(s)).ToArray()){row.PropertyChanged-=HelpSettingChanged;observedScripts.Remove(row);}foreach(var row in Plan.Scripts)if(observedScripts.Add(row))row.PropertyChanged+=HelpSettingChanged;}
  private void ScriptsChanged(object? sender,System.Collections.Specialized.NotifyCollectionChangedEventArgs e){ObserveScripts();if(SelectedScript==null||!Plan.Scripts.Contains(SelectedScript))SelectedScript=Plan.Scripts.FirstOrDefault();Notify(nameof(HasSelectedScript));RefreshAll();InvalidatePreview();}
+ public IReadOnlyList<string> XmlComponentNames=>AdditionalXmlSettings.Components;
+ public AdditionalXmlSettings.PhaseChoice[] XmlComponentPasses=>AdditionalXmlSettings.Passes;
+ private readonly HashSet<XmlComponentEntry> observedXmlComponents=new();
+ private XmlComponentEntry? selectedXmlComponent;
+ public XmlComponentEntry? SelectedXmlComponent {get=>selectedXmlComponent;set{Set(ref selectedXmlComponent,value);Notify(nameof(HasSelectedXmlComponent));}}
+ public bool HasSelectedXmlComponent=>SelectedXmlComponent!=null;
+ private void ObserveXmlComponents(){foreach(var row in observedXmlComponents.Where(row=>!Plan.XmlComponents.Contains(row)).ToArray()){row.PropertyChanged-=XmlComponentChanged;observedXmlComponents.Remove(row);}foreach(var row in Plan.XmlComponents)if(observedXmlComponents.Add(row))row.PropertyChanged+=XmlComponentChanged;}
+ private void XmlComponentChanged(object? sender,System.ComponentModel.PropertyChangedEventArgs e){if(e.PropertyName==nameof(XmlComponentEntry.Label))return;Plan.ClearDiskConsent();RefreshAll();InvalidatePreview();}
+ private void XmlComponentsChanged(object? sender,System.Collections.Specialized.NotifyCollectionChangedEventArgs e){ObserveXmlComponents();if(SelectedXmlComponent==null||!Plan.XmlComponents.Contains(SelectedXmlComponent))SelectedXmlComponent=Plan.XmlComponents.FirstOrDefault();Plan.ClearDiskConsent();RefreshAll();InvalidatePreview();}
  private bool updating;
  public bool IsLoadingPlan {get;private set;}
  public InstallPlan Plan {get=>plan;set{
@@ -53,10 +62,12 @@ public class MainViewModel : Observable {
   IsLoadingPlan=true;
   try{
   HardwareSettings.NormalizeLegacy(value);
+  plan.XmlComponents.CollectionChanged-=XmlComponentsChanged;foreach(var row in observedXmlComponents)row.PropertyChanged-=XmlComponentChanged;observedXmlComponents.Clear();
   plan.Scripts.CollectionChanged-=ScriptsChanged;foreach(var row in observedScripts)row.PropertyChanged-=HelpSettingChanged;observedScripts.Clear();
   plan.PropertyChanged-=HelpSettingChanged;plan.Users.CollectionChanged-=UsersChanged;
   foreach(var user in observedUsers)user.PropertyChanged-=HelpSettingChanged;observedUsers.Clear();
   Set(ref plan,value);plan.PropertyChanged+=HelpSettingChanged;plan.Users.CollectionChanged+=UsersChanged;
+  plan.XmlComponents.CollectionChanged+=XmlComponentsChanged;ObserveXmlComponents();SelectedXmlComponent=plan.XmlComponents.FirstOrDefault();
   plan.Scripts.CollectionChanged+=ScriptsChanged;ObserveScripts();SelectedScript=plan.Scripts.FirstOrDefault();Notify(nameof(HasSelectedScript));
   ObserveUsers();SelectedUser=plan.Users.FirstOrDefault();RefreshAll();InvalidatePreview();
   }finally{IsLoadingPlan=false;}
@@ -271,6 +282,6 @@ public class MainViewModel : Observable {
  private List<Recommendations.Difference> differences=new();
  public List<Recommendations.Difference> RecommendationDifferences {get=>differences;private set=>Set(ref differences,value);}
  private void UsersChanged(object? sender,System.Collections.Specialized.NotifyCollectionChangedEventArgs e){ObserveUsers();if(SelectedUser==null||!Plan.Users.Contains(SelectedUser))SelectedUser=Plan.Users.FirstOrDefault();RefreshAll();InvalidatePreview();}
- private void RefreshRecommendations(){if(Recommendations.Known(Plan.RecommendationId))Set(ref pendingRecommendation,Plan.RecommendationId,nameof(PendingRecommendation));RefreshInstallation();IsRecommended=Plan.ConfigurationMode=="推荐配置";RecommendationState=Recommendations.State(Plan);ConfigurationSummary=Recommendations.Summary(Plan);RecommendationDifferences=Recommendations.Differences(Plan);DifferenceHint=!Recommendations.HasBaseline(Plan)?"此配置没有推荐基准，可选择推荐场景并应用。":RecommendationDifferences.Count==0?"推荐涉及的设置均与基准一致；账户、镜像和凭据仍需核对。":$"共 {RecommendationDifferences.Count} 项与推荐值不同。";}
- public MainViewModel(){AppRemovalChoices=AppRemovalSettings.Items.Select(i=>new AppRemovalChoice(i,()=>Plan)).ToList();ObserveApps();Plan.Scripts.CollectionChanged+=ScriptsChanged;ObserveScripts();Plan.PropertyChanged+=HelpSettingChanged;Plan.Users.CollectionChanged+=UsersChanged;ObserveUsers();SelectedUser=Plan.Users.FirstOrDefault();RefreshAll();}
+ private void RefreshRecommendations(){if(Recommendations.Known(Plan.RecommendationId))Set(ref pendingRecommendation,Plan.RecommendationId,nameof(PendingRecommendation));RefreshInstallation();IsRecommended=Plan.ConfigurationMode=="推荐配置";RecommendationState=Recommendations.State(Plan);ConfigurationSummary=Recommendations.Summary(Plan)+(Plan.XmlComponents.Count>0?"\n额外 XML：启用 "+Plan.XmlComponents.Count(row=>row.Enabled)+" 项；停用 "+Plan.XmlComponents.Count(row=>!row.Enabled)+" 项。":"");RecommendationDifferences=Recommendations.Differences(Plan);DifferenceHint=!Recommendations.HasBaseline(Plan)?"此配置没有推荐基准，可选择推荐场景并应用。":RecommendationDifferences.Count==0?"推荐涉及的设置均与基准一致；账户、镜像和凭据仍需核对。":$"共 {RecommendationDifferences.Count} 项与推荐值不同。";}
+ public MainViewModel(){Plan.XmlComponents.CollectionChanged+=XmlComponentsChanged;ObserveXmlComponents();AppRemovalChoices=AppRemovalSettings.Items.Select(i=>new AppRemovalChoice(i,()=>Plan)).ToList();ObserveApps();Plan.Scripts.CollectionChanged+=ScriptsChanged;ObserveScripts();Plan.PropertyChanged+=HelpSettingChanged;Plan.Users.CollectionChanged+=UsersChanged;ObserveUsers();SelectedUser=Plan.Users.FirstOrDefault();RefreshAll();}
 }

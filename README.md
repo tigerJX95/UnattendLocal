@@ -4,7 +4,7 @@
 
 UnattendLocal 是基于 [Christoph Schneegans 的 UnattendGenerator](https://github.com/cschneegans/unattend-generator) 开发的中文 Windows 桌面配置工具，用于在本地编辑、检查和生成 Windows 10 / 11 的 `autounattend.xml`。
 
-当前版本：**V1.13**。支持静态 IPv4 / IPv6 双栈、子网掩码输入、设置搜索、安装驱动目录、动态更新、自动分区、OOBE 与账户配置，以及已有 XML 的导入编辑。
+当前版本：**V1.14**。支持静态 IPv4 / IPv6 双栈、子网掩码输入、设置搜索、安装驱动目录、动态更新、自动分区、OOBE 与账户配置，以及已有 XML 的导入编辑。
 
 ## 💡 开发初衷
 
@@ -55,6 +55,17 @@ UnattendLocal 是基于 [Christoph Schneegans 的 UnattendGenerator](https://git
 - 保存和恢复 JSON 方案，提供配置摘要、推荐差异、检查、脱敏预览和 XML 导出。
 - 导入已有 XML 后编辑已支持设置，保留未知内容；遇到无法可靠合并的修改时停止导出并说明原因。
 
+## V1.14 快捷预设与高级 XML 组件 · 2026-10-22
+
+- 新增“最小配置”预设：安装时选择语言、版本、分区及账户，其余常用设置采用 Windows 默认行为；默认保留安装隐私文件。
+- 新增“仅创建本地账户”预设：沿用原作者 Example 管理员账户、空密码和首次自动登录一次的示例，可继续修改账户名、密码与权限；新建前显示说明和替换确认。
+- 新增额外 XML 组件编辑器：支持最多 15 项，选择微软组件与执行阶段后添加设置子元素；保留已有生成内容，重复顶层设置阻止导出。
+- 提供 OEM 支持信息示例，支持片段结构检查、设置搜索及错误定位；新增条目和示例默认停用。
+- 额外 XML 支持 JSON 保存与本程序导出 XML 的往返编辑；预览整体遮蔽额外内容，省略敏感内容保存时清空片段并要求重新填写。
+- 完善说明排版：页面按用途分段，悬停提示补充限制与细节，增加说明行高。
+
+使用方法见 [快捷预设与额外 XML](docs/AdvancedXml.md)。结构检查不代替目标镜像的 Windows SIM 检查和实际安装验证。
+
 ## V1.13 应答文件导出增强 · 2026-10-21
 
 - 优化 ISO 导出界面：采用光盘图标，精简页面说明并分段显示，悬停提示补充手动加载与凭据保管说明。
@@ -67,12 +78,12 @@ UnattendLocal 是基于 [Christoph Schneegans 的 UnattendGenerator](https://git
 
 ## 📦 下载与使用
 
-从仓库的 [**Releases**](https://github.com/tigerJX95/UnattendLocal/releases/latest) 页面下载并直接运行对应的 `UnattendLocal_V1.13_x64_SelfContained.exe` 或 `UnattendLocal_V1.13_x64_FrameworkDependent.exe`：
+从仓库的 [**Releases**](https://github.com/tigerJX95/UnattendLocal/releases/latest) 页面下载并直接运行对应的 `UnattendLocal_V1.14_x64_SelfContained.exe` 或 `UnattendLocal_V1.14_x64_FrameworkDependent.exe`：
 
 | 程序文件 | 运行要求 |
 | --- | --- |
-| `UnattendLocal_V1.13_x64_SelfContained.exe` | 集成 .NET 运行时，无需单独安装；通常选择此版。 |
-| `UnattendLocal_V1.13_x64_FrameworkDependent.exe` | 文件较小，需安装 .NET 10 Desktop Runtime x64。 |
+| `UnattendLocal_V1.14_x64_SelfContained.exe` | 集成 .NET 运行时，无需单独安装；通常选择此版。 |
+| `UnattendLocal_V1.14_x64_FrameworkDependent.exe` | 文件较小，需安装 .NET 10 Desktop Runtime x64。 |
 
 两版功能相同。首次安装测试建议使用虚拟机。
 

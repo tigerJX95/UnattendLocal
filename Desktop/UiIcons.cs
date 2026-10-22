@@ -54,6 +54,12 @@ public sealed class ActionIconConverter : IValueConverter
         Add("检查与预览", "M2,11 Q11,0 20,11 Q11,22 2,11 Z M11,7 A4,4 0 1 1 10.99,7 Z", "检查当前配置并预览应答文件，预览会遮蔽密码和产品密钥。");
         Add("导出 autounattend.xml|导出 notautounattend.xml", document+"M10,12 H22 M18,8 L22,12 L18,16", "检查并导出 autounattend.xml；自动磁盘操作会要求再次核对目标。");
         Add("导出应答文件 ISO", "M11,1 A10,10 0 1 1 11,21 A10,10 0 1 1 11,1 Z M11,8 A3,3 0 1 1 11,14 A3,3 0 1 1 11,8 Z M5,6 L7,8 M15,14 L17,16", "将应答文件导出为 ISO，供虚拟机挂载。");
+        Add("新建最小配置", document+"M7,12 H15", "从最小配置起点新建方案。保留安装隐私文件，避免添加首次登录清理脚本。可在 OOBE 页调整；不是删除原作者恢复信息或压缩现有 XML。新建前会确认是否放弃当前修改。");
+        Add("新建本地账户预设", "M11,2 A4,4 0 1 1 10.99,2 Z M2,20 V17 Q2,12 10,12 Q18,12 18,17 V20 Z", "首次登录后沿用现有清理流程处理安装隐私文件。确认新建会替换当前方案，不会修改当前电脑；其余系统选项仍可继续调整。");
+        Add("添加 XML 组件", document+"M8,11 H14 M11,8 V14", "新增停用的 XML 条目，最多 15 项。组件和执行阶段须匹配当前组件目录；设置内容以微软对应版本文档为准。");
+        Add("移除 XML 组件", "M3,6 H19 M8,6 V3 H14 V6 M5,6 L6,21 H16 L17,6", "移除当前 XML 条目。导入文件中由其他内容保留的设置仍需核对完整原文。");
+        Add("载入 OEM 支持信息示例", document+"M7,11 H15 M7,15 H12", "新增 OEMInformation 示例并保持停用。示例使用 specialize 阶段，填写 SupportProvider 和 SupportURL；请替换示例值后启用，不包含已弃用的厂商标志或联系电话字段。");
+        Add("检查额外 XML", "M9,2 A7,7 0 1 1 8.99,2 Z M14,14 L21,21 M5,9 L8,12 L12,6", "检查当前片段的 XML 结构和组件阶段。与当前配置的重复设置在检查与预览时核对；微软参数值与目标镜像兼容性需另行验证。");
         return actions;
     }
     public object Convert(object value, Type targetType, object parameter, CultureInfo culture) =>

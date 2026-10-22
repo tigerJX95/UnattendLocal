@@ -1,4 +1,4 @@
-# 界面操作说明
+﻿# 界面操作说明
 
 ## 📂 V1.12 文件拖放与导入详情 / File dropping and import details
 
@@ -67,3 +67,9 @@ Settings help, buttons, dropdown options, app removal and search-result tooltips
 - https://learn.microsoft.com/en-us/windows-hardware/customize/desktop/unattend/microsoft-windows-setup-imageinstall-osimage-installto
 - https://learn.microsoft.com/en-us/windows-hardware/customize/desktop/unattend/microsoft-windows-setup-imageinstall-osimage-installtoavailablepartition
 - https://support.microsoft.com/zh-cn/windows/experience/personalization/customize-the-windows-start-menu
+
+## V1.14 说明排版与高级入口
+
+页面说明先解释用途，再用独立段落说明操作及限制。悬停提示补充细节，避免与页面整段重复；页面说明行高 24，结构化悬停说明行高 21。命令、路径和输入原文保持完整。
+
+配置方案页提供最小配置与仅创建本地账户两个快捷起点。自定义脚本页下方提供额外 XML 组件编辑器，可搜索进入；条目默认停用，组件与阶段需匹配，已有界面设置与重复顶层设置停止导出。具体用法见 [快捷预设与额外 XML](AdvancedXml.md)。

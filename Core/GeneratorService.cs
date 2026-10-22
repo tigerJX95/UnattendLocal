@@ -1,4 +1,4 @@
-using System.Collections.Immutable;
+﻿using System.Collections.Immutable;
 using System.Text;
 using System.Xml;
 using System.Text.RegularExpressions;
@@ -27,6 +27,7 @@ public class GeneratorService {
  // This internal path never writes a user export; public generation always checks deployment.
  internal byte[] GenerateImportBaseline(InstallPlan p)=>GenerateDocument(p,false,false);
  private byte[] GenerateDocument(InstallPlan p,bool includeImport,bool checkDeployment=true) {
+  AdditionalXmlSettings.Validate(p,checkDeployment);
   if(checkDeployment)StaticIPv4Settings.ValidateDeployment(p);
   AppRemovalSettings.Validate(p);
   if(includeImport)ConfigurationValidationException.Check(nameof(InstallPlan.ImportedXml),()=>XmlPlanImport.ValidateImported(p));
@@ -117,6 +118,7 @@ public class GeneratorService {
   RegisteredInformationSettings.Apply(doc,p);
   WorkgroupSettings.Apply(doc,p);
   PeLogSettings.Apply(doc,p);
+  AdditionalXmlSettings.Apply(doc,p);
   if(includeImport&&p.ImportedXml is {} imported){FirstLogonSettings.ValidateGenerated(p,doc);doc=AppRemovalSettings.MergeImported(p,doc);WorkgroupSettings.FinishImported(doc,p);}
   using var schema=typeof(UnattendGenerator).Assembly.GetManifestResourceStream("Schneegans.Unattend.resource.autounattend.xsd")!;
   doc.Schemas.Add("urn:schemas-microsoft-com:unattend",XmlReader.Create(schema));
@@ -125,8 +127,9 @@ public class GeneratorService {
   if(includeImport)XmlPlanImport.AddSnapshot(doc,p);
   return UnattendGenerator.Serialize(doc);
  }
- public static string Preview(byte[] bytes) {
+ public static string Preview(byte[] bytes,InstallPlan? plan=null) {
   var doc=new XmlDocument();doc.LoadXml(Encoding.UTF8.GetString(bytes));
+  if(plan!=null)AdditionalXmlSettings.RedactPreview(doc,plan);
   foreach(XmlComment comment in doc.SelectNodes("//comment()")!.Cast<XmlComment>().ToArray())comment.ParentNode!.RemoveChild(comment);
   var ns=new XmlNamespaceManager(doc.NameTable);ns.AddNamespace("u","urn:schemas-microsoft-com:unattend");
   foreach(XmlNode n in doc.SelectNodes("//u:Password/u:Value | //u:AdministratorPassword/u:Value | //u:Credentials/u:Password",ns)!)n.InnerText="[密码已遮蔽]";

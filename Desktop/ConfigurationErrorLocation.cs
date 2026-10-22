@@ -1,4 +1,4 @@
-using UnattendLocal.Core;
+﻿using UnattendLocal.Core;
 
 namespace UnattendLocal.Desktop;
 
@@ -19,6 +19,7 @@ public sealed record ConfigurationErrorLocation(SettingSearchResult Setting, int
             return new(new(title, "用户与密码", 4, target, "user", ""), userIndex);
         }
         string targetName = field switch {
+            nameof(InstallPlan.XmlComponents) => "AdditionalXmlSection",
             nameof(InstallPlan.StaticIPv4Mac) => "StaticIPv4MacEditor",
             nameof(InstallPlan.StaticIPv4Address) => "StaticIPv4AddressEditor",
             nameof(InstallPlan.StaticIPv4SubnetMask) or nameof(InstallPlan.StaticIPv4Prefix) => "StaticIPv4SubnetEditor",

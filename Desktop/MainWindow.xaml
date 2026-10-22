@@ -51,6 +51,22 @@
       <TabItem Header="配置方案" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch">
         <ScrollViewer VerticalScrollBarVisibility="Auto"><StackPanel Margin="24">
           <TextBlock Margin="0,0,0,12" Text="可将一个 Windows 应答 XML 或本程序保存的 JSON 方案拖入窗口，检查后确认替换当前配置。" TextWrapping="Wrap" Foreground="{DynamicResource SecondaryBrush}"/>
+          <Border Style="{StaticResource Card}"><StackPanel>
+            <TextBlock Text="快捷预设" FontSize="20" FontWeight="SemiBold" Margin="0,0,0,12" />
+            <DockPanel>
+              <Button x:Name="MinimalPresetButton" DockPanel.Dock="Right" Content="新建最小配置" Tag="最小配置" Click="QuickPresetClick" Margin="12,4,0,4" />
+              <StackPanel><TextBlock Text="最小配置" FontWeight="SemiBold" />
+                <TextBlock Style="{StaticResource ExplanationText}" Text="语言、版本、分区与账户在安装时选择，其他常用设置保留 Windows 默认行为。" Foreground="{DynamicResource SecondaryBrush}" />
+              </StackPanel>
+            </DockPanel>
+            <DockPanel Margin="0,12,0,0">
+              <Button x:Name="LocalAccountPresetButton" DockPanel.Dock="Right" Content="新建本地账户预设" Tag="仅创建本地账户" Click="QuickPresetClick" Margin="12,4,0,4" />
+              <StackPanel><TextBlock Text="仅创建本地账户" FontWeight="SemiBold" />
+                <TextBlock Style="{StaticResource ExplanationText}" Text="沿用最小配置起点，预置管理员账户 Example，允许空密码并首次自动登录一次。" Foreground="{DynamicResource SecondaryBrush}" />
+                <TextBlock Text="账户名、密码和权限可在“用户与密码”页修改。" TextWrapping="Wrap" LineHeight="24" Foreground="{DynamicResource SecondaryBrush}" />
+              </StackPanel>
+            </DockPanel>
+          </StackPanel></Border>
           <Border Style="{StaticResource Card}" Visibility="{Binding HasImportedXml,Converter={StaticResource VisibleWhen}}"><StackPanel>
             <TextBlock x:Name="SettingAnchor000" Text="已导入的 XML" FontSize="20" FontWeight="SemiBold" Margin="0,0,0,16"/>
             <TextBlock Text="{Binding XmlImportSummary}" FontWeight="SemiBold" TextWrapping="Wrap"><TextBlock.Style><Style TargetType="TextBlock"><Setter Property="Foreground" Value="{DynamicResource ForegroundBrush}"/><Style.Triggers><DataTrigger Binding="{Binding HasXmlImportErrors}" Value="True"><Setter Property="Foreground" Value="{DynamicResource ErrorBrush}"/></DataTrigger></Style.Triggers></Style></TextBlock.Style></TextBlock>
@@ -1318,6 +1334,29 @@
             <TextBlock Style="{StaticResource ExplanationText}" Text="　　示例：点击后新增一条对应阶段的脚本，默认关闭，请核对效果后启用。" TextWrapping="Wrap" Foreground="{DynamicResource SecondaryBrush}"/>
             <WrapPanel><Button Content="目录命令示例" Tag="directory" Click="CustomScriptExampleClick"/><Button Content="网络配置示例" Tag="network" Click="CustomScriptExampleClick"/></WrapPanel>
             <TextBlock Style="{StaticResource ExplanationText}" Text="　　目录示例：System / CMD，设置 DIRCMD 默认参数。网络示例：FirstLogon / PowerShell，将 Ethernet* 的网络类型改为专用；需核对网卡名称。脚本中的密码、令牌也会随方案与 XML 明文保存，凭据省略功能不解析脚本，预览不保证遮蔽脚本中的秘密。" TextWrapping="Wrap" Foreground="{DynamicResource WarningBrush}"/>
+          </StackPanel></Border>
+          <Border Style="{StaticResource Card}"><StackPanel>
+            <TextBlock x:Name="AdditionalXmlSection" Text="额外 XML 组件（高级）" FontSize="20" FontWeight="SemiBold" Margin="0,0,0,12" />
+            <TextBlock Style="{StaticResource ExplanationText}" Text="为界面尚未覆盖的微软部署设置添加 XML 子元素。先选择组件和执行阶段，再填写设置内容。" Foreground="{DynamicResource SecondaryBrush}" />
+            <TextBlock Style="{StaticResource ExplanationText}" Text="保留现有生成内容；与已有顶层设置重复时停止导出。结构检查通过仍需使用目标 Windows 镜像验证。" Foreground="{DynamicResource SecondaryBrush}" />
+            <WrapPanel>
+              <Button Content="添加 XML 组件" Click="AddXmlComponentClick" />
+              <Button Content="移除 XML 组件" Click="RemoveXmlComponentClick" IsEnabled="{Binding HasSelectedXmlComponent}" />
+              <Button Content="载入 OEM 支持信息示例" Click="XmlComponentExampleClick" />
+              <Button Content="检查额外 XML" Click="CheckXmlComponentClick" IsEnabled="{Binding HasSelectedXmlComponent}" />
+            </WrapPanel>
+            <ListBox ItemsSource="{Binding Plan.XmlComponents}" SelectedItem="{Binding SelectedXmlComponent}" DisplayMemberPath="Label" MinHeight="65" MaxHeight="170" />
+            <StackPanel DataContext="{Binding SelectedXmlComponent}" IsEnabled="{Binding DataContext.HasSelectedXmlComponent,RelativeSource={RelativeSource AncestorType=Window}}">
+              <CheckBox Content="启用此 XML 条目" IsChecked="{Binding Enabled}" />
+              <TextBlock Text="组件" Margin="0,8,0,0" />
+              <ComboBox ItemsSource="{Binding DataContext.XmlComponentNames,RelativeSource={RelativeSource AncestorType=Window}}" SelectedItem="{Binding Component}" IsTextSearchEnabled="True" />
+              <TextBlock Text="执行阶段（须与组件支持的阶段匹配）" />
+              <ComboBox ItemsSource="{Binding DataContext.XmlComponentPasses,RelativeSource={RelativeSource AncestorType=Window}}" SelectedValue="{Binding Pass}" SelectedValuePath="Id" DisplayMemberPath="Label" />
+              <TextBlock Text="设置子元素（不包含 settings 或 component 包装）" Margin="0,8,0,0" />
+              <TextBox x:Name="AdditionalXmlEditor" ToolTip="{Binding DataContext.HelpTips[additionalxml],RelativeSource={RelativeSource AncestorType=Window}}" Text="{Binding Content,UpdateSourceTrigger=PropertyChanged}" AcceptsReturn="True" AcceptsTab="True" TextWrapping="NoWrap" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto" Height="250" FontFamily="Consolas" FontSize="13" SpellCheck.IsEnabled="False" />
+            </StackPanel>
+            <CheckBox Content="已核对额外 XML 的设置、执行阶段及实际作用" IsChecked="{Binding Plan.ConfirmAdditionalXml}" />
+            <TextBlock Style="{StaticResource ExplanationText}" Text="额外 XML 可能含凭据或安装命令。页面预览遮蔽其内容；保存方案时若不保存敏感内容，将清空片段，重新导出前需要补填。" Foreground="{DynamicResource WarningBrush}" />
           </StackPanel></Border>
         </StackPanel></ScrollViewer>
       </TabItem>

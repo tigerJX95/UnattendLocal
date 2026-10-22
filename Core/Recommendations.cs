@@ -1,4 +1,4 @@
-using System.Reflection;
+﻿using System.Reflection;
 namespace UnattendLocal.Core;
 public static class Recommendations {
  public record Difference(string Property,string Label,string Current,string Recommended);
@@ -83,7 +83,7 @@ public static class Recommendations {
   if(p.DiskMode!="手动选择磁盘与分区")result.Add(new(nameof(InstallPlan.DiskMode),"磁盘与分区",p.DiskMode,"手动选择磁盘与分区"));return result;
  }
  public static void Restore(InstallPlan p,string name){if(!HasBaseline(p))throw new ArgumentException("此方案没有可用的推荐基准。");if(name==nameof(InstallPlan.DiskMode)){p.DiskMode="手动选择磁盘与分区";p.FormatExistingPartition=false;p.ClearDiskConsent();return;}if(name==nameof(InstallPlan.CompactOsMode)&&!CompactOsSettings.CanEdit(p))throw new ArgumentException("原 XML 的 CompactOS 由自定义安装/压缩脚本控制，请使用原工具修改参数后重新导入。");if(!Fields.ContainsKey(name))throw new ArgumentException("此项不属于推荐设置。");Property(name).SetValue(p,Property(name).GetValue(Baseline(p.RecommendationId,p.RecommendationVersion>=2?"common":p.RecommendationWindows,p.RecommendationVersion>=3)));}
- public static string State(InstallPlan p)=>p.ConfigurationMode!="推荐配置"?(p.CustomStartingPoint=="基础配置"?"自定义配置 · 从基础值开始，请逐项选择或填写":"自定义配置 · 保留当前设置，所有选项均可自主调整"):!HasBaseline(p)?"推荐基准不可用，请重新应用推荐方案":$"基于 {Name(p.RecommendationId)}推荐 · {(Differences(p).Count==0?"推荐值已应用":"已修改")}";
+ public static string State(InstallPlan p)=>p.ConfigurationMode!="推荐配置"&&p.CustomStartingPoint is QuickPresets.Minimal or QuickPresets.LocalAccount?"自定义配置 · 起点："+p.CustomStartingPoint+"，可继续逐项调整":p.ConfigurationMode!="推荐配置"?(p.CustomStartingPoint=="基础配置"?"自定义配置 · 从基础值开始，请逐项选择或填写":"自定义配置 · 保留当前设置，所有选项均可自主调整"):!HasBaseline(p)?"推荐基准不可用，请重新应用推荐方案":$"基于 {Name(p.RecommendationId)}推荐 · {(Differences(p).Count==0?"推荐值已应用":"已修改")}";
  public static string InteractiveSteps(InstallPlan p){
   var steps=new List<string>();
   if(p.InteractiveLanguage)steps.Add("语言与区域");
@@ -123,6 +123,7 @@ public static class Recommendations {
   if(p.UseWorkgroup&&string.IsNullOrWhiteSpace(p.WorkgroupName))items.Add("工作组名称");
   if(p.UsePeLogPath&&string.IsNullOrWhiteSpace(p.PeLogPath))items.Add("PE 日志目录");
   if(p.DiskMode==DiskScriptSettings.Mode&&string.IsNullOrWhiteSpace(p.DiskPartScript))items.Add("DiskPart 脚本");
+  if(p.XmlComponents.Any(row=>row.Enabled&&string.IsNullOrWhiteSpace(row.Content)))items.Add("启用的额外 XML 片段");
   if(p.Scripts?.Any(s=>s.Enabled&&string.IsNullOrWhiteSpace(s.Content))==true)items.Add("启用的自定义脚本内容");
   if(p.TaskbarIconsMode==ShellSettings.CustomXml&&string.IsNullOrWhiteSpace(p.TaskbarIconsXml))items.Add("任务栏图标 XML");
   if(p.StartTilesMode==ShellSettings.CustomXml&&string.IsNullOrWhiteSpace(p.StartTilesXml))items.Add("Windows 10 磁贴 XML");
