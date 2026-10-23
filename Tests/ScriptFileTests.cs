@@ -44,8 +44,15 @@ static class ScriptFileTests {
    row.Enabled=true;var xml=Encoding.UTF8.GetString(generator.Generate(plan));Check(XmlMerge.Read(xml).InnerText.Contains("中文与 Unicode 😀"),"valid supplementary Unicode generates XML");var reimport=XmlPlanImport.Import(xml,generator);Check(reimport.Scripts.Count==1&&reimport.Scripts[0].Content==content&&reimport.Scripts[0].Enabled&&reimport.Scripts[0].Phase=="System","enabled imported file survives XML roundtrip");
    foreach(bool secrets in new[]{false,true}){row.Enabled=false;row.Phase="UserOnce";var stored=PlanStore.Deserialize(PlanStore.Serialize(plan,secrets));Check(stored.Scripts[0].Content==content&&!stored.Scripts[0].Enabled&&stored.Scripts[0].Phase=="UserOnce","JSON saves text, stage and disabled state "+secrets);}
    byte[] beforeSource=File.ReadAllBytes(path);string output=Path.Combine(folder,"saved.ps1");File.WriteAllText(output,"old destination");ScriptFiles.Write(row,output);Check(ScriptFiles.Read(output).Content==content&&File.ReadAllBytes(path).SequenceEqual(beforeSource)&&row.Content==content,"save replaces only chosen destination without mutating source/editor");
-   row.Content="bad\0text";Reject(()=>ScriptFiles.Write(row,output),"invalid save rejected before touching destination");Check(ScriptFiles.Read(output).Content==content&&Directory.GetFiles(folder,".unattend-script-*").Length==0,"failed save leaves destination and no temporary files");
-   row.Content=content;string directoryTarget=Path.Combine(folder,"folder.ps1");Directory.CreateDirectory(directoryTarget);try{ScriptFiles.Write(row,directoryTarget);throw new Exception("Expected I/O error");}catch(IOException){Check(Directory.Exists(directoryTarget)&&Directory.GetFiles(folder,".unattend-script-*").Length==0,"write failure cleans temporary and preserves directory");}
+   row.Content="bad\0text";Reject(()=>ScriptFiles.Write(row,output),"invalid save rejected before touching destination");Check(ScriptFiles.Read(output).Content==content&&Directory.GetFiles(folder,".unattend-*.tmp").Length==0,"failed save leaves destination and no temporary files");
+   row.Content=content;
+   string directoryTarget=Path.Combine(folder,"folder.ps1");Directory.CreateDirectory(directoryTarget);
+   string sentinel=Path.Combine(directoryTarget,"keep.txt");File.WriteAllText(sentinel,"preserve directory contents");
+   try{ScriptFiles.Write(row,directoryTarget);throw new Exception("Expected file-system error");}
+   // Existing directory destinations produce different exception types on Windows and Unix.
+   catch(Exception error)when(error is IOException or UnauthorizedAccessException){
+    Check(Directory.Exists(directoryTarget)&&File.ReadAllText(sentinel)=="preserve directory contents"&&Directory.GetFiles(folder,".unattend-*.tmp").Length==0,"write failure cleans temporary and preserves directory");
+   }
    int notifications=0;vm.PropertyChanged+=(_,e)=>{if(e.PropertyName==nameof(vm.HasSelectedScript))notifications++;};vm.SelectedScript=null;Check(!vm.HasSelectedScript&&notifications>0,"save-button selection notification updates");
   }finally{Directory.Delete(folder,true);}
   foreach(string query in new[]{"导入脚本文件","另存选中脚本","export script file","GBK"})Check(SettingsSearchCatalog.Search(query).Any(r=>r.Target is "ImportScriptFileButton" or "SaveScriptFileButton"),"file actions searchable "+query);
