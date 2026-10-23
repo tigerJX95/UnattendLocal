@@ -1,0 +1,65 @@
+name: Build EXE (manual)
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: Verify and package Windows x64
+    runs-on: windows-2025
+    timeout-minutes: 45
+    env:
+      DOTNET_CLI_TELEMETRY_OPTOUT: '1'
+      DOTNET_NOLOGO: '1'
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          persist-credentials: false
+      - uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6
+        with:
+          dotnet-version: '10.0.x'
+      - name: Audit dependencies before packaging
+        shell: pwsh
+        run: |
+          dotnet restore UnattendLocal.sln --force --disable-parallel -m:1 -nr:false -p:NuGetAudit=true -p:NuGetAuditMode=all -p:NuGetAuditLevel=low -p:TreatWarningsAsErrors=true
+          if ($LASTEXITCODE -ne 0) { throw 'Dependency security audit failed.' }
+      - name: Verify source
+        shell: pwsh
+        run: ./verify.ps1
+      - name: Build both EXE variants
+        shell: pwsh
+        run: ./publish.ps1 -OutputRoot (Join-Path $env:RUNNER_TEMP 'packages') -CreateZip
+      - name: Package source and checksums
+        id: package
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          [xml]$project = Get-Content -LiteralPath Desktop/Desktop.csproj -Raw
+          $version = $project.SelectSingleNode('/Project/PropertyGroup/InformationalVersion').InnerText.Trim()
+          if ($version -notmatch '^\d+\.\d+(?:\.\d+)?$') { throw 'Invalid release version.' }
+          $output = Join-Path $env:RUNNER_TEMP 'packages'
+          $source = Join-Path $output "UnattendLocal_V${version}_Source.zip"
+          & git archive --format=zip "--prefix=UnattendLocal-source-v$version/" "--output=$source" HEAD
+          if ($LASTEXITCODE -ne 0) { throw 'Source packaging failed.' }
+          $archives = @(Get-ChildItem -LiteralPath $output -Filter '*.zip' -File | Sort-Object Name)
+          if ($archives.Count -ne 3) { throw 'Expected two program archives and one source archive.' }
+          $checksums = foreach ($file in $archives) {
+            $hash = (Get-FileHash -LiteralPath $file.FullName -Algorithm SHA256).Hash.ToLowerInvariant()
+            "$hash  $($file.Name)"
+          }
+          $checksums | Set-Content -LiteralPath (Join-Path $output 'SHA256SUMS.txt') -Encoding ascii
+          "version=$version" >> $env:GITHUB_OUTPUT
+          "Built V$version from commit $env:GITHUB_SHA. Download the ZIP files from Artifacts; upload Release assets manually." >> $env:GITHUB_STEP_SUMMARY
+      - name: Upload downloadable packages
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
+        with:
+          name: UnattendLocal-V${{ steps.package.outputs.version }}-${{ github.run_number }}
+          path: |
+            ${{ runner.temp }}/packages/*.zip
+            ${{ runner.temp }}/packages/SHA256SUMS.txt
+          if-no-files-found: error
+          retention-days: 14
+          compression-level: 0

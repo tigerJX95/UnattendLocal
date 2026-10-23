@@ -1,0 +1,3 @@
+# Review ownership covers application code, workflows, MSBuild files, scripts,
+# and this CODEOWNERS file. Enforce it with repository branch rules.
+* @tigerJX95

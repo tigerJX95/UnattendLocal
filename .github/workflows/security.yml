@@ -1,0 +1,90 @@
+name: Security
+
+on:
+  push:
+    branches: ['**']
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: security-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  dependency-review:
+    name: Dependency review
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      # Uses the GitHub dependency diff API; does not build or run PR code.
+      - name: Check newly introduced vulnerable dependencies
+        uses: actions/dependency-review-action@a1d282b36b6f3519aa1f3fc636f609c47dddb294 # v5.0.0
+        with:
+          fail-on-severity: low
+          license-check: false
+          comment-summary-in-pr: never
+
+  nuget-audit:
+    name: NuGet security audit
+    runs-on: windows-2025
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          persist-credentials: false
+      - uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6
+        with:
+          dotnet-version: '10.0.x'
+      - name: Audit direct and transitive packages
+        shell: pwsh
+        run: |
+          dotnet restore UnattendLocal.sln --force --disable-parallel -m:1 -nr:false -p:NuGetAudit=true -p:NuGetAuditMode=all -p:NuGetAuditLevel=low -p:TreatWarningsAsErrors=true
+          if ($LASTEXITCODE -ne 0) { throw 'NuGet security audit failed. Review vulnerabilities and audit-source errors.' }
+
+  codeql:
+    name: CodeQL (${{ matrix.language }})
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 45
+    permissions:
+      contents: read
+      actions: read
+      security-events: write
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - language: csharp
+            os: windows-2025
+            build-mode: manual
+          - language: actions
+            os: ubuntu-latest
+            build-mode: none
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          persist-credentials: false
+      - uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6
+        if: matrix.language == 'csharp'
+        with:
+          dotnet-version: '10.0.x'
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@9b3254085494b55a0f7c4c2b3d2d52cc712ce370 # v4
+        with:
+          languages: ${{ matrix.language }}
+          build-mode: ${{ matrix.build-mode }}
+          queries: security-extended
+      - name: Build C# including WPF generated code
+        if: matrix.language == 'csharp'
+        shell: pwsh
+        run: |
+          dotnet build UnattendLocal.sln -c Release -t:Rebuild -m:1 -nr:false
+          if ($LASTEXITCODE -ne 0) { throw 'CodeQL traced build failed.' }
+      - name: Analyze and upload security findings
+        uses: github/codeql-action/analyze@9b3254085494b55a0f7c4c2b3d2d52cc712ce370 # v4
+        with:
+          category: /language:${{ matrix.language }}
+          wait-for-processing: true
