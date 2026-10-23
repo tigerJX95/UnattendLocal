@@ -1328,6 +1328,17 @@
             <TextBlock x:Name="SettingAnchor231" Text="按安装阶段执行脚本" FontSize="20" FontWeight="SemiBold"/>
             <TextBlock Style="{StaticResource ExplanationText}" Text="　　System → DefaultUser → FirstLogon；UserOnce 在每个用户首次登录时运行。同阶段按下方列表顺序执行。各阶段包含工具生成的其他命令，自定义脚本不能替代其执行流程。" TextWrapping="Wrap"/>
             <TextBlock Style="{StaticResource ExplanationText}" Text="　　这些是 Windows 安装与登录阶段，不是 Sysprep 封装前后的钩子。首次登录不保证桌面已加载完成。脚本按原样嵌入应答文件；请自行核对权限、路径、网络、等待安装程序结束以及错误处理。" TextWrapping="Wrap" Foreground="{DynamicResource WarningBrush}"/>
+            <Border BorderBrush="{DynamicResource SecondaryBrush}" BorderThickness="1" CornerRadius="6" Padding="14" Margin="0,12,0,12"><StackPanel>
+              <TextBlock Text="实用脚本模板" FontSize="16" FontWeight="SemiBold"/>
+              <TextBlock Style="{StaticResource ExplanationText}" Text="选择模板后添加到脚本列表，核对内容并启用。模板可继续编辑，不会替换现有脚本。"/>
+              <ComboBox x:Name="ScriptTemplateSelector" ItemsSource="{Binding ScriptTemplateChoices}" SelectedItem="{Binding SelectedScriptTemplate}" DisplayMemberPath="Name" MinWidth="220" HorizontalAlignment="Stretch">
+                <ComboBox.ToolTip><ToolTip ContentTemplate="{x:Null}"><TextBlock Text="参考原作者示例页适配；添加后在下方查看完整脚本。" TextWrapping="Wrap" MaxWidth="360"/></ToolTip></ComboBox.ToolTip>
+              </ComboBox>
+              <TextBlock Style="{StaticResource ExplanationText}" Text="{Binding SelectedScriptTemplate.Purpose}"/>
+              <TextBlock Style="{StaticResource ExplanationText}" Text="{Binding SelectedScriptTemplate.Stage}"/>
+              <TextBlock Style="{StaticResource ExplanationText}" Text="{Binding SelectedScriptTemplate.Requirements}" Foreground="{DynamicResource SecondaryBrush}"/>
+              <Button Content="添加所选模板" Click="AddScriptTemplateClick" HorizontalAlignment="Left" Margin="0,8,0,0"/>
+            </StackPanel></Border>
             <WrapPanel><Button Content="添加脚本" Click="AddScriptClick"/><Button Content="复制脚本" Click="DuplicateScriptClick"/><Button Content="删除脚本" Click="RemoveScriptClick"/><Button Content="上移脚本" Tag="up" Click="MoveScriptClick"/><Button Content="下移脚本" Tag="down" Click="MoveScriptClick"/></WrapPanel>
             <WrapPanel Margin="0,4,0,0"><Button x:Name="ImportScriptFileButton" Content="导入脚本文件…" Click="ImportScriptFileClick"><Button.ToolTip><ToolTip ContentTemplate="{x:Null}"><TextBlock Text="导入脚本文件，新增条目并默认停用" TextWrapping="Wrap"/></ToolTip></Button.ToolTip></Button><Button x:Name="SaveScriptFileButton" Content="另存选中脚本…" Click="SaveScriptFileClick" IsEnabled="{Binding HasSelectedScript}"><Button.ToolTip><ToolTip ContentTemplate="{x:Null}"><TextBlock Text="导出选中脚本内容到文件" TextWrapping="Wrap"/></ToolTip></Button.ToolTip></Button></WrapPanel>
             <TextBlock Style="{StaticResource ExplanationText}" Text="文件导入新增一条默认停用的 System 脚本，不替换现有条目；支持 UTF-8 或带 BOM 的 UTF-16。请核对阶段与内容后启用。另存仅输出选中脚本正文，不包含执行阶段或启用状态。" TextWrapping="Wrap" Foreground="{DynamicResource SecondaryBrush}"/>

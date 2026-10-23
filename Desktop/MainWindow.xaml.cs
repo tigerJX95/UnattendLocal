@@ -132,6 +132,7 @@ public partial class MainWindow : Window {
  }
  private void DuplicateScriptClick(object s,RoutedEventArgs e)=>Run(()=>{if(vm.DuplicateSelectedScript()!=null)vm.Status="脚本已复制到原条目下方，副本默认停用，请修改并核对后启用";});
  private void SelectFilteredAppsClick(object s,RoutedEventArgs e)=>Run(()=>{if(s is not Button {Tag:string mode})return;var count=vm.FilteredAppRemovalChoices.Count;if(count==0){vm.Status="当前没有匹配项目";return;}bool selected=mode=="select";if(selected&&MessageBox.Show(this,$"将勾选当前显示的 {count} 项，安装时会尝试移除这些应用或系统能力。是否继续？","批量选择应用移除",MessageBoxButton.YesNo,MessageBoxImage.Question)!=MessageBoxResult.Yes)return;vm.SelectFilteredApps(selected);vm.Status=$"已{(selected?"勾选":"取消")}当前显示的 {count} 项，其他项目保持原选择";});
+ private void AddScriptTemplateClick(object s,RoutedEventArgs e)=>Run(()=>vm.AddSelectedScriptTemplate());
  private void AddScriptClick(object s,RoutedEventArgs e)=>Run(()=>{if(vm.Plan.Scripts.Count>=60)throw new ArgumentException("最多 60 条脚本。");var row=new ScriptEntry();vm.Plan.Scripts.Add(row);vm.SelectedScript=row;});
  private void RemoveScriptClick(object s,RoutedEventArgs e){if(vm.SelectedScript is {} row)vm.Plan.Scripts.Remove(row);}
  private void MoveScriptClick(object s,RoutedEventArgs e){if(vm.SelectedScript is {} row&&s is Button {Tag:string direction}){var index=vm.Plan.Scripts.IndexOf(row);var target=index+(direction=="up"?-1:1);if(target>=0&&target<vm.Plan.Scripts.Count)vm.Plan.Scripts.Move(index,target);vm.SelectedScript=row;}}

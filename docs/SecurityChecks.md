@@ -6,7 +6,7 @@
 
 ### 检查范围
 
-- **Code quality**：编译、回归及启动版本显示检查。
+- **Code quality**：发布脚本预检、编译、回归及启动版本显示检查。
 - **Security → CodeQL (csharp)**：在 GitHub 托管的临时 Windows 环境中跟踪构建 C# / WPF 项目，运行 `security-extended` 安全查询，包含本地适配代码和 vendor 核心。
 - **Security → CodeQL (actions)**：扫描 GitHub Actions 工作流中的危险用法。
 - **Security → Dependency review**：对 PR 新增的依赖变化检查已知漏洞，低危及以上即失败。不执行 PR 的构建或测试，不自动发表评论。
@@ -32,7 +32,7 @@
 
 ## English
 
-**Code quality** builds and runs regressions. **Security** adds CodeQL `security-extended` queries for both C# (a traced Windows / WPF build, including vendor code) and GitHub Actions, PR dependency review failing on newly introduced known vulnerabilities of low severity or above, and NuGet auditing of direct and transitive packages. Audit warnings and source errors fail the audit. Manual packaging also runs the NuGet audit first.
+**Code quality** checks publishing preflight, builds and runs regressions. **Security** adds CodeQL `security-extended` queries for both C# (a traced Windows / WPF build, including vendor code) and GitHub Actions, PR dependency review failing on newly introduced known vulnerabilities of low severity or above, and NuGet auditing of direct and transitive packages. Audit warnings and source errors fail the audit. Manual packaging also runs the NuGet audit first.
 
 Actions are pinned to reviewed commit SHAs. Ordinary jobs have read-only repository access. Only CodeQL jobs additionally request `security-events: write` and `actions: read` to upload analysis reports. There are no Release publishing permissions, PR secrets, self-hosted runners, shared build caches, or `pull_request_target` builds in these workflows. Static analysis does not establish that code is safe, particularly PowerShell / CMD scripts, MSBuild targets, tests, and dependency sources.
 

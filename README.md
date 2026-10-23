@@ -6,7 +6,7 @@
 
 UnattendLocal 是基于 [Christoph Schneegans 的 UnattendGenerator](https://github.com/cschneegans/unattend-generator) 开发的中文 Windows 桌面配置工具，用于在本地编辑、检查和生成 Windows 10 / 11 的 `autounattend.xml`。
 
-当前版本：**V1.16**。支持静态 IPv4 / IPv6 双栈、子网掩码输入、设置搜索、安装驱动目录、动态更新、自动分区、OOBE 与账户配置，以及已有 XML 的导入编辑。
+当前版本：**V1.17**。支持静态 IPv4 / IPv6 双栈、子网掩码输入、设置搜索、安装驱动目录、动态更新、自动分区、OOBE 与账户配置，以及已有 XML 的导入编辑。
 
 ## 💡 开发初衷
 
@@ -57,6 +57,16 @@ UnattendLocal 是基于 [Christoph Schneegans 的 UnattendGenerator](https://git
 - 保存和恢复 JSON 方案，提供配置摘要、推荐差异、检查、脱敏预览和 XML 导出。
 - 导入已有 XML 后编辑已支持设置，保留未知内容；遇到无法可靠合并的修改时停止导出并说明原因。
 
+## V1.17 实用脚本模板 · 2026-10-23
+
+- 自定义脚本页新增模板选择器：离线安装 .NET Framework 3.5、安装微软 Visual C++ v14 运行库、禁用所有驱动器的 AutoRun。分别显示用途、执行阶段与使用条件，可通过设置搜索定位。
+- 模板添加后默认停用并自动选中，可核对、修改、启用或删除；相同内容不会重复添加。继续支持方案保存、XML 导出与重新导入。
+- .NET 3.5 模板只使用安装介质中的本地源，不回退到 Windows Update；内部版本 28000 及以上停止并提示改用独立安装程序。
+- VC++ 模板按目标系统选择架构，64 位系统同时安装 x86 包；下载后验证有效的微软 Authenticode 签名，再等待安装结束、检查返回码并清理临时文件，不主动重启。
+- 修复发布脚本对省略零版本段的比较；手动构建增加版本、源码提交及文件摘要信息。程序打包继续仅由手动触发。
+
+模板说明：[实用脚本模板](docs/ScriptTemplates.md)。
+
 ## V1.16 文件导入与保存优化 · 2026-10-23
 
 下载程序：前往 [Releases 下载最新版本](https://github.com/tigerJX95/UnattendLocal/releases/latest)。
@@ -100,12 +110,12 @@ UnattendLocal 是基于 [Christoph Schneegans 的 UnattendGenerator](https://git
 
 ## 📦 下载与使用
 
-从仓库的 [**Releases**](https://github.com/tigerJX95/UnattendLocal/releases/latest) 页面下载并直接运行对应的 `UnattendLocal_V1.16_x64_SelfContained.exe` 或 `UnattendLocal_V1.16_x64_FrameworkDependent.exe`：
+从仓库的 [**Releases**](https://github.com/tigerJX95/UnattendLocal/releases/latest) 页面下载并直接运行对应的 `UnattendLocal_V1.17_x64_SelfContained.exe` 或 `UnattendLocal_V1.17_x64_FrameworkDependent.exe`：
 
 | 程序文件 | 运行要求 |
 | --- | --- |
-| `UnattendLocal_V1.16_x64_SelfContained.exe` | 集成 .NET 运行时，无需单独安装；通常选择此版。 |
-| `UnattendLocal_V1.16_x64_FrameworkDependent.exe` | 文件较小，需安装 .NET 10 Desktop Runtime x64。 |
+| `UnattendLocal_V1.17_x64_SelfContained.exe` | 集成 .NET 运行时，无需单独安装；通常选择此版。 |
+| `UnattendLocal_V1.17_x64_FrameworkDependent.exe` | 文件较小，需安装 .NET 10 Desktop Runtime x64。 |
 
 两版功能相同。首次安装测试建议使用虚拟机。
 

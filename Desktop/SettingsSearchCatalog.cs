@@ -19,6 +19,7 @@ public static class SettingsSearchCatalog
         new("首选电源计划", "OOBE", 6, "PowerPlanModeEditor", "powerplan", "PowerPlanMode PreferredPlan powercpl 平衡 高性能 节能 电源"),
         new("自定义电源计划 GUID", "OOBE", 6, "PowerPlanGuidEditor", "powerplan", "CustomPowerPlanGuid powercfg GUID 电源"),
         new("Windows 错误报告", "OOBE", 6, "ErrorReportingModeEditor", "errorreporting", "ErrorReportingMode WER DisableWER 错误报告 故障报告"),
+        new("实用脚本模板", "自定义脚本", 13, "ScriptTemplateSelector", "customscripts", "离线 安装 NetFx3 .NET Framework 3.5 VC++ Visual C++ v14 运行库 AutoRun 自动运行 模板"),
         new("额外 XML 组件（高级）", "自定义脚本", 13, "AdditionalXmlSection", "additionalxml", "XmlComponents 微软 组件 OEMInformation SupportURL SupportProvider XML 高级"),
         new("最小配置", "配置方案", 0, "MinimalPresetButton", "", "Minimal 原作者 快捷预设 最小输出"),
         new("仅创建本地账户", "配置方案", 0, "LocalAccountPresetButton", "", "LocalUser 原作者 快捷预设 Example 本地账户"),

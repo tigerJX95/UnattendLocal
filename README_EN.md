@@ -6,7 +6,7 @@
 
 UnattendLocal is a Chinese-language Windows desktop tool based on [Christoph Schneegans’ UnattendGenerator](https://github.com/cschneegans/unattend-generator). It lets you edit, check, and generate `autounattend.xml` for Windows 10 / 11 locally.
 
-Current version: **V1.16**. Includes static IPv4/IPv6 dual stack, subnet-mask input, settings search, setup driver directories, Dynamic Update, partitioning, OOBE and account settings, and existing XML import/editing.
+Current version: **V1.17**. Includes static IPv4/IPv6 dual stack, subnet-mask input, settings search, setup driver directories, Dynamic Update, partitioning, OOBE and account settings, and existing XML import/editing.
 
 ## 💡 Why this project exists
 
@@ -59,6 +59,16 @@ The displayed product key is a public generic installation key for selecting an 
 - Save and restore JSON plans; review summaries, recommended-setting differences, checks, redacted previews, and XML exports.
 - Import existing XML and edit supported settings while preserving unknown content. Export stops with an explanation when changes cannot be merged reliably.
 
+## V1.17 practical script templates
+
+- Add a template selector for offline .NET Framework 3.5 installation, Microsoft Visual C++ v14 Redistributables, and disabling AutoRun on all drives. Each template shows its purpose, execution stage and requirements, and is discoverable through settings search.
+- Added scripts are disabled and selected for review. They remain editable ordinary scripts, with duplicate protection, plan persistence and XML export/reimport support.
+- The .NET 3.5 template uses local installation media only, with no Windows Update fallback. It stops on build 28000 and newer, which require a standalone installer.
+- The VC++ template chooses packages by target architecture and includes x86 on 64-bit systems. It checks a valid Microsoft Authenticode signature before installation, waits for completion, validates exit codes and cleans temporary files without restarting.
+- Fix equivalent version comparisons in publishing. Manual builds include version, source commit and file hashes; packaging remains manually triggered only.
+
+Details: [Practical script templates](docs/ScriptTemplates.md).
+
 ## V1.16 file import and save improvements
 
 Download the app from the [latest release](https://github.com/tigerJX95/UnattendLocal/releases/latest).
@@ -102,7 +112,7 @@ For media preparation and explicit invocation, see [XML and ISO export](docs/Ans
 
 ## 📦 Download and usage
 
-Download and run the matching Windows x64 executable from the repository’s [**Releases**](https://github.com/tigerJX95/UnattendLocal/releases/latest) page: `UnattendLocal_V1.16_x64_SelfContained.exe` or `UnattendLocal_V1.16_x64_FrameworkDependent.exe`. Choose `UnattendLocal_V1.16_x64_SelfContained.exe` for a bundled .NET runtime, or `UnattendLocal_V1.16_x64_FrameworkDependent.exe` if .NET 10 Desktop Runtime x64 is already installed. Both have the same features. Use a virtual machine for initial testing.
+Download and run the matching Windows x64 executable from the repository’s [**Releases**](https://github.com/tigerJX95/UnattendLocal/releases/latest) page: `UnattendLocal_V1.17_x64_SelfContained.exe` or `UnattendLocal_V1.17_x64_FrameworkDependent.exe`. Choose `UnattendLocal_V1.17_x64_SelfContained.exe` for a bundled .NET runtime, or `UnattendLocal_V1.17_x64_FrameworkDependent.exe` if .NET 10 Desktop Runtime x64 is already installed. Both have the same features. Use a virtual machine for initial testing.
 
 1. Choose a recommended scenario or a custom configuration and enter the required account and image settings.
 2. Adjust system, appearance, and application removal options as needed.

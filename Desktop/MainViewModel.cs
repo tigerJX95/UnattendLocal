@@ -19,6 +19,10 @@ public class MainViewModel : Observable {
  public bool HasReadonlyFirstLogon=>Plan.ImportedXml?.FirstLogonReadOnly==true;
  public bool CanEditAppRemoval=>Plan.ImportedXml?.AppRemovalReadOnly!=true;
  public void SelectFilteredApps(bool selected){if(!CanEditAppRemoval)throw new ArgumentException("原 XML 的应用移除脚本暂不能通过清单编辑，请在原工具调整后重新导入。");var ids=FilteredAppRemovalChoices.Select(i=>i.Id).ToHashSet();var next=selected?Plan.RemovedApps.Concat(ids).Distinct().ToArray():Plan.RemovedApps.Where(id=>!ids.Contains(id)).ToArray();if(!Plan.RemovedApps.SequenceEqual(next))Plan.RemovedApps=new(next);}
+ public IReadOnlyList<ScriptTemplate> ScriptTemplateChoices=>ScriptTemplates.All;
+ private ScriptTemplate selectedScriptTemplate=ScriptTemplates.All[0];
+ public ScriptTemplate SelectedScriptTemplate {get=>selectedScriptTemplate;set{if(value!=null)Set(ref selectedScriptTemplate,value);}}
+ public void AddSelectedScriptTemplate(){SelectedScript=ScriptTemplates.Add(Plan,SelectedScriptTemplate.Id);Status="模板已添加并选中，默认停用；请核对内容与条件后启用。";}
  public ScriptEntry? DuplicateSelectedScript(){if(SelectedScript is not {} source)return null;var copy=CustomScripts.Duplicate(Plan,source);SelectedScript=copy;return copy;}
  public string AppRemovalSummary=>AppRemovalSettings.Selection(Plan);
  private void ObserveApps(){if(ReferenceEquals(observedApps,Plan.RemovedApps))return;if(observedApps!=null)observedApps.CollectionChanged-=AppsChanged;observedApps=Plan.RemovedApps;observedApps.CollectionChanged+=AppsChanged;}

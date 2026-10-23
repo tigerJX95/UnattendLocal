@@ -32,7 +32,7 @@ jobs:
       - name: Build both EXE variants
         shell: pwsh
         run: ./publish.ps1 -OutputRoot (Join-Path $env:RUNNER_TEMP 'packages') -CreateZip
-      - name: Package source and checksums
+      - name: Package source and build information
         id: package
         shell: pwsh
         run: |
@@ -46,20 +46,55 @@ jobs:
           if ($LASTEXITCODE -ne 0) { throw 'Source packaging failed.' }
           $archives = @(Get-ChildItem -LiteralPath $output -Filter '*.zip' -File | Sort-Object Name)
           if ($archives.Count -ne 3) { throw 'Expected two program archives and one source archive.' }
-          $checksums = foreach ($file in $archives) {
+          $commit = (& git rev-parse HEAD).Trim()
+          if ($LASTEXITCODE -ne 0 -or $commit -ne $env:GITHUB_SHA) { throw 'Source commit does not match the workflow commit.' }
+          $sdk = (& dotnet --version).Trim()
+          if ($LASTEXITCODE -ne 0) { throw 'Cannot determine the build SDK version.' }
+          $archiveInfo = @(foreach ($file in $archives) {
+            [ordered]@{
+              File = $file.Name
+              Bytes = $file.Length
+              SHA256 = (Get-FileHash -LiteralPath $file.FullName -Algorithm SHA256).Hash.ToLowerInvariant()
+            }
+          })
+          $buildInfo = [ordered]@{
+            Version = $version
+            FileVersion = $project.SelectSingleNode('/Project/PropertyGroup/FileVersion').InnerText.Trim()
+            SourceCommit = $commit
+            SourceRef = $env:GITHUB_REF
+            DotnetSdk = $sdk
+            Target = 'win-x64'
+            BuiltAtUtc = [DateTime]::UtcNow.ToString('o')
+            RunUrl = "$env:GITHUB_SERVER_URL/$env:GITHUB_REPOSITORY/actions/runs/$env:GITHUB_RUN_ID"
+            RunAttempt = $env:GITHUB_RUN_ATTEMPT
+            Archives = $archiveInfo
+          }
+          $metadata = Join-Path $output 'BUILD_INFO.json'
+          $buildInfo | ConvertTo-Json -Depth 5 | Set-Content -LiteralPath $metadata -Encoding utf8
+          $checksums = foreach ($file in (@($archives) + @(Get-Item -LiteralPath $metadata))) {
             $hash = (Get-FileHash -LiteralPath $file.FullName -Algorithm SHA256).Hash.ToLowerInvariant()
             "$hash  $($file.Name)"
           }
           $checksums | Set-Content -LiteralPath (Join-Path $output 'SHA256SUMS.txt') -Encoding ascii
           "version=$version" >> $env:GITHUB_OUTPUT
-          "Built V$version from commit $env:GITHUB_SHA. Download the ZIP files from Artifacts; upload Release assets manually." >> $env:GITHUB_STEP_SUMMARY
+          @(
+            "## UnattendLocal V$version"
+            ''
+            "Commit: $commit"
+            "SDK: $sdk"
+            ''
+            '| Archive | Bytes |'
+            '| --- | ---: |'
+            foreach ($item in $archiveInfo) { "| $($item.File) | $($item.Bytes) |" }
+          ) >> $env:GITHUB_STEP_SUMMARY
       - name: Upload downloadable packages
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
         with:
-          name: UnattendLocal-V${{ steps.package.outputs.version }}-${{ github.run_number }}
+          name: UnattendLocal-V${{ steps.package.outputs.version }}-${{ github.run_number }}-${{ github.run_attempt }}
           path: |
             ${{ runner.temp }}/packages/*.zip
             ${{ runner.temp }}/packages/SHA256SUMS.txt
+            ${{ runner.temp }}/packages/BUILD_INFO.json
           if-no-files-found: error
           retention-days: 14
           compression-level: 0

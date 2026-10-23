@@ -19,20 +19,19 @@ $assemblyVersion = Get-ProjectProperty 'AssemblyVersion'
 if ($version -notmatch '^\d+\.\d+(?:\.\d+)?$' -or $fileVersion -notmatch '^\d+\.\d+\.\d+\.\d+$') {
     throw 'Project release versions must use numeric major.minor[.patch] and a four-part FileVersion.'
 }
-$releaseParts = $version.Split('.')
-$fileParts = $fileVersion.Split('.')
-for ($i = 0; $i -lt $releaseParts.Count; $i++) {
-    if ([int]$releaseParts[$i] -ne [int]$fileParts[$i]) {
-        throw 'InformationalVersion and FileVersion do not match. Update Desktop.csproj before publishing.'
+# A two-part version such as 1.17 has Build/Revision == -1 in
+# System.Version. Normalize omitted zero parts before comparing metadata.
+function Normalize-ReleaseVersion([string]$Value) {
+    if ($Value -notmatch '^\d+\.\d+(?:\.\d+){0,2}$') {
+        throw 'Release versions must have two to four numeric parts.'
     }
+    $parsed = [version]$Value
+    return '{0}.{1}.{2}.{3}' -f $parsed.Major, $parsed.Minor, [Math]::Max(0, $parsed.Build), [Math]::Max(0, $parsed.Revision)
 }
-$numericProject = [version]$projectVersion
-$numericFile = [version]$fileVersion
-if ($releaseParts.Count -eq 2 -and $numericFile.Build -ne 0) {
-    throw 'InformationalVersion is missing the nonzero patch version.'
-}
-if ($numericProject.Major -ne $numericFile.Major -or $numericProject.Minor -ne $numericFile.Minor -or $numericProject.Build -ne $numericFile.Build -or $assemblyVersion -ne $fileVersion) {
-    throw 'Version, AssemblyVersion and FileVersion do not match. Update Desktop.csproj before publishing.'
+$expectedVersion = Normalize-ReleaseVersion $version
+if ((Normalize-ReleaseVersion $projectVersion) -ne $expectedVersion -or
+    $fileVersion -ne $expectedVersion -or $assemblyVersion -ne $expectedVersion) {
+    throw 'Version, InformationalVersion, AssemblyVersion and FileVersion do not match. Update Desktop.csproj before publishing.'
 }
 if ([string]::IsNullOrWhiteSpace($OutputRoot)) {
     $OutputRoot = Join-Path (Join-Path (Split-Path $PSScriptRoot -Parent) 'UnattendLocal-release') "v$version"
@@ -107,4 +106,4 @@ try {
 } finally {
     if (Test-Path -LiteralPath $staging) { Remove-Item -LiteralPath $staging -Recurse -Force }
 }
-Write-Host 'Done. Test both EXEs on Windows before uploading them as Release assets.'
+Write-Host 'Build completed.'

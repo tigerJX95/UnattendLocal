@@ -18,3 +18,7 @@
 2026-10-23：核对官方提交 27237f82e9a8498d9c5bab7d398dc34b7682a1e8，计算机名交互提示已通过 ScriptComputerNameSettings(PromptScript) 在 V1.15 实现。Core/Resources/ComputerNamePrompt.ps1 的 Git blob 为 73b411835ed1a8e34e4469aa3bddf90a10050869，与上游一致。本次不重复合并，vendor 保持不变。
 
 官方提交：https://github.com/cschneegans/unattend-generator/commit/27237f82e9a8498d9c5bab7d398dc34b7682a1e8
+
+## V1.17 示例能力适配
+
+参考原作者[示例脚本页](https://schneegans.de/windows/unattend-generator/samples/)中的离线 .NET 3.5、VC++ 运行库与 AutoRun 用途，在 `Core/Resources/Templates/` 编写本地模板；不是整体替换生成核心。新增版本限制、安装错误处理、本地源限制与下载签名检查，说明见 [ScriptTemplates.md](docs/ScriptTemplates.md)。固定 vendor 文件保持不变。
