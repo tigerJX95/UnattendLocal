@@ -1,5 +1,7 @@
 using System.Text.Json;
 using System.IO;
+using System.Text;
+using UnattendLocal.Core;
 
 namespace UnattendLocal.Desktop;
 
@@ -12,8 +14,8 @@ public static class UiPreferences
         try
         {
             path ??= DefaultPath;
-            if (!File.Exists(path) || new FileInfo(path).Length > 4096) return "Light";
-            using var doc = JsonDocument.Parse(File.ReadAllText(path));
+            if (!File.Exists(path)) return "Light";
+            using var doc = JsonDocument.Parse(TextFileImport.Read(path, 4096, "界面偏好文件过大。"));
             if (doc.RootElement.ValueKind == JsonValueKind.Object && doc.RootElement.TryGetProperty("theme", out var theme) && theme.ValueKind == JsonValueKind.String && theme.GetString() == "Dark") return "Dark";
         }
         catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or JsonException or ArgumentException or NotSupportedException) { }
@@ -22,21 +24,14 @@ public static class UiPreferences
     public static bool Save(string theme, string? path = null)
     {
         if (theme is not ("Light" or "Dark")) return false;
-        string? temporary = null;
         try
         {
             path ??= DefaultPath;
             path = Path.GetFullPath(path);
             Directory.CreateDirectory(Path.GetDirectoryName(path)!);
-            temporary = path + "." + Guid.NewGuid().ToString("N") + ".tmp";
-            File.WriteAllText(temporary, JsonSerializer.Serialize(new { theme }));
-            File.Move(temporary, path, true);
+            AtomicFile.WriteAllText(path, JsonSerializer.Serialize(new { theme }), new UTF8Encoding(false, true));
             return true;
         }
         catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or ArgumentException or NotSupportedException) { return false; }
-        finally
-        {
-            if (temporary != null) try { File.Delete(temporary); } catch (IOException) { } catch (UnauthorizedAccessException) { }
-        }
     }
 }

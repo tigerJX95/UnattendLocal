@@ -1,4 +1,4 @@
-﻿using System.Text.Json;
+using System.Text.Json;
 namespace UnattendLocal.Core;
 
 public enum PlanFileKind { AnswerXml, JsonPlan }
@@ -16,11 +16,7 @@ public static class PlanFileImport {
  }
  public static string Read(string path){
   var kind=Kind(path);long limit=kind==PlanFileKind.AnswerXml?MaxXmlBytes:MaxJsonBytes;
-  using var input=new FileStream(path,FileMode.Open,FileAccess.Read,FileShare.Read);
-  if(input.Length>limit)throw TooLarge(kind);
-  using var bytes=new MemoryStream();var buffer=new byte[81920];int read;
-  while((read=input.Read(buffer))>0){if(bytes.Length+read>limit)throw TooLarge(kind);bytes.Write(buffer,0,read);}
-  bytes.Position=0;using var reader=new StreamReader(bytes,new System.Text.UTF8Encoding(false,true),detectEncodingFromByteOrderMarks:true);return reader.ReadToEnd();
+  return TextFileImport.Read(path,limit,TooLarge(kind).Message);
  }
  private static ArgumentException TooLarge(PlanFileKind kind)=>new(kind==PlanFileKind.AnswerXml?"应答 XML 文件超过 32 MiB。":"JSON 方案文件超过 128 MiB。");
  public static void ValidateJsonPlan(JsonElement root){

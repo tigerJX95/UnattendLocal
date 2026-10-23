@@ -1,4 +1,4 @@
-﻿using System.IO;
+using System.IO;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Windows;
@@ -73,9 +73,9 @@ public partial class MainWindow : Window {
   if(dialog.ShowDialog(this)==true)ImportConfigurationFile(dialog.FileName);
   else vm.Status="已取消 XML 文件选择，当前配置未改变。";
  }
- private void ImportWifiProfileClick(object s,RoutedEventArgs e)=>Run(()=>{var d=new OpenFileDialog{Filter="无线配置 XML (*.xml)|*.xml",Title="导入 WLANProfile 无线配置"};if(d.ShowDialog(this)!=true)return;if(new FileInfo(d.FileName).Length>2*1024*1024)throw new ArgumentException("无线配置文件超过 2 MiB。");var text=File.ReadAllText(d.FileName);_=WifiSettings.ReadProfile(text);vm.Plan.WifiProfileXml=text;vm.Status="无线配置 XML 已导入，请核对内容和目标环境";});
+ private void ImportWifiProfileClick(object s,RoutedEventArgs e)=>Run(()=>{var d=new OpenFileDialog{Filter="无线配置 XML (*.xml)|*.xml",Title="导入 WLANProfile 无线配置"};if(d.ShowDialog(this)!=true)return;var text=TextFileImport.Read(d.FileName,2L*1024*1024,"无线配置文件超过 2 MiB。");_=WifiSettings.ReadProfile(text);vm.Plan.WifiProfileXml=text;vm.Status="无线配置 XML 已导入，请核对内容和目标环境";});
  private void ValidateWifiProfileClick(object s,RoutedEventArgs e)=>Run(()=>{_=WifiSettings.ReadProfile(vm.Plan.WifiProfileXml);vm.Status="无线配置 XML 结构检查通过；实际连接取决于目标环境";});
- private void ImportAppLockerClick(object s,RoutedEventArgs e)=>Run(()=>{var d=new OpenFileDialog{Filter="AppLocker 策略 XML (*.xml)|*.xml",Title="导入 AppLocker 策略"};if(d.ShowDialog(this)!=true)return;if(new FileInfo(d.FileName).Length>AppControlSettings.MaxLength*4L)throw new ArgumentException("AppLocker 策略文件超过 8 MiB。");var text=File.ReadAllText(d.FileName);_=AppControlSettings.ReadPolicy(text);if(!string.IsNullOrWhiteSpace(vm.Plan.AppLockerPolicyXml)&&MessageBox.Show(this,"导入将替换编辑器中的策略，是否继续？","导入 AppLocker 策略",MessageBoxButton.YesNo,MessageBoxImage.Question)!=MessageBoxResult.Yes)return;vm.Plan.AppLockerPolicyXml=text;vm.Status="策略结构检查通过；请在目标环境审核规则及恢复方案";});
+ private void ImportAppLockerClick(object s,RoutedEventArgs e)=>Run(()=>{var d=new OpenFileDialog{Filter="AppLocker 策略 XML (*.xml)|*.xml",Title="导入 AppLocker 策略"};if(d.ShowDialog(this)!=true)return;var text=TextFileImport.Read(d.FileName,AppControlSettings.MaxLength*4L,"AppLocker 策略文件超过 8 MiB。");_=AppControlSettings.ReadPolicy(text);if(!string.IsNullOrWhiteSpace(vm.Plan.AppLockerPolicyXml)&&MessageBox.Show(this,"导入将替换编辑器中的策略，是否继续？","导入 AppLocker 策略",MessageBoxButton.YesNo,MessageBoxImage.Question)!=MessageBoxResult.Yes)return;vm.Plan.AppLockerPolicyXml=text;vm.Status="策略结构检查通过；请在目标环境审核规则及恢复方案";});
  private void ValidateAppLockerClick(object s,RoutedEventArgs e)=>Run(()=>{_=AppControlSettings.ReadPolicy(vm.Plan.AppLockerPolicyXml);vm.Status="AppLocker XML 结构检查通过，不代表规则适合目标系统";});
  private void AppLockerExampleClick(object s,RoutedEventArgs e)=>Run(()=>{if(!string.IsNullOrWhiteSpace(vm.Plan.AppLockerPolicyXml)&&MessageBox.Show(this,"审核示例将替换当前策略内容，是否继续？","载入 AppLocker 示例",MessageBoxButton.YesNo,MessageBoxImage.Question)!=MessageBoxResult.Yes)return;vm.Plan.AppLockerPolicyXml=AppControlSettings.Example;vm.Status="已载入审核示例；仅供学习，请结合目标环境调整与验证";});
  private void SaveClick(object s,RoutedEventArgs e)=>Run(()=>{var d=new SaveFileDialog{Filter="配置方案 (*.json)|*.json",FileName="安装方案.json"};if(d.ShowDialog(this)!=true)return;var answer=MessageBox.Show(this,"是否将账户密码（含内置 Administrator）、Wi-Fi 密码、完整无线配置 XML 及自定义产品密钥写入方案？\n脚本始终按原文保存；脚本内的密码、令牌不会自动省略。\n导入 XML 时，选择“是”会同时保存完整 XML 原文；选择“否”不保存原文，下次须重新导入 XML 才能导出。\n选择“否”将省略密码、自定义密钥、整段无线配置 XML 及额外 XML 片段，下次载入需重新输入或导入。\n选择“是”会以明文保存密码和自定义密钥。","保存凭据",MessageBoxButton.YesNoCancel,MessageBoxImage.Question,MessageBoxResult.No);if(answer==MessageBoxResult.Cancel)return;AtomicFile.WriteAllText(d.FileName,PlanStore.Serialize(vm.Plan,answer==MessageBoxResult.Yes),new UTF8Encoding(false));vm.Status="方案已保存";});
@@ -105,8 +105,7 @@ public partial class MainWindow : Window {
   if(s is not Button {Tag:string kind})return;
   var d=new OpenFileDialog{Filter=kind=="pins"?"开始菜单 JSON (*.json)|*.json":"布局 XML (*.xml)|*.xml"};
   if(d.ShowDialog(this)!=true)return;
-  if(new FileInfo(d.FileName).Length>ShellSettings.MaxDocumentLength*4L)throw new ArgumentException("布局文件过大，请选择不超过 8 MiB 的文件。");
-  var content=File.ReadAllText(d.FileName);ShellSettings.ValidateDocument(kind,content);
+  var content=TextFileImport.Read(d.FileName,ShellSettings.MaxDocumentLength*4L,"布局文件过大，请选择不超过 8 MiB 的文件。");ShellSettings.ValidateDocument(kind,content);
   if(!string.IsNullOrWhiteSpace(LayoutContent(kind))&&MessageBox.Show(this,"导入将替换当前编辑器内容，是否继续？","导入布局",MessageBoxButton.YesNo,MessageBoxImage.Question)!=MessageBoxResult.Yes)return;
   SetLayoutContent(kind,content);vm.Status="布局已导入并通过结构检查，请核对应用 ID 与目标系统快捷方式路径";
  });

@@ -1,10 +1,12 @@
-﻿# UnattendLocal — Windows 无人值守配置工具
+# UnattendLocal — Windows 无人值守配置工具
+
+**[下载最新版本（Releases）](https://github.com/tigerJX95/UnattendLocal/releases/latest)**
 
 **简体中文** | [English](README_EN.md)
 
 UnattendLocal 是基于 [Christoph Schneegans 的 UnattendGenerator](https://github.com/cschneegans/unattend-generator) 开发的中文 Windows 桌面配置工具，用于在本地编辑、检查和生成 Windows 10 / 11 的 `autounattend.xml`。
 
-当前版本：**V1.15**。支持静态 IPv4 / IPv6 双栈、子网掩码输入、设置搜索、安装驱动目录、动态更新、自动分区、OOBE 与账户配置，以及已有 XML 的导入编辑。
+当前版本：**V1.16**。支持静态 IPv4 / IPv6 双栈、子网掩码输入、设置搜索、安装驱动目录、动态更新、自动分区、OOBE 与账户配置，以及已有 XML 的导入编辑。
 
 ## 💡 开发初衷
 
@@ -55,6 +57,15 @@ UnattendLocal 是基于 [Christoph Schneegans 的 UnattendGenerator](https://git
 - 保存和恢复 JSON 方案，提供配置摘要、推荐差异、检查、脱敏预览和 XML 导出。
 - 导入已有 XML 后编辑已支持设置，保留未知内容；遇到无法可靠合并的修改时停止导出并说明原因。
 
+## V1.16 文件导入与保存优化 · 2026-10-23
+
+下载程序：前往 [Releases 下载最新版本](https://github.com/tigerJX95/UnattendLocal/releases/latest)。
+
+- 统一应答 XML、JSON 方案、无线配置、AppLocker 策略和开始菜单 / 任务栏布局的文件读取逻辑，在读取过程中持续检查大小上限。
+- 严格检查 UTF-8 及带 BOM 的 UTF-16 / UTF-32 编码；遇到损坏字节时停止导入并显示中文处理说明，避免静默替换字符。有效文本、换行及已有大小上限保持不变。
+- 脚本另存和主题偏好保存复用方案 / XML / ISO 使用的临时文件替换逻辑，先完整写入并刷新，再替换目标文件；保存失败时保留原文件并尝试清理临时文件。
+- 核对上游 27237f8：安装时输入计算机名的功能已包含在 V1.15 中，无需重复合并。
+
 ## V1.15 电源计划与 Windows 错误报告 · 2026-10-22
 
 - 新增首选电源计划设置：支持不指定、平衡、高性能、节能及自定义 GUID，在 specialize 阶段配置目标系统已有的电源计划，不创建或导入计划。
@@ -89,12 +100,12 @@ UnattendLocal 是基于 [Christoph Schneegans 的 UnattendGenerator](https://git
 
 ## 📦 下载与使用
 
-从仓库的 [**Releases**](https://github.com/tigerJX95/UnattendLocal/releases/latest) 页面下载并直接运行对应的 `UnattendLocal_V1.15_x64_SelfContained.exe` 或 `UnattendLocal_V1.15_x64_FrameworkDependent.exe`：
+从仓库的 [**Releases**](https://github.com/tigerJX95/UnattendLocal/releases/latest) 页面下载并直接运行对应的 `UnattendLocal_V1.16_x64_SelfContained.exe` 或 `UnattendLocal_V1.16_x64_FrameworkDependent.exe`：
 
 | 程序文件 | 运行要求 |
 | --- | --- |
-| `UnattendLocal_V1.15_x64_SelfContained.exe` | 集成 .NET 运行时，无需单独安装；通常选择此版。 |
-| `UnattendLocal_V1.15_x64_FrameworkDependent.exe` | 文件较小，需安装 .NET 10 Desktop Runtime x64。 |
+| `UnattendLocal_V1.16_x64_SelfContained.exe` | 集成 .NET 运行时，无需单独安装；通常选择此版。 |
+| `UnattendLocal_V1.16_x64_FrameworkDependent.exe` | 文件较小，需安装 .NET 10 Desktop Runtime x64。 |
 
 两版功能相同。首次安装测试建议使用虚拟机。
 

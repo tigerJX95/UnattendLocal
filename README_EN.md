@@ -1,10 +1,12 @@
-﻿# UnattendLocal — Windows Unattended Setup Configuration Tool
+# UnattendLocal — Windows Unattended Setup Configuration Tool
+
+**[Download the latest release](https://github.com/tigerJX95/UnattendLocal/releases/latest)**
 
 [简体中文](README.md) | **English**
 
 UnattendLocal is a Chinese-language Windows desktop tool based on [Christoph Schneegans’ UnattendGenerator](https://github.com/cschneegans/unattend-generator). It lets you edit, check, and generate `autounattend.xml` for Windows 10 / 11 locally.
 
-Current version: **V1.15**. Includes static IPv4/IPv6 dual stack, subnet-mask input, settings search, setup driver directories, Dynamic Update, partitioning, OOBE and account settings, and existing XML import/editing.
+Current version: **V1.16**. Includes static IPv4/IPv6 dual stack, subnet-mask input, settings search, setup driver directories, Dynamic Update, partitioning, OOBE and account settings, and existing XML import/editing.
 
 ## 💡 Why this project exists
 
@@ -57,6 +59,15 @@ The displayed product key is a public generic installation key for selecting an 
 - Save and restore JSON plans; review summaries, recommended-setting differences, checks, redacted previews, and XML exports.
 - Import existing XML and edit supported settings while preserving unknown content. Export stops with an explanation when changes cannot be merged reliably.
 
+## V1.16 file import and save improvements
+
+Download the app from the [latest release](https://github.com/tigerJX95/UnattendLocal/releases/latest).
+
+- Share bounded reading across answer XML, JSON plans, Wi-Fi profiles, AppLocker policies, and Start / taskbar layouts. Byte limits are enforced throughout reading.
+- Reject malformed UTF-8 and BOM-marked UTF-16 / UTF-32 instead of silently replacing invalid bytes. Valid text and line breaks are preserved. Convert ANSI / GBK files before importing.
+- Reuse staged saving for scripts and theme preferences: write and flush a temporary file before replacing the destination. Failed saves preserve the destination and attempt temporary-file cleanup.
+- Confirm that upstream commit 27237f8's computer-name prompt is already included in V1.15; no duplicate merge is needed.
+
 ## V1.15 power plans and Windows Error Reporting
 
 - Add a preferred power-plan option: keep Windows defaults, select Balanced, High performance or Power saver, or specify an existing plan GUID. The setting is applied in specialize; plans are not created or imported.
@@ -91,7 +102,7 @@ For media preparation and explicit invocation, see [XML and ISO export](docs/Ans
 
 ## 📦 Download and usage
 
-Download and run the matching Windows x64 executable from the repository’s [**Releases**](https://github.com/tigerJX95/UnattendLocal/releases/latest) page: `UnattendLocal_V1.15_x64_SelfContained.exe` or `UnattendLocal_V1.15_x64_FrameworkDependent.exe`. Choose `UnattendLocal_V1.15_x64_SelfContained.exe` for a bundled .NET runtime, or `UnattendLocal_V1.15_x64_FrameworkDependent.exe` if .NET 10 Desktop Runtime x64 is already installed. Both have the same features. Use a virtual machine for initial testing.
+Download and run the matching Windows x64 executable from the repository’s [**Releases**](https://github.com/tigerJX95/UnattendLocal/releases/latest) page: `UnattendLocal_V1.16_x64_SelfContained.exe` or `UnattendLocal_V1.16_x64_FrameworkDependent.exe`. Choose `UnattendLocal_V1.16_x64_SelfContained.exe` for a bundled .NET runtime, or `UnattendLocal_V1.16_x64_FrameworkDependent.exe` if .NET 10 Desktop Runtime x64 is already installed. Both have the same features. Use a virtual machine for initial testing.
 
 1. Choose a recommended scenario or a custom configuration and enter the required account and image settings.
 2. Adjust system, appearance, and application removal options as needed.

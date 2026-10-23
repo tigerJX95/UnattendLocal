@@ -53,12 +53,7 @@ public static class ScriptFiles {
   return [..encoding.GetPreamble(),..encoding.GetBytes(text)];
  }
  public static void Write(ScriptEntry row,string destination){
-  var bytes=Encode(row,destination);
-  string full=Path.GetFullPath(destination),temporary=Path.Combine(Path.GetDirectoryName(full)!,".unattend-script-"+Guid.NewGuid().ToString("N")+".tmp");
-  try{
-   using(var output=new FileStream(temporary,FileMode.CreateNew,FileAccess.Write,FileShare.None)){output.Write(bytes);output.Flush(true);}
-   File.Move(temporary,full,true);
-  }finally{if(File.Exists(temporary))File.Delete(temporary);}
+  AtomicFile.WriteAllBytes(destination,Encode(row,destination));
  }
  public static string EncodingHint(string type)=>type switch {"Cmd"=>"UTF-8（无 BOM）；CMD 中文需目标代码页匹配，不自动插入 chcp 命令。","Reg"=>"UTF-16 LE（带 BOM）；缺少标准 REG 文件头时，仅在另存文件中补齐。","Vbs"=>"UTF-16 LE（带 BOM）。","Ps1"=>"UTF-8（带 BOM），兼容 Windows PowerShell 5.1 中文脚本。",_=>"请选择支持的脚本格式。"};
 }
