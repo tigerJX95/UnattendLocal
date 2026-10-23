@@ -12,3 +12,5 @@
 本地界面与适配模块在原生成核心上实现配置、导入合并及输出封装。ISO 使用独立组件 DiscUtils，具体版本和许可证见 THIRD_PARTY_NOTICES.md；使用说明见 docs/AnswerFileExport.md。
 
 2026-10-22：V1.14 对照官网的 Minimal / LocalUser 预设和额外 XML 组件入口。官网固定发布仍为 27237f82e9a8498d9c5bab7d398dc34b7682a1e8；通过 GitHub 读取当前 Main.cs 核对组件配置模型。vendor 不变，继续使用固定组件与阶段目录；本地额外 XML 采用添加独立子元素的方式，不实现原站的整组件覆盖。OEM 示例依据微软 OEMInformation 文档，仅使用 SupportProvider 与 SupportURL。详见 docs/AdvancedXml.md。
+
+2026-10-22：V1.15 添加微软原生 PreferredPlan 与 DisableWER 设置，限定专用界面的编辑阶段为 specialize；不修改 vendor，不添加新的脚本执行阶段。兼容原组件的其他子元素与 V1.14 额外 XML 编辑来源。参数、有效阶段与限制依据微软官方文档，链接见 docs/NativePreferences.md。

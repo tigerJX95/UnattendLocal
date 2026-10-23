@@ -27,6 +27,7 @@ public class GeneratorService {
  // This internal path never writes a user export; public generation always checks deployment.
  internal byte[] GenerateImportBaseline(InstallPlan p)=>GenerateDocument(p,false,false);
  private byte[] GenerateDocument(InstallPlan p,bool includeImport,bool checkDeployment=true) {
+  NativePreferences.Validate(p);
   AdditionalXmlSettings.Validate(p,checkDeployment);
   if(checkDeployment)StaticIPv4Settings.ValidateDeployment(p);
   AppRemovalSettings.Validate(p);
@@ -118,8 +119,9 @@ public class GeneratorService {
   RegisteredInformationSettings.Apply(doc,p);
   WorkgroupSettings.Apply(doc,p);
   PeLogSettings.Apply(doc,p);
+  NativePreferences.Apply(doc,p);
   AdditionalXmlSettings.Apply(doc,p);
-  if(includeImport&&p.ImportedXml is {} imported){FirstLogonSettings.ValidateGenerated(p,doc);doc=AppRemovalSettings.MergeImported(p,doc);WorkgroupSettings.FinishImported(doc,p);}
+  if(includeImport&&p.ImportedXml is {} imported){FirstLogonSettings.ValidateGenerated(p,doc);doc=AppRemovalSettings.MergeImported(p,doc);WorkgroupSettings.FinishImported(doc,p);NativePreferences.FinishImported(doc,p);}
   using var schema=typeof(UnattendGenerator).Assembly.GetManifestResourceStream("Schneegans.Unattend.resource.autounattend.xsd")!;
   doc.Schemas.Add("urn:schemas-microsoft-com:unattend",XmlReader.Create(schema));
   doc.Validate((_,e)=>throw new ArgumentException("XML 结构验证失败："+e.Message));

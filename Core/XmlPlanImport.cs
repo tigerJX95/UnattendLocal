@@ -56,6 +56,7 @@ public static class XmlPlanImport {
   var registeredInformationState=RegisteredInformationSettings.ReadIntoPlan(doc,p,notes);
   var workgroupState=WorkgroupSettings.ReadIntoPlan(doc,p,notes);
   var peLogState=PeLogSettings.ReadIntoPlan(doc,p,notes);
+  var nativePreferenceStates=NativePreferences.ReadIntoPlan(doc,p,notes);
   p.Architecture=arches.FirstOrDefault()??"amd64";
   p.ConfigurationMode="自定义配置";p.CustomStartingPoint="保留当前设置";p.RecommendationId="";p.RecommendationVersion=0;p.RecommendationWindows="";
   p.ClearDiskConsent();
@@ -67,7 +68,7 @@ public static class XmlPlanImport {
   var clone=PlanStore.Deserialize(PlanStore.Serialize(p,true));clone.ImportedXml=null;
   clone.ConfirmWipeDisk=true;clone.ConfirmFormatPartition=true;clone.ConfirmDiskScript=true;
   string baseline="";
-  try{baseline=Encoding.UTF8.GetString(service.GenerateImportBaseline(clone));}
+  try{baseline=Encoding.UTF8.GetString(service.GenerateImportBaseline(clone));var seed=XmlMerge.Read(baseline);NativePreferences.SeedBaseline(seed,doc,p);baseline=seed.OuterXml;}
   catch(Exception e)when(e is ArgumentException or ConfigurationException or XmlException){
    blockers.Add("部分设置无法建立可靠的编辑基准，暂不能再导出。请先使用原工具调整后重新导入；原因："+SafeReason(e.Message));
   }
@@ -83,6 +84,7 @@ public static class XmlPlanImport {
   RegisteredInformationSettings.UpdateImportState(p.ImportedXml,registeredInformationState);
   WorkgroupSettings.UpdateImportState(p.ImportedXml,workgroupState);
   PeLogSettings.UpdateImportState(p.ImportedXml,peLogState);
+  NativePreferences.UpdateImportState(p.ImportedXml,nativePreferenceStates);
   FirstLogonSettings.UpdateImportState(p.ImportedXml,p,firstLogonState);
   p.ClearDiskConsent();return p;
  }
@@ -272,6 +274,7 @@ public static class XmlPlanImport {
  public static void AddSnapshot(XmlDocument doc,InstallPlan plan){
   foreach(XmlComment c in doc.SelectNodes("//comment()")!.Cast<XmlComment>().ToArray())if(c.Value?.StartsWith(Marker)==true||c.Value?.TrimStart().StartsWith("https://schneegans.de/windows/unattend-generator/?")==true)c.ParentNode!.RemoveChild(c);
   var copy=PlanStore.Deserialize(PlanStore.Serialize(plan,true));copy.ImportedXml=null;
+  if(copy.PowerPlanMode!=NativePreferences.Custom)copy.CustomPowerPlanGuid=NativePreferences.Value(copy,NativePreferences.Power)??"";
   copy.ExportNonAutomaticFilename=false; // Output preference belongs to JSON, not installation settings.
   copy.XmlComponents=new(copy.XmlComponents.Where(row=>row.Enabled));
   copy.Scripts=new(copy.Scripts.Where(s=>s.Enabled&&!s.IsRemovedType));
@@ -313,6 +316,7 @@ public static class XmlPlanImport {
   RegisteredInformationSettings.ValidateImported(p,source);
   WorkgroupSettings.ValidateImported(p,source);
   PeLogSettings.ValidateImported(p,source);
+  NativePreferences.ValidateImported(p,source);
   ComputerNamingSettings.ValidateImported(p,source);
   LanguagePreferences.ValidateImported(p,source);
   WifiSettings.ValidateImported(p,source);

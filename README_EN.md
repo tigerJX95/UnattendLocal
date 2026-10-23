@@ -4,7 +4,7 @@
 
 UnattendLocal is a Chinese-language Windows desktop tool based on [Christoph Schneegans’ UnattendGenerator](https://github.com/cschneegans/unattend-generator). It lets you edit, check, and generate `autounattend.xml` for Windows 10 / 11 locally.
 
-Current version: **V1.14**. Includes static IPv4/IPv6 dual stack, subnet-mask input, settings search, setup driver directories, Dynamic Update, partitioning, OOBE and account settings, and existing XML import/editing.
+Current version: **V1.15**. Includes static IPv4/IPv6 dual stack, subnet-mask input, settings search, setup driver directories, Dynamic Update, partitioning, OOBE and account settings, and existing XML import/editing.
 
 ## 💡 Why this project exists
 
@@ -57,6 +57,17 @@ The displayed product key is a public generic installation key for selecting an 
 - Save and restore JSON plans; review summaries, recommended-setting differences, checks, redacted previews, and XML exports.
 - Import existing XML and edit supported settings while preserving unknown content. Export stops with an explanation when changes cannot be merged reliably.
 
+## V1.15 power plans and Windows Error Reporting
+
+- Add a preferred power-plan option: keep Windows defaults, select Balanced, High performance or Power saver, or specify an existing plan GUID. The setting is applied in specialize; plans are not created or imported.
+- Add native Windows Error Reporting controls: unspecified, enabled or disabled via DisableWER. This does not disable services or all diagnostic collection.
+- Support JSON saving, native XML import/editing, summaries, settings search and error navigation. Both options remain unspecified by default.
+- Preserve unrecognized values, duplicate entries and other passes as read-only. Editing recognized scalar settings retains unrelated component content.
+- Preserve V1.14 extra-XML ownership and pending changes while migrating older JSON baselines.
+- Share inspection and migration logic and improve concise paragraph-based help.
+
+See [Power plans and error reporting](docs/NativePreferences.md) for usage and official references.
+
 ## V1.14 quick presets and advanced XML components
 
 - Add a minimal preset that leaves language, edition, partitioning and accounts to Windows Setup, retaining installation-sensitive files by default.
@@ -80,7 +91,7 @@ For media preparation and explicit invocation, see [XML and ISO export](docs/Ans
 
 ## 📦 Download and usage
 
-Download and run the matching Windows x64 executable from the repository’s [**Releases**](https://github.com/tigerJX95/UnattendLocal/releases/latest) page: `UnattendLocal_V1.14_x64_SelfContained.exe` or `UnattendLocal_V1.14_x64_FrameworkDependent.exe`. Choose `UnattendLocal_V1.14_x64_SelfContained.exe` for a bundled .NET runtime, or `UnattendLocal_V1.14_x64_FrameworkDependent.exe` if .NET 10 Desktop Runtime x64 is already installed. Both have the same features. Use a virtual machine for initial testing.
+Download and run the matching Windows x64 executable from the repository’s [**Releases**](https://github.com/tigerJX95/UnattendLocal/releases/latest) page: `UnattendLocal_V1.15_x64_SelfContained.exe` or `UnattendLocal_V1.15_x64_FrameworkDependent.exe`. Choose `UnattendLocal_V1.15_x64_SelfContained.exe` for a bundled .NET runtime, or `UnattendLocal_V1.15_x64_FrameworkDependent.exe` if .NET 10 Desktop Runtime x64 is already installed. Both have the same features. Use a virtual machine for initial testing.
 
 1. Choose a recommended scenario or a custom configuration and enter the required account and image settings.
 2. Adjust system, appearance, and application removal options as needed.

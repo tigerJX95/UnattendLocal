@@ -19,6 +19,9 @@ public sealed record ConfigurationErrorLocation(SettingSearchResult Setting, int
             return new(new(title, "用户与密码", 4, target, "user", ""), userIndex);
         }
         string targetName = field switch {
+            nameof(InstallPlan.PowerPlanMode) => "PowerPlanModeEditor",
+            nameof(InstallPlan.CustomPowerPlanGuid) => "PowerPlanGuidEditor",
+            nameof(InstallPlan.ErrorReportingMode) => "ErrorReportingModeEditor",
             nameof(InstallPlan.XmlComponents) => "AdditionalXmlSection",
             nameof(InstallPlan.StaticIPv4Mac) => "StaticIPv4MacEditor",
             nameof(InstallPlan.StaticIPv4Address) => "StaticIPv4AddressEditor",

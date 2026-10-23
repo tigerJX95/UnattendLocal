@@ -1,5 +1,8 @@
-namespace UnattendLocal.Core;
+﻿namespace UnattendLocal.Core;
 public class ImportedXml {
+ public int NativePreferencesImportVersion {get;set;}
+ public bool PowerPlanReadOnly {get;set;}
+ public bool ErrorReportingReadOnly {get;set;}
  public bool LegacyUpgradeReadOnly {get;set;}
  public int WorkgroupImportVersion {get;set;}
  public bool WorkgroupReadOnly {get;set;}

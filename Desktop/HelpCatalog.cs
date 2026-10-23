@@ -108,6 +108,8 @@ public static class HelpCatalog
             new("lastaccess","NTFS 最后访问时间",SystemMaintenanceSettings.LastAccessDescription),
             new("remotedesktop","启用远程桌面",AdvancedSystemSettings.RdpDescription),
             new("pspolicy","Windows PowerShell 执行策略",AdvancedSystemSettings.ScriptDescription),
+            new("powerplan", "首选电源计划", "在 specialize 阶段指定已有电源计划的 GUID，不创建或导入电源计划。自定义 GUID 可用目标系统的 powercfg /list 查询，须提前存在于目标镜像；不存在时可能无法应用或导致安装错误。高性能可能增加耗电与发热，节能可能降低性能；Modern Standby 设备通常仅允许平衡或基于平衡的计划。此项不是 Windows 设置中的电源模式滑块，也不分别配置交流/电池策略。组织或厂商策略可能覆盖；本工具不读取或修改当前电脑的电源设置。"),
+            new("errorreporting", "Windows 错误报告", "在 specialize 阶段设置 Microsoft-Windows-ErrorReportingCore/DisableWER，0 表示启用，1 表示禁用。启用不代表未经同意强制上传所有报告，具体收集和发送仍受 Windows、组织策略及用户设置影响。禁用可能减少故障报告及解决方案信息，不等于关闭事件日志、所有诊断数据或第三方应用报告。不停用或卸载服务，不修改当前电脑；选择不指定只影响本次输出。"),
             new("faststartup", "快速启动", "勾选后在安装时关闭目标系统的快速启动；关机后的开机可能变慢。未勾选时不写入此项覆盖，遵循 Windows 默认行为，并非强制开启。此设置不关闭休眠功能，也不修改当前电脑。"),
             new("deviceencryption", "禁止 BitLocker 自动设备加密", "启用后，在目标 Windows 安装阶段阻止自动启用设备加密。新建推荐与自定义配置默认启用；可取消勾选以遵循 Windows 默认行为。这不会解密已有加密卷，也不会禁用 BitLocker 功能或阻止安装后手动配置加密。效果需在目标 Windows 版本与硬件上验证。"),
             new("hardware", "Windows 11 安装检查", "在版本与密钥页分别选择绕过 TPM 2.0、安全启动或内存容量检查。默认全部关闭，按 Windows 默认要求检查。设置在 Windows PE 安装阶段应用；不关闭固件中的 TPM 或安全启动，也不提升硬件能力。只配置这三项，不保证绕过 CPU 指令集或其他版本要求；须以目标安装镜像实测为准。"),

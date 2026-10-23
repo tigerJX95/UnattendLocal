@@ -1,5 +1,6 @@
 using System.Text;using System.Xml;using UnattendLocal.Core;
 int count=0;var g=new GeneratorService();
+if(args.Contains("--native-preferences-only")){Console.WriteLine($"V1.15 native preferences: {NativePreferencesTests.Run(g)} checks passed.");return;}
 if(args.Contains("--advanced-xml-only")){Console.WriteLine($"V1.14 presets and advanced XML: {AdvancedXmlTests.Run(g)} checks passed.");return;}
 if(args.Contains("--answer-export-only")){var i=Array.IndexOf(args,"--export-samples");Console.WriteLine($"V1.13 export: {AnswerFileExportTests.Run(g,i>=0?args[i+1]:null)} checks passed.");return;}
 if(args.Contains("--security-audit-only")){Console.WriteLine($"V1.12.1 security audit: {SecurityAuditFixTests.Run(g)} checks passed.");return;}
@@ -2051,3 +2052,6 @@ Console.WriteLine($"V1.13 final total: {count} tests passed.");
 
 count+=AdvancedXmlTests.Run(g);
 Console.WriteLine($"V1.14 final total: {count} tests passed.");
+
+count+=NativePreferencesTests.Run(g);
+Console.WriteLine($"V1.15 final total: {count} tests passed.");

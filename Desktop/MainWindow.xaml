@@ -894,6 +894,24 @@
               <TextBlock Style="{StaticResource ExplanationText}" Text="　　会启动 AppIDSvc 并应用策略，不带 -Merge，可能替换现有本地策略。强制策略可能拦截安装脚本、系统工具或管理员应用，请先在虚拟机审核并准备恢复方案；取消勾选不恢复已安装系统。" Foreground="{DynamicResource WarningBrush}" Visibility="{Binding Plan.UseAppLocker,Converter={StaticResource VisibleWhen}}"/>
             </StackPanel></Border>
             <Border Style="{StaticResource Card}"><StackPanel>
+              <TextBlock Text="首选电源计划" FontSize="20" FontWeight="SemiBold" Margin="0,0,0,12" />
+              <TextBlock Style="{StaticResource ExplanationText}" Text="选择目标 Windows 安装后优先使用的已有电源计划。默认不指定，保留系统与厂商的默认行为。" Foreground="{DynamicResource SecondaryBrush}" />
+              <ComboBox x:Name="PowerPlanModeEditor" ItemsSource="{Binding PowerPlanModes}" SelectedItem="{Binding Plan.PowerPlanMode}" IsEnabled="{Binding CanEditPowerPlan}" ToolTip="{Binding HelpTips[powerplan]}" />
+              <StackPanel Visibility="{Binding IsCustomPowerPlan,Converter={StaticResource VisibleWhen}}">
+                <TextBlock Text="目标镜像中已有的电源计划 GUID" Margin="0,8,0,0" />
+                <TextBox x:Name="PowerPlanGuidEditor" Text="{Binding Plan.CustomPowerPlanGuid,UpdateSourceTrigger=PropertyChanged}" ToolTip="{Binding HelpTips[powerplan]}" />
+              </StackPanel>
+              <TextBlock Style="{StaticResource ExplanationText}" Text="Modern Standby 设备可用的计划可能受限；此项不会为目标系统创建缺失的电源计划。" Foreground="{DynamicResource SecondaryBrush}" />
+              <TextBlock Style="{StaticResource DiagnosticSummary}" Text="{Binding PowerPlanSummary}" />
+            </StackPanel></Border>
+            <Border Style="{StaticResource Card}"><StackPanel>
+              <TextBlock Text="Windows 错误报告" FontSize="20" FontWeight="SemiBold" Margin="0,0,0,12" />
+              <TextBlock Style="{StaticResource ExplanationText}" Text="配置目标 Windows 的系统错误报告功能。默认不指定，可按部署需要选择启用或禁用。" Foreground="{DynamicResource SecondaryBrush}" />
+              <ComboBox x:Name="ErrorReportingModeEditor" ItemsSource="{Binding ErrorReportingModes}" SelectedItem="{Binding Plan.ErrorReportingMode}" IsEnabled="{Binding CanEditErrorReporting}" ToolTip="{Binding HelpTips[errorreporting]}" />
+              <TextBlock Style="{StaticResource ExplanationText}" Text="此项仅控制 Windows 错误报告，不代表关闭所有诊断数据或第三方应用的报告。" Foreground="{DynamicResource SecondaryBrush}" />
+              <TextBlock Style="{StaticResource DiagnosticSummary}" Text="{Binding ErrorReportingSummary}" />
+            </StackPanel></Border>
+            <Border Style="{StaticResource Card}"><StackPanel>
               <TextBlock x:Name="SettingAnchor108" Text="应用与内核保护、系统盘权限" FontSize="20" FontWeight="SemiBold" Margin="0,0,0,16"/>
               <TextBlock Style="{StaticResource ExplanationText}" Text="　　以下均为可选的目标安装设置，默认不勾选。不勾选表示不添加覆盖，遵循 Windows 和组织策略；本工具不修改当前电脑。" Foreground="{DynamicResource SecondaryBrush}"/>
               <CheckBox x:Name="SettingAnchor109" Content="关闭智能应用控制（SAC）" IsChecked="{Binding Plan.DisableSac}" Margin="0,14,0,0" ToolTip="{Binding DataContext.HelpTips[sac],RelativeSource={RelativeSource AncestorType=Window}}"/>

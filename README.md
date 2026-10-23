@@ -4,7 +4,7 @@
 
 UnattendLocal 是基于 [Christoph Schneegans 的 UnattendGenerator](https://github.com/cschneegans/unattend-generator) 开发的中文 Windows 桌面配置工具，用于在本地编辑、检查和生成 Windows 10 / 11 的 `autounattend.xml`。
 
-当前版本：**V1.14**。支持静态 IPv4 / IPv6 双栈、子网掩码输入、设置搜索、安装驱动目录、动态更新、自动分区、OOBE 与账户配置，以及已有 XML 的导入编辑。
+当前版本：**V1.15**。支持静态 IPv4 / IPv6 双栈、子网掩码输入、设置搜索、安装驱动目录、动态更新、自动分区、OOBE 与账户配置，以及已有 XML 的导入编辑。
 
 ## 💡 开发初衷
 
@@ -55,6 +55,17 @@ UnattendLocal 是基于 [Christoph Schneegans 的 UnattendGenerator](https://git
 - 保存和恢复 JSON 方案，提供配置摘要、推荐差异、检查、脱敏预览和 XML 导出。
 - 导入已有 XML 后编辑已支持设置，保留未知内容；遇到无法可靠合并的修改时停止导出并说明原因。
 
+## V1.15 电源计划与 Windows 错误报告 · 2026-10-22
+
+- 新增首选电源计划设置：支持不指定、平衡、高性能、节能及自定义 GUID，在 specialize 阶段配置目标系统已有的电源计划，不创建或导入计划。
+- 新增 Windows 错误报告（WER）设置：支持不指定、启用和禁用，采用微软原生 DisableWER 设置，不停用服务，也不代表关闭所有诊断数据。
+- 支持两项设置的 JSON 保存、原生 XML 导入编辑、配置摘要、设置搜索及错误定位；默认均不指定。
+- 未识别的值、重复项和其他执行阶段只读保留；修改已识别设置时保留同组件的其他原文内容。
+- 兼容 V1.14 的额外 XML 编辑来源及旧 JSON 编辑基准，避免重复控制同一组件或恢复已停用的配置。
+- 复用原生标量设置的检查及迁移逻辑，减少重复解析；新增说明遵循中文分段与悬停补充规则。
+
+使用方法与官方依据见 [电源计划与错误报告](docs/NativePreferences.md)。
+
 ## V1.14 快捷预设与高级 XML 组件 · 2026-10-22
 
 - 新增“最小配置”预设：安装时选择语言、版本、分区及账户，其余常用设置采用 Windows 默认行为；默认保留安装隐私文件。
@@ -78,12 +89,12 @@ UnattendLocal 是基于 [Christoph Schneegans 的 UnattendGenerator](https://git
 
 ## 📦 下载与使用
 
-从仓库的 [**Releases**](https://github.com/tigerJX95/UnattendLocal/releases/latest) 页面下载并直接运行对应的 `UnattendLocal_V1.14_x64_SelfContained.exe` 或 `UnattendLocal_V1.14_x64_FrameworkDependent.exe`：
+从仓库的 [**Releases**](https://github.com/tigerJX95/UnattendLocal/releases/latest) 页面下载并直接运行对应的 `UnattendLocal_V1.15_x64_SelfContained.exe` 或 `UnattendLocal_V1.15_x64_FrameworkDependent.exe`：
 
 | 程序文件 | 运行要求 |
 | --- | --- |
-| `UnattendLocal_V1.14_x64_SelfContained.exe` | 集成 .NET 运行时，无需单独安装；通常选择此版。 |
-| `UnattendLocal_V1.14_x64_FrameworkDependent.exe` | 文件较小，需安装 .NET 10 Desktop Runtime x64。 |
+| `UnattendLocal_V1.15_x64_SelfContained.exe` | 集成 .NET 运行时，无需单独安装；通常选择此版。 |
+| `UnattendLocal_V1.15_x64_FrameworkDependent.exe` | 文件较小，需安装 .NET 10 Desktop Runtime x64。 |
 
 两版功能相同。首次安装测试建议使用虚拟机。
 

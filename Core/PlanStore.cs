@@ -52,6 +52,7 @@ public static class PlanStore {
    RegisteredInformationSettings.NormalizeLoaded(p,document.RootElement);
    WorkgroupSettings.NormalizeLoaded(p,document.RootElement);
    PeLogSettings.NormalizeLoaded(p,document.RootElement);
+   NativePreferences.NormalizeLoaded(p,document.RootElement);
    LegacyUpgradeSettings.NormalizeLoaded(p,document.RootElement);
    XmlPlanImport.RefreshRemainder(p);
   }

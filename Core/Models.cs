@@ -16,6 +16,10 @@ public class UserEntry : Observable {
  private bool _NeedsPassword = false; public bool NeedsPassword {get=>_NeedsPassword;set=>Set(ref _NeedsPassword,value);}
 }
 public class InstallPlan : Observable {
+ private string _PowerPlanMode=NativePreferences.Default;public string PowerPlanMode {get=>_PowerPlanMode;set=>Set(ref _PowerPlanMode,value);}
+ private string _CustomPowerPlanGuid="";public string CustomPowerPlanGuid {get=>_CustomPowerPlanGuid;set=>Set(ref _CustomPowerPlanGuid,value);}
+ private string _ErrorReportingMode=NativePreferences.Default;public string ErrorReportingMode {get=>_ErrorReportingMode;set=>Set(ref _ErrorReportingMode,value);}
+
  public ObservableCollection<XmlComponentEntry> XmlComponents {get;set;}=new();
  private bool _ConfirmAdditionalXml;public bool ConfirmAdditionalXml {get=>_ConfirmAdditionalXml;set=>Set(ref _ConfirmAdditionalXml,value);}
 
