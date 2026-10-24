@@ -6,7 +6,7 @@
 
 UnattendLocal is a Chinese-language Windows desktop tool based on [Christoph Schneegans’ UnattendGenerator](https://github.com/cschneegans/unattend-generator). It lets you edit, check, and generate `autounattend.xml` for Windows 10 / 11 locally.
 
-Current version: **V1.17**. Includes static IPv4/IPv6 dual stack, subnet-mask input, settings search, setup driver directories, Dynamic Update, partitioning, OOBE and account settings, and existing XML import/editing.
+Current version: **V1.18**. Includes static IPv4/IPv6 dual stack, subnet-mask input, settings search, setup driver directories, Dynamic Update, partitioning, OOBE and account settings, and existing XML import/editing.
 
 ## 💡 Why this project exists
 
@@ -58,6 +58,15 @@ The displayed product key is a public generic installation key for selecting an 
 - Manage System, DefaultUser, FirstLogon, and UserOnce custom scripts using the original execution-stage design. Duplicate scripts with copies disabled by default for review.
 - Save and restore JSON plans; review summaries, recommended-setting differences, checks, redacted previews, and XML exports.
 - Import existing XML and edit supported settings while preserving unknown content. Export stops with an explanation when changes cannot be merged reliably.
+
+## V1.18 network diagnostics templates and script names
+
+- Add a local Ping template allowing IPv4/IPv6 echo requests from the local subnet on Private and Domain profiles. It keeps the firewall enabled and adds no Public-profile exception. Reruns update owned rules; conflicting names belonging to another application stop the script.
+- Add a template to turn off solicited Windows Remote Assistance during System. It preserves existing RDP, Quick Assist and third-party remote access settings.
+- Add editable script names. Templates supply a name, lists show name, stage and format, and duplication preserves the name. Plans and valid local XML restoration records retain names without changing executable commands or script filenames.
+- Capture expected simulated installation warnings inside verification tests, showing an explicit simulation notice and results instead of misleading build warnings.
+
+Details: [Practical script templates](docs/ScriptTemplates.md).
 
 ## V1.17 practical script templates
 
@@ -112,7 +121,7 @@ For media preparation and explicit invocation, see [XML and ISO export](docs/Ans
 
 ## 📦 Download and usage
 
-Download and run the matching Windows x64 executable from the repository’s [**Releases**](https://github.com/tigerJX95/UnattendLocal/releases/latest) page: `UnattendLocal_V1.17_x64_SelfContained.exe` or `UnattendLocal_V1.17_x64_FrameworkDependent.exe`. Choose `UnattendLocal_V1.17_x64_SelfContained.exe` for a bundled .NET runtime, or `UnattendLocal_V1.17_x64_FrameworkDependent.exe` if .NET 10 Desktop Runtime x64 is already installed. Both have the same features. Use a virtual machine for initial testing.
+Download and run the matching Windows x64 executable from the repository’s [**Releases**](https://github.com/tigerJX95/UnattendLocal/releases/latest) page: `UnattendLocal_V1.18_x64_SelfContained.exe` or `UnattendLocal_V1.18_x64_FrameworkDependent.exe`. Choose `UnattendLocal_V1.18_x64_SelfContained.exe` for a bundled .NET runtime, or `UnattendLocal_V1.18_x64_FrameworkDependent.exe` if .NET 10 Desktop Runtime x64 is already installed. Both have the same features. Use a virtual machine for initial testing.
 
 1. Choose a recommended scenario or a custom configuration and enter the required account and image settings.
 2. Adjust system, appearance, and application removal options as needed.

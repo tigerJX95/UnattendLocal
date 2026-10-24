@@ -2,12 +2,14 @@ using System.Text.Json.Serialization;
 using Schneegans.Unattend;
 namespace UnattendLocal.Core;
 public class ScriptEntry : Observable {
+ private string name="";
+ public string Name {get=>name;set{value??="";CustomScripts.ValidateName(value);Set(ref name,value);Notify(nameof(Label));}}
  private bool enabled=true;public bool Enabled {get=>enabled;set=>Set(ref enabled,value);}
  private string phase="System";public string Phase {get=>phase;set{Set(ref phase,value);Notify(nameof(Hint));Notify(nameof(Example));Notify(nameof(Label));}}
  private string type="Ps1";public string Type {get=>type;set{Set(ref type,value);Notify(nameof(Example));Notify(nameof(Label));Notify(nameof(Hint));Notify(nameof(IsRemovedType));}}
  private string content="";public string Content {get=>content;set=>Set(ref content,value);}
  [JsonIgnore] public bool IsRemovedType=>string.Equals(Type,"Js",StringComparison.OrdinalIgnoreCase);
- [JsonIgnore] public string Label=>IsRemovedType?"JScript（.js）已停止支持，请移除或手动改写":$"{CustomScripts.PhaseLabel(Phase)} · .{Type.ToLowerInvariant()}";
+ [JsonIgnore] public string Label=>(string.IsNullOrWhiteSpace(Name)?"":Name.Trim()+" · ")+(IsRemovedType?"JScript（.js）已停止支持，请移除或手动改写":$"{CustomScripts.PhaseLabel(Phase)} · .{Type.ToLowerInvariant()}");
  [JsonIgnore] public string Hint=>IsRemovedType?"JScript（.js）已停止支持。旧脚本内容保留并停用；请移除或手动改写，不会自动转换格式。":Phase switch {
   "System"=>"系统安装（specialize）：以 SYSTEM 身份执行，在创建用户账户之前。",
   "DefaultUser"=>"默认用户配置：在 System 后、创建账户前执行。默认用户注册表已挂载为 HKU\\DefaultUser，勿使用 HKCU 修改模板。",
@@ -17,13 +19,18 @@ public class ScriptEntry : Observable {
  [JsonIgnore] public string Example=>Phase=="System"&&Type=="Cmd"?CustomScripts.DirectoryExample:Phase=="FirstLogon"&&Type=="Ps1"?CustomScripts.NetworkExample:"填写脚本内容；空白不会载入任何示例。\nDefaultUser 注册表前缀：\n.cmd：HKU\\DefaultUser\\…\n.ps1：Registry::HKU\\DefaultUser\\…\n.reg：[HKEY_USERS\\DefaultUser\\…]";
 }
 public static class CustomScripts {
+ public const int MaxNameLength=80;
+ public static void ValidateName(string name){
+  if(name.Length>MaxNameLength||name.Any(char.IsControl))throw new ArgumentException("脚本名称最多 80 个字符，且不能包含换行或控制字符。");
+  try{System.Xml.XmlConvert.VerifyXmlChars(name);}catch(System.Xml.XmlException){throw new ArgumentException("脚本名称包含无效字符。");}
+ }
  public const string DirectoryExample="setx.exe DIRCMD \"/A /O:GN /C /N\" /m";
  public const string NetworkExample="Get-NetConnectionProfile -InterfaceAlias 'Ethernet*' | Set-NetConnectionProfile -NetworkCategory 'Private';";
  public static string PhaseLabel(string phase)=>phase switch {"System"=>"系统安装时","DefaultUser"=>"默认用户配置","FirstLogon"=>"全机首次登录","UserOnce"=>"每个用户首次登录",_=>"未知阶段"};
  public static ScriptEntry Duplicate(InstallPlan p,ScriptEntry source){
   int index=p.Scripts.IndexOf(source);if(index<0)throw new ArgumentException("请选择当前方案中的脚本。");
   if(p.Scripts.Count>=60)throw new ArgumentException("最多 60 条脚本。");
-  var copy=new ScriptEntry{Enabled=false,Phase=source.Phase,Type=source.Type,Content=source.Content};p.Scripts.Insert(index+1,copy);return copy;
+  var copy=new ScriptEntry{Name=source.Name,Enabled=false,Phase=source.Phase,Type=source.Type,Content=source.Content};p.Scripts.Insert(index+1,copy);return copy;
  }
  public static ScriptSettings Build(InstallPlan p){
   if(p.Scripts==null||p.Scripts.Any(s=>s==null)||p.Scripts.Count>60)throw new ArgumentException("自定义脚本列表无效，最多 60 条。");

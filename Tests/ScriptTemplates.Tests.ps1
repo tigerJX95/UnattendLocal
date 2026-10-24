@@ -11,6 +11,7 @@ foreach ($file in Get-ChildItem -LiteralPath $root -Filter '*.ps1') {
     Assert ($errors.Count -eq 0) ('PowerShell parse error: ' + $file.Name)
 }
 # All OS/download/install operations are replaced in this local scope.
+Write-Host 'Script template simulation: expected installation warnings are captured; no software is installed.'
 function Test-VcRedist([string]$architecture, [string]$status = 'Valid', [string]$subject = 'CN=Microsoft Corporation, O=Microsoft Corporation, C=US', [int]$exitCode = 0, [bool]$downloadFailure = $false) {
     $state = @{ Downloads = @(); Installs = @(); Cleanups = 0 }
     function New-Item { param($Path, $ItemType) }
@@ -34,7 +35,7 @@ function Test-VcRedist([string]$architecture, [string]$status = 'Valid', [string
     try {
         $env:PROCESSOR_ARCHITECTURE = 'x86'; $env:PROCESSOR_ARCHITEW6432 = $architecture
         $failed = $false
-        try { & (Join-Path $root 'VcRedist.ps1') } catch { $failed = $true ; $caught = $_.Exception.Message }
+        try { & (Join-Path $root 'VcRedist.ps1') 3>$null 6>$null } catch { $failed = $true ; $caught = $_.Exception.Message }
         $expectedFailure = $status -ne 'Valid' -or $subject -notmatch 'O=Microsoft Corporation,' -or $exitCode -notin @(0, 3010, 1638) -or $downloadFailure -or $architecture -eq 'unknown'
         Assert ($failed -eq $expectedFailure) ('Unexpected VC++ result: ' + $architecture + '/' + $status + '/' + $exitCode)
         if ($architecture -ne 'unknown') { Assert ($state.Cleanups -eq 1) 'Installer files must be cleaned after success and failure' }
@@ -92,7 +93,7 @@ function Test-NetFx3([bool]$enabled = $false, [bool]$media = $true, [bool]$insta
         [pscustomobject]@{ RestartNeeded = $true }
     }
     $failed = $false
-    try { & (Join-Path $root 'NetFx3.ps1') } catch { $failed = $true }
+    try { & (Join-Path $root 'NetFx3.ps1') 3>$null 6>$null } catch { $failed = $true }
     if ([Environment]::OSVersion.Version.Build -ge 28000) {
         Assert ($failed -and $state.Queries -eq 0 -and $state.Installs -eq 0) 'Unsupported Windows build must stop before feature modification'
     } else {
@@ -104,4 +105,64 @@ Test-NetFx3
 Test-NetFx3 -enabled $true
 Test-NetFx3 -media $false
 Test-NetFx3 -installFailure $true
+
+function Test-LocalPing([string]$conflict = '', [bool]$failWrite = $false) {
+    $state = @{ Rules = @{}; Creates = 0; Updates = 0 }
+    if ($conflict) { $state.Rules[$conflict] = [pscustomobject]@{ Name = $conflict; Group = 'Other application' } }
+    function Get-NetFirewallRule { param($PolicyStore, $Name, $ErrorAction)
+        Assert ($PolicyStore -eq 'PersistentStore') 'Only local persistent rules may be queried'
+        if ($state.Rules.ContainsKey($Name)) { $state.Rules[$Name] }
+    }
+    function Assert-PingOptions($options) {
+        Assert ($options.PolicyStore -eq 'PersistentStore' -and $options.Direction -eq 'Inbound' -and $options.Action -eq 'Allow' -and $options.Enabled -eq 'True') 'Incorrect rule scope or direction'
+        Assert ((@($options.Profile) -join ',') -eq 'Domain,Private') 'Ping rules must exclude Public profile'
+        Assert ($options.RemoteAddress -eq 'LocalSubnet' -and $options.EdgeTraversalPolicy -eq 'Block') 'Ping sources must stay on the local subnet'
+        Assert (($options.Protocol -eq 'ICMPv4' -and $options.IcmpType -eq '8' -and $options.Name -eq 'UnattendLocal-ICMPv4-Echo') -or ($options.Protocol -eq 'ICMPv6' -and $options.IcmpType -eq '128' -and $options.Name -eq 'UnattendLocal-ICMPv6-Echo')) 'Only echo-request types may be allowed'
+    }
+    function New-NetFirewallRule {
+        param($PolicyStore, $Name, $Direction, $Action, $Enabled, $Profile, $Protocol, $IcmpType, $RemoteAddress, $EdgeTraversalPolicy, $DisplayName, $Group)
+        Assert-PingOptions $PSBoundParameters
+        Assert ($Group -eq 'UnattendLocal' -and -not $state.Rules.ContainsKey($Name)) 'New rule must have unique name and ownership group'
+        if ($failWrite) { throw 'Simulated firewall write failure' }
+        $state.Rules[$Name] = [pscustomobject]@{ Name = $Name; Group = $Group }
+        $state.Creates++
+    }
+    function Set-NetFirewallRule {
+        param($PolicyStore, $Name, $Direction, $Action, $Enabled, $Profile, $Protocol, $IcmpType, $RemoteAddress, $EdgeTraversalPolicy)
+        Assert-PingOptions $PSBoundParameters
+        Assert ($state.Rules[$Name].Group -eq 'UnattendLocal') 'Updates must be restricted to owned rules'
+        $state.Updates++
+    }
+    $failed = $false
+    try { & (Join-Path $root 'AllowLocalPing.ps1') } catch { $failed = $true }
+    Assert ($failed -eq [bool]($conflict -or $failWrite)) 'Unexpected Ping template outcome'
+    if ($conflict) {
+        Assert ($state.Creates -eq 0 -and $state.Updates -eq 0 -and $state.Rules.Count -eq 1) 'All name collisions must be detected before changing rules'
+    } elseif ($failWrite) {
+        Assert ($state.Creates -eq 0 -and $state.Updates -eq 0) 'Write failure must stop template execution'
+    } else {
+        Assert ($state.Creates -eq 2 -and $state.Rules.Count -eq 2) 'IPv4 and IPv6 rules must both be created'
+        & (Join-Path $root 'AllowLocalPing.ps1')
+        Assert ($state.Creates -eq 2 -and $state.Updates -eq 2 -and $state.Rules.Count -eq 2) 'Rerun must update owned rules without duplicates'
+    }
+}
+Test-LocalPing
+Test-LocalPing -conflict 'UnattendLocal-ICMPv4-Echo'
+Test-LocalPing -conflict 'UnattendLocal-ICMPv6-Echo'
+Test-LocalPing -failWrite $true
+
+function Test-RemoteAssistance {
+    $state = @{ Writes = 0 }
+    function New-Item { param($Path, [switch]$Force)
+        Assert ($Path -eq 'Registry::HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\Remote Assistance' -and $Force) 'Only the Remote Assistance key may be created'
+    }
+    function New-ItemProperty { param($LiteralPath, $Name, $PropertyType, $Value, [switch]$Force)
+        Assert ($LiteralPath -eq 'Registry::HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\Remote Assistance') 'Incorrect Remote Assistance path'
+        Assert ($Name -eq 'fAllowToGetHelp' -and $PropertyType -eq 'DWord' -and $Value -eq 0 -and $Force) 'Only solicited Remote Assistance toggle may change'
+        $state.Writes++
+    }
+    & (Join-Path $root 'DisableRemoteAssistance.ps1')
+    Assert ($state.Writes -eq 1) 'Remote Assistance toggle must be written exactly once'
+}
+Test-RemoteAssistance
 Write-Host "Script template PowerShell: $($testState.Checks) checks passed. No installers or Windows policies were changed."

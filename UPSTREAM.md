@@ -22,3 +22,7 @@
 ## V1.17 示例能力适配
 
 参考原作者[示例脚本页](https://schneegans.de/windows/unattend-generator/samples/)中的离线 .NET 3.5、VC++ 运行库与 AutoRun 用途，在 `Core/Resources/Templates/` 编写本地模板；不是整体替换生成核心。新增版本限制、安装错误处理、本地源限制与下载签名检查，说明见 [ScriptTemplates.md](docs/ScriptTemplates.md)。固定 vendor 文件保持不变。
+
+## V1.18 示例能力适配
+
+继续参考原作者示例页的 ICMP 与关闭远程协助用途，在本地新增两个脚本模板。ICMP 范围收窄为专用 / 域网络、本地子网和回显请求类型；采用独立规则名并检查归属，不整体放行所有 ICMP 报文。脚本名称属于本工具的编辑与还原元数据，不进入原生成器的命令内容。固定 vendor 文件保持不变。

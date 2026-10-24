@@ -18,19 +18,19 @@ try {
     Copy-Item -LiteralPath $sourceScript -Destination (Join-Path $testRoot 'publish.ps1')
     Set-Content -LiteralPath (Join-Path $testRoot 'Tests/Tests.csproj') -Value '<Project />' -Encoding ascii
     $cases = @(
-        @{ Name='two-part'; Version='1.17'; Info='1.17'; File='1.17.0.0'; Assembly='1.17.0.0'; Valid=$true },
-        @{ Name='explicit-zero'; Version='1.17.0'; Info='1.17'; File='1.17.0.0'; Assembly='1.17.0.0'; Valid=$true },
-        @{ Name='patch'; Version='1.17.2'; Info='1.17.2'; File='1.17.2.0'; Assembly='1.17.2.0'; Valid=$true },
-        @{ Name='four-part-project'; Version='1.17.0.0'; Info='1.17'; File='1.17.0.0'; Assembly='1.17.0.0'; Valid=$true },
-        @{ Name='project-mismatch'; Version='1.18'; Info='1.17'; File='1.17.0.0'; Assembly='1.17.0.0'; Valid=$false },
-        @{ Name='missing-patch'; Version='1.17.2'; Info='1.17'; File='1.17.2.0'; Assembly='1.17.2.0'; Valid=$false },
-        @{ Name='unlabelled-revision'; Version='1.17.0.1'; Info='1.17'; File='1.17.0.1'; Assembly='1.17.0.1'; Valid=$false },
-        @{ Name='assembly-mismatch'; Version='1.17'; Info='1.17'; File='1.17.0.0'; Assembly='1.16.0.0'; Valid=$false },
-        @{ Name='preview-label'; Version='1.17'; Info='1.17-pre1'; File='1.17.0.0'; Assembly='1.17.0.0'; Valid=$false },
-        @{ Name='nonnumeric-project'; Version='1.17-beta'; Info='1.17'; File='1.17.0.0'; Assembly='1.17.0.0'; Valid=$false },
-        @{ Name='short-file-version'; Version='1.17'; Info='1.17'; File='1.17'; Assembly='1.17.0.0'; Valid=$false },
-        @{ Name='existing-exe'; Version='1.17'; Info='1.17'; File='1.17.0.0'; Assembly='1.17.0.0'; Valid=$false; Existing='.exe' },
-        @{ Name='existing-zip'; Version='1.17'; Info='1.17'; File='1.17.0.0'; Assembly='1.17.0.0'; Valid=$false; Existing='.zip' }
+        @{ Name='two-part'; Version='1.18'; Info='1.18'; File='1.18.0.0'; Assembly='1.18.0.0'; Valid=$true },
+        @{ Name='explicit-zero'; Version='1.18.0'; Info='1.18'; File='1.18.0.0'; Assembly='1.18.0.0'; Valid=$true },
+        @{ Name='patch'; Version='1.18.2'; Info='1.18.2'; File='1.18.2.0'; Assembly='1.18.2.0'; Valid=$true },
+        @{ Name='four-part-project'; Version='1.18.0.0'; Info='1.18'; File='1.18.0.0'; Assembly='1.18.0.0'; Valid=$true },
+        @{ Name='project-mismatch'; Version='1.19'; Info='1.18'; File='1.18.0.0'; Assembly='1.18.0.0'; Valid=$false },
+        @{ Name='missing-patch'; Version='1.18.2'; Info='1.18'; File='1.18.2.0'; Assembly='1.18.2.0'; Valid=$false },
+        @{ Name='unlabelled-revision'; Version='1.18.0.1'; Info='1.18'; File='1.18.0.1'; Assembly='1.18.0.1'; Valid=$false },
+        @{ Name='assembly-mismatch'; Version='1.18'; Info='1.18'; File='1.18.0.0'; Assembly='1.17.0.0'; Valid=$false },
+        @{ Name='preview-label'; Version='1.18'; Info='1.18-pre1'; File='1.18.0.0'; Assembly='1.18.0.0'; Valid=$false },
+        @{ Name='nonnumeric-project'; Version='1.18-beta'; Info='1.18'; File='1.18.0.0'; Assembly='1.18.0.0'; Valid=$false },
+        @{ Name='short-file-version'; Version='1.18'; Info='1.18'; File='1.18'; Assembly='1.18.0.0'; Valid=$false },
+        @{ Name='existing-exe'; Version='1.18'; Info='1.18'; File='1.18.0.0'; Assembly='1.18.0.0'; Valid=$false; Existing='.exe' },
+        @{ Name='existing-zip'; Version='1.18'; Info='1.18'; File='1.18.0.0'; Assembly='1.18.0.0'; Valid=$false; Existing='.zip' }
     )
     foreach ($case in $cases) {
         $xml = '<Project><PropertyGroup><Version>{0}</Version><InformationalVersion>{1}</InformationalVersion><FileVersion>{2}</FileVersion><AssemblyVersion>{3}</AssemblyVersion></PropertyGroup></Project>' -f $case.Version, $case.Info, $case.File, $case.Assembly
@@ -39,7 +39,7 @@ try {
         $existing = $null
         if ($case.ContainsKey('Existing')) {
             New-Item -ItemType Directory -Path $output | Out-Null
-            $existing = Join-Path $output ('UnattendLocal_V1.17_x64_SelfContained' + $case.Existing)
+            $existing = Join-Path $output ('UnattendLocal_V1.18_x64_SelfContained' + $case.Existing)
             Set-Content -LiteralPath $existing -Value 'KEEP' -Encoding ascii
         }
         $calls.Clear()

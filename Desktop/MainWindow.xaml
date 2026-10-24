@@ -1345,6 +1345,11 @@
             <TextBlock Style="{StaticResource ExplanationText}" Text="另存编码：PS1 为带 BOM 的 UTF-8，REG / VBS 为带 BOM 的 UTF-16 LE，CMD 为无 BOM 的 UTF-8。中文 CMD 需代码页匹配；不会自动插入 chcp。REG 缺少标准文件头时仅在另存文件中补齐。" TextWrapping="Wrap" Foreground="{DynamicResource SecondaryBrush}"/>
             <ListBox ItemsSource="{Binding Plan.Scripts}" SelectedItem="{Binding SelectedScript}" DisplayMemberPath="Label" MaxHeight="170" MinHeight="65"/>
             <StackPanel DataContext="{Binding SelectedScript}" Margin="0,12,0,0">
+              <TextBlock Text="脚本名称（可选，最多 80 字符）"/>
+              <TextBox x:Name="ScriptNameEditor" Text="{Binding Name,UpdateSourceTrigger=PropertyChanged}" MaxLength="80">
+                <TextBox.ToolTip><ToolTip ContentTemplate="{x:Null}"><TextBlock Text="仅用于列表辨识和本工具的配置还原；不会写入执行命令，也不会改变导出的脚本文件名。" TextWrapping="Wrap" MaxWidth="360"/></ToolTip></TextBox.ToolTip>
+              </TextBox>
+
               <CheckBox Content="启用此脚本（关闭时保留内容，不参与生成）" IsChecked="{Binding Enabled}"/>
               <TextBlock Text="执行阶段"/>
               <ComboBox ToolTip="{Binding DataContext.HelpTips[customscripts],RelativeSource={RelativeSource AncestorType=Window}}" SelectedValue="{Binding Phase}" SelectedValuePath="Tag"><ComboBoxItem Content="系统安装时（System）" Tag="System"/><ComboBoxItem Content="默认用户配置（DefaultUser）" Tag="DefaultUser"/><ComboBoxItem Content="全机首次登录（FirstLogon）" Tag="FirstLogon"/><ComboBoxItem Content="每个用户首次登录（UserOnce）" Tag="UserOnce"/></ComboBox>

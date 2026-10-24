@@ -42,7 +42,7 @@ public static class ScriptFiles {
   if(candidate.Enabled||candidate.Phase!="System")throw new ArgumentException("文件导入条目必须默认停用，并从 System 阶段开始。");
   _=Extension(candidate.Type);ValidateContent(candidate.Content);
   // Clone so callers cannot mutate the candidate after committing it.
-  var row=new ScriptEntry{Enabled=false,Phase="System",Type=candidate.Type,Content=candidate.Content};plan.Scripts.Add(row);return row;
+  var row=new ScriptEntry{Name=candidate.Name,Enabled=false,Phase="System",Type=candidate.Type,Content=candidate.Content};plan.Scripts.Add(row);return row;
  }
  public static byte[] Encode(ScriptEntry row,string destination){
   if(TypeForFile(destination)!=row.Type)throw new ArgumentException("另存文件的扩展名必须与当前脚本格式一致；请先在界面转换格式或更正文件名。");

@@ -26,6 +26,28 @@ Windows 内部版本 28000 及以上改用独立安装程序，本模板会在�
 
 该设置控制驱动器的 AutoRun 自动执行命令，不替代恶意软件检测，也不保证隐藏所有 AutoPlay 提示。组织策略可能覆盖本设置。
 
+## 允许局域网 Ping（IPv4 / IPv6）
+
+执行阶段：System。允许同一子网的设备向本机发送 Ping 请求，用于安装后的基本连通性检查。
+
+模板仅为专用和域网络添加两条入站放行规则：ICMPv4 类型 8、ICMPv6 类型 128，来源为 `LocalSubnet`；不关闭防火墙，不新增公用网络放行。现有规则可能另有放行或阻止行为，此模板不清理其他程序或系统规则。
+
+规则使用 `UnattendLocal-ICMPv4-Echo` 与 `UnattendLocal-ICMPv6-Echo` 名称，归属组为 `UnattendLocal`。重复执行会更新该组的同名规则；如果同名规则属于其他组，会在写入前停止。写入过程中遇到系统错误会停止，但不保证撤销之前已成功写入的规则。
+
+这不是跨网段 Ping 模板。若当前网络仍被 Windows 识别为公用网络，或域策略禁止本地规则合并，添加后也可能无法 Ping 通；模板不自动改变网络类别。测试可在可信局域网内将目标网络设为专用后，由同子网另一台电脑运行 `ping <目标 IPv4 地址>` 或 `ping -6 <目标 IPv6 地址>`。
+
+## 关闭受邀 Windows 远程协助
+
+执行阶段：System。将 `HKLM\SYSTEM\CurrentControlSet\Control\Remote Assistance` 下的 DWORD 值 `fAllowToGetHelp` 设为 `0`，关闭传统 Windows 远程协助的本机受邀连接开关。
+
+它不是“关闭所有远程控制”的总开关；不会停用远程桌面 RDP、快速助手、企业主动提供协助策略或第三方远控软件，不删除服务或现有防火墙规则。组织策略仍可能覆盖本机设置。
+
+## 脚本名称
+
+“脚本名称”用于区分列表中的多个条目，最多 80 个字符，可留空。模板添加时自动带入名称；旧方案没有名称时保留原来的阶段与格式显示，不自动改写原有脚本。复制条目保留名称，副本仍默认停用。
+
+名称保存在 JSON 方案，以及本工具有效的 XML 配置还原记录中，不拼接进可执行命令、不改变生成的脚本文件名。把 XML 交给其他工具编辑后，还原记录可能失效，名称不保证保留；脚本实际执行内容以 XML 为准。单独另存脚本文件只保存正文，不保存名称、执行阶段或启用状态。
+
 ## 执行与日志
 
 FirstLogon 不会因为添加模板而自动启用管理员自动登录；请在账户设置中安排首次管理员登录。脚本仍经过原生成器的 System / FirstLogon 执行链；脚本报错会进入该链的日志，不保证停止其他安装命令。
@@ -44,9 +66,19 @@ AutoRun policy runs at System and disables AutoRun commands for every drive lett
 
 FirstLogon templates do not enable automatic logon. Arrange an administrator's first logon in the account settings. Script failures are recorded through the existing generator pipeline and do not guarantee that subsequent setup commands stop.
 
+Local Ping runs at System and allows only ICMPv4 type 8 and ICMPv6 type 128, from LocalSubnet, on Private and Domain profiles. It adds no Public exception and does not disable the firewall or change network categories. Owned rules are updated on rerun; collisions with another application's rule names stop before writes. Existing policies and network devices may still block traffic.
+
+Solicited Remote Assistance sets the local `fAllowToGetHelp` toggle to zero during System. It does not disable RDP, Quick Assist, corporate Offer Remote Assistance policy or third-party tools. Organization policy can override it.
+
+Script names are optional, limited to 80 characters and preserved by plans, duplication and valid local XML restoration records. They do not enter commands or affect generated filenames. Standalone script export contains only the script body; names may be lost when another tool edits the XML.
+
 ## 参考资料 / References
 
 - [原作者示例脚本 / Upstream samples](https://schneegans.de/windows/unattend-generator/samples/)
 - [微软：Windows 11 安装 .NET Framework 3.5](https://learn.microsoft.com/dotnet/framework/install/dotnet-35-windows-11)
 - [微软：VC++ v14 运行库下载](https://learn.microsoft.com/cpp/windows/latest-supported-vc-redist)
 - [下载程序 / Download releases](https://github.com/tigerJX95/UnattendLocal/releases/latest)
+
+- [Microsoft: New-NetFirewallRule](https://learn.microsoft.com/powershell/module/netsecurity/new-netfirewallrule)
+- [Microsoft: Set-NetFirewallRule](https://learn.microsoft.com/powershell/module/netsecurity/set-netfirewallrule)
+- [Microsoft: Remote Assistance policies](https://learn.microsoft.com/windows/client-management/mdm/policy-csp-remoteassistance)
