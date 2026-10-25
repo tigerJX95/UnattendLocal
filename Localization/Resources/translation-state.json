@@ -3841,6 +3841,7 @@
     "v122.label.requirements": "912e7e60a35940a71c4825a4aee090ff9917ba9f12c0f216d44a60fc9f479ba6",
     "v122.power.name": "0e632663d2eff51b0c8fe2f799aa0f3a107c4f60a8e5388f9f497f74ecae6dbe",
     "v122.power.purpose": "dc2cdbeb1ed7759b13d57f9a9bf46fd50dc253446de466aa06e9dfe662e6a97c",
-    "v122.power.requirements": "2eb43395ebe81ddf36dddd7215731995691d034c0eb5f2ee8106ff4afd29587f"
+    "v122.power.requirements": "2eb43395ebe81ddf36dddd7215731995691d034c0eb5f2ee8106ff4afd29587f",
+    "v122.copyScriptContent": "4fb24b8658bd0506e57daa1bd18218415c9669bdfa402a161ff8ffc5a1ce9608"
   }
 }

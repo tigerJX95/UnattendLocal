@@ -16,6 +16,9 @@ public static class ExampleText {
  public static void SetHasCopyError(DependencyObject target,bool value)=>target.SetValue(HasCopyErrorProperty,value);
 
  public static ICommand CopyCommand {get;}=new CopyExampleCommand();
+ // Script editors copy their current raw text; placeholder/help text is never
+ // executable content and must not be used as a fallback.
+ public static ICommand CopyContentCommand {get;}=new CopyExampleCommand(copyContent:true);
  private static readonly ConditionalWeakTable<TextBox,Feedback> feedback=new();
  private sealed class Feedback {
   private readonly TextBox editor;private readonly DispatcherTimer timer;
@@ -23,12 +26,13 @@ public static class ExampleText {
   public void Show(string message,bool error=false){timer.Stop();editor.SetValue(CopyStatusProperty,message);SetHasCopyError(editor,error);timer.Start();}
   private void Clear(){timer.Stop();editor.SetValue(CopyStatusProperty,"");SetHasCopyError(editor,false);}
  }
- private sealed class CopyExampleCommand:ICommand {
+ private sealed class CopyExampleCommand(bool copyContent=false):ICommand {
+  private string Text(TextBox editor)=>copyContent?editor.Text:GetValue(editor);
   public event EventHandler? CanExecuteChanged {add=>CommandManager.RequerySuggested+=value;remove=>CommandManager.RequerySuggested-=value;}
-  public bool CanExecute(object? parameter)=>parameter is TextBox editor&&!string.IsNullOrEmpty(GetValue(editor));
+  public bool CanExecute(object? parameter)=>parameter is TextBox editor&&!string.IsNullOrEmpty(Text(editor));
   public void Execute(object? parameter){
    if(parameter is not TextBox editor||!CanExecute(editor))return;
-   try{Clipboard.SetText(GetValue(editor));feedback.GetValue(editor,e=>new Feedback(e)).Show(global::UnattendLocal.Localization.UiText.Source("text.8f6f8d979c98"));}
+   try{Clipboard.SetText(Text(editor));feedback.GetValue(editor,e=>new Feedback(e)).Show(global::UnattendLocal.Localization.UiText.Source("text.8f6f8d979c98"));}
    catch(Exception ex) when(ex is System.Runtime.InteropServices.ExternalException or System.Threading.ThreadStateException){feedback.GetValue(editor,e=>new Feedback(e)).Show(global::UnattendLocal.Localization.UiText.Source("text.7bf5dea678e3"),true);}
   }
  }

@@ -50,6 +50,7 @@ public sealed class ActionIconConverter : IValueConverter
         Add(global::UnattendLocal.Localization.UiText.Source("text.cbb22bec8e79"), document+"M7,11 H15 M7,15 H12", global::UnattendLocal.Localization.UiText.Source("text.6b49dc09121a"));
         Add(global::UnattendLocal.Localization.UiText.Source("text.a146f0457cab"), document+"M7,11 H15 M7,15 H12", global::UnattendLocal.Localization.UiText.Source("text.3f88051e4009"));
         Add(global::UnattendLocal.Localization.UiText.Source("text.2b8e47feaf07"), "M8,7 H20 V21 H8 Z M4,17 H2 V2 H14 V5", global::UnattendLocal.Localization.UiText.Source("text.72820b22f156"));
+        Add(global::UnattendLocal.Localization.UiText.Source("v122.copyScriptContent"), "M8,7 H20 V21 H8 Z M4,17 H2 V2 H14 V5", global::UnattendLocal.Localization.UiText.Source("v122.copyScriptContent"));
         Add(global::UnattendLocal.Localization.UiText.Source("text.a8e1f400e2fc"), "M9,2 A7,7 0 1 1 8.99,2 Z M14,14 L21,21 M5,9 L8,12 L12,6", global::UnattendLocal.Localization.UiText.Source("text.d0cf25f776ca"));
         Add(global::UnattendLocal.Localization.UiText.Source("text.b10faf01051d"), "M2,11 Q11,0 20,11 Q11,22 2,11 Z M11,7 A4,4 0 1 1 10.99,7 Z", global::UnattendLocal.Localization.UiText.Source("text.1762739ff44a"));
         Add(global::UnattendLocal.Localization.UiText.Source("text.942ce0a533b0"), document+"M10,12 H22 M18,8 L22,12 L18,16", global::UnattendLocal.Localization.UiText.Source("text.fe2c43d1ceaf"));

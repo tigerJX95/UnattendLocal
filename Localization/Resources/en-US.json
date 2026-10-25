@@ -2072,8 +2072,8 @@
   "text.6174d5406876": "MIT License · Copyright ( c ) 2026 tigerJX95 Thank you. ChatGPT Codex Provide development assistance.",
   "text.a3e5b4480d67": "The current page has been copied.",
   "text.337d75a0cfda": "The clipboard cannot be accessed for the time being, please try again later or choose to copy the text manually.",
-  "text.8f6f8d979c98": "Copyed",
-  "text.7bf5dea678e3": "Duplicate failed, please try again",
+  "text.8f6f8d979c98": "Copied",
+  "text.7bf5dea678e3": "Copy failed. Please try again.",
   "text.f3b91a2a704a": "Preferred power source plan: to be configured;",
   "text.bff1c2725d0e": "Preferred Power Plan: Duplicate with enabled additional XML components",
   "text.df3172bebdcb": "Windows bug report: Duplicate with enabled additional XML components",
@@ -3840,5 +3840,6 @@
   "v122.label.requirements": "Runs during System and resolves the installed Windows system drive automatically.\n\nEdit $label to change the default Windows label. Requires NTFS and a non-empty label of at most 32 characters without path or control characters. Added disabled; review before enabling.",
   "v122.power.name": "Enable Ultimate Performance",
   "v122.power.purpose": "Create and activate an Ultimate Performance power plan for sustained-performance workloads; energy use and heat may increase.",
-  "v122.power.requirements": "Runs during System with a template-specific GUID and name.\n\nReuses its own plan on repeat runs and stops if that GUID belongs to another plan. Support depends on Windows and hardware; unsupported systems report an error without a fallback. This later script overrides a selected Preferred power plan, so choose only one configuration method. Added disabled."
+  "v122.power.requirements": "Runs during System with a template-specific GUID and name.\n\nReuses its own plan on repeat runs and stops if that GUID belongs to another plan. Support depends on Windows and hardware; unsupported systems report an error without a fallback. This later script overrides a selected Preferred power plan, so choose only one configuration method. Added disabled.",
+  "v122.copyScriptContent": "Copy script contents"
 }

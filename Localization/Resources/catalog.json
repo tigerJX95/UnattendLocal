@@ -36150,5 +36150,15 @@
     ],
     "RawArgs": [],
     "ProtectedTokens": []
+  },
+  "v122.copyScriptContent": {
+    "Source": "复制脚本内容",
+    "SourceHash": "4fb24b8658bd0506e57daa1bd18218415c9669bdfa402a161ff8ffc5a1ce9608",
+    "Contexts": [
+      "Desktop/MainWindow.xaml",
+      "Desktop/UiIcons.cs"
+    ],
+    "RawArgs": [],
+    "ProtectedTokens": []
   }
 }
