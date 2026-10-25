@@ -100,12 +100,12 @@ jobs:
       contents: write
     steps:
       - name: Download self-contained EXE
-        uses: actions/download-artifact@v8
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8
         with:
           name: UnattendLocal_V${{ needs.build.outputs.version }}_x64_SelfContained.exe
           path: dist
       - name: Download framework-dependent EXE
-        uses: actions/download-artifact@v8
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8
         with:
           name: UnattendLocal_V${{ needs.build.outputs.version }}_x64_FrameworkDependent.exe
           path: dist
