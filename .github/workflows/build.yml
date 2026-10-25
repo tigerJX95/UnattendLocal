@@ -1,8 +1,7 @@
-name: Build two EXEs and publish tagged releases
+name: Build two EXEs for version tags
 
 on:
   push:
-    branches: [main]
     tags:
       - 'v[0-9]*'
   workflow_dispatch:
@@ -89,39 +88,3 @@ jobs:
           archive: false
           if-no-files-found: error
           retention-days: 7
-
-  release:
-    name: Publish release for explicit tag
-    if: github.ref_type == 'tag'
-    needs: build
-    runs-on: ubuntu-latest
-    timeout-minutes: 15
-    permissions:
-      contents: write
-    steps:
-      - name: Download self-contained EXE
-        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8
-        with:
-          name: UnattendLocal_V${{ needs.build.outputs.version }}_x64_SelfContained.exe
-          path: dist
-      - name: Download framework-dependent EXE
-        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8
-        with:
-          name: UnattendLocal_V${{ needs.build.outputs.version }}_x64_FrameworkDependent.exe
-          path: dist
-      - name: Verify downloads and publish release
-        shell: bash
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          set -euo pipefail
-          tag="${GITHUB_REF_NAME}"
-          if gh release view "$tag" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
-            echo "Release $tag already exists. Refusing to overwrite." >&2
-            exit 1
-          fi
-          files=("dist/UnattendLocal_V${{ needs.build.outputs.version }}_x64_SelfContained.exe" "dist/UnattendLocal_V${{ needs.build.outputs.version }}_x64_FrameworkDependent.exe")
-          for file in "${files[@]}"; do
-            test -s "$file" || { echo "Missing or empty EXE: $file" >&2; exit 1; }
-          done
-          gh release create "$tag" "${files[@]}" --repo "$GITHUB_REPOSITORY" --verify-tag --title "UnattendLocal $tag" --generate-notes
