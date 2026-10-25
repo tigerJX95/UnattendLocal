@@ -6,7 +6,7 @@
 
 UnattendLocal is a Windows desktop tool with Simplified Chinese and English interfaces based on [Christoph Schneegans’ UnattendGenerator](https://github.com/cschneegans/unattend-generator). It lets you edit, check, and generate `autounattend.xml` for Windows 10 / 11 locally.
 
-Current version: **V1.20**. Includes static IPv4/IPv6 dual stack, subnet-mask input, settings search, setup driver directories, Dynamic Update, partitioning, OOBE and account settings, and existing XML import/editing.
+Current version: **V1.21**. Includes static IPv4/IPv6 dual stack, subnet-mask input, settings search, setup driver directories, Dynamic Update, partitioning, OOBE and account settings, and existing XML import/editing.
 
 ## 💡 Why this project exists
 
@@ -60,6 +60,16 @@ The displayed product key is a public generic installation key for selecting an 
 - Manage System, DefaultUser, FirstLogon, and UserOnce custom scripts using the original execution-stage design. Duplicate scripts with copies disabled by default for review.
 - Save and restore JSON plans; review summaries, recommended-setting differences, checks, redacted previews, and XML exports.
 - Import existing XML and edit supported settings while preserving unknown content. Export stops with an explanation when changes cannot be merged reliably.
+
+## V1.21 Deployment settings and language-menu fix
+
+- Prevent transient double check marks when switching interface languages.
+- Add an optional policy to disable creation of new NTFS 8.3 names without removing existing short names.
+- Add optional initial/maximum sizes for the C: page file, applied during system setup while preserving page files on other drives. Existing settings remain unchanged by default.
+- Include bilingual help, settings search, configuration summaries, JSON persistence and editable restoration from XML exported by this application.
+- Build both EXEs automatically only for version tag pushes (for example v1.21), with manual builds also available. Ordinary commits do not trigger EXE builds. Releases are published manually.
+
+Usage: [Deployment settings](docs/DeploymentTuning.md#english).
 
 ## V1.20 Chinese and English interface
 
@@ -144,7 +154,7 @@ For media preparation and explicit invocation, see [XML and ISO export](docs/Ans
 
 Download and fully extract the program ZIP to keep the editable `Languages` folder beside the EXE. The EXE also has embedded Chinese and English fallback resources. See [language packs](docs/Localization.md).
 
-Download and run the matching Windows x64 executable from the repository’s [**Releases**](https://github.com/tigerJX95/UnattendLocal/releases/latest) page: `UnattendLocal_V1.20_x64_SelfContained.exe` or `UnattendLocal_V1.20_x64_FrameworkDependent.exe`. Choose `UnattendLocal_V1.20_x64_SelfContained.exe` for a bundled .NET runtime, or `UnattendLocal_V1.20_x64_FrameworkDependent.exe` if .NET 10 Desktop Runtime x64 is already installed. Both have the same features. Use a virtual machine for initial testing.
+Download and run the matching Windows x64 executable from the repository’s [**Releases**](https://github.com/tigerJX95/UnattendLocal/releases/latest) page: `UnattendLocal_V1.21_x64_SelfContained.exe` or `UnattendLocal_V1.21_x64_FrameworkDependent.exe`. Choose `UnattendLocal_V1.21_x64_SelfContained.exe` for a bundled .NET runtime, or `UnattendLocal_V1.21_x64_FrameworkDependent.exe` if .NET 10 Desktop Runtime x64 is already installed. Both have the same features. Use a virtual machine for initial testing.
 
 1. Choose a recommended scenario or a custom configuration and enter the required account and image settings.
 2. Adjust system, appearance, and application removal options as needed.

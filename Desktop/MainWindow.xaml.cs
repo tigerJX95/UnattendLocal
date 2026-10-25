@@ -14,27 +14,36 @@ public partial class MainWindow : Window {
  private void InitializeLanguageMenu(){
   LanguagePickerMenu.Items.Clear();
   foreach(var language in UnattendLocal.Localization.UiText.Languages){
-   var item=new MenuItem{Header=language.Name,Tag=language.Code,IsCheckable=true,IsChecked=language.Code==UnattendLocal.Localization.UiText.Language,Padding=new Thickness(12,8,16,8)};
+   var item=new MenuItem{Header=language.Name,Tag=language.Code,IsCheckable=false,IsChecked=language.Code==UnattendLocal.Localization.UiText.Language,Padding=new Thickness(12,8,16,8)};
    item.Click+=LanguageMenuItemClick;
    LanguagePickerMenu.Items.Add(item);
   }
  }
  private void LanguagePickerClick(object sender,RoutedEventArgs e){
-  foreach(var item in LanguagePickerMenu.Items.OfType<MenuItem>())
-   item.IsChecked=item.Tag is string code&&code==UnattendLocal.Localization.UiText.Language;
+  UpdateLanguageSelection(UnattendLocal.Localization.UiText.Language);
   LanguagePickerMenu.PlacementTarget=LanguagePickerButton;
   LanguagePickerMenu.Placement=System.Windows.Controls.Primitives.PlacementMode.Bottom;
   LanguagePickerMenu.IsOpen=true;
  }
  private void LanguageMenuItemClick(object sender,RoutedEventArgs e){
   if(sender is not MenuItem{Tag:string code}||!UnattendLocal.Localization.UiText.IsSupported(code))return;
-  if(code==UnattendLocal.Localization.UiText.Language)return;
+  if(code==UnattendLocal.Localization.UiText.Language){UpdateLanguageSelection(code);return;}
+  // Clear the old selection before updating localization resources to avoid transient double-checks.
+  UpdateLanguageSelection(code);
   var pack=System.IO.Path.Combine(System.AppContext.BaseDirectory,"Languages",code+".json");bool rejected=System.IO.File.Exists(pack)&&!UnattendLocal.Localization.UiText.LoadExternalPack(code,pack,out _);
   UnattendLocal.Localization.UiText.SetLanguage(code);
   Language=System.Windows.Markup.XmlLanguage.GetLanguage(code);RefreshThemeIcon();
-  foreach(var item in LanguagePickerMenu.Items.OfType<MenuItem>())item.IsChecked=item.Tag is string value&&value==code;
   if(rejected)vm.Status=UnattendLocal.Localization.UiText.Source("language.packRejected");
   if(!UiPreferences.SaveLanguage(code))vm.Status=UnattendLocal.Localization.UiText.Source("text.971741bbc9ca");
+ }
+ // The MenuItem check glyph is rendered by our theme template, not by the built-in toggle.
+ // IsCheckable=false prevents WPF from toggling a second item before Click runs.
+ private void UpdateLanguageSelection(string code){
+  var items=LanguagePickerMenu.Items.OfType<MenuItem>().ToArray();
+  foreach(var item in items)item.IsChecked=false;
+  foreach(var item in items){
+   if(item.Tag is string itemCode&&itemCode==code){item.IsChecked=true;break;}
+  }
  }
  private void RefreshThemeIcon(){var dark=UiTheme.Current=="Dark";ThemeMoon.Visibility=dark?Visibility.Collapsed:Visibility.Visible;ThemeSun.Visibility=dark?Visibility.Visible:Visibility.Collapsed;var title=dark?global::UnattendLocal.Localization.UiText.Source("text.a52d332cfafb"):global::UnattendLocal.Localization.UiText.Source("text.a3538a688840");ThemeToggleTip.Content=title;System.Windows.Automation.AutomationProperties.SetName(ThemeToggleButton,UnattendLocal.Localization.UiText.Translate(title));}
  private void ThemeToggleClick(object s,RoutedEventArgs e){var saved=UiTheme.Apply(UiTheme.Current=="Dark"?"Light":"Dark");RefreshThemeIcon();if(!saved)vm.Status=global::UnattendLocal.Localization.UiText.Source("text.7e775a45f5e6");}

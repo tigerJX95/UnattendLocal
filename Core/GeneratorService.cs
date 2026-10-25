@@ -33,6 +33,7 @@ public class GeneratorService {
   AppRemovalSettings.Validate(p);
   if(includeImport)ConfigurationValidationException.Check(nameof(InstallPlan.ImportedXml),()=>XmlPlanImport.ValidateImported(p));
   CompactOsSettings.Validate(p);
+  DeploymentTuningSettings.Validate(p);
   StaticIPv4Settings.Validate(p);
   SetupDriverSettings.Validate(p);
   SetupDynamicUpdateSettings.Validate(p);
@@ -83,7 +84,7 @@ public class GeneratorService {
    StickyKeysSettings=StickyKeySettings.Build(p),
    DisablePointerPrecision=p.DisablePointerPrecision,
    LockoutSettings=AccountLockoutPolicy.Build(p),
-   ScriptSettings=CustomScripts.Build(p),
+   ScriptSettings=DeploymentTuningSettings.Build(p),
    TaskbarSearch=ShellSettings.Search(p.TaskbarSearch),
    TaskbarIcons=ShellSettings.Taskbar(p),StartTilesSettings=ShellSettings.Tiles(p),StartPinsSettings=ShellSettings.Pins(p),
    DisableWidgets=p.DisableWidgets,LeftTaskbar=p.LeftTaskbar,HideTaskViewButton=p.HideTaskViewButton,

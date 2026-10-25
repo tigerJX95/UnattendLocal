@@ -3825,5 +3825,14 @@
   "disk.dangerHeading": "Destructive disk operations",
   "example.peLog": "D:\\SetupLogs (verify the target PE drive letter)",
   "example.mac": "02-00-00-00-00-10 (target adapter)",
-  "example.mask": "255.255.255.0 or /24"
+  "example.mask": "255.255.255.0 or /24",
+  "v121.ntfs": "Disable creation of new NTFS 8.3 short names",
+  "v121.ntfs.help": "No change by default. Sets the system-wide 8.3 name creation policy; does not remove existing names. Reboot may be required; legacy software might depend on short names.",
+  "v121.pagefile": "Custom C: page file (advanced)",
+  "v121.pagefile.help": "Leaves page-file settings unchanged by default. When enabled, configures initial and maximum sizes of C:\\pagefile.sys in MiB during system setup, preserving page files on other drives.\n\nDoes not disable paging. A reboot may be required; choose sizes according to disk space, workload and crash-dump requirements.",
+  "v121.pagefile.initial": "Initial (MiB)",
+  "v121.pagefile.maximum": "Maximum (MiB)",
+  "v121.pagefile.invalid": "Invalid page-file size: initial size must be at least 16 MiB; maximum must be at least the initial size and no more than 1048576 MiB.",
+  "v121.enabled": "Enabled",
+  "v121.unchanged": "Leave existing settings unchanged"
 }

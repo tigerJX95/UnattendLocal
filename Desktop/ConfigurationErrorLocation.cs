@@ -19,6 +19,8 @@ public sealed record ConfigurationErrorLocation(SettingSearchResult Setting, int
             return new(new(title, global::UnattendLocal.Localization.UiText.Source("text.4e21977cff0f"), 4, target, "user", ""), userIndex);
         }
         string targetName = field switch {
+            nameof(InstallPlan.PageFileInitialMiB) => "PageFileInitialEditor",
+            nameof(InstallPlan.PageFileMaximumMiB) => "PageFileMaximumEditor",
             nameof(InstallPlan.PowerPlanMode) => "PowerPlanModeEditor",
             nameof(InstallPlan.CustomPowerPlanGuid) => "PowerPlanGuidEditor",
             nameof(InstallPlan.ErrorReportingMode) => "ErrorReportingModeEditor",

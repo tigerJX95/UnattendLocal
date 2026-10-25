@@ -36011,5 +36011,90 @@
     ],
     "RawArgs": [],
     "ProtectedTokens": []
+  },
+  "v121.ntfs": {
+    "Source": "禁止新建 NTFS 8.3 短文件名",
+    "Contexts": [
+      "Desktop/MainWindow.xaml"
+    ],
+    "RawArgs": [],
+    "SourceHash": "3d319fc06b8146b1b32c4e824463aa624920136fcd4045fed8ab00dae6d86d6b",
+    "ProtectedTokens": []
+  },
+  "v121.ntfs.help": {
+    "Source": "默认不修改。设置系统级 8.3 文件名创建策略；不清理已有短文件名。更改可能需重启；旧程序可能依赖短文件名。",
+    "Contexts": [
+      "Desktop/MainWindow.xaml"
+    ],
+    "RawArgs": [],
+    "SourceHash": "0fb42506c942f74522644a673b699ffcab319ac76e216bea734c73e6a6d27bbc",
+    "ProtectedTokens": []
+  },
+  "v121.pagefile": {
+    "Source": "自定义 C 盘分页文件（高级）",
+    "Contexts": [
+      "Desktop/MainWindow.xaml"
+    ],
+    "RawArgs": [],
+    "SourceHash": "50bff6d173b571d796cbcb0e15357aa6387e3197d1b010b255c9a98855b2c982",
+    "ProtectedTokens": []
+  },
+  "v121.pagefile.help": {
+    "Source": "默认不修改分页文件设置。勾选后，在系统安装阶段设置 C:\\pagefile.sys 的初始与最大容量（MiB），保留其他盘符的现有分页文件。\n\n不提供禁用分页文件选项。更改可能需要重启；请根据磁盘空间、工作负载和故障转储需求选择容量。",
+    "SourceHash": "231d2f27e1f6bcc6a0862d09f447dad9bd3513d194c8b0b7186fdcc0dc3349bb",
+    "Contexts": [
+      "Core/DeploymentTuningSettings.cs",
+      "Desktop/MainWindow.xaml"
+    ],
+    "RawArgs": [],
+    "ProtectedTokens": []
+  },
+  "v121.pagefile.initial": {
+    "Source": "初始大小 (MiB)",
+    "Contexts": [
+      "Desktop/MainWindow.xaml"
+    ],
+    "RawArgs": [],
+    "SourceHash": "dea2dcb656c91daa8095b2e68564428933ad18382c43956548088603eff38ea0",
+    "ProtectedTokens": []
+  },
+  "v121.pagefile.maximum": {
+    "Source": "最大大小 (MiB)",
+    "Contexts": [
+      "Desktop/MainWindow.xaml"
+    ],
+    "RawArgs": [],
+    "SourceHash": "9033649d4977789d940e2d64b3f9ed69422e3364bd1edf46a8f69fa894924f25",
+    "ProtectedTokens": []
+  },
+  "v121.pagefile.invalid": {
+    "Source": "分页文件大小无效：初始值至少 16 MiB，最大值不得小于初始值且不得超过 1048576 MiB。",
+    "SourceHash": "dc76042ec5e018cd79e710815362b477975c6ed51bdd9f4b4a3135fd33b49b3d",
+    "Contexts": [
+      "Core/DeploymentTuningSettings.cs",
+      "Desktop/MainWindow.xaml"
+    ],
+    "RawArgs": [],
+    "ProtectedTokens": []
+  },
+  "v121.enabled": {
+    "Source": "已启用",
+    "SourceHash": "dfb802238b38fbd49560b461d3ff1ee5cef3a72077c37a1325cb4892c10fd1c8",
+    "Contexts": [
+      "Core/DeploymentTuningSettings.cs",
+      "Desktop/MainWindow.xaml"
+    ],
+    "RawArgs": [],
+    "ProtectedTokens": []
+  },
+  "v121.unchanged": {
+    "Source": "不修改现有设置",
+    "SourceHash": "8c83ecce4125e5533d829815a12a2aa8b2f0046614bec4c747da60956d6674e0",
+    "Contexts": [
+      "Core/DeploymentTuningSettings.cs",
+      "Desktop/MainWindow.xaml"
+    ],
+    "RawArgs": [],
+    "ProtectedTokens": []
   }
 }

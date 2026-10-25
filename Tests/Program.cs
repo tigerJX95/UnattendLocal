@@ -1,5 +1,6 @@
 using System.Text;using System.Xml;using UnattendLocal.Core;
 int count=0;var g=new GeneratorService();
+if(args.Contains("--deployment-tuning-only")){Console.WriteLine($"V1.21 deployment tuning: {DeploymentTuningTests.Run(g)} checks passed.");return;}
 if(args.Contains("--localization-only") || args.Contains("--localization-stress-only")){
  if(args.Contains("--localization-stress-only")){
   _ = new UnattendLocal.Desktop.MainViewModel().Status;
@@ -2078,3 +2079,6 @@ Console.WriteLine($"V1.19 final total: {count} tests passed.");
 
 try{count+=LocalizationTests.Run(g);}catch(Exception failure){Console.Error.WriteLine(failure.GetType().FullName);Console.Error.WriteLine(failure.Message);Environment.ExitCode=1;return;}
 Console.WriteLine($"V1.20 final total: {count} tests passed.");
+
+count+=DeploymentTuningTests.Run(g);
+Console.WriteLine($"V1.21 final total: {count} tests passed.");

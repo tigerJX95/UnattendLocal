@@ -16,6 +16,15 @@ public class UserEntry : Observable {
  private bool _NeedsPassword = false; public bool NeedsPassword {get=>_NeedsPassword;set=>Set(ref _NeedsPassword,value);}
 }
 public class InstallPlan : Observable {
+ private bool _DisableNewNtfsShortNames;
+ public bool DisableNewNtfsShortNames { get=>_DisableNewNtfsShortNames; set=>Set(ref _DisableNewNtfsShortNames,value); }
+ private bool _UseCustomPageFile;
+ public bool UseCustomPageFile { get=>_UseCustomPageFile; set=>Set(ref _UseCustomPageFile,value); }
+ private int _PageFileInitialMiB=2048;
+ public int PageFileInitialMiB { get=>_PageFileInitialMiB; set=>Set(ref _PageFileInitialMiB,value); }
+ private int _PageFileMaximumMiB=4096;
+ public int PageFileMaximumMiB { get=>_PageFileMaximumMiB; set=>Set(ref _PageFileMaximumMiB,value); }
+
  private string _PowerPlanMode=NativePreferences.Default;public string PowerPlanMode {get=>_PowerPlanMode;set=>Set(ref _PowerPlanMode,value);}
  private string _CustomPowerPlanGuid="";public string CustomPowerPlanGuid {get=>_CustomPowerPlanGuid;set=>Set(ref _CustomPowerPlanGuid,value);}
  private string _ErrorReportingMode=NativePreferences.Default;public string ErrorReportingMode {get=>_ErrorReportingMode;set=>Set(ref _ErrorReportingMode,value);}
