@@ -2066,3 +2066,5 @@ Console.WriteLine($"V1.17 final total: {count} tests passed.");
 
 count+=ScriptEnhancementTests.Run(g);
 Console.WriteLine($"V1.18 final total: {count} tests passed.");
+
+Console.WriteLine($"V1.19 final total: {count} tests passed.");

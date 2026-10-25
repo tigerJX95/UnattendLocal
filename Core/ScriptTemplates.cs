@@ -35,7 +35,13 @@ public static class ScriptTemplates
             "仅添加专用网络和域网络的入站回显请求规则，来源限制为本地子网；不新增公用网络放行。\n\n不关闭防火墙，不放行其他 ICMP 类型；现有规则、组织策略及网络设备仍可能影响实际连通性。", "AllowLocalPing.ps1"),
         new ScriptTemplate("remote-assistance", "关闭受邀 Windows 远程协助", "System",
             "关闭本机传统 Windows 远程协助的受邀连接开关。",
-            "以 SYSTEM 身份设置全机 fAllowToGetHelp 开关，影响用户通过传统远程协助发起的求助连接。\n\n不关闭远程桌面（RDP）、快速助手或第三方远控软件；不删除服务或防火墙规则，组织策略可能覆盖此开关。", "DisableRemoteAssistance.ps1")
+            "以 SYSTEM 身份设置全机 fAllowToGetHelp 开关，影响用户通过传统远程协助发起的求助连接。\n\n不关闭远程桌面（RDP）、快速助手或第三方远控软件；不删除服务或防火墙规则，组织策略可能覆盖此开关。", "DisableRemoteAssistance.ps1"),
+        new ScriptTemplate("chrome-winget", "通过 WinGet 安装 Google Chrome", "FirstLogon",
+            "通过 WinGet 社区源为整台电脑静默安装 Google Chrome 浏览器。",
+            "需要 Windows 11 24H2（内部版本 26100）及以上、管理员首次登录和网络；最多等待 5 分钟让 WinGet 出现，安装完成时间不包含在此等待上限内。\n\n可修改脚本顶部的 PackageId 以安装其他软件。启用表示接受软件及源协议；默认不升级已有版本，不跳过安装包哈希验证。缺少应用安装程序、策略阻止或安装失败时会记录错误，不自动修复系统组件。", "InstallChromeWinGet.ps1"),
+        new ScriptTemplate("public-shortcuts", "创建公共桌面快捷方式", "System",
+            "为所有用户创建程序（.lnk）或网页（.url）快捷方式。",
+            "默认创建系统属性与项目下载页两个示例，可在脚本顶部的 Shortcuts 列表修改名称和目标。程序链接需要绝对路径，网页链接使用 HTTP 或 HTTPS。\n\n在创建用户前写入系统解析出的公共桌面目录，不写死盘符；已有同名文件或文件夹会保留。此模板只创建链接，不下载或运行链接指向的内容。", "PublicDesktopShortcuts.ps1")
     });
 
     public static ScriptEntry Add(InstallPlan plan, string id)

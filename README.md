@@ -6,7 +6,7 @@
 
 UnattendLocal 是基于 [Christoph Schneegans 的 UnattendGenerator](https://github.com/cschneegans/unattend-generator) 开发的中文 Windows 桌面配置工具，用于在本地编辑、检查和生成 Windows 10 / 11 的 `autounattend.xml`。
 
-当前版本：**V1.18**。支持静态 IPv4 / IPv6 双栈、子网掩码输入、设置搜索、安装驱动目录、动态更新、自动分区、OOBE 与账户配置，以及已有 XML 的导入编辑。
+当前版本：**V1.19**。支持静态 IPv4 / IPv6 双栈、子网掩码输入、设置搜索、安装驱动目录、动态更新、自动分区、OOBE 与账户配置，以及已有 XML 的导入编辑。
 
 ## 💡 开发初衷
 
@@ -56,6 +56,15 @@ UnattendLocal 是基于 [Christoph Schneegans 的 UnattendGenerator](https://git
 - 按原设计管理 System、DefaultUser、FirstLogon、UserOnce 自定义脚本；支持复制条目，副本默认停用供核对。
 - 保存和恢复 JSON 方案，提供配置摘要、推荐差异、检查、脱敏预览和 XML 导出。
 - 导入已有 XML 后编辑已支持设置，保留未知内容；遇到无法可靠合并的修改时停止导出并说明原因。
+
+## V1.19 应用安装与桌面快捷方式模板 · 2026-10-25
+
+- 新增“通过 WinGet 安装 Google Chrome”模板，在 FirstLogon 阶段等待 WinGet 出现后，通过社区源按精确 ID 静默安装；默认不升级已有版本，不绕过哈希验证，并检查安装返回码。
+- 新增“创建公共桌面快捷方式”模板，在 System 阶段创建所有用户可见的程序或网页链接。默认附带系统属性和项目下载页示例，可编辑名称与目标；公共桌面由系统解析，不固定盘符。
+- 快捷方式列表在写入前检查文件名、目标及重名；已有同名文件或文件夹保留，使用临时文件生成链接，失败时清理临时文件。
+- 两项能力继续保留原作者的示例脚本分类，添加后默认停用，可查看和修改完整内容，支持方案保存及 XML 导出、重新导入。
+
+使用条件与示例：[实用脚本模板](docs/ScriptTemplates.md)。
 
 ## V1.18 网络诊断模板与脚本命名 · 2026-10-24
 
@@ -119,12 +128,12 @@ UnattendLocal 是基于 [Christoph Schneegans 的 UnattendGenerator](https://git
 
 ## 📦 下载与使用
 
-从仓库的 [**Releases**](https://github.com/tigerJX95/UnattendLocal/releases/latest) 页面下载并直接运行对应的 `UnattendLocal_V1.18_x64_SelfContained.exe` 或 `UnattendLocal_V1.18_x64_FrameworkDependent.exe`：
+从仓库的 [**Releases**](https://github.com/tigerJX95/UnattendLocal/releases/latest) 页面下载并直接运行对应的 `UnattendLocal_V1.19_x64_SelfContained.exe` 或 `UnattendLocal_V1.19_x64_FrameworkDependent.exe`：
 
 | 程序文件 | 运行要求 |
 | --- | --- |
-| `UnattendLocal_V1.18_x64_SelfContained.exe` | 集成 .NET 运行时，无需单独安装；通常选择此版。 |
-| `UnattendLocal_V1.18_x64_FrameworkDependent.exe` | 文件较小，需安装 .NET 10 Desktop Runtime x64。 |
+| `UnattendLocal_V1.19_x64_SelfContained.exe` | 集成 .NET 运行时，无需单独安装；通常选择此版。 |
+| `UnattendLocal_V1.19_x64_FrameworkDependent.exe` | 文件较小，需安装 .NET 10 Desktop Runtime x64。 |
 
 两版功能相同。首次安装测试建议使用虚拟机。
 

@@ -48,6 +48,26 @@ Windows 内部版本 28000 及以上改用独立安装程序，本模板会在�
 
 名称保存在 JSON 方案，以及本工具有效的 XML 配置还原记录中，不拼接进可执行命令、不改变生成的脚本文件名。把 XML 交给其他工具编辑后，还原记录可能失效，名称不保证保留；脚本实际执行内容以 XML 为准。单独另存脚本文件只保存正文，不保存名称、执行阶段或启用状态。
 
+## 通过 WinGet 安装 Google Chrome
+
+执行阶段：FirstLogon。需要 Windows 11 24H2（内部版本 26100）及以上、管理员首次登录、网络和可用的“应用安装程序”。此模板不会自动启用自动登录或修复、重新注册 WinGet。
+
+默认精确包 ID 为 `Google.Chrome`，源固定为 `winget`，作用域为整机。脚本最多等待 300 秒让当前用户的 `winget.exe` 出现；出现后等待安装命令执行结束，安装耗时不计入就绪等待上限。下载源不可达、策略阻止、程序无法启动或安装返回错误时，记录错误供排查。
+
+启用模板表示接受软件包协议和 WinGet 源协议。脚本使用静默及禁止交互参数，不使用忽略哈希校验或允许重启的参数；`--no-upgrade` 保留已有安装，不强制更新。返回码 0 视为成功；“没有适用更新”返回码只记录提示，其他非零码报错。它不保证在所有软件包和组织环境中都能完成无人值守安装。
+
+可在脚本顶部把 `PackageId` 改为其他已核对的社区包 ID，例如 `Microsoft.PowerToys`；包必须支持整机静默安装。不要在 ID 中拼接命令参数，脚本会拒绝空格及参数注入形式。`ReadyTimeoutSeconds` 只控制等待 WinGet 出现的时间，不控制安装进程的总耗时。
+
+## 创建公共桌面快捷方式
+
+执行阶段：System。Windows 自动提供公共桌面目录，默认创建 `System Properties.lnk` 和 `UnattendLocal Releases.url`；所有用户均可看到。名称是脚本内可修改的示例文件名，程序界面说明保持中文。
+
+在脚本顶部的 `Shortcuts` 列表中修改 `Name`（含 `.lnk` 或 `.url` 扩展名）与 `Target`。程序目标是绝对文件或目录路径，支持环境变量展开；不将命令行参数拼进目标路径。网页目标仅支持绝对 HTTP / HTTPS 地址。模板不检查程序是否已经安装，只创建链接，不打开网页、不下载或执行目标内容。
+
+已有同名文件或文件夹会保留并记录提示，重复执行不会覆盖。文件名不允许路径分隔符、保留设备名或跨目录写入；定义列表先整体校验，再逐项写入。临时文件与目标位于同目录，完整生成后再移动；发生错误时清理临时文件，但不撤销之前已成功创建的其他链接。
+
+程序链接依赖 Windows Script Host 的 `WScript.Shell` COM 组件；被组织策略禁用、公共桌面不可写或磁盘写入失败时会报错。网页链接使用标准 InternetShortcut 格式。安装后可在桌面查看链接，再按需要手动打开。
+
 ## 执行与日志
 
 FirstLogon 不会因为添加模板而自动启用管理员自动登录；请在账户设置中安排首次管理员登录。脚本仍经过原生成器的 System / FirstLogon 执行链；脚本报错会进入该链的日志，不保证停止其他安装命令。
@@ -72,6 +92,10 @@ Solicited Remote Assistance sets the local `fAllowToGetHelp` toggle to zero duri
 
 Script names are optional, limited to 80 characters and preserved by plans, duplication and valid local XML restoration records. They do not enter commands or affect generated filenames. Standalone script export contains only the script body; names may be lost when another tool edits the XML.
 
+The Google Chrome template runs at FirstLogon on Windows 11 build 26100 or newer with an administrator, network access and App Installer. It waits up to 300 seconds for the current user's WinGet executable; that limit excludes the installation duration. Enabling it accepts package and source agreements. It installs exact ID `Google.Chrome` from `winget` in machine scope, without bypassing hashes, forcing upgrades or allowing reboots. Other verified package IDs can be edited at the top of the script if they support machine-wide silent installation.
+
+The public desktop template runs at System. Edit the `Shortcuts` list for `.lnk` program links or `.url` HTTP/HTTPS links. Windows resolves the common desktop directory. Definitions are validated before any files are created, existing names are preserved, and temporary files are cleaned after failure. Previously created links are not rolled back if a later item fails. The default links target System Properties and this project's release page; adding the template never executes either target.
+
 ## 参考资料 / References
 
 - [原作者示例脚本 / Upstream samples](https://schneegans.de/windows/unattend-generator/samples/)
@@ -82,3 +106,7 @@ Script names are optional, limited to 80 characters and preserved by plans, dupl
 - [Microsoft: New-NetFirewallRule](https://learn.microsoft.com/powershell/module/netsecurity/new-netfirewallrule)
 - [Microsoft: Set-NetFirewallRule](https://learn.microsoft.com/powershell/module/netsecurity/set-netfirewallrule)
 - [Microsoft: Remote Assistance policies](https://learn.microsoft.com/windows/client-management/mdm/policy-csp-remoteassistance)
+
+- [Microsoft: WinGet install](https://learn.microsoft.com/windows/package-manager/winget/install)
+- [Microsoft: WinGet return codes](https://github.com/microsoft/winget-cli/blob/master/doc/windows/package-manager/winget/returnCodes.md)
+- [Microsoft: Create desktop shortcuts with WSH](https://learn.microsoft.com/troubleshoot/windows-client/admin-development/create-desktop-shortcut-with-wsh)

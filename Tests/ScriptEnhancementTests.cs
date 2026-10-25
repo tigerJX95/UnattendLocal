@@ -31,6 +31,8 @@ static class ScriptEnhancementTests
             var copy = CustomScripts.Duplicate(plan, row);
             Check(copy.Name == row.Name && !copy.Enabled && copy.Content == row.Content, "duplicate retains name and safe disabled state");
         }
+        var browser = ScriptTemplates.All.Single(t => t.Id == "chrome-winget");
+        Check(browser.Name.Contains("Google Chrome") && browser.Content.Contains("$PackageId = 'Google.Chrome'"), "browser template defaults and UI label consistently select Google Chrome");
         var legacy = PlanStore.Deserialize("{\"SchemaVersion\":1,\"Scripts\":[{\"Enabled\":false,\"Phase\":\"System\",\"Type\":\"Ps1\",\"Content\":\"Write-Host 'legacy'\"}]}");
         Check(legacy.Scripts.Single().Name == "" && legacy.Scripts.Single().Label == "系统安装时 · .ps1", "old plans without names retain existing labels");
         var script = legacy.Scripts.Single();

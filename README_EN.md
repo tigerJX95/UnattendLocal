@@ -6,7 +6,7 @@
 
 UnattendLocal is a Chinese-language Windows desktop tool based on [Christoph Schneegans’ UnattendGenerator](https://github.com/cschneegans/unattend-generator). It lets you edit, check, and generate `autounattend.xml` for Windows 10 / 11 locally.
 
-Current version: **V1.18**. Includes static IPv4/IPv6 dual stack, subnet-mask input, settings search, setup driver directories, Dynamic Update, partitioning, OOBE and account settings, and existing XML import/editing.
+Current version: **V1.19**. Includes static IPv4/IPv6 dual stack, subnet-mask input, settings search, setup driver directories, Dynamic Update, partitioning, OOBE and account settings, and existing XML import/editing.
 
 ## 💡 Why this project exists
 
@@ -58,6 +58,15 @@ The displayed product key is a public generic installation key for selecting an 
 - Manage System, DefaultUser, FirstLogon, and UserOnce custom scripts using the original execution-stage design. Duplicate scripts with copies disabled by default for review.
 - Save and restore JSON plans; review summaries, recommended-setting differences, checks, redacted previews, and XML exports.
 - Import existing XML and edit supported settings while preserving unknown content. Export stops with an explanation when changes cannot be merged reliably.
+
+## V1.19 application installation and desktop shortcut templates
+
+- Add a Google Chrome installation template using WinGet at FirstLogon. It waits for the executable, installs by exact ID from the community source, preserves hash checks, skips automatic upgrades and checks the exit code.
+- Add a public desktop shortcut template at System for program and web links. Editable defaults link to System Properties and the project release page. The desktop path is resolved by Windows rather than a fixed drive letter.
+- Validate the entire shortcut list before writing. Preserve existing files and folders, generate through temporary files and clean temporary data on failure.
+- Keep both capabilities in the upstream sample-script category. Entries start disabled, remain editable, and support existing plan and XML workflows.
+
+Requirements and examples: [Practical script templates](docs/ScriptTemplates.md).
 
 ## V1.18 network diagnostics templates and script names
 
@@ -121,7 +130,7 @@ For media preparation and explicit invocation, see [XML and ISO export](docs/Ans
 
 ## 📦 Download and usage
 
-Download and run the matching Windows x64 executable from the repository’s [**Releases**](https://github.com/tigerJX95/UnattendLocal/releases/latest) page: `UnattendLocal_V1.18_x64_SelfContained.exe` or `UnattendLocal_V1.18_x64_FrameworkDependent.exe`. Choose `UnattendLocal_V1.18_x64_SelfContained.exe` for a bundled .NET runtime, or `UnattendLocal_V1.18_x64_FrameworkDependent.exe` if .NET 10 Desktop Runtime x64 is already installed. Both have the same features. Use a virtual machine for initial testing.
+Download and run the matching Windows x64 executable from the repository’s [**Releases**](https://github.com/tigerJX95/UnattendLocal/releases/latest) page: `UnattendLocal_V1.19_x64_SelfContained.exe` or `UnattendLocal_V1.19_x64_FrameworkDependent.exe`. Choose `UnattendLocal_V1.19_x64_SelfContained.exe` for a bundled .NET runtime, or `UnattendLocal_V1.19_x64_FrameworkDependent.exe` if .NET 10 Desktop Runtime x64 is already installed. Both have the same features. Use a virtual machine for initial testing.
 
 1. Choose a recommended scenario or a custom configuration and enter the required account and image settings.
 2. Adjust system, appearance, and application removal options as needed.

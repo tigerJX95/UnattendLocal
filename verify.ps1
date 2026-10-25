@@ -8,6 +8,7 @@ Push-Location $PSScriptRoot
 try {
     & (Join-Path $PSScriptRoot 'Tests/BuildScripts.Tests.ps1')
     & (Join-Path $PSScriptRoot 'Tests/ScriptTemplates.Tests.ps1')
+    & (Join-Path $PSScriptRoot 'Tests/DeploymentTemplates.Tests.ps1')
     & dotnet build (Join-Path $PSScriptRoot 'UnattendLocal.sln') -c Release -m:1 -nr:false -warnaserror
     if ($LASTEXITCODE -ne 0) { throw 'Build failed (compiler and restore warnings are treated as errors).' }
     $tests = Join-Path $PSScriptRoot 'Tests/bin/Release/net10.0/Tests.dll'

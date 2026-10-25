@@ -20,7 +20,7 @@ public static class SettingsSearchCatalog
         new("自定义电源计划 GUID", "OOBE", 6, "PowerPlanGuidEditor", "powerplan", "CustomPowerPlanGuid powercfg GUID 电源"),
         new("Windows 错误报告", "OOBE", 6, "ErrorReportingModeEditor", "errorreporting", "ErrorReportingMode WER DisableWER 错误报告 故障报告"),
         new("脚本名称", "自定义脚本", 13, "ScriptNameEditor", "customscripts", "ScriptEntry Name 名称 命名 标题 脚本 模板"),
-        new("实用脚本模板", "自定义脚本", 13, "ScriptTemplateSelector", "customscripts", "离线 安装 NetFx3 .NET Framework 3.5 VC++ Visual C++ v14 运行库 AutoRun 自动运行 Ping ICMP IPv4 IPv6 本地子网 远程协助 Remote Assistance 模板"),
+        new("实用脚本模板", "自定义脚本", 13, "ScriptTemplateSelector", "customscripts", "离线 安装 NetFx3 .NET Framework 3.5 VC++ Visual C++ v14 运行库 AutoRun 自动运行 Ping ICMP IPv4 IPv6 本地子网 远程协助 Remote Assistance Google Chrome 谷歌 浏览器 WinGet 公共桌面 快捷方式 lnk url 模板"),
         new("额外 XML 组件（高级）", "自定义脚本", 13, "AdditionalXmlSection", "additionalxml", "XmlComponents 微软 组件 OEMInformation SupportURL SupportProvider XML 高级"),
         new("最小配置", "配置方案", 0, "MinimalPresetButton", "", "Minimal 原作者 快捷预设 最小输出"),
         new("仅创建本地账户", "配置方案", 0, "LocalAccountPresetButton", "", "LocalUser 原作者 快捷预设 Example 本地账户"),
