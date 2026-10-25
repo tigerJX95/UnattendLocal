@@ -2082,3 +2082,5 @@ Console.WriteLine($"V1.20 final total: {count} tests passed.");
 
 count+=DeploymentTuningTests.Run(g);
 Console.WriteLine($"V1.21 final total: {count} tests passed.");
+
+Console.WriteLine($"V1.22 final total: {count} tests passed.");

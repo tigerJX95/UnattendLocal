@@ -1808,7 +1808,7 @@
   "text.d143439ccdb0": "脚本名称",
   "text.215d3e4006cb": "ScriptEntry Name 名称 命名 标题 脚本 模板",
   "text.3a6ae7b73867": "实用脚本模板",
-  "text.57a70c6a71ae": "离线 安装 NetFx3 .NET Framework 3.5 VC++ Visual C++ v14 运行库 AutoRun 自动运行 Ping ICMP IPv4 IPv6 本地子网 远程协助 Remote Assistance Google Chrome 谷歌 浏览器 WinGet 公共桌面 快捷方式 lnk url 模板",
+  "text.57a70c6a71ae": "离线 安装 NetFx3 .NET Framework 3.5 VC++ Visual C++ v14 运行库 AutoRun 自动运行 Ping ICMP IPv4 IPv6 本地子网 远程协助 Remote Assistance Google Chrome 谷歌 浏览器 WinGet 公共桌面 快捷方式 lnk url 模板 系统盘卷标 卓越性能 System volume label Ultimate Performance",
   "text.840a1dcb9822": "额外 XML 组件（高级）",
   "text.a2bd1b22cb72": "XmlComponents 微软 组件 OEMInformation SupportURL SupportProvider XML 高级",
   "text.181996c542a1": "配置方案",
@@ -3834,5 +3834,11 @@
   "v121.pagefile.maximum": "最大大小 (MiB)",
   "v121.pagefile.invalid": "分页文件大小无效：初始值至少 16 MiB，最大值不得小于初始值且不得超过 1048576 MiB。",
   "v121.enabled": "已启用",
-  "v121.unchanged": "不修改现有设置"
+  "v121.unchanged": "不修改现有设置",
+  "v122.label.name": "设置系统盘卷标",
+  "v122.label.purpose": "修改已安装 Windows 系统盘的显示名称，例如 Windows；不格式化、不调整分区。",
+  "v122.label.requirements": "在 System 阶段执行，自动读取目标系统盘符。\n\n默认卷标为 Windows，可编辑脚本中的 $label；仅支持 NTFS，名称非空、最长 32 个字符，不包含路径或控制字符。添加后默认停用，确认后再启用。",
+  "v122.power.name": "启用卓越性能电源计划",
+  "v122.power.purpose": "创建并激活卓越性能电源计划，可用于需要持续性能的设备；可能增加耗电和发热。",
+  "v122.power.requirements": "在 System 阶段执行。\n\n使用本模板专用 GUID 和名称，重复运行复用已有计划；同名 GUID 被其他计划占用时停止。是否支持取决于 Windows 版本与硬件，不支持时明确报错，不回退到其他计划。若同时设置“首选电源计划”，后续执行的本模板会覆盖其激活结果；请仅选择一种配置方式。添加后默认停用。"
 }

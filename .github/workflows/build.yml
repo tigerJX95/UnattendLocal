@@ -1,25 +1,58 @@
-name: Build two EXEs for version tags
+name: Build missing Release EXEs
 
 on:
-  push:
-    tags:
-      - 'v[0-9]*'
+  release:
+    types: [published]
   workflow_dispatch:
 
 permissions:
   contents: read
 
 concurrency:
-  group: windows-exe-${{ github.ref }}
+  group: windows-exe-${{ github.event.release.id || github.ref }}
   cancel-in-progress: false
 
 jobs:
+  inspect:
+    name: Check Release EXE attachments
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read
+    outputs:
+      build: ${{ steps.decision.outputs.build }}
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          persist-credentials: false
+      - name: Decide whether EXEs are needed
+        id: decision
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+          EVENT_NAME: ${{ github.event_name }}
+          RELEASE_ID: ${{ github.event.release.id }}
+          RELEASE_TAG: ${{ github.event.release.tag_name }}
+        run: |
+          $ErrorActionPreference = 'Stop'
+          if ($env:EVENT_NAME -eq 'workflow_dispatch') {
+            'build=true' >> $env:GITHUB_OUTPUT
+            'Manual build: outputs stay in Actions; no Release is changed.' >> $env:GITHUB_STEP_SUMMARY
+          } else {
+            . ./Tools/ReleaseAssets.ps1
+            $decision = Get-ReleaseBuildDecision -Repository $env:GITHUB_REPOSITORY -ReleaseId ([long]$env:RELEASE_ID) -Tag $env:RELEASE_TAG
+            "build=$($decision.Build.ToString().ToLowerInvariant())" >> $env:GITHUB_OUTPUT
+            $decision.Reason >> $env:GITHUB_STEP_SUMMARY
+          }
+
   build:
     name: Build and verify Windows x64 EXEs
+    needs: inspect
+    if: needs.inspect.outputs.build == 'true'
     runs-on: windows-2025
     timeout-minutes: 45
     permissions:
-      contents: read
+      contents: write
     outputs:
       version: ${{ steps.outputs.outputs.version }}
     env:
@@ -34,13 +67,15 @@ jobs:
         with:
           dotnet-version: '10.0.x'
       - name: Verify tag matches project version and main history
-        if: github.ref_type == 'tag'
+        if: github.event_name == 'release'
         shell: pwsh
+        env:
+          RELEASE_TAG: ${{ github.event.release.tag_name }}
         run: |
           $ErrorActionPreference = 'Stop'
           [xml]$project = Get-Content -LiteralPath Desktop/Desktop.csproj -Raw
           $version = $project.SelectSingleNode('/Project/PropertyGroup/InformationalVersion').InnerText.Trim()
-          if ($env:GITHUB_REF_NAME -cne "v$version") { throw "Tag $env:GITHUB_REF_NAME does not match project version v$version" }
+          if ($env:RELEASE_TAG -cne "v$version") { throw "Tag $env:RELEASE_TAG does not match project version v$version" }
           & git fetch --no-tags origin +refs/heads/main:refs/remotes/origin/main
           if ($LASTEXITCODE -ne 0) { throw 'Could not fetch main branch.' }
           & git merge-base --is-ancestor HEAD refs/remotes/origin/main
@@ -88,3 +123,14 @@ jobs:
           archive: false
           if-no-files-found: error
           retention-days: 7
+      - name: Attach generated EXEs to the published Release
+        if: github.event_name == 'release'
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_ID: ${{ github.event.release.id }}
+          RELEASE_TAG: ${{ github.event.release.tag_name }}
+        run: |
+          $ErrorActionPreference = 'Stop'
+          . ./Tools/ReleaseAssets.ps1
+          Publish-ReleaseExecutables -Repository $env:GITHUB_REPOSITORY -ReleaseId ([long]$env:RELEASE_ID) -Tag $env:RELEASE_TAG -PackageDirectory (Join-Path $env:RUNNER_TEMP 'packages')

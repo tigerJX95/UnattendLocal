@@ -110,3 +110,27 @@ The public desktop template runs at System. Edit the `Shortcuts` list for `.lnk`
 - [Microsoft: WinGet install](https://learn.microsoft.com/windows/package-manager/winget/install)
 - [Microsoft: WinGet return codes](https://github.com/microsoft/winget-cli/blob/master/doc/windows/package-manager/winget/returnCodes.md)
 - [Microsoft: Create desktop shortcuts with WSH](https://learn.microsoft.com/troubleshoot/windows-client/admin-development/create-desktop-shortcut-with-wsh)
+
+## V1.22：系统盘卷标与卓越性能 / Volume label and Ultimate Performance
+
+两项均保留为原作者示例能力对应的普通脚本模板，在自定义脚本页选择后添加，默认停用。核对完整脚本、名称与阶段后再启用，继续支持 JSON 方案保存及本程序原始 XML 恢复。
+
+### 设置系统盘卷标
+
+在 System 阶段识别目标 Windows 的实际系统盘符，仅对一个 NTFS 系统卷执行重命名，不格式化或修改分区。默认脚本为 `$label = 'Windows'`，例如可改为 `$label = '系统'`。卷标必须非空、最长 32 个字符，不包含路径保留字符或控制字符。已有相同卷标时不重复修改。
+
+### 启用卓越性能电源计划
+
+在 System 阶段从 Windows 的卓越性能计划创建专用计划，再激活。使用固定的本模板 GUID 和名称，重复运行时复用；该 GUID 被其他计划占用时停止。每个 powercfg 命令均检查返回码，不支持的 Windows 或硬件会明确报错，不静默切换为其他计划。计划可能增加耗电和发热，笔记本/现代待机设备不保证支持。
+
+此模板与“首选电源计划”均控制活动计划，请只选一种。该模板后执行时会覆盖此前选择的活动计划，取消模板不会撤销已经应用到目标系统的更改。
+
+### English
+
+**Set the system volume label** runs during System, detects the installed Windows drive and renames its NTFS volume without formatting or repartitioning. Change `$label = 'Windows'` to your desired non-empty label, up to 32 characters without path/control characters. An identical label is left unchanged.
+
+**Enable Ultimate Performance** duplicates the Windows source scheme to a managed GUID, names and activates it during System, and reuses its own scheme on repeat runs. A GUID collision or failed powercfg command stops execution. Windows edition and hardware determine support; no fallback is activated. Energy consumption and heat may increase. Use this template or Preferred power plan, not both.
+
+Both are added disabled as editable named PowerShell scripts, preserving plan and original-XML roundtrips. Unchecking a script does not undo a previous deployment.
+
+参考 / Reference: [原作者示例脚本 / upstream samples](https://schneegans.de/windows/unattend-generator/samples/), [Set-Volume](https://learn.microsoft.com/en-us/powershell/module/storage/set-volume), [powercfg](https://learn.microsoft.com/en-us/windows-hardware/design/device-experiences/powercfg-command-line-options).

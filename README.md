@@ -6,7 +6,7 @@
 
 UnattendLocal 是基于 [Christoph Schneegans 的 UnattendGenerator](https://github.com/cschneegans/unattend-generator) 开发的 Windows 桌面配置工具，支持简体中文与英语界面，用于在本地编辑、检查和生成 Windows 10 / 11 的 `autounattend.xml`。
 
-当前版本：**V1.21**。支持简体中文 / English 即时切换、独立语言包维护、静态 IPv4 / IPv6 双栈、子网掩码输入、设置搜索、安装驱动目录、动态更新、自动分区、OOBE 与账户配置，以及已有 XML 的导入编辑。
+当前版本：**V1.22**。支持简体中文 / English 即时切换、独立语言包维护、静态 IPv4 / IPv6 双栈、子网掩码输入、设置搜索、安装驱动目录、动态更新、自动分区、OOBE 与账户配置，以及已有 XML 的导入编辑。
 
 ## 💡 开发初衷
 
@@ -58,6 +58,14 @@ UnattendLocal 是基于 [Christoph Schneegans 的 UnattendGenerator](https://git
 - 按原设计管理 System、DefaultUser、FirstLogon、UserOnce 自定义脚本；支持复制条目，副本默认停用供核对。
 - 保存和恢复 JSON 方案，提供配置摘要、推荐差异、检查、脱敏预览和 XML 导出。
 - 导入已有 XML 后编辑已支持设置，保留未知内容；遇到无法可靠合并的修改时停止导出并说明原因。
+
+## V1.22 系统盘卷标与卓越性能模板 · 2026-10-25
+
+- 新增“设置系统盘卷标”脚本模板：自动识别系统盘，校验 NTFS 卷标，不格式化或修改分区。
+- 新增“启用卓越性能电源计划”脚本模板：创建并激活专用计划，重复执行复用已有计划；不支持时明确报错。
+- 两项模板位于自定义脚本页，添加后默认停用，支持命名、编辑、方案保存和本程序导出 XML 的恢复编辑，配有中英文说明。
+- Release 发布后先检查附件：已有 EXE 则跳过自动构建；没有 EXE 才构建两种程序并自动附加。普通提交和单独创建标签均不触发 EXE 构建。
+- 上传前再次检查，保留已有附件、标题和更新说明；手动构建只生成 Actions 产物。
 
 ## V1.21 部署设置与语言菜单修复 · 2026-10-25
 
@@ -152,12 +160,12 @@ UnattendLocal 是基于 [Christoph Schneegans 的 UnattendGenerator](https://git
 
 推荐下载程序 ZIP 并完整解压，保留 EXE 旁的 `Languages` 文件夹，以便单独更新译文。仅运行 EXE 时仍有内置中英文资源回退。详见[语言包说明](docs/Localization.md)。
 
-从仓库的 [**Releases**](https://github.com/tigerJX95/UnattendLocal/releases/latest) 页面下载并直接运行对应的 `UnattendLocal_V1.21_x64_SelfContained.exe` 或 `UnattendLocal_V1.21_x64_FrameworkDependent.exe`：
+从仓库的 [**Releases**](https://github.com/tigerJX95/UnattendLocal/releases/latest) 页面下载并直接运行对应的 `UnattendLocal_V1.22_x64_SelfContained.exe` 或 `UnattendLocal_V1.22_x64_FrameworkDependent.exe`：
 
 | 程序文件 | 运行要求 |
 | --- | --- |
-| `UnattendLocal_V1.21_x64_SelfContained.exe` | 集成 .NET 运行时，无需单独安装；通常选择此版。 |
-| `UnattendLocal_V1.21_x64_FrameworkDependent.exe` | 文件较小，需安装 .NET 10 Desktop Runtime x64。 |
+| `UnattendLocal_V1.22_x64_SelfContained.exe` | 集成 .NET 运行时，无需单独安装；通常选择此版。 |
+| `UnattendLocal_V1.22_x64_FrameworkDependent.exe` | 文件较小，需安装 .NET 10 Desktop Runtime x64。 |
 
 两版功能相同。首次安装测试建议使用虚拟机。
 

@@ -17557,12 +17557,12 @@
     "ProtectedTokens": []
   },
   "text.57a70c6a71ae": {
-    "Source": "离线 安装 NetFx3 .NET Framework 3.5 VC++ Visual C++ v14 运行库 AutoRun 自动运行 Ping ICMP IPv4 IPv6 本地子网 远程协助 Remote Assistance Google Chrome 谷歌 浏览器 WinGet 公共桌面 快捷方式 lnk url 模板",
+    "Source": "离线 安装 NetFx3 .NET Framework 3.5 VC++ Visual C++ v14 运行库 AutoRun 自动运行 Ping ICMP IPv4 IPv6 本地子网 远程协助 Remote Assistance Google Chrome 谷歌 浏览器 WinGet 公共桌面 快捷方式 lnk url 模板 系统盘卷标 卓越性能 System volume label Ultimate Performance",
     "Contexts": [
       "Desktop/SettingsSearchCatalog.cs:23"
     ],
     "RawArgs": [],
-    "SourceHash": "57a70c6a71aee43178bf00dede5dbdd60124084f4fef0cd56ffccc7b6e5d912a",
+    "SourceHash": "896ff2c26ee45e88c84df947bc4fa7ec121e580aabdf209ec37f53b197b7dd13",
     "ProtectedTokens": []
   },
   "text.840a1dcb9822": {
@@ -36093,6 +36093,60 @@
     "Contexts": [
       "Core/DeploymentTuningSettings.cs",
       "Desktop/MainWindow.xaml"
+    ],
+    "RawArgs": [],
+    "ProtectedTokens": []
+  },
+  "v122.label.name": {
+    "Source": "设置系统盘卷标",
+    "SourceHash": "17b7605877f46ca23fcbbc65d0c8201086b024460a946b7d997c263acb021459",
+    "Contexts": [
+      "Core/ScriptTemplates.cs"
+    ],
+    "RawArgs": [],
+    "ProtectedTokens": []
+  },
+  "v122.label.purpose": {
+    "Source": "修改已安装 Windows 系统盘的显示名称，例如 Windows；不格式化、不调整分区。",
+    "SourceHash": "947a4c1d09d8b88245d844555a4e71fdc0414c8caa784b1b01d912c87db9b0e4",
+    "Contexts": [
+      "Core/ScriptTemplates.cs"
+    ],
+    "RawArgs": [],
+    "ProtectedTokens": []
+  },
+  "v122.label.requirements": {
+    "Source": "在 System 阶段执行，自动读取目标系统盘符。\n\n默认卷标为 Windows，可编辑脚本中的 $label；仅支持 NTFS，名称非空、最长 32 个字符，不包含路径或控制字符。添加后默认停用，确认后再启用。",
+    "SourceHash": "912e7e60a35940a71c4825a4aee090ff9917ba9f12c0f216d44a60fc9f479ba6",
+    "Contexts": [
+      "Core/ScriptTemplates.cs"
+    ],
+    "RawArgs": [],
+    "ProtectedTokens": []
+  },
+  "v122.power.name": {
+    "Source": "启用卓越性能电源计划",
+    "SourceHash": "0e632663d2eff51b0c8fe2f799aa0f3a107c4f60a8e5388f9f497f74ecae6dbe",
+    "Contexts": [
+      "Core/ScriptTemplates.cs"
+    ],
+    "RawArgs": [],
+    "ProtectedTokens": []
+  },
+  "v122.power.purpose": {
+    "Source": "创建并激活卓越性能电源计划，可用于需要持续性能的设备；可能增加耗电和发热。",
+    "SourceHash": "dc2cdbeb1ed7759b13d57f9a9bf46fd50dc253446de466aa06e9dfe662e6a97c",
+    "Contexts": [
+      "Core/ScriptTemplates.cs"
+    ],
+    "RawArgs": [],
+    "ProtectedTokens": []
+  },
+  "v122.power.requirements": {
+    "Source": "在 System 阶段执行。\n\n使用本模板专用 GUID 和名称，重复运行复用已有计划；同名 GUID 被其他计划占用时停止。是否支持取决于 Windows 版本与硬件，不支持时明确报错，不回退到其他计划。若同时设置“首选电源计划”，后续执行的本模板会覆盖其激活结果；请仅选择一种配置方式。添加后默认停用。",
+    "SourceHash": "2eb43395ebe81ddf36dddd7215731995691d034c0eb5f2ee8106ff4afd29587f",
+    "Contexts": [
+      "Core/ScriptTemplates.cs"
     ],
     "RawArgs": [],
     "ProtectedTokens": []

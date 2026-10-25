@@ -41,7 +41,13 @@ public static class ScriptTemplates
             global::UnattendLocal.Localization.UiText.Source("text.1a5e930cdb10"), "InstallChromeWinGet.ps1"),
         new ScriptTemplate("public-shortcuts", global::UnattendLocal.Localization.UiText.Source("text.219b7835f98e"), "System",
             global::UnattendLocal.Localization.UiText.Source("text.4e8d3acf240c"),
-            global::UnattendLocal.Localization.UiText.Source("text.adfdb7dcbea3"), "PublicDesktopShortcuts.ps1")
+            global::UnattendLocal.Localization.UiText.Source("text.adfdb7dcbea3"), "PublicDesktopShortcuts.ps1"),
+        new ScriptTemplate("system-volume-label", global::UnattendLocal.Localization.UiText.Source("v122.label.name"), "System",
+            global::UnattendLocal.Localization.UiText.Source("v122.label.purpose"),
+            global::UnattendLocal.Localization.UiText.Source("v122.label.requirements"), "SystemVolumeLabel.ps1"),
+        new ScriptTemplate("ultimate-performance", global::UnattendLocal.Localization.UiText.Source("v122.power.name"), "System",
+            global::UnattendLocal.Localization.UiText.Source("v122.power.purpose"),
+            global::UnattendLocal.Localization.UiText.Source("v122.power.requirements"), "UltimatePerformance.ps1")
     });
 
     public static ScriptEntry Add(InstallPlan plan, string id)

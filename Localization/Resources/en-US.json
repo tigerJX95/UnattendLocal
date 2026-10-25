@@ -1808,7 +1808,7 @@
   "text.d143439ccdb0": "Script Name",
   "text.215d3e4006cb": "ScriptEntry Name Name Title Script Template",
   "text.3a6ae7b73867": "Script templates",
-  "text.57a70c6a71ae": "Offline installation NetFx3 . NET Framework 3.5 VC++ Visual C++ v14 Run Library AutoRun Autorun Ping ICMP IPv4 IPv6 Local subnets Remote assistance Remote Assistance Google Chrome Google Browser WinGet Public Desktop Shortcut lnk url Templates",
+  "text.57a70c6a71ae": "Offline installation NetFx3 . NET Framework 3.5 VC++ Visual C++ v14 Run Library AutoRun Autorun Ping ICMP IPv4 IPv6 Local subnets Remote assistance Remote Assistance Google Chrome Google Browser WinGet Public Desktop Shortcut lnk url Templates System volume label Ultimate Performance",
   "text.840a1dcb9822": "Additional XML components (advanced)",
   "text.a2bd1b22cb72": "XmlComponents Microsoft Component OEMInformation SupportURL SupportProvider XML Advanced",
   "text.181996c542a1": "Configuration plans",
@@ -3834,5 +3834,11 @@
   "v121.pagefile.maximum": "Maximum (MiB)",
   "v121.pagefile.invalid": "Invalid page-file size: initial size must be at least 16 MiB; maximum must be at least the initial size and no more than 1048576 MiB.",
   "v121.enabled": "Enabled",
-  "v121.unchanged": "Leave existing settings unchanged"
+  "v121.unchanged": "Leave existing settings unchanged",
+  "v122.label.name": "Set the system volume label",
+  "v122.label.purpose": "Rename the installed Windows system volume, for example to Windows, without formatting or repartitioning.",
+  "v122.label.requirements": "Runs during System and resolves the installed Windows system drive automatically.\n\nEdit $label to change the default Windows label. Requires NTFS and a non-empty label of at most 32 characters without path or control characters. Added disabled; review before enabling.",
+  "v122.power.name": "Enable Ultimate Performance",
+  "v122.power.purpose": "Create and activate an Ultimate Performance power plan for sustained-performance workloads; energy use and heat may increase.",
+  "v122.power.requirements": "Runs during System with a template-specific GUID and name.\n\nReuses its own plan on repeat runs and stops if that GUID belongs to another plan. Support depends on Windows and hardware; unsupported systems report an error without a fallback. This later script overrides a selected Preferred power plan, so choose only one configuration method. Added disabled."
 }
