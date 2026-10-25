@@ -2,6 +2,10 @@ namespace UnattendLocal.Core;
 
 public record ScriptTemplate(string Id, string Name, string Phase, string Purpose, string Requirements, string Resource)
 {
+    // Record-generated ToString includes public computed properties, including
+    // Content. A display fallback must never load or print the script resource.
+    public override string ToString() => Name;
+
     public string Stage => global::UnattendLocal.Localization.UiText.Concat(new object?[] { global::UnattendLocal.Localization.UiText.Source("text.2896b9f54516"), CustomScripts.PhaseLabel(Phase), "（", Phase, "）。" },new bool[]{false,false,false,false,false});
     public string Content
     {

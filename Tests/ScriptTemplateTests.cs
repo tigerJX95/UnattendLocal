@@ -11,6 +11,10 @@ static class ScriptTemplateTests
         void Check(bool ok, string message) { if (!ok) throw new Exception(message); count++; }
         void Reject(Action action) { try { action(); } catch (ArgumentException) { count++; return; } throw new Exception("Expected template rejection"); }
         foreach (var template in ScriptTemplates.All)
+            Check(template.ToString() == template.Name, "display fallback returns only template name: " + template.Id);
+        var displayOnly = new ScriptTemplate("display-only", "Template name", "System", "Purpose", "Requirements", "missing.ps1");
+        Check(displayOnly.ToString() == "Template name", "display never reads a script resource even if unavailable");
+        foreach (var template in ScriptTemplates.All)
         foreach (var architecture in new[] { "amd64", "arm64", "x86" })
         {
             var plan = QuickPresets.Create(QuickPresets.LocalAccount); plan.Architecture = architecture;

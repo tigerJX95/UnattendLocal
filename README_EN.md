@@ -63,6 +63,7 @@ The displayed product key is a public generic installation key for selecting an 
 
 ## V1.22 System volume label and Ultimate Performance templates
 
+- Fix the custom script template dropdown displaying complete template objects and script bodies. Show only template names, wrap long labels and keep the popup aligned with the selector width.
 - Add a system-volume label template with automatic drive detection and NTFS label validation, without formatting or repartitioning.
 - Add an Ultimate Performance template that creates and activates its managed plan, reuses it on repeat runs and reports unsupported configurations.
 - Both templates are added disabled and support editing, naming, plan persistence and restoration from this app's original XML exports, with Chinese and English help.

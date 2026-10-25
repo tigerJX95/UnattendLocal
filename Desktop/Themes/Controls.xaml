@@ -123,12 +123,18 @@
           <ToggleButton.Template><ControlTemplate TargetType="ToggleButton"><Grid Background="Transparent"><Path Data="M0,0 L5,5 L10,0" Stroke="{DynamicResource SecondaryBrush}" StrokeThickness="1.6" Width="10" Height="5" HorizontalAlignment="Center" VerticalAlignment="Center"/></Grid></ControlTemplate></ToggleButton.Template>
         </ToggleButton>
         <Popup x:Name="PART_Popup" Placement="Bottom" AllowsTransparency="True" Focusable="False" IsOpen="{TemplateBinding IsDropDownOpen}" PopupAnimation="None">
-          <Border Background="{DynamicResource InputBrush}" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1" CornerRadius="5" MinWidth="{Binding ActualWidth,RelativeSource={RelativeSource TemplatedParent}}" MaxHeight="{TemplateBinding MaxDropDownHeight}" Padding="4">
+          <Border Background="{DynamicResource InputBrush}" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1" CornerRadius="5" Width="{Binding ActualWidth,RelativeSource={RelativeSource TemplatedParent}}" MaxHeight="{TemplateBinding MaxDropDownHeight}" Padding="4">
             <Grid><Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="*"/></Grid.RowDefinitions>
               <TextBlock Text="{loc:Text text.0feb99436062}" Margin="6,4,6,8" Foreground="{DynamicResource SecondaryBrush}" FontSize="12"/>
-              <ListBox x:Name="SearchResults" Grid.Row="1" Margin="0" Padding="0" BorderThickness="0" Background="Transparent" ItemsSource="{Binding Path=(local:ComboSearch.Results),RelativeSource={RelativeSource TemplatedParent}}" ScrollViewer.HorizontalScrollBarVisibility="Auto" ScrollViewer.VerticalScrollBarVisibility="Auto" VirtualizingPanel.IsVirtualizing="True" VirtualizingPanel.VirtualizationMode="Recycling" KeyboardNavigation.TabNavigation="None">
+              <ListBox x:Name="SearchResults" Grid.Row="1" Margin="0" Padding="0" BorderThickness="0" Background="Transparent" ItemsSource="{Binding Path=(local:ComboSearch.Results),RelativeSource={RelativeSource TemplatedParent}}" ScrollViewer.HorizontalScrollBarVisibility="Disabled" ScrollViewer.VerticalScrollBarVisibility="Auto" VirtualizingPanel.IsVirtualizing="True" VirtualizingPanel.VirtualizationMode="Recycling" KeyboardNavigation.TabNavigation="None">
                 <ListBox.ItemContainerStyle><Style TargetType="ListBoxItem" BasedOn="{StaticResource {x:Type ListBoxItem}}"><Setter Property="IsEnabled" Value="{Binding Enabled}"/><Setter Property="ToolTip" Value="{Binding Tip}"/></Style></ListBox.ItemContainerStyle>
-                <ListBox.ItemTemplate><DataTemplate><ContentPresenter Content="{Binding DisplayContent}" ContentTemplate="{Binding PresentationTemplate}"/></DataTemplate></ListBox.ItemTemplate>
+                <ListBox.ItemTemplate><DataTemplate>
+                  <Grid>
+                    <ContentPresenter x:Name="OptionContent" Content="{Binding DataContext.DisplayContent,RelativeSource={RelativeSource AncestorType=ListBoxItem}}" ContentTemplate="{Binding DataContext.PresentationTemplate,RelativeSource={RelativeSource AncestorType=ListBoxItem}}"/>
+                    <TextBlock x:Name="OptionLabel" Text="{loc:Display Value={Binding Label}}" TextWrapping="Wrap" Visibility="Collapsed"/>
+                  </Grid>
+                  <DataTemplate.Triggers><DataTrigger Binding="{Binding PresentationTemplate}" Value="{x:Null}"><Setter TargetName="OptionContent" Property="Visibility" Value="Collapsed"/><Setter TargetName="OptionLabel" Property="Visibility" Value="Visible"/></DataTrigger></DataTemplate.Triggers>
+                </DataTemplate></ListBox.ItemTemplate>
               </ListBox>
               <TextBlock Grid.Row="1" Text="{loc:Text text.44534d041958}" Foreground="{DynamicResource SecondaryBrush}" Margin="8" Visibility="{Binding Path=(local:ComboSearch.NoMatches),RelativeSource={RelativeSource TemplatedParent},Converter={StaticResource VisibleWhen}}" IsHitTestVisible="False"/>
             </Grid>

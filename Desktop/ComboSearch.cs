@@ -85,7 +85,10 @@ public static class ComboSearch {
    if(string.IsNullOrEmpty(label))label=content?.ToString()??"";
    string identifier=container?.Tag?.ToString()??Value(item,"Id");
    if(string.IsNullOrEmpty(identifier)&&combo.SelectedValuePath!="Content")identifier=Value(item,combo.SelectedValuePath);
-   return new(item,label,SearchTextMatcher.SearchText(label,identifier),combo.ItemTemplate is null?label:content!,combo.ItemTemplate,container?.ToolTip??combo.ToolTip,container?.IsEnabled??true);
+   // Named models use the same label-only presentation as the search input.
+   // Other selectors keep their existing templates (including color swatches).
+   bool nameOnly=content is UnattendLocal.Core.ScriptTemplate;
+   return new(item,label,SearchTextMatcher.SearchText(label,identifier),nameOnly||combo.ItemTemplate is null?label:content!,nameOnly?null:combo.ItemTemplate,container?.ToolTip??combo.ToolTip,container?.IsEnabled??true);
   }
   private static string Value(object? item,string? path){
    if(item is null||string.IsNullOrWhiteSpace(path))return "";
