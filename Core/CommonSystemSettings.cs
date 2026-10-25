@@ -10,14 +10,14 @@ public static class CommonSystemSettings
     public record Item(string Property, string Label, string File, string[] Commands);
     public static IReadOnlyList<Item> Items { get; } = new Item[]
     {
-        new(nameof(InstallPlan.DisableAutomaticRestartSignOn), "重启后自动登录", "Specialize.ps1", [
+        new(nameof(InstallPlan.DisableAutomaticRestartSignOn), global::UnattendLocal.Localization.UiText.Source("text.9328734717b0"), "Specialize.ps1", [
             "reg.exe add \"HKLM\\Software\\Microsoft\\Windows\\CurrentVersion\\Policies\\System\" /v \"DisableAutomaticRestartSignOn\" /t REG_DWORD /d 1 /f;"
         ]),
-        new(nameof(InstallPlan.PreventDeviceApps), "硬件关联应用", "Specialize.ps1", [
+        new(nameof(InstallPlan.PreventDeviceApps), global::UnattendLocal.Localization.UiText.Source("text.e107f7886578"), "Specialize.ps1", [
             "reg.exe add \"HKLM\\Software\\Microsoft\\Windows\\CurrentVersion\\Device Metadata\" /v \"PreventDeviceMetadataFromNetwork\" /t REG_DWORD /d 1 /f;",
             "reg.exe add \"HKLM\\Software\\Microsoft\\Windows\\CurrentVersion\\Device Installer\" /v \"DisableCoInstallers\" /t REG_DWORD /d 1 /f;"
         ]),
-        new(nameof(InstallPlan.DeleteWindowsOld), "空 Windows.old 目录", "FirstLogon.ps1", [
+        new(nameof(InstallPlan.DeleteWindowsOld), global::UnattendLocal.Localization.UiText.Source("text.1fa60cde8f71"), "FirstLogon.ps1", [
             "cmd.exe /c \"rmdir C:\\Windows.old\";"
         ])
     };
@@ -45,7 +45,7 @@ public static class CommonSystemSettings
             bool ambiguous = relevant.Length > 0 && !enabled;
             result[item.Property] = (enabled, ambiguous);
             if (ambiguous)
-                notes.Add(item.Label + "含部分、修改过或重复的脚本，未作为完整开关还原；原文保留，暂不能用该开关覆盖。");
+                notes.Add(global::UnattendLocal.Localization.UiText.Concat(new object?[] { item.Label, global::UnattendLocal.Localization.UiText.Source("text.eac899d61077") },new bool[]{false,false}));
         }
         return result;
     }
@@ -56,7 +56,7 @@ public static class CommonSystemSettings
         var states = Read(source, new());
         foreach (var item in Items)
             if (states[item.Property].Ambiguous && (bool)typeof(InstallPlan).GetProperty(item.Property)!.GetValue(plan)!)
-                throw new ArgumentException(item.Label + "与原 XML 中未完整识别的脚本重叠，不能可靠覆盖；请用原工具调整后重新导入。");
+                throw new ArgumentException(global::UnattendLocal.Localization.UiText.Concat(new object?[] { item.Label, global::UnattendLocal.Localization.UiText.Source("text.53e322edd701") },new bool[]{false,false}));
     }
     public static void ReadIntoPlan(XmlDocument doc, InstallPlan plan, List<string> notes)
     {
@@ -64,9 +64,7 @@ public static class CommonSystemSettings
             typeof(InstallPlan).GetProperty(pair.Key)!.SetValue(plan, pair.Value);
     }
     public static string Summary(InstallPlan p) =>
-        $"重启后自动登录：{(p.DisableAutomaticRestartSignOn ? "禁用最后用户自动登录（首次安装登录另行配置）" : "遵循 Windows 默认行为")}\n" +
-        $"硬件关联应用：{(p.PreventDeviceApps ? "阻止自动获取设备元数据及协同安装程序" : "遵循 Windows 默认行为")}\n" +
-        $"空 Windows.old 目录：{(p.DeleteWindowsOld ? "首次登录时尝试删除；非空目录保留" : "不添加清理命令")}";
+        global::UnattendLocal.Localization.UiText.Concat(new object?[] { global::UnattendLocal.Localization.UiText.Format("message.28dada809aea", new string[] { global::UnattendLocal.Localization.UiText.Arg(((p.DisableAutomaticRestartSignOn ? global::UnattendLocal.Localization.UiText.Source("text.c957b98168df") : global::UnattendLocal.Localization.UiText.Source("text.4e9901953ce4"))), 0, null) }), global::UnattendLocal.Localization.UiText.Format("message.c4a29ec48706", new string[] { global::UnattendLocal.Localization.UiText.Arg(((p.PreventDeviceApps ? global::UnattendLocal.Localization.UiText.Source("text.f7bba1f477ca") : global::UnattendLocal.Localization.UiText.Source("text.4e9901953ce4"))), 0, null) }), global::UnattendLocal.Localization.UiText.Format("message.b0b34ceecbaa", new string[] { global::UnattendLocal.Localization.UiText.Arg(((p.DeleteWindowsOld ? global::UnattendLocal.Localization.UiText.Source("text.e3c3a8f4b07c") : global::UnattendLocal.Localization.UiText.Source("text.44d62c15f116"))), 0, null) }) },new bool[]{false,false,false});
 
     public static void NormalizeLoaded(InstallPlan plan, JsonElement json)
     {
@@ -95,7 +93,7 @@ public static class CommonSystemSettings
         }
         catch (Exception e) when (e is ArgumentException or Schneegans.Unattend.ConfigurationException or XmlException)
         {
-            data.Blockers = data.Blockers.Append("旧方案的新增系统设置无法可靠迁移编辑基准，请重新导入原 XML 后再导出。").Distinct().ToArray();
+            data.Blockers = data.Blockers.Append(global::UnattendLocal.Localization.UiText.Source("text.ff178253c885")).Distinct().ToArray();
         }
     }
 }

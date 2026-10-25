@@ -5,20 +5,20 @@ public static class AccountLockoutPolicy {
  public static bool IsDisabled(InstallPlan p)=>p.AccountLockoutMode==Disabled||(p.AccountLockoutMode==Custom&&p.LockoutThreshold==0);
  public static string? ValidationError(InstallPlan p){
   if(p.AccountLockoutMode is Default or Disabled)return null;
-  if(p.AccountLockoutMode!=Custom)return "请选择有效的账户锁定策略";
-  if(p.LockoutThreshold is null or <0 or >999)return "账户锁定失败次数须为 0–999";
-  if(p.LockoutResetMinutes is null or <1 or >99999)return "失败计数重置等待时间须为 1–99999 分钟";
-  if(p.LockoutDurationMinutes is null or <1 or >99999)return "锁定持续时间须为 1–99999 分钟";
-  if(p.LockoutResetMinutes>p.LockoutDurationMinutes)return "失败计数重置等待时间不得大于锁定持续时间";
+  if(p.AccountLockoutMode!=Custom)return global::UnattendLocal.Localization.UiText.Source("text.a53f372a4ed3");
+  if(p.LockoutThreshold is null or <0 or >999)return global::UnattendLocal.Localization.UiText.Source("text.dd3fc2512015");
+  if(p.LockoutResetMinutes is null or <1 or >99999)return global::UnattendLocal.Localization.UiText.Source("text.991931b30f66");
+  if(p.LockoutDurationMinutes is null or <1 or >99999)return global::UnattendLocal.Localization.UiText.Source("text.0fcfa052c65f");
+  if(p.LockoutResetMinutes>p.LockoutDurationMinutes)return global::UnattendLocal.Localization.UiText.Source("text.f332e8b5c672");
   return null;
  }
  public static ILockoutSettings Build(InstallPlan p){
   if(ValidationError(p) is {} error)throw new ArgumentException(error+"。");
-  return p.AccountLockoutMode switch {Default=>new DefaultLockoutSettings(),Disabled=>new DisableLockoutSettings(),Custom=>new CustomLockoutSettings(p.LockoutThreshold,p.LockoutDurationMinutes,p.LockoutResetMinutes),_=>throw new ArgumentException("账户锁定策略无效。")};
+  return p.AccountLockoutMode switch {Default=>new DefaultLockoutSettings(),Disabled=>new DisableLockoutSettings(),Custom=>new CustomLockoutSettings(p.LockoutThreshold,p.LockoutDurationMinutes,p.LockoutResetMinutes),_=>throw new ArgumentException(global::UnattendLocal.Localization.UiText.Source("text.04637ff6e2a2"))};
  }
  public static string ModeSummary(InstallPlan p){
-  if(ValidationError(p) is {} error)return "配置无效："+error;
-  return p.AccountLockoutMode switch {Default=>"Windows 默认策略（不写入策略覆盖）",Disabled=>"已禁用：不按登录失败次数锁定账户",Custom when p.LockoutThreshold==0=>"自定义失败次数为 0：已禁用锁定，时间参数不触发锁定",Custom=>$"失败 {p.LockoutThreshold} 次后锁定；失败计数重置等待 {p.LockoutResetMinutes} 分钟；锁定 {p.LockoutDurationMinutes} 分钟后自动解锁",_=>"策略无效"};
+  if(ValidationError(p) is {} error)return global::UnattendLocal.Localization.UiText.Concat(new object?[] { global::UnattendLocal.Localization.UiText.Source("text.acbe63375dc8"), error },new bool[]{false,false});
+  return p.AccountLockoutMode switch {Default=>global::UnattendLocal.Localization.UiText.Source("text.3b777ee41f7f"),Disabled=>global::UnattendLocal.Localization.UiText.Source("text.1714abe2728b"),Custom when p.LockoutThreshold==0=>global::UnattendLocal.Localization.UiText.Source("text.9eee22848280"),Custom=>global::UnattendLocal.Localization.UiText.Format("message.b9b92aa25432", new string[] { global::UnattendLocal.Localization.UiText.Arg((p.LockoutThreshold), 0, null), global::UnattendLocal.Localization.UiText.Arg((p.LockoutResetMinutes), 0, null), global::UnattendLocal.Localization.UiText.Arg((p.LockoutDurationMinutes), 0, null) }),_=>global::UnattendLocal.Localization.UiText.Source("text.b962f2c179ee")};
  }
- public static string Summary(InstallPlan p)=>"账户锁定策略："+ModeSummary(p);
+ public static string Summary(InstallPlan p)=>global::UnattendLocal.Localization.UiText.Concat(new object?[] { global::UnattendLocal.Localization.UiText.Source("text.e45b42cd5e8c"), ModeSummary(p) },new bool[]{false,false});
 }

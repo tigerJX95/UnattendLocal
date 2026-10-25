@@ -48,7 +48,7 @@ public partial class SettingsSearchWindow : Window
         refreshTimer.Stop();
         session.Request(Query, PageIndex);
         Results.IsEnabled = false; LocateButton.IsEnabled = false;
-        CountText.Text = composing ? "请完成输入法选词。" : "正在筛选设置…";
+        CountText.Text = global::UnattendLocal.Localization.UiText.Translate(composing ? global::UnattendLocal.Localization.UiText.Source("text.a76384631aba") : global::UnattendLocal.Localization.UiText.Source("text.17b50b3fb946"));
         if (composing) return;
         if (immediate) Refresh(); else refreshTimer.Start();
     }
@@ -64,9 +64,9 @@ public partial class SettingsSearchWindow : Window
         session.Select(Results.SelectedItem as SettingSearchResult);
         LocateButton.IsEnabled = session.Selected != null;
         string category = ((SettingsSearchCatalog.Category)CategoryPicker.SelectedItem).Label;
-        CountText.Text = session.Results.Count == 0
-            ? (PageIndex.HasValue ? $"“{category}”中没有匹配设置。可切换为全部分类，或更换关键词。" : "未找到匹配设置，请换用简短名称或中英文关键词。")
-            : $"{category} · 共 {session.Results.Count} 项；支持中英文名称、别名与多个关键词。";
+        CountText.Text = global::UnattendLocal.Localization.UiText.Translate(session.Results.Count == 0
+            ? (PageIndex.HasValue ? global::UnattendLocal.Localization.UiText.Format("message.9fef9b79ea72", new string[] { global::UnattendLocal.Localization.UiText.Arg((category), 0, null) }) : global::UnattendLocal.Localization.UiText.Source("text.5c25e9075b12"))
+            : global::UnattendLocal.Localization.UiText.Format("message.25dcd97d4076", new string[] { global::UnattendLocal.Localization.UiText.Arg((category), 0, null), global::UnattendLocal.Localization.UiText.Arg((session.Results.Count), 0, null) }));
     }
     private void CompositionStarted(object sender, TextCompositionEventArgs e) { composing = true; RequestRefresh(); }
     private void CompositionCompleted(object sender, TextCompositionEventArgs e)

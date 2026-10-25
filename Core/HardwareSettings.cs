@@ -4,19 +4,19 @@ namespace UnattendLocal.Core;
 public static class HardwareSettings {
  public record Item(string Property,string RegistryValue,string Label);
  public static IReadOnlyList<Item> Items {get;}=new Item[]{
-  new(nameof(InstallPlan.BypassTPMCheck),"BypassTPMCheck","绕过 TPM 2.0 检查"),
-  new(nameof(InstallPlan.BypassSecureBootCheck),"BypassSecureBootCheck","绕过安全启动检查"),
-  new(nameof(InstallPlan.BypassRAMCheck),"BypassRAMCheck","绕过内存容量检查")};
+  new(nameof(InstallPlan.BypassTPMCheck),"BypassTPMCheck",global::UnattendLocal.Localization.UiText.Source("text.03d4d9f03919")),
+  new(nameof(InstallPlan.BypassSecureBootCheck),"BypassSecureBootCheck",global::UnattendLocal.Localization.UiText.Source("text.443cc44b8f86")),
+  new(nameof(InstallPlan.BypassRAMCheck),"BypassRAMCheck",global::UnattendLocal.Localization.UiText.Source("text.3d712e0edce3"))};
  public static bool Enabled(InstallPlan p,Item item)=>p.BypassHardware||(bool)typeof(InstallPlan).GetProperty(item.Property)!.GetValue(p)!;
  public static bool AllEnabled(InstallPlan p)=>Items.All(item=>Enabled(p,item));
  public static void NormalizeLegacy(InstallPlan p){if(!p.BypassHardware)return;foreach(var item in Items)typeof(InstallPlan).GetProperty(item.Property)!.SetValue(p,true);p.BypassHardware=false;}
- public static string Summary(InstallPlan p){var names=Items.Where(item=>Enabled(p,item)).Select(item=>item.Label).ToList();return "Windows 11 安装检查："+(names.Count==0?"遵循 Windows 默认检查":string.Join("、",names));}
+ public static string Summary(InstallPlan p){var names=Items.Where(item=>Enabled(p,item)).Select(item=>item.Label).ToList();return global::UnattendLocal.Localization.UiText.Concat(new object?[] { global::UnattendLocal.Localization.UiText.Source("text.440b02b2826e"), (names.Count==0?global::UnattendLocal.Localization.UiText.Source("text.a9baa16ce15e"):global::UnattendLocal.Localization.UiText.Join("、", names, false)) },new bool[]{false,false});}
  // Full selection uses the unchanged native generator. Partial selection writes only those same supported registry keys.
  public static void Apply(XmlDocument doc,XmlNamespaceManager ns,InstallPlan p){
   if(AllEnabled(p))return;
   var selected=Items.Where(item=>Enabled(p,item)).ToList();if(selected.Count==0)return;
   var components=doc.SelectNodes("//u:settings[@pass='windowsPE']/u:component[@name='Microsoft-Windows-Setup']",ns)!;
-  if(components.Count==0)throw new ArgumentException("找不到 Windows PE 安装组件，无法生成硬件检查设置。");
+  if(components.Count==0)throw new ArgumentException(global::UnattendLocal.Localization.UiText.Source("text.f42ae5b3434e"));
   const string space="urn:schemas-microsoft-com:unattend";
   XmlElement Add(XmlElement parent,string name,string? text=null){var node=doc.CreateElement(name,space);if(text!=null)node.InnerText=text;parent.AppendChild(node);return node;}
   foreach(XmlElement setup in components){

@@ -1,5 +1,12 @@
 using System.Text;using System.Xml;using UnattendLocal.Core;
 int count=0;var g=new GeneratorService();
+if(args.Contains("--localization-only") || args.Contains("--localization-stress-only")){
+ if(args.Contains("--localization-stress-only")){
+  _ = new UnattendLocal.Desktop.MainViewModel().Status;
+  for(int i=0;i<12005;i++)UnattendLocal.Localization.UiText.Concat(["cache probe ", i], [false, true]);
+ }
+ try{LocalizationTests.Run(g);}catch(Exception failure){Console.Error.WriteLine(failure.GetType().FullName);Console.Error.WriteLine(failure.Message);Environment.ExitCode=1;}return;
+}
 if(args.Contains("--script-enhancements-only")){ScriptEnhancementTests.Run(g);return;}
 if(args.Contains("--script-templates-only")){ScriptTemplateTests.Run(g);return;}
 if(args.Contains("--file-reliability-only")){FileReliabilityTests.Run();return;}
@@ -2068,3 +2075,6 @@ count+=ScriptEnhancementTests.Run(g);
 Console.WriteLine($"V1.18 final total: {count} tests passed.");
 
 Console.WriteLine($"V1.19 final total: {count} tests passed.");
+
+try{count+=LocalizationTests.Run(g);}catch(Exception failure){Console.Error.WriteLine(failure.GetType().FullName);Console.Error.WriteLine(failure.Message);Environment.ExitCode=1;return;}
+Console.WriteLine($"V1.20 final total: {count} tests passed.");

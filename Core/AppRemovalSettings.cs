@@ -12,82 +12,82 @@ public static partial class AppRemovalSettings
     public record Item(string Id, string Label, string Group, string Description);
     public static IReadOnlyList<Item> Items { get; } = new Item[]
     {
-        new("RemoveInternetExplorer","Internet Explorer","系统能力与组件","移除此项对应的预装应用或系统能力，相关功能将不可用；需要时须重新安装。 上游适用标记：Windows 10 / Windows 11；实际可用项由介质决定，不存在的项会跳过。 匹配项：Browser.InternetExplorer。"),
-        new("RemoveWindowsMediaPlayer","Windows Media Player（经典版）","系统能力与组件","移除此项对应的预装应用或系统能力，相关功能将不可用；需要时须重新安装。 上游适用标记：Windows 10 / Windows 11；实际可用项由介质决定，不存在的项会跳过。 匹配项：Media.WindowsMediaPlayer。"),
-        new("RemoveZuneMusic","Windows Media Player（新版）","应用与服务","移除此项对应的预装应用或系统能力，相关功能将不可用；需要时须重新安装。 上游适用标记：Windows 10 / Windows 11；实际可用项由介质决定，不存在的项会跳过。 匹配项：Microsoft.ZuneMusic。"),
-        new("RemoveMediaFeatures","媒体功能","系统能力与组件","移除媒体可选功能，可能影响音视频播放及依赖媒体组件的应用。 上游适用标记：Windows 10 / Windows 11；实际可用项由介质决定，不存在的项会跳过。 匹配项：MediaPlayback。"),
-        new("RemoveWordPad","写字板","系统能力与组件","移除此项对应的预装应用或系统能力，相关功能将不可用；需要时须重新安装。 上游适用标记：Windows 10 / Windows 11；实际可用项由介质决定，不存在的项会跳过。 匹配项：Microsoft.Windows.WordPad。"),
-        new("RemoveNotepadClassic","记事本（经典版）","系统能力与组件","移除经典记事本能力；若同时移除新版，将失去内置记事本。 上游适用标记：Windows 10 / Windows 11；实际可用项由介质决定，不存在的项会跳过。 匹配项：Microsoft.Windows.Notepad；Microsoft.Windows.Notepad.System。"),
-        new("RemoveNotepad","记事本（新版）","应用与服务","移除新版记事本，保留经典文本文件关联并隐藏商店横幅；经典版可另行选择。 上游适用标记：Windows 11；实际可用项由介质决定，不存在的项会跳过。 匹配项：Microsoft.WindowsNotepad。"),
-        new("RemoveStepsRecorder","步骤记录器","系统能力与组件","移除此项对应的预装应用或系统能力，相关功能将不可用；需要时须重新安装。 上游适用标记：Windows 10 / Windows 11；实际可用项由介质决定，不存在的项会跳过。 匹配项：App.StepsRecorder。"),
-        new("RemovePaint","画图","系统能力与组件","移除此项对应的预装应用或系统能力，相关功能将不可用；需要时须重新安装。 上游适用标记：Windows 10 / Windows 11；实际可用项由介质决定，不存在的项会跳过。 匹配项：Microsoft.Windows.MSPaint；Microsoft.Paint。"),
-        new("RemovePaint3D","画图 3D","应用与服务","移除此项对应的预装应用或系统能力，相关功能将不可用；需要时须重新安装。 上游适用标记：Windows 10；实际可用项由介质决定，不存在的项会跳过。 匹配项：Microsoft.MSPaint。"),
-        new("RemoveSkype","Skype","应用与服务","移除此项对应的预装应用或系统能力，相关功能将不可用；需要时须重新安装。 上游适用标记：Windows 10；实际可用项由介质决定，不存在的项会跳过。 匹配项：Microsoft.SkypeApp。"),
-        new("RemoveSnippingTool","截图工具","系统能力与组件","移除此项对应的预装应用或系统能力，相关功能将不可用；需要时须重新安装。 上游适用标记：Windows 10 / Windows 11；实际可用项由介质决定，不存在的项会跳过。 匹配项：Microsoft.ScreenSketch；Microsoft-SnippingTool；Microsoft.Windows.SnippingTool。"),
-        new("RemoveZuneVideo","电影和电视","应用与服务","移除此项对应的预装应用或系统能力，相关功能将不可用；需要时须重新安装。 上游适用标记：Windows 10 / Windows 11；实际可用项由介质决定，不存在的项会跳过。 匹配项：Microsoft.ZuneVideo。"),
-        new("RemoveXboxApps","Xbox 应用与录制","应用与服务（含额外设置）","移除 Xbox 相关应用，并关闭新用户的游戏录制捕获；可能影响 Xbox 游戏体验。 上游适用标记：Windows 10 / Windows 11；实际可用项由介质决定，不存在的项会跳过。 匹配项：Microsoft.Xbox.TCUI；Microsoft.XboxApp；Microsoft.XboxGameOverlay；Microsoft.XboxGamingOverlay；Microsoft.XboxIdentityProvider；Microsoft.XboxSpeechToTextOverlay；Microsoft.GamingApp。"),
-        new("RemovePhotos","照片","应用与服务","移除此项对应的预装应用或系统能力，相关功能将不可用；需要时须重新安装。 上游适用标记：Windows 10 / Windows 11；实际可用项由介质决定，不存在的项会跳过。 匹配项：Microsoft.Windows.Photos。"),
-        new("RemoveNews","资讯","应用与服务","移除此项对应的预装应用或系统能力，相关功能将不可用；需要时须重新安装。 上游适用标记：Windows 11；实际可用项由介质决定，不存在的项会跳过。 匹配项：Microsoft.BingNews。"),
-        new("RemoveWeather","天气","应用与服务","移除此项对应的预装应用或系统能力，相关功能将不可用；需要时须重新安装。 上游适用标记：Windows 10 / Windows 11；实际可用项由介质决定，不存在的项会跳过。 匹配项：Microsoft.BingWeather。"),
-        new("RemovePeople","人脉","应用与服务","移除此项对应的预装应用或系统能力，相关功能将不可用；需要时须重新安装。 上游适用标记：Windows 10 / Windows 11；实际可用项由介质决定，不存在的项会跳过。 匹配项：Microsoft.People。"),
-        new("RemoveToDo","Microsoft To Do","应用与服务","移除此项对应的预装应用或系统能力，相关功能将不可用；需要时须重新安装。 上游适用标记：Windows 11；实际可用项由介质决定，不存在的项会跳过。 匹配项：Microsoft.Todos。"),
-        new("RemoveSolitaire","纸牌合集","应用与服务","移除此项对应的预装应用或系统能力，相关功能将不可用；需要时须重新安装。 上游适用标记：Windows 10 / Windows 11；实际可用项由介质决定，不存在的项会跳过。 匹配项：Microsoft.MicrosoftSolitaireCollection。"),
-        new("RemoveStickyNotes","便笺","应用与服务","移除此项对应的预装应用或系统能力，相关功能将不可用；需要时须重新安装。 上游适用标记：Windows 10 / Windows 11；实际可用项由介质决定，不存在的项会跳过。 匹配项：Microsoft.MicrosoftStickyNotes。"),
-        new("Remove3DViewer","3D 查看器","应用与服务","移除此项对应的预装应用或系统能力，相关功能将不可用；需要时须重新安装。 上游适用标记：Windows 10；实际可用项由介质决定，不存在的项会跳过。 匹配项：Microsoft.Microsoft3DViewer。"),
-        new("RemoveMaps","地图","应用与服务","移除此项对应的预装应用或系统能力，相关功能将不可用；需要时须重新安装。 上游适用标记：Windows 10 / Windows 11；实际可用项由介质决定，不存在的项会跳过。 匹配项：Microsoft.WindowsMaps。"),
-        new("RemoveVoiceRecorder","录音机","应用与服务","移除此项对应的预装应用或系统能力，相关功能将不可用；需要时须重新安装。 上游适用标记：Windows 10 / Windows 11；实际可用项由介质决定，不存在的项会跳过。 匹配项：Microsoft.WindowsSoundRecorder。"),
-        new("RemoveClipchamp","Clipchamp 视频编辑","应用与服务","移除此项对应的预装应用或系统能力，相关功能将不可用；需要时须重新安装。 上游适用标记：Windows 11；实际可用项由介质决定，不存在的项会跳过。 匹配项：Clipchamp.Clipchamp。"),
-        new("RemovePowerAutomate","Power Automate 自动化","应用与服务","移除此项对应的预装应用或系统能力，相关功能将不可用；需要时须重新安装。 上游适用标记：Windows 11；实际可用项由介质决定，不存在的项会跳过。 匹配项：Microsoft.PowerAutomateDesktop。"),
-        new("RemoveWindowsTerminal","Windows 终端","应用与服务","移除此项对应的预装应用或系统能力，相关功能将不可用；需要时须重新安装。 上游适用标记：Windows 11；实际可用项由介质决定，不存在的项会跳过。 匹配项：Microsoft.WindowsTerminal。"),
-        new("RemoveOneNote","OneNote","应用与服务","移除此项对应的预装应用或系统能力，相关功能将不可用；需要时须重新安装。 上游适用标记：Windows 10；实际可用项由介质决定，不存在的项会跳过。 匹配项：Microsoft.Office.OneNote。"),
-        new("RemoveClock","时钟","应用与服务","移除此项对应的预装应用或系统能力，相关功能将不可用；需要时须重新安装。 上游适用标记：Windows 10 / Windows 11；实际可用项由介质决定，不存在的项会跳过。 匹配项：Microsoft.WindowsAlarms。"),
-        new("RemoveCalculator","计算器","应用与服务","移除此项对应的预装应用或系统能力，相关功能将不可用；需要时须重新安装。 上游适用标记：Windows 10 / Windows 11；实际可用项由介质决定，不存在的项会跳过。 匹配项：Microsoft.WindowsCalculator。"),
-        new("RemoveCamera","相机","应用与服务","移除此项对应的预装应用或系统能力，相关功能将不可用；需要时须重新安装。 上游适用标记：Windows 10 / Windows 11；实际可用项由介质决定，不存在的项会跳过。 匹配项：Microsoft.WindowsCamera。"),
-        new("RemoveYourPhone","手机连接","应用与服务","移除此项对应的预装应用或系统能力，相关功能将不可用；需要时须重新安装。 上游适用标记：Windows 10 / Windows 11；实际可用项由介质决定，不存在的项会跳过。 匹配项：Microsoft.YourPhone。"),
-        new("RemoveGetHelp","获取帮助","应用与服务","移除此项对应的预装应用或系统能力，相关功能将不可用；需要时须重新安装。 上游适用标记：Windows 10 / Windows 11；实际可用项由介质决定，不存在的项会跳过。 匹配项：Microsoft.GetHelp。"),
-        new("RemoveFeedbackHub","反馈中心","应用与服务","移除此项对应的预装应用或系统能力，相关功能将不可用；需要时须重新安装。 上游适用标记：Windows 10 / Windows 11；实际可用项由介质决定，不存在的项会跳过。 匹配项：Microsoft.WindowsFeedbackHub。"),
-        new("RemoveOffice365","Office / Microsoft 365 入口","应用与服务","移除此项对应的预装应用或系统能力，相关功能将不可用；需要时须重新安装。 上游适用标记：Windows 10 / Windows 11；实际可用项由介质决定，不存在的项会跳过。 匹配项：Microsoft.MicrosoftOfficeHub。"),
-        new("RemoveGetStarted","提示","应用与服务","移除此项对应的预装应用或系统能力，相关功能将不可用；需要时须重新安装。 上游适用标记：Windows 10 / Windows 11；实际可用项由介质决定，不存在的项会跳过。 匹配项：Microsoft.Getstarted。"),
-        new("RemoveCortana","Cortana","应用与服务","移除此项对应的预装应用或系统能力，相关功能将不可用；需要时须重新安装。 上游适用标记：Windows 10 / Windows 11；实际可用项由介质决定，不存在的项会跳过。 匹配项：Microsoft.549981C3F5F10。"),
-        new("RemoveMathInputPanel","数学输入面板","系统能力与组件","移除此项对应的预装应用或系统能力，相关功能将不可用；需要时须重新安装。 上游适用标记：Windows 10 / Windows 11；实际可用项由介质决定，不存在的项会跳过。 匹配项：MathRecognizer。"),
-        new("RemovePowerShellISE","PowerShell ISE","系统能力与组件","移除 PowerShell ISE 编辑器；不代表移除 Windows PowerShell。 上游适用标记：Windows 10 / Windows 11；实际可用项由介质决定，不存在的项会跳过。 匹配项：Microsoft.Windows.PowerShell.ISE。"),
-        new("RemoveOpenSSHClient","OpenSSH 客户端","系统能力与组件","移除内置 SSH 客户端，影响依赖系统 ssh/scp 的操作。 上游适用标记：Windows 10 / Windows 11；实际可用项由介质决定，不存在的项会跳过。 匹配项：OpenSSH.Client。"),
-        new("RemoveOneDrive","OneDrive","应用与服务（含额外设置）","删除内置 OneDrive 安装程序及默认用户启动项；不保证移除已另行安装的版本，也不删除云端文件。 上游适用标记：Windows 10 / Windows 11；实际可用项由介质决定，不存在的项会跳过。"),
-        new("RemoveTeams","Teams","应用与服务（含额外设置）","移除 Teams 应用，并阻止聊天组件自动安装。 上游适用标记：Windows 11 / Windows 11 23H2 / Windows 11 24H2；实际可用项由介质决定，不存在的项会跳过。 匹配项：MicrosoftTeams；MSTeams。"),
-        new("RemoveQuickAssist","快速助手","系统能力与组件","移除此项对应的预装应用或系统能力，相关功能将不可用；需要时须重新安装。 上游适用标记：Windows 10 / Windows 11；实际可用项由介质决定，不存在的项会跳过。 匹配项：App.Support.QuickAssist；MicrosoftCorporationII.QuickAssist。"),
-        new("RemoveFamily","家庭","应用与服务","移除此项对应的预装应用或系统能力，相关功能将不可用；需要时须重新安装。 上游适用标记：Windows 11；实际可用项由介质决定，不存在的项会跳过。 匹配项：MicrosoftCorporationII.MicrosoftFamily。"),
-        new("RemoveMailCalendar","邮件和日历","应用与服务","移除此项对应的预装应用或系统能力，相关功能将不可用；需要时须重新安装。 上游适用标记：Windows 10 / Windows 11；实际可用项由介质决定，不存在的项会跳过。 匹配项：microsoft.windowscommunicationsapps。"),
-        new("RemoveOutlook","Outlook（Windows）","应用与服务（含额外设置）","移除新版 Outlook，并移除其 OOBE 更新调度项；不等同于卸载独立 Office 桌面版 Outlook。 上游适用标记：Windows 11 23H2 / Windows 11 24H2；实际可用项由介质决定，不存在的项会跳过。 匹配项：Microsoft.OutlookForWindows。"),
-        new("RemoveDevHome","开发者主页","应用与服务（含额外设置）","移除开发者主页，并移除其 OOBE 更新调度项。 上游适用标记：Windows 11 23H2 / Windows 11 24H2；实际可用项由介质决定，不存在的项会跳过。 匹配项：Microsoft.Windows.DevHome。"),
-        new("RemoveCopilot","Copilot","应用与服务（含额外设置）","移除 Copilot 应用，并为新用户关闭 Windows Copilot；不同系统版本可能使用不同组件。 上游适用标记：Windows 11 / Windows 11 25H2；实际可用项由介质决定，不存在的项会跳过。 匹配项：Microsoft.Copilot。"),
-        new("RemoveBingSearch","Bing 搜索","应用与服务","移除此项对应的预装应用或系统能力，相关功能将不可用；需要时须重新安装。 上游适用标记：Windows 11 24H2；实际可用项由介质决定，不存在的项会跳过。 匹配项：Microsoft.BingSearch。"),
-        new("RemoveMixedReality","混合现实","应用与服务","移除此项对应的预装应用或系统能力，相关功能将不可用；需要时须重新安装。 上游适用标记：Windows 10；实际可用项由介质决定，不存在的项会跳过。 匹配项：Microsoft.MixedReality.Portal。"),
-        new("RemoveRecall","Recall","系统能力与组件","移除 Recall 可选功能，实际是否存在取决于安装介质。 上游适用标记：Windows 11 24H2；实际可用项由介质决定，不存在的项会跳过。 匹配项：Recall。"),
-        new("RemoveRdpClient","远程桌面客户端","系统能力与组件","移除远程桌面客户端可选功能，可能影响远程连接；不等同于关闭远程桌面服务端。 上游适用标记：Windows 10 / Windows 11；实际可用项由介质决定，不存在的项会跳过。 匹配项：Microsoft-RemoteDesktopConnection。"),
-        new("RemoveWallet","钱包","应用与服务","移除此项对应的预装应用或系统能力，相关功能将不可用；需要时须重新安装。 上游适用标记：Windows 10；实际可用项由介质决定，不存在的项会跳过。 匹配项：Microsoft.Wallet。"),
-        new("RemoveWindowsHello","Windows Hello 人脸识别","系统能力与组件","移除人脸识别能力，将影响 Windows Hello 人脸登录；不代表禁用所有 Hello 登录方式。 上游适用标记：Windows 10 / Windows 11；实际可用项由介质决定，不存在的项会跳过。 匹配项：Hello.Face.18967；Hello.Face.Migration.18967；Hello.Face.20134。"),
-        new("RemovePowerShell2","PowerShell 2.0","系统能力与组件","移除旧版 PowerShell 2.0 引擎，可能影响旧脚本依赖。 上游适用标记：Windows 10 / Windows 11；实际可用项由介质决定，不存在的项会跳过。 匹配项：MicrosoftWindowsPowerShellV2Root。"),
-        new("RemoveHandwriting","手写（所有语言）","系统能力与组件","移除所有语言的手写能力，影响手写输入和识别。 上游适用标记：Windows 10 / Windows 11；实际可用项由介质决定，不存在的项会跳过。 匹配项：Language.Handwriting。"),
-        new("RemoveSpeech","语音（所有语言）","系统能力与组件","移除所有语言的语音及文本转语音能力，可能影响语音输入和辅助功能。 上游适用标记：Windows 10 / Windows 11；实际可用项由介质决定，不存在的项会跳过。 匹配项：Language.Speech；Language.TextToSpeech。"),
-        new("RemoveOneSync","OneSync 同步能力","系统能力与组件","移除同步能力，可能影响邮件、联系人及日历同步。 上游适用标记：Windows 10 / Windows 11；实际可用项由介质决定，不存在的项会跳过。 匹配项：OneCoreUAP.OneSync。"),
-        new("RemoveGameAssist","游戏助手","应用与服务","移除此项对应的预装应用或系统能力，相关功能将不可用；需要时须重新安装。 上游适用标记：Windows 11 27902.1000；实际可用项由介质决定，不存在的项会跳过。 匹配项：Microsoft.Edge.GameAssist。"),
-        new("RemoveStore","Microsoft Store","应用与服务（含额外设置）","移除商店和购买组件，可能影响应用安装、更新及重新获取；部分应用依赖商店。 上游适用标记：Windows 10 / Windows 11；实际可用项由介质决定，不存在的项会跳过。 匹配项：Microsoft.WindowsStore；Microsoft.StorePurchaseApp。"),
+        new("RemoveInternetExplorer","Internet Explorer",global::UnattendLocal.Localization.UiText.Source("text.f74218924583"),global::UnattendLocal.Localization.UiText.Source("text.f3da28e082b7")),
+        new("RemoveWindowsMediaPlayer",global::UnattendLocal.Localization.UiText.Source("text.52c03973d50b"),global::UnattendLocal.Localization.UiText.Source("text.f74218924583"),global::UnattendLocal.Localization.UiText.Source("text.3da81872b282")),
+        new("RemoveZuneMusic",global::UnattendLocal.Localization.UiText.Source("text.21c49d63c4b2"),global::UnattendLocal.Localization.UiText.Source("text.b41719c11e9d"),global::UnattendLocal.Localization.UiText.Source("text.edb0886aab3b")),
+        new("RemoveMediaFeatures",global::UnattendLocal.Localization.UiText.Source("text.1ce92d74fb62"),global::UnattendLocal.Localization.UiText.Source("text.f74218924583"),global::UnattendLocal.Localization.UiText.Source("text.190c3a15e23f")),
+        new("RemoveWordPad",global::UnattendLocal.Localization.UiText.Source("text.7b54a2369698"),global::UnattendLocal.Localization.UiText.Source("text.f74218924583"),global::UnattendLocal.Localization.UiText.Source("text.939aca9887e9")),
+        new("RemoveNotepadClassic",global::UnattendLocal.Localization.UiText.Source("text.dc35d7ca90b0"),global::UnattendLocal.Localization.UiText.Source("text.f74218924583"),global::UnattendLocal.Localization.UiText.Source("text.63ef88bdb2e0")),
+        new("RemoveNotepad",global::UnattendLocal.Localization.UiText.Source("text.7249df4ebce8"),global::UnattendLocal.Localization.UiText.Source("text.b41719c11e9d"),global::UnattendLocal.Localization.UiText.Source("text.e081baea3dc6")),
+        new("RemoveStepsRecorder",global::UnattendLocal.Localization.UiText.Source("text.bfbd036af535"),global::UnattendLocal.Localization.UiText.Source("text.f74218924583"),global::UnattendLocal.Localization.UiText.Source("text.6b6b7fd94812")),
+        new("RemovePaint",global::UnattendLocal.Localization.UiText.Source("text.8ecb440e9860"),global::UnattendLocal.Localization.UiText.Source("text.f74218924583"),global::UnattendLocal.Localization.UiText.Source("text.ecdf64b721af")),
+        new("RemovePaint3D",global::UnattendLocal.Localization.UiText.Source("text.de27f5429fa9"),global::UnattendLocal.Localization.UiText.Source("text.b41719c11e9d"),global::UnattendLocal.Localization.UiText.Source("text.e9ed9289671b")),
+        new("RemoveSkype","Skype",global::UnattendLocal.Localization.UiText.Source("text.b41719c11e9d"),global::UnattendLocal.Localization.UiText.Source("text.219c1e87d4fb")),
+        new("RemoveSnippingTool",global::UnattendLocal.Localization.UiText.Source("text.1efc0df4bb17"),global::UnattendLocal.Localization.UiText.Source("text.f74218924583"),global::UnattendLocal.Localization.UiText.Source("text.50febb545d67")),
+        new("RemoveZuneVideo",global::UnattendLocal.Localization.UiText.Source("text.59aee36df2cf"),global::UnattendLocal.Localization.UiText.Source("text.b41719c11e9d"),global::UnattendLocal.Localization.UiText.Source("text.53a1c563f41e")),
+        new("RemoveXboxApps",global::UnattendLocal.Localization.UiText.Source("text.89110256f71c"),global::UnattendLocal.Localization.UiText.Source("text.da1ce496d4f7"),global::UnattendLocal.Localization.UiText.Source("text.5a4af8c46435")),
+        new("RemovePhotos",global::UnattendLocal.Localization.UiText.Source("text.7b50017ae47e"),global::UnattendLocal.Localization.UiText.Source("text.b41719c11e9d"),global::UnattendLocal.Localization.UiText.Source("text.88b4eb7c088e")),
+        new("RemoveNews",global::UnattendLocal.Localization.UiText.Source("text.71d9a93075be"),global::UnattendLocal.Localization.UiText.Source("text.b41719c11e9d"),global::UnattendLocal.Localization.UiText.Source("text.7dbfdc0a7553")),
+        new("RemoveWeather",global::UnattendLocal.Localization.UiText.Source("text.4d947325473f"),global::UnattendLocal.Localization.UiText.Source("text.b41719c11e9d"),global::UnattendLocal.Localization.UiText.Source("text.a5f29c8e919a")),
+        new("RemovePeople",global::UnattendLocal.Localization.UiText.Source("text.2500666084b2"),global::UnattendLocal.Localization.UiText.Source("text.b41719c11e9d"),global::UnattendLocal.Localization.UiText.Source("text.2eb475afe395")),
+        new("RemoveToDo","Microsoft To Do",global::UnattendLocal.Localization.UiText.Source("text.b41719c11e9d"),global::UnattendLocal.Localization.UiText.Source("text.37b50050840a")),
+        new("RemoveSolitaire",global::UnattendLocal.Localization.UiText.Source("text.b322d54672c5"),global::UnattendLocal.Localization.UiText.Source("text.b41719c11e9d"),global::UnattendLocal.Localization.UiText.Source("text.0e64cd00071b")),
+        new("RemoveStickyNotes",global::UnattendLocal.Localization.UiText.Source("text.6374c187518d"),global::UnattendLocal.Localization.UiText.Source("text.b41719c11e9d"),global::UnattendLocal.Localization.UiText.Source("text.699599ccb1df")),
+        new("Remove3DViewer",global::UnattendLocal.Localization.UiText.Source("text.c1df15a09619"),global::UnattendLocal.Localization.UiText.Source("text.b41719c11e9d"),global::UnattendLocal.Localization.UiText.Source("text.eabaec3b207b")),
+        new("RemoveMaps",global::UnattendLocal.Localization.UiText.Source("text.41ab2e0ecbec"),global::UnattendLocal.Localization.UiText.Source("text.b41719c11e9d"),global::UnattendLocal.Localization.UiText.Source("text.f68a5f70e78b")),
+        new("RemoveVoiceRecorder",global::UnattendLocal.Localization.UiText.Source("text.bdba42901714"),global::UnattendLocal.Localization.UiText.Source("text.b41719c11e9d"),global::UnattendLocal.Localization.UiText.Source("text.11de607037c3")),
+        new("RemoveClipchamp",global::UnattendLocal.Localization.UiText.Source("text.bd8de4274059"),global::UnattendLocal.Localization.UiText.Source("text.b41719c11e9d"),global::UnattendLocal.Localization.UiText.Source("text.5274493c0377")),
+        new("RemovePowerAutomate",global::UnattendLocal.Localization.UiText.Source("text.fd7f0e88368f"),global::UnattendLocal.Localization.UiText.Source("text.b41719c11e9d"),global::UnattendLocal.Localization.UiText.Source("text.d69de47cc146")),
+        new("RemoveWindowsTerminal",global::UnattendLocal.Localization.UiText.Source("text.05c2e339d73a"),global::UnattendLocal.Localization.UiText.Source("text.b41719c11e9d"),global::UnattendLocal.Localization.UiText.Source("text.ea09b6209c7d")),
+        new("RemoveOneNote","OneNote",global::UnattendLocal.Localization.UiText.Source("text.b41719c11e9d"),global::UnattendLocal.Localization.UiText.Source("text.d79756697da8")),
+        new("RemoveClock",global::UnattendLocal.Localization.UiText.Source("text.0f58fd2a2e0f"),global::UnattendLocal.Localization.UiText.Source("text.b41719c11e9d"),global::UnattendLocal.Localization.UiText.Source("text.797b9c0645b6")),
+        new("RemoveCalculator",global::UnattendLocal.Localization.UiText.Source("text.1283ddbf6956"),global::UnattendLocal.Localization.UiText.Source("text.b41719c11e9d"),global::UnattendLocal.Localization.UiText.Source("text.f7e558e4f02e")),
+        new("RemoveCamera",global::UnattendLocal.Localization.UiText.Source("text.dacf07026026"),global::UnattendLocal.Localization.UiText.Source("text.b41719c11e9d"),global::UnattendLocal.Localization.UiText.Source("text.8ddded301c05")),
+        new("RemoveYourPhone",global::UnattendLocal.Localization.UiText.Source("text.a1d8189bdf46"),global::UnattendLocal.Localization.UiText.Source("text.b41719c11e9d"),global::UnattendLocal.Localization.UiText.Source("text.1004d69b336e")),
+        new("RemoveGetHelp",global::UnattendLocal.Localization.UiText.Source("text.93997c622a9d"),global::UnattendLocal.Localization.UiText.Source("text.b41719c11e9d"),global::UnattendLocal.Localization.UiText.Source("text.ddf7de93683c")),
+        new("RemoveFeedbackHub",global::UnattendLocal.Localization.UiText.Source("text.2f2fee6399a4"),global::UnattendLocal.Localization.UiText.Source("text.b41719c11e9d"),global::UnattendLocal.Localization.UiText.Source("text.d1a40c9ff649")),
+        new("RemoveOffice365",global::UnattendLocal.Localization.UiText.Source("text.8ea945831ba5"),global::UnattendLocal.Localization.UiText.Source("text.b41719c11e9d"),global::UnattendLocal.Localization.UiText.Source("text.5b5095aa6bee")),
+        new("RemoveGetStarted",global::UnattendLocal.Localization.UiText.Source("text.f56c6c82203b"),global::UnattendLocal.Localization.UiText.Source("text.b41719c11e9d"),global::UnattendLocal.Localization.UiText.Source("text.56bc0300f2cc")),
+        new("RemoveCortana","Cortana",global::UnattendLocal.Localization.UiText.Source("text.b41719c11e9d"),global::UnattendLocal.Localization.UiText.Source("text.2514277b47a2")),
+        new("RemoveMathInputPanel",global::UnattendLocal.Localization.UiText.Source("text.8f7e918e681c"),global::UnattendLocal.Localization.UiText.Source("text.f74218924583"),global::UnattendLocal.Localization.UiText.Source("text.ff948b1f950f")),
+        new("RemovePowerShellISE","PowerShell ISE",global::UnattendLocal.Localization.UiText.Source("text.f74218924583"),global::UnattendLocal.Localization.UiText.Source("text.817fb97c022e")),
+        new("RemoveOpenSSHClient",global::UnattendLocal.Localization.UiText.Source("text.df28c378930e"),global::UnattendLocal.Localization.UiText.Source("text.f74218924583"),global::UnattendLocal.Localization.UiText.Source("text.f51b2cf47fca")),
+        new("RemoveOneDrive","OneDrive",global::UnattendLocal.Localization.UiText.Source("text.da1ce496d4f7"),global::UnattendLocal.Localization.UiText.Source("text.487185f6d4de")),
+        new("RemoveTeams","Teams",global::UnattendLocal.Localization.UiText.Source("text.da1ce496d4f7"),global::UnattendLocal.Localization.UiText.Source("text.64f0296b7aee")),
+        new("RemoveQuickAssist",global::UnattendLocal.Localization.UiText.Source("text.6776ea45bbca"),global::UnattendLocal.Localization.UiText.Source("text.f74218924583"),global::UnattendLocal.Localization.UiText.Source("text.50628c45f733")),
+        new("RemoveFamily",global::UnattendLocal.Localization.UiText.Source("text.a70a77c75b1d"),global::UnattendLocal.Localization.UiText.Source("text.b41719c11e9d"),global::UnattendLocal.Localization.UiText.Source("text.0d8716d80a11")),
+        new("RemoveMailCalendar",global::UnattendLocal.Localization.UiText.Source("text.6ee39db2d003"),global::UnattendLocal.Localization.UiText.Source("text.b41719c11e9d"),global::UnattendLocal.Localization.UiText.Source("text.dfa97585689b")),
+        new("RemoveOutlook","Outlook（Windows）",global::UnattendLocal.Localization.UiText.Source("text.da1ce496d4f7"),global::UnattendLocal.Localization.UiText.Source("text.259ff3b56055")),
+        new("RemoveDevHome",global::UnattendLocal.Localization.UiText.Source("text.6f873be85da4"),global::UnattendLocal.Localization.UiText.Source("text.da1ce496d4f7"),global::UnattendLocal.Localization.UiText.Source("text.0ea35575c206")),
+        new("RemoveCopilot","Copilot",global::UnattendLocal.Localization.UiText.Source("text.da1ce496d4f7"),global::UnattendLocal.Localization.UiText.Source("text.a77bd1a1eef0")),
+        new("RemoveBingSearch",global::UnattendLocal.Localization.UiText.Source("text.c6cd3a3b6eb2"),global::UnattendLocal.Localization.UiText.Source("text.b41719c11e9d"),global::UnattendLocal.Localization.UiText.Source("text.f1c31a4a4e9b")),
+        new("RemoveMixedReality",global::UnattendLocal.Localization.UiText.Source("text.b477795edd91"),global::UnattendLocal.Localization.UiText.Source("text.b41719c11e9d"),global::UnattendLocal.Localization.UiText.Source("text.3e96e76752d8")),
+        new("RemoveRecall","Recall",global::UnattendLocal.Localization.UiText.Source("text.f74218924583"),global::UnattendLocal.Localization.UiText.Source("text.b0b5cc8ff56a")),
+        new("RemoveRdpClient",global::UnattendLocal.Localization.UiText.Source("text.849bed5a1d23"),global::UnattendLocal.Localization.UiText.Source("text.f74218924583"),global::UnattendLocal.Localization.UiText.Source("text.c8b025360c05")),
+        new("RemoveWallet",global::UnattendLocal.Localization.UiText.Source("text.268002cb016d"),global::UnattendLocal.Localization.UiText.Source("text.b41719c11e9d"),global::UnattendLocal.Localization.UiText.Source("text.c85bb4c56fe7")),
+        new("RemoveWindowsHello",global::UnattendLocal.Localization.UiText.Source("text.9fbfb283a153"),global::UnattendLocal.Localization.UiText.Source("text.f74218924583"),global::UnattendLocal.Localization.UiText.Source("text.ffd79ede8d57")),
+        new("RemovePowerShell2","PowerShell 2.0",global::UnattendLocal.Localization.UiText.Source("text.f74218924583"),global::UnattendLocal.Localization.UiText.Source("text.bec24e9cb32f")),
+        new("RemoveHandwriting",global::UnattendLocal.Localization.UiText.Source("text.0ee47923bdd9"),global::UnattendLocal.Localization.UiText.Source("text.f74218924583"),global::UnattendLocal.Localization.UiText.Source("text.2c66f90b220d")),
+        new("RemoveSpeech",global::UnattendLocal.Localization.UiText.Source("text.75fa31f0c265"),global::UnattendLocal.Localization.UiText.Source("text.f74218924583"),global::UnattendLocal.Localization.UiText.Source("text.958f90531406")),
+        new("RemoveOneSync",global::UnattendLocal.Localization.UiText.Source("text.f8acd91f5b29"),global::UnattendLocal.Localization.UiText.Source("text.f74218924583"),global::UnattendLocal.Localization.UiText.Source("text.4cc7e58b34b0")),
+        new("RemoveGameAssist",global::UnattendLocal.Localization.UiText.Source("text.fe1e79485a8a"),global::UnattendLocal.Localization.UiText.Source("text.b41719c11e9d"),global::UnattendLocal.Localization.UiText.Source("text.a1e7c5e981b4")),
+        new("RemoveStore","Microsoft Store",global::UnattendLocal.Localization.UiText.Source("text.da1ce496d4f7"),global::UnattendLocal.Localization.UiText.Source("text.40086dce285e")),
     };
     public static void Validate(InstallPlan p)
     {
         if (p.RemovedApps == null || p.RemovedApps.Count > Items.Count || p.RemovedApps.Any(id => id == null || !Items.Any(i => i.Id == id)) || p.RemovedApps.Distinct().Count() != p.RemovedApps.Count)
-            throw new ArgumentException("应用移除列表无效，请选择清单中的项目，不能重复或含未知项目。");
+            throw new ArgumentException(global::UnattendLocal.Localization.UiText.Source("text.4af37c17bfaf"));
     }
     public static ImmutableList<Bloatware> Build(UnattendGenerator g, InstallPlan p)
     {
         Validate(p);
         return p.RemovedApps.Select(id => g.Lookup<Bloatware>(id)).ToImmutableList();
     }
-    public static string Selection(InstallPlan p) => p.ImportedXml?.AppRemovalReadOnly==true ? $"原 XML 移除脚本保留（清单只读）；已识别 {p.RemovedApps.Count} 项" : p.RemovedApps.Count == 0 ? "未选择（不添加移除命令）" : $"已选 {p.RemovedApps.Count} 项：" + string.Join("、", Items.Where(i => p.RemovedApps.Contains(i.Id)).Select(i => i.Label));
-    public static string Summary(InstallPlan p) => "应用移除：" + Selection(p);
+    public static string Selection(InstallPlan p) => p.ImportedXml?.AppRemovalReadOnly==true ? global::UnattendLocal.Localization.UiText.Format("message.e89795aa39a0", new string[] { global::UnattendLocal.Localization.UiText.Arg((p.RemovedApps.Count), 0, null) }) : p.RemovedApps.Count == 0 ? global::UnattendLocal.Localization.UiText.Source("text.8f8abd294f17") : global::UnattendLocal.Localization.UiText.Concat(new object?[] { global::UnattendLocal.Localization.UiText.Format("message.d915fbd299e8", new string[] { global::UnattendLocal.Localization.UiText.Arg((p.RemovedApps.Count), 0, null) }), global::UnattendLocal.Localization.UiText.Join("、", Items.Where(i => p.RemovedApps.Contains(i.Id)).Select(i => i.Label), false) },new bool[]{false,false});
+    public static string Summary(InstallPlan p) => global::UnattendLocal.Localization.UiText.Concat(new object?[] { global::UnattendLocal.Localization.UiText.Source("text.1ecc9cbc5019"), Selection(p) },new bool[]{false,false});
     private const string Root = @"C:\Windows\Setup\Scripts\";
     private static readonly string[] Stages = ["Specialize.ps1", "DefaultUser.ps1", "UserOnce.ps1"];
-    private static string Normal(string s) => string.Join('\n', s.Replace("\r\n", "\n").Split('\n').Select(l => l.Trim()).Where(l => l.Length > 0));
+    private static string Normal(string s) => global::UnattendLocal.Localization.UiText.Join('\n', s.Replace("\r\n", "\n").Split('\n').Select(l => l.Trim()).Where(l => l.Length > 0), false);
     private static XmlElement[] Files(XmlDocument d, string name) => d.SelectNodes("//*[local-name()='File']")!.Cast<XmlElement>().Where(f => f.GetAttribute("path").Equals(Root + name, StringComparison.OrdinalIgnoreCase)).ToArray();
     private static List<string> Blocks(string body) => Regex.Matches(body.Replace("\r\n", "\n"), @"(?m)^\t\{\n(?<body>(?:\t\t[^\n]*\n)*)\t\};\n", RegexOptions.None, TimeSpan.FromSeconds(1)).Select(m => Normal(m.Groups["body"].Value)).ToList();
     private static Dictionary<string,string> wrappers = new();
@@ -117,7 +117,7 @@ public static partial class AppRemovalSettings
                 string name = "Remove" + type + ".ps1"; var f = Files(doc,name);
                 if (f.Length == 0) continue;
                 var match = Regex.Match(f[0].InnerText.Replace("\r\n","\n"), @"\A\s*\$selectors = @\(\n(?<values>(?:\t'[^'\n]+';\n)+)\);\n(?<tail>[\s\S]+)\z", RegexOptions.None, TimeSpan.FromSeconds(1));
-                if (!match.Success) throw new InvalidOperationException("应用移除模板不匹配。");
+                if (!match.Success) throw new InvalidOperationException(global::UnattendLocal.Localization.UiText.Source("text.0145b94ada40"));
                 helpers[name] = Normal(match.Groups["tail"].Value);
                 helperTails.TryAdd(name, match.Groups["tail"].Value);
                 selectors[name] = Regex.Matches(match.Groups["values"].Value,@"'([^']+)';").Select(m => m.Groups[1].Value).ToArray();
@@ -204,11 +204,11 @@ public static partial class AppRemovalSettings
         if(state.Ambiguous)notes.Add(ReadOnlyDescription);
         return state;
     }
-    public const string ReadOnlyDescription = "应用移除脚本与当前可编辑模板不一致，原脚本完整保留并继续随 XML 导出；本次应用移除清单只读。该功能已支持，但此文件的脚本暂不能通过清单编辑。";
+    public static readonly string ReadOnlyDescription = global::UnattendLocal.Localization.UiText.Source("text.738bd90f56b6");
     public static void ValidateImported(InstallPlan p,XmlDocument doc)
     {
         var state=Inspect(doc);
-        if(state.Ambiguous&&!state.Selected.Order().SequenceEqual(p.RemovedApps.Order()))throw new ArgumentException("原 XML 的应用移除脚本未完整识别，不能可靠修改移除列表；请用原工具调整后重新导入。");
+        if(state.Ambiguous&&!state.Selected.Order().SequenceEqual(p.RemovedApps.Order()))throw new ArgumentException(global::UnattendLocal.Localization.UiText.Source("text.dc0d24ca577f"));
     }
     public static void NormalizeLoaded(InstallPlan p,JsonElement json)
     {
@@ -219,6 +219,6 @@ public static partial class AppRemovalSettings
         if(p.RemovedApps.Count==0)return;
         var after=JsonSerializer.Deserialize<InstallPlan>(JsonSerializer.Serialize(before))!;after.RemovedApps=new(p.RemovedApps);
         try {var g=new GeneratorService();data.BaselineXml=XmlMerge.Apply(data.BaselineXml,Encoding.UTF8.GetString(g.GenerateImportBaseline(before)),XmlMerge.Read(Encoding.UTF8.GetString(g.GenerateImportBaseline(after)))).OuterXml;}
-        catch(Exception e)when(e is ArgumentException or ConfigurationException or XmlException){data.Blockers=data.Blockers.Append("旧方案的应用移除编辑基准无法可靠迁移，请重新导入原 XML 后再导出。").Distinct().ToArray();}
+        catch(Exception e)when(e is ArgumentException or ConfigurationException or XmlException){data.Blockers=data.Blockers.Append(global::UnattendLocal.Localization.UiText.Source("text.4879ed8ab741")).Distinct().ToArray();}
     }
 }

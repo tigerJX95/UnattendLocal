@@ -2,7 +2,7 @@ using Schneegans.Unattend;
 namespace UnattendLocal.Core;
 public static class StickyKeySettings {
  public const string Default="使用 Windows 默认设置", Disabled="禁用粘滞键", Custom="自定义粘滞键";
- public static string? ValidationError(InstallPlan p)=>p.StickyKeysMode is Default or Disabled or Custom?null:"请选择有效的粘滞键设置方式";
+ public static string? ValidationError(InstallPlan p)=>p.StickyKeysMode is Default or Disabled or Custom?null:global::UnattendLocal.Localization.UiText.Source("text.3ddacc7dfad5");
  public static HashSet<StickyKeys> Flags(InstallPlan p){
   var flags=new HashSet<StickyKeys>();
   if(p.StickyHotKeyActive)flags.Add(StickyKeys.HotKeyActive);
@@ -18,17 +18,17 @@ public static class StickyKeySettings {
   Custom=>new CustomStickyKeysSettings(Flags(p)),_=>throw new ArgumentException(ValidationError(p)+"。")
  };
  public static string ModeSummary(InstallPlan p){
-  if(ValidationError(p) is {} error)return "配置无效："+error;
-  if(p.StickyKeysMode==Default)return "Windows 默认设置（不写入覆盖）";
-  if(p.StickyKeysMode==Disabled)return "禁用粘滞键及连续五次 Shift 快捷方式";
+  if(ValidationError(p) is {} error)return global::UnattendLocal.Localization.UiText.Concat(new object?[] { global::UnattendLocal.Localization.UiText.Source("text.acbe63375dc8"), error },new bool[]{false,false});
+  if(p.StickyKeysMode==Default)return global::UnattendLocal.Localization.UiText.Source("text.7e27516a75d4");
+  if(p.StickyKeysMode==Disabled)return global::UnattendLocal.Localization.UiText.Source("text.fca5844259ec");
   var names=new List<string>();
-  if(p.StickyHotKeyActive)names.Add("连续五次 Shift 切换");
-  if(p.StickyHotKeySound)names.Add("快捷切换提示音");
-  if(p.StickyIndicator)names.Add("任务栏图标");
-  if(p.StickyAudibleFeedback)names.Add("按下/释放快捷键提示音");
-  if(p.StickyTriState)names.Add("连续两次锁定快捷键");
-  if(p.StickyTwoKeysOff)names.Add("同时按两键关闭");
-  return names.Count==0?"自定义：六项选项均关闭":"自定义："+string.Join("、",names);
+  if(p.StickyHotKeyActive)names.Add(global::UnattendLocal.Localization.UiText.Source("text.8acf9b351153"));
+  if(p.StickyHotKeySound)names.Add(global::UnattendLocal.Localization.UiText.Source("text.99c64bfd2faa"));
+  if(p.StickyIndicator)names.Add(global::UnattendLocal.Localization.UiText.Source("text.b39a7c9836dc"));
+  if(p.StickyAudibleFeedback)names.Add(global::UnattendLocal.Localization.UiText.Source("text.d70d17b0f29c"));
+  if(p.StickyTriState)names.Add(global::UnattendLocal.Localization.UiText.Source("text.37be147529e9"));
+  if(p.StickyTwoKeysOff)names.Add(global::UnattendLocal.Localization.UiText.Source("text.434b4e7fe0f3"));
+  return names.Count==0?global::UnattendLocal.Localization.UiText.Source("text.748918e7e4a4"):global::UnattendLocal.Localization.UiText.Concat(new object?[] { global::UnattendLocal.Localization.UiText.Source("text.6abf1f6a609b"), global::UnattendLocal.Localization.UiText.Join("、", names, false) },new bool[]{false,false});
  }
- public static string Summary(InstallPlan p)=>"粘滞键："+ModeSummary(p);
+ public static string Summary(InstallPlan p)=>global::UnattendLocal.Localization.UiText.Concat(new object?[] { global::UnattendLocal.Localization.UiText.Source("text.3b729177008f"), ModeSummary(p) },new bool[]{false,false});
 }

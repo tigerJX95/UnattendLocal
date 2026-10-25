@@ -1,6 +1,7 @@
-<Application xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" x:Class="UnattendLocal.Desktop.App" StartupUri="MainWindow.xaml">
+<Application xmlns:loc="clr-namespace:UnattendLocal.Desktop" xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:sys="clr-namespace:System;assembly=System.Runtime" x:Class="UnattendLocal.Desktop.App" StartupUri="MainWindow.xaml">
   <Application.Resources><ResourceDictionary><ResourceDictionary.MergedDictionaries>
     <ResourceDictionary Source="Themes/Light.xaml"/>
     <ResourceDictionary Source="Themes/Controls.xaml"/>
-  </ResourceDictionary.MergedDictionaries></ResourceDictionary></Application.Resources>
+  </ResourceDictionary.MergedDictionaries>
+    <DataTemplate DataType="{x:Type sys:String}"><TextBlock Text="{loc:Display Value={Binding}}" TextWrapping="Wrap"/></DataTemplate></ResourceDictionary></Application.Resources>
 </Application>

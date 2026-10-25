@@ -1,4 +1,4 @@
-﻿namespace UnattendLocal.Core;
+namespace UnattendLocal.Core;
 public class ImportedXml {
  public int NativePreferencesImportVersion {get;set;}
  public bool PowerPlanReadOnly {get;set;}

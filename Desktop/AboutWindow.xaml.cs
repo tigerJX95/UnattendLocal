@@ -10,15 +10,15 @@ public partial class AboutWindow : Window
 {
     private record LicenseDocument(string Title, string Resource);
     private static readonly LicenseDocument[] Documents = [
-        new("UnattendLocal · MIT 项目许可证", "ProjectLicense.txt"),
-        new("组件与授权说明", "Components.txt"),
+        new(global::UnattendLocal.Localization.UiText.Source("text.91fc1a7e06ae"), "ProjectLicense.txt"),
+        new(global::UnattendLocal.Localization.UiText.Source("text.cab4acee63ab"), "Components.txt"),
         new("UnattendGenerator · MIT", "UnattendGenerator.txt"),
         new("Newtonsoft.Json 13.0.4 · MIT", "Newtonsoft.Json.txt"),
         new("DiscUtils 0.16.13 · MIT", "DiscUtils.txt"),
         new(".NET Runtime · MIT", "DotNetRuntime.txt"),
         new("Windows Desktop / WPF · MIT", "WindowsDesktop.txt"),
-        new(".NET Runtime · 第三方声明", "DotNetThirdParty.txt"),
-        new("WPF · 第三方声明", "WpfThirdParty.txt")
+        new(global::UnattendLocal.Localization.UiText.Source("text.6ac0b322bfd3"), "DotNetThirdParty.txt"),
+        new(global::UnattendLocal.Localization.UiText.Source("text.848e33ae763c"), "WpfThirdParty.txt")
     ];
     private static readonly Assembly ProductAssembly = typeof(AboutWindow).Assembly;
     private static string ProductVersion => ProductIdentity.Version;
@@ -28,7 +28,7 @@ public partial class AboutWindow : Window
         InitializeComponent();
         ProductIcon.Source = LoadLargeIcon();
         VersionText.Text = "V" + ProductVersion;
-        LegalText.Text = Read("UnattendLocal.LegalInformation.txt");
+        LegalText.Text = UnattendLocal.Localization.UiText.Get("about.legal");
         LicensePicker.ItemsSource = Documents;
         LicensePicker.SelectedIndex = 0;
         Sections.SelectedIndex = Math.Clamp(section, 0, 2);
@@ -48,7 +48,7 @@ public partial class AboutWindow : Window
     private static string Read(string name)
     {
         using var stream = ProductAssembly.GetManifestResourceStream(name)
-            ?? throw new InvalidOperationException("内置说明文件缺失：" + name);
+            ?? throw new InvalidOperationException(global::UnattendLocal.Localization.UiText.Concat(new object?[] { global::UnattendLocal.Localization.UiText.Source("text.cc3efc6b4315"), name },new bool[]{false,true}));
         using var reader = new StreamReader(stream);
         return reader.ReadToEnd();
     }
@@ -67,12 +67,9 @@ public partial class AboutWindow : Window
         string text = Sections.SelectedIndex switch {
             1 => LegalText.Text,
             2 => ((LicenseDocument)LicensePicker.SelectedItem).Title + "\n\n" + LicenseText.Text,
-            _ => "UnattendLocal V" + ProductVersion + "\nWindows 无人值守配置工具\nWindows x64 · .NET 10\n\n" +
-                 "本地离线编辑、保存和生成 Windows 安装配置，不在当前电脑执行生成的安装脚本。\n" +
-                 "生成核心：Christoph Schneegans · UnattendGenerator。独立本地中文界面与适配。\n" +
-                 "MIT License · Copyright (c) 2026 tigerJX95\n感谢 ChatGPT Codex 提供开发协助。\n\n" + UpstreamLinks.Text
+            _ => global::UnattendLocal.Localization.UiText.Concat(new object?[] { "UnattendLocal V", ProductVersion, global::UnattendLocal.Localization.UiText.Source("text.80d3a73956b0"), global::UnattendLocal.Localization.UiText.Source("text.4b325768e579"), global::UnattendLocal.Localization.UiText.Source("text.8d7b0cc2866e"), global::UnattendLocal.Localization.UiText.Source("text.6174d5406876"), UpstreamLinks.Text },new bool[]{false,false,false,false,false,false,false})
         };
-        try { Clipboard.SetText(text); StatusText.SetResourceReference(System.Windows.Controls.TextBlock.ForegroundProperty, "SecondaryBrush"); StatusText.Text = "当前页面内容已复制。"; }
-        catch (System.Runtime.InteropServices.ExternalException) { StatusText.SetResourceReference(System.Windows.Controls.TextBlock.ForegroundProperty, "ErrorBrush"); StatusText.Text = "暂时无法访问剪贴板，请稍后重试，或选择文字手动复制。"; }
+        try { Clipboard.SetText(text); StatusText.SetResourceReference(System.Windows.Controls.TextBlock.ForegroundProperty, "SecondaryBrush"); StatusText.Text = global::UnattendLocal.Localization.UiText.Translate(global::UnattendLocal.Localization.UiText.Source("text.a3e5b4480d67")); }
+        catch (System.Runtime.InteropServices.ExternalException) { StatusText.SetResourceReference(System.Windows.Controls.TextBlock.ForegroundProperty, "ErrorBrush"); StatusText.Text = global::UnattendLocal.Localization.UiText.Translate(global::UnattendLocal.Localization.UiText.Source("text.337d75a0cfda")); }
     }
 }

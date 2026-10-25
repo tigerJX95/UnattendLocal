@@ -8,18 +8,18 @@ public static class FirstLogonSettings
     public const string Own="首个新建管理员账户（一次）", Builtin="内置 Administrator（一次）", None="不自动登录";
     public static IReadOnlyList<string> Modes {get;}=[Own,Builtin,None];
     public const string ResetCommand="Set-ItemProperty -LiteralPath 'Registry::HKLM\\SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\Winlogon' -Name 'AutoLogonCount' -Type 'DWord' -Force -Value 0;";
-    public const string Description="仅在自动配置本地账户时生效。可自动登录首个新建管理员或内置 Administrator 一次，也可停留在登录界面。选择内置账户会启用它并设置其密码，不创建同名普通账户；首次登录完成后，本工具不会自动停用内置账户。请核对后续使用安排。Base64 只是可还原的编码，不是加密。取消此选项只影响新配置，不停用已安装系统中的账户。";
-    public const string ReadOnlyDescription="内置 Administrator 登录设置或执行流程未完整识别，原文保留；首次登录方式暂不可编辑，请在原工具调整后重新导入。";
-    public static bool IsBuiltin(InstallPlan p)=>p.AccountMode=="自动创建本地账户"&&p.AutoLogon&&p.UseBuiltinAdministrator;
+    public static readonly string Description=global::UnattendLocal.Localization.UiText.Source("text.a60c808779b8");
+    public static readonly string ReadOnlyDescription=global::UnattendLocal.Localization.UiText.Source("text.8bc6880c330d");
+    public static bool IsBuiltin(InstallPlan p)=>p.AccountMode==global::UnattendLocal.Localization.UiText.Source("text.cdaa9a6700f6")&&p.AutoLogon&&p.UseBuiltinAdministrator;
     public static string Mode(InstallPlan p)=>!p.AutoLogon?None:p.UseBuiltinAdministrator?Builtin:Own;
-    public static string Summary(InstallPlan p)=>p.ImportedXml?.FirstLogonReadOnly==true?"原 XML 登录设置保留（只读）":p.AccountMode!="自动创建本地账户"?"由安装时账户创建流程决定":Mode(p);
+    public static string Summary(InstallPlan p)=>p.ImportedXml?.FirstLogonReadOnly==true?global::UnattendLocal.Localization.UiText.Source("text.e1d48689fb89"):p.AccountMode!=global::UnattendLocal.Localization.UiText.Source("text.cdaa9a6700f6")?global::UnattendLocal.Localization.UiText.Source("text.18003f680464"):Mode(p);
     public static void Validate(InstallPlan p)
     {
         if(!IsBuiltin(p))return;
-        if(p.NeedsBuiltinAdministratorPassword&&!(p.AllowEmptyBuiltinAdministratorPassword&&string.IsNullOrEmpty(p.BuiltinAdministratorPassword)))throw new ConfigurationValidationException(nameof(InstallPlan.BuiltinAdministratorPassword), "请重新输入内置 Administrator 密码，或明确允许空密码。");
-        if(string.IsNullOrEmpty(p.BuiltinAdministratorPassword)&&!p.AllowEmptyBuiltinAdministratorPassword)throw new ConfigurationValidationException(nameof(InstallPlan.BuiltinAdministratorPassword), "请设置内置 Administrator 密码；如需空密码，请明确勾选允许空密码。");
-        if(p.AllowEmptyBuiltinAdministratorPassword&&!string.IsNullOrEmpty(p.BuiltinAdministratorPassword))throw new ConfigurationValidationException(nameof(InstallPlan.BuiltinAdministratorPassword), "内置 Administrator 同时设置了密码和允许空密码，请选择一种。");
-        if(p.ComputerNameMode==ComputerNamingSettings.Existing&&string.Equals(p.ComputerName,"Administrator",StringComparison.OrdinalIgnoreCase))throw new ConfigurationValidationException(nameof(InstallPlan.ComputerName), "计算机名不能与内置 Administrator 账户同名。");
+        if(p.NeedsBuiltinAdministratorPassword&&!(p.AllowEmptyBuiltinAdministratorPassword&&string.IsNullOrEmpty(p.BuiltinAdministratorPassword)))throw new ConfigurationValidationException(nameof(InstallPlan.BuiltinAdministratorPassword), global::UnattendLocal.Localization.UiText.Source("text.04bab1e44cc8"));
+        if(string.IsNullOrEmpty(p.BuiltinAdministratorPassword)&&!p.AllowEmptyBuiltinAdministratorPassword)throw new ConfigurationValidationException(nameof(InstallPlan.BuiltinAdministratorPassword), global::UnattendLocal.Localization.UiText.Source("text.0ff711822b89"));
+        if(p.AllowEmptyBuiltinAdministratorPassword&&!string.IsNullOrEmpty(p.BuiltinAdministratorPassword))throw new ConfigurationValidationException(nameof(InstallPlan.BuiltinAdministratorPassword), global::UnattendLocal.Localization.UiText.Source("text.7ae435730e23"));
+        if(p.ComputerNameMode==ComputerNamingSettings.Existing&&string.Equals(p.ComputerName,"Administrator",StringComparison.OrdinalIgnoreCase))throw new ConfigurationValidationException(nameof(InstallPlan.ComputerName), global::UnattendLocal.Localization.UiText.Source("text.1b741b254d57"));
     }
     public static IAutoLogonSettings Build(InstallPlan p)=>!p.AutoLogon?new NoneAutoLogonSettings():p.UseBuiltinAdministrator?new BuiltinAutoLogonSettings(p.BuiltinAdministratorPassword):new OwnAutoLogonSettings();
     public record Source(bool Mentioned,bool Known,string Password,bool Obscure);
@@ -33,12 +33,12 @@ public static class FirstLogonSettings
         var node=elements[0];var children=node.ChildNodes.OfType<XmlElement>().ToArray();
         if(children.Length!=2||children.Count(n=>n.LocalName=="Value")!=1||children.Count(n=>n.LocalName=="PlainText")!=1)return null;
         string value=Text(node,"Value")!;string plain=Text(node,"PlainText")!;
-        if(value.Contains("密码已遮蔽",StringComparison.Ordinal))throw new ArgumentException("此 XML 是遮蔽后的预览，不能恢复内置账户密码；请导入实际 XML。");
+        if(value.Contains(global::UnattendLocal.Localization.UiText.Source("text.069d51fb67fa"),StringComparison.Ordinal))throw new ArgumentException(global::UnattendLocal.Localization.UiText.Source("text.e2d66c4e5993"));
         if(plain is not ("true" or "false"))return null;
         if(plain=="false")
         {
             try{value=new UnicodeEncoding(false,false,true).GetString(Convert.FromBase64String(value));if(!value.EndsWith(name,StringComparison.Ordinal))throw new FormatException();value=value[..^name.Length];}
-            catch(Exception e)when(e is FormatException or DecoderFallbackException){throw new ArgumentException("内置 Administrator 密码编码无法还原，未导入；请使用原始安装 XML。");}
+            catch(Exception e)when(e is FormatException or DecoderFallbackException){throw new ArgumentException(global::UnattendLocal.Localization.UiText.Source("text.29525bed0491"));}
         }
         return(value,plain=="false");
     }
@@ -66,7 +66,7 @@ public static class FirstLogonSettings
         var source=Inspect(doc);p.UseBuiltinAdministrator=false;p.BuiltinAdministratorPassword="";p.AllowEmptyBuiltinAdministratorPassword=false;p.NeedsBuiltinAdministratorPassword=false;
         if(source.Known)
         {
-            p.AccountMode="自动创建本地账户";p.AutoLogon=true;p.UseBuiltinAdministrator=true;p.BuiltinAdministratorPassword=source.Password;p.AllowEmptyBuiltinAdministratorPassword=source.Password.Length==0;p.ObscurePasswords=source.Obscure;
+            p.AccountMode=global::UnattendLocal.Localization.UiText.Source("text.cdaa9a6700f6");p.AutoLogon=true;p.UseBuiltinAdministrator=true;p.BuiltinAdministratorPassword=source.Password;p.AllowEmptyBuiltinAdministratorPassword=source.Password.Length==0;p.ObscurePasswords=source.Obscure;
         }
         else if(source.Mentioned)notes.Add(ReadOnlyDescription);
         return source;
@@ -78,7 +78,7 @@ public static class FirstLogonSettings
     public static void ValidateImported(InstallPlan p,XmlDocument source)
     {
         var state=Inspect(source);
-        if(state.Mentioned&&!state.Known&&p.ImportedXml is {} data&&(p.AccountMode!=data.FirstLogonSourceAccountMode||p.AutoLogon!=data.FirstLogonSourceAutoLogon||p.UseBuiltinAdministrator!=data.FirstLogonSourceBuiltin))throw new ArgumentException("原 XML 的内置账户登录流程未完整识别，不能通过首次登录设置覆盖；请重新导入原工具调整后的 XML。");
+        if(state.Mentioned&&!state.Known&&p.ImportedXml is {} data&&(p.AccountMode!=data.FirstLogonSourceAccountMode||p.AutoLogon!=data.FirstLogonSourceAutoLogon||p.UseBuiltinAdministrator!=data.FirstLogonSourceBuiltin))throw new ArgumentException(global::UnattendLocal.Localization.UiText.Source("text.98143b3e6d93"));
     }
     public static void ValidateGenerated(InstallPlan p,XmlDocument generated)
     {
@@ -86,7 +86,7 @@ public static class FirstLogonSettings
         if(!source.Mentioned||source.Known)return;
         var baseline=XmlMerge.Read(data.BaselineXml);
         var before=Nodes(baseline,"//u:AutoLogon");var after=Nodes(generated,"//u:AutoLogon");
-        if(before.Length!=after.Length||before.Length>1||before.Length==1&&!XmlMerge.Equal(before[0],after[0]))throw new ArgumentException("账户修改会影响原 XML 中只读的自动登录凭据，不能可靠合并；请在原工具调整登录流程后重新导入。");
+        if(before.Length!=after.Length||before.Length>1||before.Length==1&&!XmlMerge.Equal(before[0],after[0]))throw new ArgumentException(global::UnattendLocal.Localization.UiText.Source("text.538e348e1d3e"));
     }
     public static void RefreshLoaded(InstallPlan p)
     {
@@ -94,7 +94,7 @@ public static class FirstLogonSettings
         var source=Inspect(XmlMerge.Read(data.SourceXml));
         if(source.Mentioned&&data.FirstLogonImportVersion<1)
         {
-            data.FirstLogonReadOnly=true;data.Blockers=data.Blockers.Append("旧方案含尚未还原的内置 Administrator 登录流程，请重新导入原 XML；当前方案的待处理修改保留。").Distinct().ToArray();return;
+            data.FirstLogonReadOnly=true;data.Blockers=data.Blockers.Append(global::UnattendLocal.Localization.UiText.Source("text.876d0ebe6e90")).Distinct().ToArray();return;
         }
         data.FirstLogonReadOnly=source.Mentioned&&!source.Known;
     }

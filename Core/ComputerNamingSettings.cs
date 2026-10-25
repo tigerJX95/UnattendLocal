@@ -18,19 +18,19 @@ public static class ComputerNamingSettings
         {
             return new ScriptComputerNameSettings(PromptScript);
         }
-        if (p.ComputerNameMode != Script) throw new ArgumentException("请选择有效的计算机命名方式。");
-        if (string.IsNullOrWhiteSpace(p.ComputerNameScript) || p.ComputerNameScript.Length > 65536) throw new ArgumentException("请填写计算机命名脚本，最多 65,536 个字符；淡色示例不参与生成。");
+        if (p.ComputerNameMode != Script) throw new ArgumentException(global::UnattendLocal.Localization.UiText.Source("text.117da4559ecf"));
+        if (string.IsNullOrWhiteSpace(p.ComputerNameScript) || p.ComputerNameScript.Length > 65536) throw new ArgumentException(global::UnattendLocal.Localization.UiText.Source("text.7ff84f51cb52"));
         return new ScriptComputerNameSettings(p.ComputerNameScript);
     }
-    public const string Description = "固定名称留空时由 Windows 自动生成，继续兼容既有方案。安装时输入或脚本生成沿用原生脚本命名流程：安装阶段暂用 TEMPNAME，再读取脚本返回的名称并应用。输入模式使用独立对话框，可配合隐藏 PowerShell；无效或取消输入时继续提示，需完成输入才能继续。返回值应为一个有效名称：1–15 字符，不使用空白、纯数字或 Windows 不允许的符号，也不应与本地账户同名。脚本结果在目标安装时才能确定，本工具不执行脚本，不能预先保证名称有效。脚本需自行处理失败、网络及设备信息；不要把密码或令牌写入脚本。取消仅影响新生成配置，不重命名当前电脑或已安装系统。";
-    public static string Summary(InstallPlan p) => "计算机名：" + (p.ComputerNameMode switch
+    public static readonly string Description = global::UnattendLocal.Localization.UiText.Source("text.69801855c5ca");
+    public static string Summary(InstallPlan p) => global::UnattendLocal.Localization.UiText.Concat(new object?[] { global::UnattendLocal.Localization.UiText.Source("text.1fe4b5bbce78"), (p.ComputerNameMode switch
     {
-        Existing => string.IsNullOrEmpty(p.ComputerName) ? "由 Windows 自动生成" : p.ComputerName,
-        Prompt => "安装时通过对话框输入",
-        Script => "安装时运行命名脚本（不在本机执行）",
-        _ => "命名方式无效"
-    });
-    private static string Normal(string text) => string.Join('\n', text.Replace("\r\n", "\n").Split('\n').Select(l => l.Trim()).Where(l => l.Length > 0));
+        Existing => string.IsNullOrEmpty(p.ComputerName) ? global::UnattendLocal.Localization.UiText.Source("text.209256be6095") : p.ComputerName,
+        Prompt => global::UnattendLocal.Localization.UiText.Source("text.eadd98418a65"),
+        Script => global::UnattendLocal.Localization.UiText.Source("text.7981adc16f36"),
+        _ => global::UnattendLocal.Localization.UiText.Source("text.6c98d3e90840")
+    }) },new bool[]{false,false});
+    private static string Normal(string text) => global::UnattendLocal.Localization.UiText.Join('\n', text.Replace("\r\n", "\n").Split('\n').Select(l => l.Trim()).Where(l => l.Length > 0), false);
     private record Template(string Setter, string Block);
     private static readonly Lazy<Template> Expected = new(() =>
     {
@@ -60,11 +60,11 @@ public static class ComputerNamingSettings
             p.ComputerNameMode = Normal(state.Getter) == Normal(PromptScript) ? Prompt : Script;
             if (p.ComputerNameMode == Script) p.ComputerNameScript = state.Getter;
         }
-        else if (state.Ambiguous) notes.Add("计算机命名脚本或执行管线未完整识别，原文保留；不能覆盖命名设置。");
+        else if (state.Ambiguous) notes.Add(global::UnattendLocal.Localization.UiText.Source("text.a74e8bff7308"));
     }
     public static void ValidateImported(InstallPlan p, XmlDocument source)
     {
-        if (Inspect(source).Ambiguous && (p.ComputerNameMode != Existing || p.ComputerName != (Name(source) == "*" ? "" : Name(source)))) throw new ArgumentException("原 XML 的计算机命名流程未完整识别，请用原工具调整后重新导入，不能覆盖命名设置。");
+        if (Inspect(source).Ambiguous && (p.ComputerNameMode != Existing || p.ComputerName != (Name(source) == "*" ? "" : Name(source)))) throw new ArgumentException(global::UnattendLocal.Localization.UiText.Source("text.5ec9482951e8"));
     }
     public static void NormalizeLoaded(InstallPlan p, JsonElement json)
     {
@@ -75,6 +75,6 @@ public static class ComputerNamingSettings
         var after = JsonSerializer.Deserialize<InstallPlan>(JsonSerializer.Serialize(before))!; ReadIntoPlan(source, after, new());
         if (p.ComputerName == before.ComputerName) { p.ComputerNameMode = after.ComputerNameMode; p.ComputerNameScript = after.ComputerNameScript; }
         try { var g = new GeneratorService(); data.BaselineXml = XmlMerge.Apply(data.BaselineXml, Encoding.UTF8.GetString(g.GenerateImportBaseline(before)), XmlMerge.Read(Encoding.UTF8.GetString(g.GenerateImportBaseline(after)))).OuterXml; }
-        catch (Exception e) when (e is ArgumentException or ConfigurationException or XmlException) { data.Blockers = data.Blockers.Append("旧方案的计算机命名基准无法可靠迁移，请重新导入原 XML。").Distinct().ToArray(); }
+        catch (Exception e) when (e is ArgumentException or ConfigurationException or XmlException) { data.Blockers = data.Blockers.Append(global::UnattendLocal.Localization.UiText.Source("text.575ef3c5fe8f")).Distinct().ToArray(); }
     }
 }

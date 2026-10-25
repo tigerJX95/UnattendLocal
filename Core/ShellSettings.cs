@@ -52,19 +52,19 @@ public static class ShellSettings {
 """;
  public static TaskbarSearchMode Search(string mode)=>mode switch {
   "完整搜索框"=>TaskbarSearchMode.Box,"图标和文字"=>TaskbarSearchMode.Label,"仅图标"=>TaskbarSearchMode.Icon,"隐藏"=>TaskbarSearchMode.Hide,
-  _=>throw new ArgumentException("请选择有效的任务栏搜索样式。")
+  _=>throw new ArgumentException(global::UnattendLocal.Localization.UiText.Source("text.aabce4911fd9"))
  };
  public static ITaskbarIcons Taskbar(InstallPlan p)=>p.TaskbarIconsMode switch {
   "使用默认图标"=>new DefaultTaskbarIcons(),"移除全部固定图标"=>new EmptyTaskbarIcons(),CustomXml=>new CustomTaskbarIcons(p.TaskbarIconsXml),
-  _=>throw new ArgumentException("请选择有效的任务栏固定图标模式。")
+  _=>throw new ArgumentException(global::UnattendLocal.Localization.UiText.Source("text.85247d1d172b"))
  };
  public static IStartTilesSettings Tiles(InstallPlan p)=>p.StartTilesMode switch {
   "使用默认磁贴"=>new DefaultStartTilesSettings(),"移除全部磁贴"=>new EmptyStartTilesSettings(),CustomXml=>new CustomStartTilesSettings(p.StartTilesXml),
-  _=>throw new ArgumentException("请选择有效的 Windows 10 开始菜单磁贴模式。")
+  _=>throw new ArgumentException(global::UnattendLocal.Localization.UiText.Source("text.fdf8af4926c0"))
  };
  public static IStartPinsSettings Pins(InstallPlan p)=>p.StartPinsMode switch {
   "使用默认固定应用"=>new DefaultStartPinsSettings(),"移除全部固定应用"=>new EmptyStartPinsSettings(),CustomJson=>new CustomStartPinsSettings(p.StartPinsJson),
-  _=>throw new ArgumentException("请选择有效的 Windows 11 开始菜单固定应用模式。")
+  _=>throw new ArgumentException(global::UnattendLocal.Localization.UiText.Source("text.84c334f5145f"))
  };
  public static void Validate(InstallPlan p){
   _=Search(p.TaskbarSearch);_=Taskbar(p);_=Tiles(p);_=Pins(p);
@@ -73,40 +73,40 @@ public static class ShellSettings {
   if(p.StartPinsMode==CustomJson)ValidateDocument("pins",p.StartPinsJson);
  }
  public static void ValidateDocument(string kind,string content){
-  string label=kind switch {"taskbar"=>"任务栏图标 XML","tiles"=>"Windows 10 磁贴 XML","pins"=>"Windows 11 固定应用 JSON",_=>throw new ArgumentException("布局类型无效。")};
-  if(string.IsNullOrWhiteSpace(content))throw new ArgumentException($"请填写或导入{label}。");
-  if(content.Length>MaxDocumentLength)throw new ArgumentException($"{label}过大，请使用不超过 2 Mi 字符的布局文件。");
+  string label=kind switch {"taskbar"=>global::UnattendLocal.Localization.UiText.Source("text.0ec7d9ab7696"),"tiles"=>global::UnattendLocal.Localization.UiText.Source("text.eaff4584199a"),"pins"=>global::UnattendLocal.Localization.UiText.Source("text.b4ab0abe0171"),_=>throw new ArgumentException(global::UnattendLocal.Localization.UiText.Source("text.041423d2ccdd"))};
+  if(string.IsNullOrWhiteSpace(content))throw new ArgumentException(global::UnattendLocal.Localization.UiText.Format("message.74459b09a4f3", new string[] { global::UnattendLocal.Localization.UiText.Arg((label), 0, null) }));
+  if(content.Length>MaxDocumentLength)throw new ArgumentException(global::UnattendLocal.Localization.UiText.Format("message.95c65fa6f9fe", new string[] { global::UnattendLocal.Localization.UiText.Arg((label), 0, null) }));
   try {
    if(kind=="pins"){
     using var json=JsonDocument.Parse(content);
-    if(json.RootElement.ValueKind!=JsonValueKind.Object||!json.RootElement.TryGetProperty("pinnedList",out var list)||list.ValueKind!=JsonValueKind.Array)throw new ArgumentException("根对象必须包含 pinnedList 数组。");
+    if(json.RootElement.ValueKind!=JsonValueKind.Object||!json.RootElement.TryGetProperty("pinnedList",out var list)||list.ValueKind!=JsonValueKind.Array)throw new ArgumentException(global::UnattendLocal.Localization.UiText.Source("text.600f223d467d"));
     foreach(var item in list.EnumerateArray()){
-     if(item.ValueKind!=JsonValueKind.Object)throw new ArgumentException("pinnedList 中的每项必须是应用对象。");
+     if(item.ValueKind!=JsonValueKind.Object)throw new ArgumentException(global::UnattendLocal.Localization.UiText.Source("text.125c1476143d"));
      var valid=false;
      foreach(var key in new[]{"desktopAppLink","desktopAppId","packagedAppId"})if(item.TryGetProperty(key,out var value)){
-      if(value.ValueKind!=JsonValueKind.String||string.IsNullOrWhiteSpace(value.GetString()))throw new ArgumentException($"{key} 必须是非空字符串。");valid=true;
+      if(value.ValueKind!=JsonValueKind.String||string.IsNullOrWhiteSpace(value.GetString()))throw new ArgumentException(global::UnattendLocal.Localization.UiText.Format("message.45812d9f6ec8", new string[] { global::UnattendLocal.Localization.UiText.Arg((key), 0, null) }));valid=true;
      }
      if(item.TryGetProperty("secondaryTile",out var secondary)&&secondary.ValueKind==JsonValueKind.Object)valid=true;
-     if(!valid)throw new ArgumentException("应用对象须包含 desktopAppLink、desktopAppId、packagedAppId 或 secondaryTile。");
+     if(!valid)throw new ArgumentException(global::UnattendLocal.Localization.UiText.Source("text.b94a23698ae6"));
     }
     return;
    }
    var doc=new XmlDocument{XmlResolver=null};
    using(var reader=XmlReader.Create(new StringReader(content),new XmlReaderSettings{DtdProcessing=DtdProcessing.Prohibit,XmlResolver=null,MaxCharactersInDocument=MaxDocumentLength}))doc.Load(reader);
-   if(doc.DocumentElement is not {} root||root.LocalName!="LayoutModificationTemplate"||root.NamespaceURI!=LayoutNamespace||root.GetAttribute("Version")!="1")throw new ArgumentException("根元素必须为 Version=\"1\" 的 LayoutModificationTemplate，并使用 Microsoft 布局命名空间。");
+   if(doc.DocumentElement is not {} root||root.LocalName!="LayoutModificationTemplate"||root.NamespaceURI!=LayoutNamespace||root.GetAttribute("Version")!="1")throw new ArgumentException(global::UnattendLocal.Localization.UiText.Source("text.b80f9377c968"));
    var ns=new XmlNamespaceManager(doc.NameTable);ns.AddNamespace("l",LayoutNamespace);ns.AddNamespace("d",FullNamespace);ns.AddNamespace("t",TaskbarNamespace);
    string path=kind=="taskbar"?"/l:LayoutModificationTemplate/l:CustomTaskbarLayoutCollection/d:TaskbarLayout/t:TaskbarPinList":"/l:LayoutModificationTemplate/l:DefaultLayoutOverride/l:StartLayoutCollection/d:StartLayout";
-   if(doc.SelectNodes(path,ns)!.Count==0)throw new ArgumentException(kind=="taskbar"?"缺少 CustomTaskbarLayoutCollection / TaskbarLayout / TaskbarPinList。":"缺少 DefaultLayoutOverride / StartLayoutCollection / StartLayout。");
+   if(doc.SelectNodes(path,ns)!.Count==0)throw new ArgumentException(kind=="taskbar"?global::UnattendLocal.Localization.UiText.Source("text.8d70528e96bf"):global::UnattendLocal.Localization.UiText.Source("text.f3b632b8ca1c"));
    if(kind=="taskbar"){
-    foreach(XmlElement collection in doc.SelectNodes("/l:LayoutModificationTemplate/l:CustomTaskbarLayoutCollection",ns)!)if(collection.HasAttribute("PinListPlacement")&&collection.GetAttribute("PinListPlacement") is not ("Replace" or "Append"))throw new ArgumentException("PinListPlacement 只能为 Replace 或 Append。");
+    foreach(XmlElement collection in doc.SelectNodes("/l:LayoutModificationTemplate/l:CustomTaskbarLayoutCollection",ns)!)if(collection.HasAttribute("PinListPlacement")&&collection.GetAttribute("PinListPlacement") is not ("Replace" or "Append"))throw new ArgumentException(global::UnattendLocal.Localization.UiText.Source("text.5e221570ad42"));
     foreach(XmlNode listNode in doc.SelectNodes(path,ns)!)foreach(XmlNode node in listNode.ChildNodes)if(node is XmlElement item){
-     if(item.NamespaceURI!=TaskbarNamespace||item.LocalName is not ("DesktopApp" or "UWA" or "SecondaryTile"))throw new ArgumentException("TaskbarPinList 包含不支持的图标元素。");
-     if(item.LocalName=="DesktopApp"&&string.IsNullOrWhiteSpace(item.GetAttribute("DesktopApplicationID"))&&string.IsNullOrWhiteSpace(item.GetAttribute("DesktopApplicationLinkPath")))throw new ArgumentException("DesktopApp 需要应用 ID 或快捷方式路径。");
-     if(item.LocalName=="UWA"&&string.IsNullOrWhiteSpace(item.GetAttribute("AppUserModelID")))throw new ArgumentException("UWA 需要 AppUserModelID。");
+     if(item.NamespaceURI!=TaskbarNamespace||item.LocalName is not ("DesktopApp" or "UWA" or "SecondaryTile"))throw new ArgumentException(global::UnattendLocal.Localization.UiText.Source("text.f5dc691c21a2"));
+     if(item.LocalName=="DesktopApp"&&string.IsNullOrWhiteSpace(item.GetAttribute("DesktopApplicationID"))&&string.IsNullOrWhiteSpace(item.GetAttribute("DesktopApplicationLinkPath")))throw new ArgumentException(global::UnattendLocal.Localization.UiText.Source("text.4117dbecd956"));
+     if(item.LocalName=="UWA"&&string.IsNullOrWhiteSpace(item.GetAttribute("AppUserModelID")))throw new ArgumentException(global::UnattendLocal.Localization.UiText.Source("text.c52d1557a7d6"));
     }
    }
-  }catch(Exception e)when(e is XmlException or JsonException or ArgumentException){throw new ArgumentException($"{label}未通过检查：{e.Message}",e);}
+  }catch(Exception e)when(e is XmlException or JsonException or ArgumentException){throw new ArgumentException(global::UnattendLocal.Localization.UiText.Format("message.c1000c804395", new string[] { global::UnattendLocal.Localization.UiText.Arg((label), 0, null), global::UnattendLocal.Localization.UiText.Arg((e.Message), 0, null) }),e);}
  }
- public static string Summary(InstallPlan p)=>$"任务栏：搜索 {p.TaskbarSearch}；固定图标 {p.TaskbarIconsMode}\n任务栏开关：禁用小组件 {On(p.DisableWidgets)}；左对齐 {On(p.LeftTaskbar)}；隐藏任务视图 {On(p.HideTaskViewButton)}\n搜索与托盘：不显示 Bing 结果 {On(p.DisableBingResults)}；显示全部托盘图标 {On(p.ShowAllTrayIcons)}\n开始菜单：Windows 10 {p.StartTilesMode}；Windows 11 {p.StartPinsMode}";
- private static string On(bool value)=>value?"开启":"关闭";
+ public static string Summary(InstallPlan p)=>global::UnattendLocal.Localization.UiText.Format("message.6ad1298890c0", new string[] { global::UnattendLocal.Localization.UiText.Arg((p.TaskbarSearch), 0, null), global::UnattendLocal.Localization.UiText.Arg((p.TaskbarIconsMode), 0, null), global::UnattendLocal.Localization.UiText.Arg((On(p.DisableWidgets)), 0, null), global::UnattendLocal.Localization.UiText.Arg((On(p.LeftTaskbar)), 0, null), global::UnattendLocal.Localization.UiText.Arg((On(p.HideTaskViewButton)), 0, null), global::UnattendLocal.Localization.UiText.Arg((On(p.DisableBingResults)), 0, null), global::UnattendLocal.Localization.UiText.Arg((On(p.ShowAllTrayIcons)), 0, null), global::UnattendLocal.Localization.UiText.Arg((p.StartTilesMode), 0, null), global::UnattendLocal.Localization.UiText.Arg((p.StartPinsMode), 0, null) });
+ private static string On(bool value)=>value?global::UnattendLocal.Localization.UiText.Source("text.8da97ddda990"):global::UnattendLocal.Localization.UiText.Source("text.3fd47edce45b");
 }

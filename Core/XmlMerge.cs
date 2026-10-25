@@ -8,13 +8,13 @@ public static class XmlMerge {
  public const string Namespace="urn:schemas-microsoft-com:unattend";
  public const int MaxLength=16*1024*1024;
  public static XmlDocument Read(string text){
-  if(string.IsNullOrWhiteSpace(text)||text.Length>MaxLength)throw new ArgumentException("应答 XML 为空或超过 16 Mi 字符。");
+  if(string.IsNullOrWhiteSpace(text)||text.Length>MaxLength)throw new ArgumentException(global::UnattendLocal.Localization.UiText.Source("text.f7822795de82"));
   var doc=new XmlDocument{XmlResolver=null};
   using(var reader=XmlReader.Create(new StringReader(text),new XmlReaderSettings{DtdProcessing=DtdProcessing.Prohibit,XmlResolver=null,MaxCharactersInDocument=MaxLength,MaxCharactersFromEntities=0}))doc.Load(reader);
-  if(doc.DocumentElement is not {} root||root.LocalName!="unattend"||root.NamespaceURI!=Namespace)throw new ArgumentException("请选择 Windows 应答 XML（unattend 根元素及正确命名空间），不能导入布局 XML 或遮蔽后的预览。");
-  if(doc.SelectNodes("//processing-instruction()")!.Count>0)throw new ArgumentException("暂不支持包含处理指令的应答 XML。");
+  if(doc.DocumentElement is not {} root||root.LocalName!="unattend"||root.NamespaceURI!=Namespace)throw new ArgumentException(global::UnattendLocal.Localization.UiText.Source("text.b5484829fe54"));
+  if(doc.SelectNodes("//processing-instruction()")!.Count>0)throw new ArgumentException(global::UnattendLocal.Localization.UiText.Source("text.e9ff59c64388"));
   var pending=new Stack<(XmlElement Element,int Depth)>();pending.Push((root,1));int count=0;
-  while(pending.Count>0){var item=pending.Pop();if(item.Depth>128||++count>50000)throw new ArgumentException("XML 层级或项目过多，不能可靠处理。");foreach(var child in item.Element.ChildNodes.OfType<XmlElement>())pending.Push((child,item.Depth+1));}
+  while(pending.Count>0){var item=pending.Pop();if(item.Depth>128||++count>50000)throw new ArgumentException(global::UnattendLocal.Localization.UiText.Source("text.ae59f5f618b6"));foreach(var child in item.Element.ChildNodes.OfType<XmlElement>())pending.Push((child,item.Depth+1));}
   return doc;
  }
  public static string Identity(XmlElement e){
@@ -33,7 +33,7 @@ public static class XmlMerge {
  }
  private static Dictionary<string,XmlElement> Children(XmlElement e){
   var result=new Dictionary<string,XmlElement>();
-  foreach(var child in e.ChildNodes.OfType<XmlElement>())if(!result.TryAdd(Identity(child),child))throw new ArgumentException("XML 存在重复或无法区分的项目："+e.LocalName+" / "+child.LocalName+"；为避免错误合并，未导出。");
+  foreach(var child in e.ChildNodes.OfType<XmlElement>())if(!result.TryAdd(Identity(child),child))throw new ArgumentException(global::UnattendLocal.Localization.UiText.Concat(new object?[] { global::UnattendLocal.Localization.UiText.Source("text.266443c5b92a"), e.LocalName, " / ", child.LocalName, global::UnattendLocal.Localization.UiText.Source("text.6be3f1d79588") },new bool[]{false,true,false,true,false}));
   return result;
  }
  private static Dictionary<string,string> Attributes(XmlElement e)=>e.Attributes.Cast<XmlAttribute>().Where(a=>a.NamespaceURI!="http://www.w3.org/2000/xmlns/").ToDictionary(a=>a.NamespaceURI+"|"+a.LocalName,a=>a.Value);
@@ -48,7 +48,7 @@ public static class XmlMerge {
  }
  public static bool Equal(XmlElement? a,XmlElement? b)=>a==null?b==null:b!=null&&Canonical(a)==Canonical(b);
  private static string Normalize(string text)=>text.Replace("\r\n","\n").Replace('\r','\n').Trim();
- private static Exception Conflict(string path)=>new ArgumentException("XML 修改与原有内容存在冲突，未导出："+path+"。原文件未修改；请核对原 XML，或减少本次修改后重试。");
+ private static Exception Conflict(string path)=>new ArgumentException(global::UnattendLocal.Localization.UiText.Concat(new object?[] { global::UnattendLocal.Localization.UiText.Source("text.3d67795104d8"), path, global::UnattendLocal.Localization.UiText.Source("text.8be88ce22898") },new bool[]{false,true,false}));
  public static XmlDocument Apply(string source,string baseline,XmlDocument updated)=>Apply(source,baseline,updated,null);
  internal static XmlDocument Apply(string source,string baseline,XmlDocument updated,Func<string,string,string,string,string?>? scriptMerge){
   var original=Read(source);var before=Read(baseline);Merge(original.DocumentElement!,before.DocumentElement!,updated.DocumentElement!,"unattend",scriptMerge);return original;
@@ -91,7 +91,7 @@ public static class XmlMerge {
  }
  internal static string MergeScript(string source,string baseline,string updated,string path){
   var b=Normalize(baseline).Split('\n');var a=Normalize(updated).Split('\n');var s=Normalize(source).Split('\n').ToList();
-  if((long)b.Length*a.Length>4_000_000)throw Conflict(path+"（脚本变更过大）");
+  if((long)b.Length*a.Length>4_000_000)throw Conflict(global::UnattendLocal.Localization.UiText.Concat(new object?[] { path, global::UnattendLocal.Localization.UiText.Source("text.ce4aa7191923") },new bool[]{true,false}));
   var lcs=new int[b.Length+1,a.Length+1];
   for(int i=b.Length-1;i>=0;i--)for(int j=a.Length-1;j>=0;j--)lcs[i,j]=b[i]==a[j]?lcs[i+1,j+1]+1:Math.Max(lcs[i+1,j],lcs[i,j+1]);
   var hunks=new List<(int Start,int End,List<string> Replacement)>();int x=0,y=0;
@@ -111,9 +111,9 @@ public static class XmlMerge {
    int left=Math.Max(0,h.Start-2),right=Math.Min(b.Length,h.End+2);var needle=b[left..right];var matches=new List<int>();
    var comparable=needle.Select(Compare).ToArray();
    for(int i=0;i+needle.Length<=s.Count;i++)if(s.Skip(i).Take(needle.Length).Select(Compare).SequenceEqual(comparable))matches.Add(i);
-   if(matches.Count!=1)throw Conflict(path+"（脚本上下文无法唯一匹配）");
+   if(matches.Count!=1)throw Conflict(global::UnattendLocal.Localization.UiText.Concat(new object?[] { path, global::UnattendLocal.Localization.UiText.Source("text.5e022c20d552") },new bool[]{true,false}));
    int at=matches[0]+h.Start-left;s.RemoveRange(at,h.End-h.Start);s.InsertRange(at,h.Replacement);
   }
-  return string.Join('\n',s);
+  return global::UnattendLocal.Localization.UiText.Join('\n', s, false);
  }
 }

@@ -24,7 +24,7 @@ internal static class BooleanScriptSettings
     private static readonly string[] Stages = ["Specialize.ps1", "DefaultUser.ps1", "FirstLogon.ps1", "UserOnce.ps1"];
     private const string Root = @"C:\Windows\Setup\Scripts\";
     private const string Pattern = @"(?m)^\t\{\n(?<body>(?:\t\t[^\n]*\n)*)\t\};\n";
-    private static string Normal(string text) => string.Join('\n', text.Replace("-WindowStyle \"Hidden\"", "-WindowStyle \"Normal\"", StringComparison.OrdinalIgnoreCase).Replace("-WindowStyle \\\"\"Hidden\\\"\"", "-WindowStyle \\\"\"Normal\\\"\"", StringComparison.OrdinalIgnoreCase).Replace("\r\n", "\n").Split('\n').Select(l => l.Trim()).Where(l => l.Length > 0));
+    private static string Normal(string text) => global::UnattendLocal.Localization.UiText.Join('\n', text.Replace("-WindowStyle \"Hidden\"", "-WindowStyle \"Normal\"", StringComparison.OrdinalIgnoreCase).Replace("-WindowStyle \\\"\"Hidden\\\"\"", "-WindowStyle \\\"\"Normal\\\"\"", StringComparison.OrdinalIgnoreCase).Replace("\r\n", "\n").Split('\n').Select(l => l.Trim()).Where(l => l.Length > 0), false);
     private static Dictionary<string,string> Files(XmlDocument doc) => doc.SelectNodes("//*[local-name()='File']")!.Cast<XmlElement>().ToDictionary(f => f.GetAttribute("path"), f => f.InnerText, StringComparer.OrdinalIgnoreCase);
     private record Template(Dictionary<string,string[]> Blocks, Dictionary<string,string> Helpers);
     private static readonly Lazy<Dictionary<string, Template>> Templates = new(() =>
@@ -61,7 +61,7 @@ internal static class BooleanScriptSettings
             var actualLines = text.SelectMany(t => Normal(t).Split('\n')).Where(l => l.Contains(marker, StringComparison.OrdinalIgnoreCase)).ToArray();
             enabled &= actualLines.Length == expectedLines.Length && expectedLines.All(l => actualLines.Count(a => a == l) == expectedLines.Count(a => a == l));
             typeof(InstallPlan).GetProperty(property)!.SetValue(plan, enabled);
-            if (!enabled && actualLines.Length > 0) notes.Add(Recommendations.SettingLabel(property) + "的命令值、执行阶段或完整脚本未确认等效，未映射为启用；原文已保留，修改重叠内容时将阻止导出。");
+            if (!enabled && actualLines.Length > 0) notes.Add(global::UnattendLocal.Localization.UiText.Concat(new object?[] { Recommendations.SettingLabel(property), global::UnattendLocal.Localization.UiText.Source("text.2fc0c1cc1a56") },new bool[]{false,false}));
         }
     }
 }

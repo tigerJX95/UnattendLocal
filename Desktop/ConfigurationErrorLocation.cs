@@ -1,11 +1,11 @@
-﻿using UnattendLocal.Core;
+using UnattendLocal.Core;
 
 namespace UnattendLocal.Desktop;
 
 public sealed record ConfigurationErrorLocation(SettingSearchResult Setting, int? UserIndex = null)
 {
     public string Path => Setting.Page + " → " + Setting.Title;
-    public string ActionText => Setting.Target == "SettingAnchor000" ? "查看导入说明" : "前往修改";
+    public string ActionText => Setting.Target == "SettingAnchor000" ? global::UnattendLocal.Localization.UiText.Source("text.555ac7a39a71") : global::UnattendLocal.Localization.UiText.Source("text.90e01acb5c9e");
 
     public static ConfigurationErrorLocation? FromException(Exception error) => error is ConfigurationValidationException known
         ? FromField(known.Field, known.UserIndex) : null;
@@ -14,9 +14,9 @@ public sealed record ConfigurationErrorLocation(SettingSearchResult Setting, int
     {
         if (field is "Users.Name" or "Users.Password" or nameof(InstallPlan.Users)) {
             string target = field == "Users.Name" ? "UserNameEditor" : field == "Users.Password" ? "UserPasswordEditor" : "AddUserButton";
-            string title = field == "Users.Name" ? "本地账户名称" : field == "Users.Password" ? "本地账户密码" : "添加本地账户";
-            if (userIndex.HasValue) title += $"（第 {userIndex.Value + 1} 个账户）";
-            return new(new(title, "用户与密码", 4, target, "user", ""), userIndex);
+            string title = field == "Users.Name" ? global::UnattendLocal.Localization.UiText.Source("text.077ee596fe81") : field == "Users.Password" ? global::UnattendLocal.Localization.UiText.Source("text.6d1b4fc22349") : global::UnattendLocal.Localization.UiText.Source("text.2115004781b1");
+            if (userIndex.HasValue) title += global::UnattendLocal.Localization.UiText.Format("message.cada219637ac", new string[] { global::UnattendLocal.Localization.UiText.Arg((userIndex.Value + 1), 0, null) });
+            return new(new(title, global::UnattendLocal.Localization.UiText.Source("text.4e21977cff0f"), 4, target, "user", ""), userIndex);
         }
         string targetName = field switch {
             nameof(InstallPlan.PowerPlanMode) => "PowerPlanModeEditor",

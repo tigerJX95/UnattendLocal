@@ -1,4 +1,4 @@
-﻿using System.Text.Json;
+using System.Text.Json;
 using System.Xml;
 
 namespace UnattendLocal.Core;
@@ -12,8 +12,8 @@ public static class NativePreferences
     public static string[] WerModes => [Default, WerEnabled, WerDisabled];
     public const string BalancedGuid = "381b4222-f694-41f0-9685-ff5bb260df2e", HighPerformanceGuid = "8c5e7fda-e8bf-4a96-9a85-a6e23a8c635c", PowerSaverGuid = "a1841308-3541-4fab-bc81-f71556f20b4a";
     public record Setting(bool Power, string Field, string Component, string Element, string Label);
-    public static Setting Power { get; } = new(true, nameof(InstallPlan.PowerPlanMode), "Microsoft-Windows-powercpl", "PreferredPlan", "首选电源计划");
-    public static Setting Wer { get; } = new(false, nameof(InstallPlan.ErrorReportingMode), "Microsoft-Windows-ErrorReportingCore", "DisableWER", "Windows 错误报告");
+    public static Setting Power { get; } = new(true, nameof(InstallPlan.PowerPlanMode), "Microsoft-Windows-powercpl", "PreferredPlan", global::UnattendLocal.Localization.UiText.Source("text.8190df8a26b0"));
+    public static Setting Wer { get; } = new(false, nameof(InstallPlan.ErrorReportingMode), "Microsoft-Windows-ErrorReportingCore", "DisableWER", global::UnattendLocal.Localization.UiText.Source("text.cc1c0c4c9120"));
     public static Setting[] All => [Power, Wer];
     public record Source(bool Present, bool Known, string Value, string Architecture = "amd64");
     private static XmlElement[] Nodes(XmlDocument doc, Setting s) => doc.SelectNodes("//*[local-name()='" + s.Element + "']")!.Cast<XmlElement>().ToArray();
@@ -25,9 +25,9 @@ public static class NativePreferences
     {
         string mode = Mode(p, s);
         if (mode == Default) return null;
-        if (!s.Power) return mode switch { WerEnabled => "0", WerDisabled => "1", _ => throw new ArgumentException("请选择有效的 Windows 错误报告设置。") };
-        string value = mode switch { Balanced => BalancedGuid, HighPerformance => HighPerformanceGuid, PowerSaver => PowerSaverGuid, Custom => p.CustomPowerPlanGuid, _ => throw new ArgumentException("请选择有效的首选电源计划。") };
-        if (!ValidGuid(value)) throw new ConfigurationValidationException(nameof(InstallPlan.CustomPowerPlanGuid), "请输入有效的电源计划 GUID：36 个字符，不带大括号、空格或命令参数，且不能全为零。");
+        if (!s.Power) return mode switch { WerEnabled => "0", WerDisabled => "1", _ => throw new ArgumentException(global::UnattendLocal.Localization.UiText.Source("text.255f9ad72689")) };
+        string value = mode switch { Balanced => BalancedGuid, HighPerformance => HighPerformanceGuid, PowerSaver => PowerSaverGuid, Custom => p.CustomPowerPlanGuid, _ => throw new ArgumentException(global::UnattendLocal.Localization.UiText.Source("text.a8104983f70b")) };
+        if (!ValidGuid(value)) throw new ConfigurationValidationException(nameof(InstallPlan.CustomPowerPlanGuid), global::UnattendLocal.Localization.UiText.Source("text.32487067eda7"));
         // Preserve imported spelling so three-way removal does not mistake casing for an external edit.
         return ValidGuid(p.CustomPowerPlanGuid) && Guid.Parse(p.CustomPowerPlanGuid) == Guid.Parse(value) ? p.CustomPowerPlanGuid : value;
     }
@@ -36,7 +36,7 @@ public static class NativePreferences
         foreach (var s in All)
             ConfigurationValidationException.Check(s.Field, () =>
             {
-                if (!(s.Power ? PowerModes : WerModes).Contains(Mode(p, s))) throw new ArgumentException("请选择有效的" + s.Label + "设置。");
+                if (!(s.Power ? PowerModes : WerModes).Contains(Mode(p, s))) throw new ArgumentException(global::UnattendLocal.Localization.UiText.Concat(new object?[] { global::UnattendLocal.Localization.UiText.Source("text.f836759829c5"), s.Label, global::UnattendLocal.Localization.UiText.Source("text.2d08b46e04ab") },new bool[]{false,false,false}));
                 if (Value(p, s) != null && (!CanEdit(p, s)||ExtraOwns(p,s))) throw new ArgumentException(Summary(p, s));
             });
     }
@@ -73,10 +73,10 @@ public static class NativePreferences
             return source;
         }).ToArray();
     }
-    private static string ReadOnlyNotice(Setting s) => "原 XML 的" + s.Label + "设置或执行阶段未完整识别，原文只读保留；不能用界面默认值覆盖。";
+    private static string ReadOnlyNotice(Setting s) => global::UnattendLocal.Localization.UiText.Concat(new object?[] { global::UnattendLocal.Localization.UiText.Source("text.0d3e22783331"), s.Label, global::UnattendLocal.Localization.UiText.Source("text.0686ed3a92f7") },new bool[]{false,false,false});
     public static void UpdateImportState(ImportedXml data, Source[] sources)
     { data.PowerPlanReadOnly = !sources[0].Known; data.ErrorReportingReadOnly = !sources[1].Known; data.NativePreferencesImportVersion = 1; }
-    public static string Summary(InstallPlan p, Setting s) => s.Label + "：" + (ExtraOwns(p, s) ? Mode(p,s)==Default?"由启用的额外 XML 组件管理，请从该条目调整。":"与启用的额外 XML 组件重复，请选择不指定或停用该组件条目。" : !CanEdit(p, s) ? "原 XML 只读保留，请核对原文。" : s.Power&&Mode(p,s)==Custom&&!ValidGuid(p.CustomPowerPlanGuid)?"待配置；请填写有效的自定义电源计划 GUID。": Mode(p, s) + (s.Power && p.PowerPlanMode == Custom ? "（" + p.CustomPowerPlanGuid + "）" : "") + "。");
+    public static string Summary(InstallPlan p, Setting s) => global::UnattendLocal.Localization.UiText.Concat(new object?[] { s.Label, "：", (ExtraOwns(p, s) ? Mode(p,s)==Default?global::UnattendLocal.Localization.UiText.Source("text.c8e1f0769ccb"):global::UnattendLocal.Localization.UiText.Source("text.25455c09b6ca") : !CanEdit(p, s) ? global::UnattendLocal.Localization.UiText.Source("text.e1b689224a43") : s.Power&&Mode(p,s)==Custom&&!ValidGuid(p.CustomPowerPlanGuid)?global::UnattendLocal.Localization.UiText.Source("text.b7a253a46b49"): Mode(p, s) + (s.Power && p.PowerPlanMode == Custom ? "（" + p.CustomPowerPlanGuid + "）" : "") + "。") },new bool[]{false,false,false});
     private static XmlElement Component(XmlDocument doc,string name,string architecture)
     {
         if(!doc.DocumentElement!.ChildNodes.OfType<XmlElement>().Any(e=>e.LocalName=="settings"&&e.NamespaceURI==XmlMerge.Namespace&&e.GetAttribute("pass")=="specialize"))
@@ -95,7 +95,7 @@ public static class NativePreferences
             string? value = Value(p, s);
             bool retain = source!=null && Inspect(source,s).Known && NativeSetupXml.Components(source,s.Component).Length>0;
             if (value == null && !retain) continue;
-            if (Nodes(doc, s).Length > 0) throw new ConfigurationValidationException(s.Field, "生成基准已包含" + s.Label + "，不能重复添加。");
+            if (Nodes(doc, s).Length > 0) throw new ConfigurationValidationException(s.Field, global::UnattendLocal.Localization.UiText.Concat(new object?[] { global::UnattendLocal.Localization.UiText.Source("text.eb19a0913b36"), s.Label, global::UnattendLocal.Localization.UiText.Source("text.4b57e216f3a0") },new bool[]{false,false,false}));
             var component = Component(doc,s.Component,p.Architecture);
             if (value != null) NativeSetupXml.Add(component, s.Element, value);
         }
@@ -131,7 +131,7 @@ public static class NativePreferences
                 var before = Inspect(baseline, s);
                 if (state.Present && !before.Present)
                 {
-                    if (root.TryGetProperty(s.Field, out _)) { data.Blockers = data.Blockers.Append("旧方案的" + s.Label + "编辑基准无法可靠迁移，请重新导入原 XML；当前修改保留。").Distinct().ToArray(); continue; }
+                    if (root.TryGetProperty(s.Field, out _)) { data.Blockers = data.Blockers.Append(global::UnattendLocal.Localization.UiText.Concat(new object?[] { global::UnattendLocal.Localization.UiText.Source("text.8240bc0b9b9d"), s.Label, global::UnattendLocal.Localization.UiText.Source("text.9b0b1c8b41c3") },new bool[]{false,false,false})).Distinct().ToArray(); continue; }
                     var template = new InstallPlan { Architecture = state.Architecture }; Assign(template, s, state);
                     NativeSetupXml.Add(Component(baseline,s.Component,state.Architecture), s.Element, Value(template, s));
                     Assign(p, s, state);

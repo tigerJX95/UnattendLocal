@@ -41,6 +41,11 @@ $variants = @(
     @{ Name = 'SelfContained'; SelfContained = 'true' },
     @{ Name = 'FrameworkDependent'; SelfContained = 'false' }
 )
+# Keep editable translations beside the executable and inside each ZIP.
+$languagesDestination = Join-Path $OutputRoot 'Languages'
+if (Test-Path -LiteralPath $languagesDestination) {
+    throw "Language directory already exists: $languagesDestination. Choose another OutputRoot to preserve edited translations."
+}
 # Check all destinations before building; never silently overwrite a release.
 foreach ($variant in $variants) {
     $name = "UnattendLocal_V${version}_x64_$($variant.Name)"
@@ -89,17 +94,29 @@ try {
         if ($actualFileVersion -ne $fileVersion -or $actualProductVersion -ne $version) {
             throw "EXE version mismatch: $($variant.Name), FileVersion=$actualFileVersion, ProductVersion=$actualProductVersion, expected $fileVersion / $version. No release files were copied."
         }
-        $verified += @{ Source = $publishedExe; Name = "UnattendLocal_V${version}_x64_$($variant.Name).exe" }
+        $languageSource = Join-Path $output 'Languages'
+        $sourceLanguages = Join-Path $PSScriptRoot 'Localization/Resources'
+        foreach ($resource in @(Get-ChildItem -LiteralPath $sourceLanguages -Filter '*.json' -File | Where-Object { $_.Name -notin @('catalog.json', 'translation-state.json') })) {
+            $languageFile = $resource.Name
+            $publishedLanguage = Join-Path $languageSource $languageFile
+            $sourceLanguage = Join-Path (Join-Path $PSScriptRoot 'Localization/Resources') $languageFile
+            if (-not (Test-Path -LiteralPath $publishedLanguage -PathType Leaf) -or
+                (Get-FileHash -LiteralPath $publishedLanguage -Algorithm SHA256).Hash -ne (Get-FileHash -LiteralPath $sourceLanguage -Algorithm SHA256).Hash) {
+                throw "Published language resource missing or changed: $languageFile. No release files were copied."
+            }
+        }
+        $verified += @{ Source = $publishedExe; Languages = $languageSource; Name = "UnattendLocal_V${version}_x64_$($variant.Name).exe" }
         Write-Host "Verified: $($variant.Name), FileVersion=$actualFileVersion, ProductVersion=$actualProductVersion"
     }
-    # Both EXEs pass version checks before any final release file is copied.
+    # Both EXEs and language packs pass checks before any final release file is copied.
+    Copy-Item -LiteralPath $verified[0].Languages -Destination $languagesDestination -Recurse -ErrorAction Stop
     foreach ($item in $verified) {
         $destination = Join-Path $OutputRoot $item.Name
         [System.IO.File]::Copy($item.Source, $destination, $false)
         Write-Host "Created: $destination"
         if ($CreateZip) {
             $archive = [System.IO.Path]::ChangeExtension($destination, '.zip')
-            Compress-Archive -LiteralPath $destination -DestinationPath $archive -ErrorAction Stop
+            Compress-Archive -LiteralPath @($destination, $languagesDestination) -DestinationPath $archive -ErrorAction Stop
             Write-Host "Created: $archive"
         }
     }

@@ -18,33 +18,33 @@ public static class AppControlSettings
           </RuleCollection>
         </AppLockerPolicy>
         """;
-    public const string Description = "默认关闭。启用后使用完整 AppLockerPolicy XML，在目标 specialize 阶段启动 Application Identity（AppIDSvc）服务并执行 Set-AppLockerPolicy -XmlPolicy，不带 -Merge，可能替换现有本地策略。规则的审核/强制模式由 XML 决定，工具不会改为审核模式。强制策略可能拦截安装脚本、系统工具或管理员应用，应先在虚拟机审核并准备恢复方案；结构校验不能判断规则是否适合目标电脑。实际生效受 Windows 版本、组件和组织策略影响，AppLocker 不等于智能应用控制（SAC）或防病毒。策略始终按原文保存在 JSON 中，省略凭据不移除策略里的路径、SID 或其他自行填写的信息；预览整体遮蔽策略 XML。取消仅改变新配置，不删除或恢复已安装系统的策略。本工具不在当前电脑启动服务或应用策略。";
+    public static readonly string Description = global::UnattendLocal.Localization.UiText.Source("text.71c3cf397ce0");
     public static XmlDocument ReadPolicy(string text)
     {
-        if (string.IsNullOrWhiteSpace(text) || text.Length > MaxLength) throw new ArgumentException("请填写完整 AppLocker 策略 XML，最多 2 Mi 字符；示例需明确载入。");
+        if (string.IsNullOrWhiteSpace(text) || text.Length > MaxLength) throw new ArgumentException(global::UnattendLocal.Localization.UiText.Source("text.2fa48221ea40"));
         var doc = new XmlDocument { XmlResolver = null };
         try
         {
             using var reader = XmlReader.Create(new StringReader(text), new XmlReaderSettings { DtdProcessing = DtdProcessing.Prohibit, XmlResolver = null, MaxCharactersInDocument = MaxLength, MaxCharactersFromEntities = 0 });
             doc.Load(reader);
-            if (doc.DocumentElement?.Name != "AppLockerPolicy" || doc.DocumentElement.NamespaceURI.Length != 0 || doc.SelectNodes("//processing-instruction()")!.Count > 0) throw new ArgumentException("请选择无命名空间的 AppLockerPolicy XML，不支持处理指令。");
+            if (doc.DocumentElement?.Name != "AppLockerPolicy" || doc.DocumentElement.NamespaceURI.Length != 0 || doc.SelectNodes("//processing-instruction()")!.Count > 0) throw new ArgumentException(global::UnattendLocal.Localization.UiText.Source("text.d58093f0bd94"));
             var pending = new Stack<(XmlElement Element, int Depth)>(); pending.Push((doc.DocumentElement, 1)); int count = 0;
-            while (pending.Count > 0) { var (element, depth) = pending.Pop(); if (depth > 64 || ++count > 50000) throw new ArgumentException("AppLocker XML 层级或项目过多。"); foreach (var child in element.ChildNodes.OfType<XmlElement>()) pending.Push((child, depth + 1)); }
+            while (pending.Count > 0) { var (element, depth) = pending.Pop(); if (depth > 64 || ++count > 50000) throw new ArgumentException(global::UnattendLocal.Localization.UiText.Source("text.ae6a77a76098")); foreach (var child in element.ChildNodes.OfType<XmlElement>()) pending.Push((child, depth + 1)); }
             using var schema = typeof(UnattendGenerator).Assembly.GetManifestResourceStream("Schneegans.Unattend.resource.AppLocker.xsd")!;
             doc.Schemas.XmlResolver = null; doc.Schemas.Add(null, XmlReader.Create(schema, new XmlReaderSettings { DtdProcessing = DtdProcessing.Prohibit, XmlResolver = null }));
-            doc.Validate((_, e) => throw new ArgumentException("AppLocker XML 结构无效：" + e.Message));
+            doc.Validate((_, e) => throw new ArgumentException(global::UnattendLocal.Localization.UiText.Concat(new object?[] { global::UnattendLocal.Localization.UiText.Source("text.097aa8e71d60"), e.Message },new bool[]{false,false})));
             return doc;
         }
-        catch (XmlException e) { throw new ArgumentException("AppLocker XML 无法读取：" + e.Message, e); }
+        catch (XmlException e) { throw new ArgumentException(global::UnattendLocal.Localization.UiText.Concat(new object?[] { global::UnattendLocal.Localization.UiText.Source("text.4a8494695212"), e.Message },new bool[]{false,false}), e); }
     }
     public static IAppLockerSettings Build(InstallPlan p) => p.UseAppLocker ? new ConfigureAppLockerSettings(ReadPolicy(p.AppLockerPolicyXml).OuterXml) : new SkipAppLockerSettings();
     public static string Summary(InstallPlan p)
     {
-        if (!p.UseAppLocker) return "AppLocker：不添加策略";
-        try { var doc = ReadPolicy(p.AppLockerPolicyXml); var collections = doc.DocumentElement!.ChildNodes.OfType<XmlElement>().Where(e => e.Name == "RuleCollection").ToArray(); return "AppLocker：" + collections.Length + " 组规则集合；" + string.Join("、", collections.Select(e => e.GetAttribute("Type") + "=" + e.GetAttribute("EnforcementMode"))) + "（可能替换本地策略）"; }
-        catch (ArgumentException) { return "AppLocker：已启用，策略 XML 待补充或校验"; }
+        if (!p.UseAppLocker) return global::UnattendLocal.Localization.UiText.Source("text.2dd0ae2a6155");
+        try { var doc = ReadPolicy(p.AppLockerPolicyXml); var collections = doc.DocumentElement!.ChildNodes.OfType<XmlElement>().Where(e => e.Name == "RuleCollection").ToArray(); return global::UnattendLocal.Localization.UiText.Concat(new object?[] { "AppLocker：", collections.Length, global::UnattendLocal.Localization.UiText.Source("text.affe372e11cd"), global::UnattendLocal.Localization.UiText.Join("、", collections.Select(e => e.GetAttribute("Type") + "=" + e.GetAttribute("EnforcementMode")), false), global::UnattendLocal.Localization.UiText.Source("text.ad934e56761c") },new bool[]{false,false,false,false,false}); }
+        catch (ArgumentException) { return global::UnattendLocal.Localization.UiText.Source("text.f70ae0f7b32a"); }
     }
-    private static string Normal(string text) => string.Join('\n', text.Replace("\r\n", "\n").Split('\n').Select(l => l.Trim()).Where(l => l.Length > 0));
+    private static string Normal(string text) => global::UnattendLocal.Localization.UiText.Join('\n', text.Replace("\r\n", "\n").Split('\n').Select(l => l.Trim()).Where(l => l.Length > 0), false);
     private static bool Related(string line) => new[] { "AppLockerPolicy.xml", "AppIDSvc", "Set-AppLockerPolicy" }.Any(m => line.Contains(m, StringComparison.OrdinalIgnoreCase));
     private static readonly Lazy<string> Expected = new(() => AdditionalSetupSettings.KnownBlocks(new UnattendGenerator().GenerateXml(Configuration.Default with { AppLockerSettings = new ConfigureAppLockerSettings(Example) }), "Specialize.ps1").Single(Related));
     public record State(bool Enabled, bool Ambiguous, string Xml);
@@ -63,11 +63,11 @@ public static class AppControlSettings
     public static void ReadIntoPlan(XmlDocument doc, InstallPlan p, List<string> notes)
     {
         var state = Inspect(doc); p.UseAppLocker = state.Enabled; p.AppLockerPolicyXml = state.Xml;
-        if (state.Ambiguous) notes.Add("AppLocker 策略或执行管线未完整识别，原文保留；不能用新增设置覆盖。");
+        if (state.Ambiguous) notes.Add(global::UnattendLocal.Localization.UiText.Source("text.84ab037587e6"));
     }
     public static void ValidateImported(InstallPlan p, XmlDocument doc)
     {
-        if (p.UseAppLocker && Inspect(doc).Ambiguous) throw new ArgumentException("原 XML 的 AppLocker 流程未完整识别，不能覆盖；请用原工具调整后重新导入。");
+        if (p.UseAppLocker && Inspect(doc).Ambiguous) throw new ArgumentException(global::UnattendLocal.Localization.UiText.Source("text.87cf12598e80"));
     }
     public static void NormalizeLoaded(InstallPlan p, JsonElement json)
     {
@@ -76,6 +76,6 @@ public static class AppControlSettings
         var before = JsonSerializer.Deserialize<InstallPlan>(JsonSerializer.Serialize(p))!; before.ImportedXml = null; before.ConfirmWipeDisk = before.ConfirmFormatPartition = before.ConfirmDiskScript = true;
         var after = JsonSerializer.Deserialize<InstallPlan>(JsonSerializer.Serialize(before))!; ReadIntoPlan(source, after, new()); p.UseAppLocker = after.UseAppLocker; p.AppLockerPolicyXml = after.AppLockerPolicyXml;
         try { var g = new GeneratorService(); data.BaselineXml = XmlMerge.Apply(data.BaselineXml, Encoding.UTF8.GetString(g.GenerateImportBaseline(before)), XmlMerge.Read(Encoding.UTF8.GetString(g.GenerateImportBaseline(after)))).OuterXml; }
-        catch (Exception e) when (e is ArgumentException or ConfigurationException or XmlException) { data.Blockers = data.Blockers.Append("旧方案的 AppLocker 编辑基准无法可靠迁移，请重新导入原 XML。").Distinct().ToArray(); }
+        catch (Exception e) when (e is ArgumentException or ConfigurationException or XmlException) { data.Blockers = data.Blockers.Append(global::UnattendLocal.Localization.UiText.Source("text.3f7b99e7ece0")).Distinct().ToArray(); }
     }
 }

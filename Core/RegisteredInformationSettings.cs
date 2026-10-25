@@ -5,9 +5,9 @@ namespace UnattendLocal.Core;
 public static class RegisteredInformationSettings {
  private const string Component="Microsoft-Windows-Shell-Setup";
  public static string[] Passes=>["specialize","oobeSystem","offlineServicing","generalize","auditUser"];
- public const string ReadOnlyNotice="原 XML 的 Windows 注册信息存在重复、额外结构或无法完整识别的内容，原文保留；注册信息区域只读，不能用界面默认值覆盖。";
- private const string MigrationBlocker="旧方案的注册信息编辑基准无法可靠迁移，请重新导入原 XML；当前待处理修改保留。";
- public const string Description="分别设置 Windows 的注册所有者和组织名称，默认均不勾选、不写入覆盖。它们是系统注册信息，不创建或重命名登录账户，不更改计算机名、不加入域，也不改变激活和许可证状态。每项最长 256 字符；勾选后留空会明确生成空元素，不勾选则省略该项。新配置在 specialize 阶段设置；完整识别的导入 XML 保留原执行阶段。方案省略密码等凭据时仍保存这些名称，预览也不遮蔽；分享前请按需要处理个人或单位信息。只生成配置，不修改当前电脑。";
+ public static readonly string ReadOnlyNotice=global::UnattendLocal.Localization.UiText.Source("text.dc161972f60b");
+ private static readonly string MigrationBlocker=global::UnattendLocal.Localization.UiText.Source("text.4b5699e9bc17");
+ public static readonly string Description=global::UnattendLocal.Localization.UiText.Source("text.481c408499d2");
  public record Entry(string Value,string Pass);
  public record Source(bool Present,bool Known,Entry? Owner,Entry? Organization);
  private static XmlNamespaceManager Ns(XmlDocument doc){var ns=new XmlNamespaceManager(doc.NameTable);ns.AddNamespace("u",XmlMerge.Namespace);return ns;}
@@ -15,23 +15,23 @@ public static class RegisteredInformationSettings {
  public static bool CanEdit(InstallPlan p)=>p.ImportedXml?.RegisteredInformationReadOnly!=true;
  private static bool Configured(InstallPlan p)=>p.UseRegisteredOwner||p.UseRegisteredOrganization;
  private static void ValidateValue(string? value,string pass,string label){
-  if(value==null||value.Length>256||value.Any(char.IsControl)||value!=value.Trim())throw new ArgumentException(label+"最多 256 字符，不能包含控制字符或首尾空白；允许留空以生成空元素。");
-  try{XmlConvert.VerifyXmlChars(value);}catch(XmlException){throw new ArgumentException(label+"包含 XML 非法字符，请核对输入。");}
-  if(!Passes.Contains(pass))throw new ArgumentException("注册信息的执行阶段无效，请重新导入原 XML。");
+  if(value==null||value.Length>256||value.Any(char.IsControl)||value!=value.Trim())throw new ArgumentException(global::UnattendLocal.Localization.UiText.Concat(new object?[] { label, global::UnattendLocal.Localization.UiText.Source("text.6e9afcc86d8a") },new bool[]{false,false}));
+  try{XmlConvert.VerifyXmlChars(value);}catch(XmlException){throw new ArgumentException(global::UnattendLocal.Localization.UiText.Concat(new object?[] { label, global::UnattendLocal.Localization.UiText.Source("text.dede746a2286") },new bool[]{false,false}));}
+  if(!Passes.Contains(pass))throw new ArgumentException(global::UnattendLocal.Localization.UiText.Source("text.c9608b7ac1e1"));
  }
  public static void Validate(InstallPlan p){
-  if(p.UseRegisteredOwner)ValidateValue(p.RegisteredOwner,p.RegisteredOwnerPass,"注册所有者");
-  if(p.UseRegisteredOrganization)ValidateValue(p.RegisteredOrganization,p.RegisteredOrganizationPass,"组织名称");
+  if(p.UseRegisteredOwner)ValidateValue(p.RegisteredOwner,p.RegisteredOwnerPass,global::UnattendLocal.Localization.UiText.Source("text.b36d05aba66e"));
+  if(p.UseRegisteredOrganization)ValidateValue(p.RegisteredOrganization,p.RegisteredOrganizationPass,global::UnattendLocal.Localization.UiText.Source("text.3f38e493103b"));
  }
- private static string PassLabel(string pass)=>pass switch {"specialize"=>"安装阶段","oobeSystem"=>"OOBE 阶段","offlineServicing"=>"离线维护阶段","generalize"=>"常规化阶段","auditUser"=>"审核用户阶段",_=>"未知阶段"};
+ private static string PassLabel(string pass)=>pass switch {"specialize"=>global::UnattendLocal.Localization.UiText.Source("text.f7ea293ea339"),"oobeSystem"=>global::UnattendLocal.Localization.UiText.Source("text.3e8fe498174e"),"offlineServicing"=>global::UnattendLocal.Localization.UiText.Source("text.a94d7d9ee146"),"generalize"=>global::UnattendLocal.Localization.UiText.Source("text.2edaaa2873a4"),"auditUser"=>global::UnattendLocal.Localization.UiText.Source("text.f009f2a38ac6"),_=>global::UnattendLocal.Localization.UiText.Source("text.8106dad736f1")};
  public static string Summary(InstallPlan p){
-  if(!CanEdit(p))return "Windows 注册信息：原 XML 只读保留，请核对原文。";
-  string Text(bool enabled,string? value,string pass)=>!enabled?"不写入覆盖":(value==""?"明确写入空值":value??"待填写")+"（"+PassLabel(pass)+"）";
-  return "Windows 注册信息：所有者 "+Text(p.UseRegisteredOwner,p.RegisteredOwner,p.RegisteredOwnerPass)+"；组织 "+Text(p.UseRegisteredOrganization,p.RegisteredOrganization,p.RegisteredOrganizationPass)+"。";
+  if(!CanEdit(p))return global::UnattendLocal.Localization.UiText.Source("text.366389928c9a");
+  string Text(bool enabled,string? value,string pass)=>!enabled?global::UnattendLocal.Localization.UiText.Source("text.23c0a12a1d32"):global::UnattendLocal.Localization.UiText.Concat(new object?[] { (value==""?global::UnattendLocal.Localization.UiText.Source("text.40b78a9c1763"):value??global::UnattendLocal.Localization.UiText.Source("text.4f28ec483981")), "（", PassLabel(pass), "）" },new bool[]{!string.IsNullOrEmpty(value),false,false,false});
+  return global::UnattendLocal.Localization.UiText.Concat(new object?[] { global::UnattendLocal.Localization.UiText.Source("text.5d9ac2eb2416"), Text(p.UseRegisteredOwner,p.RegisteredOwner,p.RegisteredOwnerPass), global::UnattendLocal.Localization.UiText.Source("text.1ff180297f96"), Text(p.UseRegisteredOrganization,p.RegisteredOrganization,p.RegisteredOrganizationPass), "。" },new bool[]{false,false,false,false,false});
  }
  private static XmlElement GetComponent(XmlDocument doc,string pass,string arch){
   var ns=Ns(doc);var settings=doc.SelectNodes("/u:unattend/u:settings[@pass='"+pass+"']",ns)!.Cast<XmlElement>().ToArray();
-  if(settings.Length>1)throw new ArgumentException("注册信息的执行阶段重复，不能可靠生成。");
+  if(settings.Length>1)throw new ArgumentException(global::UnattendLocal.Localization.UiText.Source("text.ae2c158bff88"));
   XmlElement group;
   if(settings.Length==1)group=settings[0];
   else{
@@ -40,7 +40,7 @@ public static class RegisteredInformationSettings {
    doc.DocumentElement.InsertBefore(group,anchor);
   }
   var components=group.ChildNodes.OfType<XmlElement>().Where(e=>e.NamespaceURI==XmlMerge.Namespace&&e.LocalName=="component"&&e.GetAttribute("name")==Component&&e.GetAttribute("processorArchitecture")==arch).ToArray();
-  if(components.Length>1)throw new ArgumentException("注册信息的 Shell-Setup 组件重复，不能可靠生成。");
+  if(components.Length>1)throw new ArgumentException(global::UnattendLocal.Localization.UiText.Source("text.f2a206cc6205"));
   if(components.Length==1)return components[0];
   var component=doc.CreateElement("component",XmlMerge.Namespace);
   foreach(var pair in new Dictionary<string,string>{{"name",Component},{"processorArchitecture",arch},{"publicKeyToken","31bf3856ad364e35"},{"language","neutral"},{"versionScope","nonSxS"}})component.SetAttribute(pair.Key,pair.Value);
@@ -52,7 +52,7 @@ public static class RegisteredInformationSettings {
   // never requires deleting its component and any unknown sibling settings.
   foreach(string pass in new[]{p.RegisteredOwnerPass,p.RegisteredOrganizationPass}.Where(pass=>pass!="specialize"&&Passes.Contains(pass)).Distinct())GetComponent(doc,pass,p.Architecture);
   if(!Configured(p))return;
-  if(Nodes(doc).Length>0)throw new ArgumentException("生成基准已有注册信息，不能重复添加。");
+  if(Nodes(doc).Length>0)throw new ArgumentException(global::UnattendLocal.Localization.UiText.Source("text.28a016820442"));
   void Add(string name,string value,string pass){var e=doc.CreateElement(name,XmlMerge.Namespace);e.InnerText=value;GetComponent(doc,pass,p.Architecture).AppendChild(e);}
   if(p.UseRegisteredOwner)Add("RegisteredOwner",p.RegisteredOwner,p.RegisteredOwnerPass);
   if(p.UseRegisteredOrganization)Add("RegisteredOrganization",p.RegisteredOrganization,p.RegisteredOrganizationPass);

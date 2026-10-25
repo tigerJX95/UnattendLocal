@@ -17,20 +17,20 @@ internal static class ScriptImportDetails {
   var old=Blocks(a);var next=Blocks(b);
   string Skeleton(string text)=>Normal(Regex.Replace(text,Pattern,"",RegexOptions.None,TimeSpan.FromSeconds(1)));
   if(Skeleton(a)!=Skeleton(b)||AdditionalSetupSettings.KnownBlocks(source,name).Length!=old.Length){
-   notes.Add($"脚本原文已保留，执行管线或命令块结构未完整识别：{name}；不能仅凭相同关键词认定为界面设置。");return true;
+   notes.Add(global::UnattendLocal.Localization.UiText.Format("message.5b6b3866d2d6", new string[] { global::UnattendLocal.Localization.UiText.Arg((name), 0, null) }));return true;
   }
   var remaining=next.Select(m=>Normal(m.Groups["body"].Value)).ToList();int unknown=0;
   for(int i=0;i<old.Length;i++){
    string body=Normal(old[i].Groups["body"].Value);int at=remaining.IndexOf(body);
    if(at>=0){remaining.RemoveAt(at);continue;}
    unknown++;int line=1+a[..old[i].Index].Count(c=>c=='\n');
-   string label=body.Contains(LegacyUpgradeSettings.Marker,StringComparison.OrdinalIgnoreCase)?"MoSetup 升级兼容设置":"自定义或未识别命令";
-   notes.Add($"脚本原文已保留，部分内容未映射为界面设置：{name}；第 {i+1} 个命令块（比较视图第 {line} 行），{label}，未确认与当前实现等效。行号可能因路径或日志兼容处理与原文略有差异。");
-   if(unknown==12){notes.Add($"脚本原文已保留：{name}；命令差异较多，仅列出前 12 项，请在原 XML 核对完整脚本。");break;}
+   string label=body.Contains(LegacyUpgradeSettings.Marker,StringComparison.OrdinalIgnoreCase)?global::UnattendLocal.Localization.UiText.Source("text.132f3075f263"):global::UnattendLocal.Localization.UiText.Source("text.93f153db4fc8");
+   notes.Add(global::UnattendLocal.Localization.UiText.Format("message.22f9a89a05d3", new string[] { global::UnattendLocal.Localization.UiText.Arg((name), 0, null), global::UnattendLocal.Localization.UiText.Arg((i+1), 0, null), global::UnattendLocal.Localization.UiText.Arg((line), 0, null), global::UnattendLocal.Localization.UiText.Arg((label), 0, null) }));
+   if(unknown==12){notes.Add(global::UnattendLocal.Localization.UiText.Format("message.706d6ef5074c", new string[] { global::UnattendLocal.Localization.UiText.Arg((name), 0, null) }));break;}
   }
   if(unknown==0){
-   if(remaining.Count>0)notes.Add($"脚本原文已保留：{name}；界面生成版本含 {remaining.Count} 个未在原文完整匹配的命令块，相关设置的修改可能发生冲突。");
-   else notes.Add($"脚本中的设置已识别：{name}；原命令顺序不同，未修改时保留原顺序。");
+   if(remaining.Count>0)notes.Add(global::UnattendLocal.Localization.UiText.Format("message.17f90e8ae554", new string[] { global::UnattendLocal.Localization.UiText.Arg((name), 0, null), global::UnattendLocal.Localization.UiText.Arg((remaining.Count), 0, null) }));
+   else notes.Add(global::UnattendLocal.Localization.UiText.Format("message.ce56c5290849", new string[] { global::UnattendLocal.Localization.UiText.Arg((name), 0, null) }));
   }
   return true;
  }

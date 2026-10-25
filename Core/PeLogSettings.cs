@@ -6,33 +6,33 @@ namespace UnattendLocal.Core;
 public static class PeLogSettings
 {
     private const string Component = "Microsoft-Windows-Setup";
-    public const string ReadOnlyNotice = "原 XML 的 Windows PE 日志目录或 PE 流程未完整识别，原文保留；日志目录区域只读，不能用默认值覆盖。";
-    private const string MigrationBlocker = "旧方案的 PE 日志目录编辑基准无法可靠迁移，请重新导入原 XML；当前待处理修改保留。";
-    public const string Description = "默认不指定日志目录。启用后设置 Microsoft-Windows-Setup/LogPath，仅记录 windowsPE 阶段相关事件，不改变安装后系统的 Panther 日志位置，也不是本程序日志。须填写目标电脑固定磁盘上的本地绝对目录，例如 D:\\SetupLogs，最长 259 字符；不支持 UNC、变量、设备路径或文件名。本工具不检查当前电脑目录，也不保证目标路径可写或盘符相同。请提前准备可写目录，避免被清空/格式化的磁盘或分区；本工具拒绝常见 PE 内存盘 X:。修改此项会取消已有磁盘风险确认。日志可能含设备、路径和部署信息，分享前自行检查；本功能不复制、上传或自动清理日志。自定义 PE/DISM 流程及未知日志设置只读保留。";
+    public static readonly string ReadOnlyNotice = global::UnattendLocal.Localization.UiText.Source("text.5a5e3876a543");
+    private static readonly string MigrationBlocker = global::UnattendLocal.Localization.UiText.Source("text.54e1cbd98861");
+    public static readonly string Description = global::UnattendLocal.Localization.UiText.Source("text.c3c7001b7e80");
     public record Source(bool Present, bool Known, string Path, string Architecture = "amd64");
     private static XmlElement[] Nodes(XmlDocument d) => d.SelectNodes("//*[local-name()='LogPath']")!.Cast<XmlElement>().ToArray();
     public static bool CanEdit(InstallPlan p) => p.ImportedXml?.PeLogReadOnly != true;
     public static void ValidatePath(string? path)
     {
         if (path == null || path.Length is < 3 or > 259 || path != path.Trim() || !Regex.IsMatch(path, @"\A[A-Za-z]:\\", RegexOptions.CultureInvariant) || path.StartsWith("X:", StringComparison.OrdinalIgnoreCase) || path.Any(char.IsControl) || path.Any(c => "\"<>|?*%/".Contains(c)) || path[2..].Contains(':'))
-            throw new ArgumentException("PE 日志须为最长 259 字符的本地盘符绝对目录；不支持 UNC、相对路径、变量、设备路径或 PE 内存盘 X:。");
-        try { XmlConvert.VerifyXmlChars(path); } catch (XmlException) { throw new ArgumentException("PE 日志目录含 XML 非法字符。"); }
+            throw new ArgumentException(global::UnattendLocal.Localization.UiText.Source("text.c63e92843588"));
+        try { XmlConvert.VerifyXmlChars(path); } catch (XmlException) { throw new ArgumentException(global::UnattendLocal.Localization.UiText.Source("text.754765a57d04")); }
         var parts = path[3..].Split('\\');
         for (int i = 0; i < parts.Length; i++)
         {
             string s = parts[i]; if (s.Length == 0 && i == parts.Length - 1) continue;
-            if (s.Length is 0 or > 255 || s is "." or ".." || s.EndsWith(' ') || s.EndsWith('.') || Regex.IsMatch(s.Split('.')[0], @"\A(?:CON|PRN|AUX|NUL|COM[1-9]|LPT[1-9])\z", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant)) throw new ArgumentException("PE 日志目录含相对层级、空目录段、保留设备名、超长目录名或末尾空格/点。");
+            if (s.Length is 0 or > 255 || s is "." or ".." || s.EndsWith(' ') || s.EndsWith('.') || Regex.IsMatch(s.Split('.')[0], @"\A(?:CON|PRN|AUX|NUL|COM[1-9]|LPT[1-9])\z", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant)) throw new ArgumentException(global::UnattendLocal.Localization.UiText.Source("text.eeb7a52cfe9f"));
         }
-        if (new[] { ".log", ".txt", ".etl" }.Any(e => path.EndsWith(e, StringComparison.OrdinalIgnoreCase))) throw new ArgumentException("请填写保存 PE 日志的目录，不要填写单个日志文件。");
+        if (new[] { ".log", ".txt", ".etl" }.Any(e => path.EndsWith(e, StringComparison.OrdinalIgnoreCase))) throw new ArgumentException(global::UnattendLocal.Localization.UiText.Source("text.6133d7387f7d"));
     }
     public static void Validate(InstallPlan p) { if (p.UsePeLogPath) ValidatePath(p.PeLogPath); }
-    public static string Summary(InstallPlan p) => !CanEdit(p) ? "PE 日志目录：原 XML 只读保留，请核对原文。" : p.UsePeLogPath ? "PE 日志目录：" + p.PeLogPath + "（仅 windowsPE）" : "PE 日志目录：遵循安装程序默认位置。";
+    public static string Summary(InstallPlan p) => !CanEdit(p) ? global::UnattendLocal.Localization.UiText.Source("text.2827208a2731") : p.UsePeLogPath ? global::UnattendLocal.Localization.UiText.Concat(new object?[] { global::UnattendLocal.Localization.UiText.Source("text.aa7c1f31a0d0"), p.PeLogPath, global::UnattendLocal.Localization.UiText.Source("text.f8c14e582fc2") },new bool[]{false,true,false}) : global::UnattendLocal.Localization.UiText.Source("text.b85c2d1c6bca");
     public static void Apply(XmlDocument doc, InstallPlan p)
     {
         Validate(p); if (!p.UsePeLogPath) return;
-        if (Nodes(doc).Length > 0 || SetupDriverSettings.CustomPe(doc)) throw new ArgumentException("生成基准已有日志目录或自定义 PE 流程，不能重复添加 LogPath。");
+        if (Nodes(doc).Length > 0 || SetupDriverSettings.CustomPe(doc)) throw new ArgumentException(global::UnattendLocal.Localization.UiText.Source("text.f67a259b9d36"));
         var components = NativeSetupXml.Components(doc, Component);
-        if (components.Length != 1 || !NativeSetupXml.ValidComponent(doc, components[0], Component, "windowsPE") || components[0].GetAttribute("processorArchitecture") != p.Architecture) throw new ArgumentException("缺少唯一匹配的 Windows Setup 组件，不能指定 PE 日志目录。");
+        if (components.Length != 1 || !NativeSetupXml.ValidComponent(doc, components[0], Component, "windowsPE") || components[0].GetAttribute("processorArchitecture") != p.Architecture) throw new ArgumentException(global::UnattendLocal.Localization.UiText.Source("text.49c91e454784"));
         NativeSetupXml.Add(components[0], "LogPath", p.PeLogPath);
     }
     public static Source Inspect(XmlDocument doc)

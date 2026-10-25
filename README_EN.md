@@ -4,9 +4,9 @@
 
 [简体中文](README.md) | **English**
 
-UnattendLocal is a Chinese-language Windows desktop tool based on [Christoph Schneegans’ UnattendGenerator](https://github.com/cschneegans/unattend-generator). It lets you edit, check, and generate `autounattend.xml` for Windows 10 / 11 locally.
+UnattendLocal is a Windows desktop tool with Simplified Chinese and English interfaces based on [Christoph Schneegans’ UnattendGenerator](https://github.com/cschneegans/unattend-generator). It lets you edit, check, and generate `autounattend.xml` for Windows 10 / 11 locally.
 
-Current version: **V1.19**. Includes static IPv4/IPv6 dual stack, subnet-mask input, settings search, setup driver directories, Dynamic Update, partitioning, OOBE and account settings, and existing XML import/editing.
+Current version: **V1.20**. Includes static IPv4/IPv6 dual stack, subnet-mask input, settings search, setup driver directories, Dynamic Update, partitioning, OOBE and account settings, and existing XML import/editing.
 
 ## 💡 Why this project exists
 
@@ -24,7 +24,7 @@ See [first-logon options](docs/FirstLogon.md) and [XML import behavior](docs/Xml
 
 ## 📸 Screenshots
 
-Screenshot version: **V1.7**. These are actual Windows application screenshots captured on 2026-10-19, preserved as the original PNG files. The application interface is currently in Chinese.
+Screenshot version: **V1.7**. These are actual Windows application screenshots captured on 2026-10-19, preserved as the original PNG files. These older screenshots show the Chinese interface. English is available from V1.20.
 
 | Configuration plans · Light theme | Configuration plans · Dark theme |
 | :---: | :---: |
@@ -38,6 +38,8 @@ The displayed product key is a public generic installation key for selecting an 
 
 ## ✨ Main features
 
+- Switch between Simplified Chinese and English. Independent language resources support incremental translation maintenance.
+
 - Configure static IPv4 and IPv6 independently for a target MAC, including dual-stack addresses, prefixes, gateways and DNS. IPv4 accepts a dotted subnet mask or /prefix in one input.
 
 - View the version, usage notices and embedded third-party licenses through Help and About, with offline reading and copying.
@@ -50,7 +52,7 @@ The displayed product key is a public generic installation key for selecting an 
 - Configure installation-stage Dynamic Update and UI behavior, plus INF driver directories accessible from target Windows PE.
 - Configure local accounts, passwords, initial sign-in, password expiration and lockout policies, Wi-Fi, offline installation, and OOBE.
 - Configure File Explorer, the Start menu, taskbar, desktop icons, visual effects, colors, backgrounds, and lock-screen images.
-- Select among 60 application and system capability removal items, with Chinese impact descriptions, keyword search, and a selection summary. Items are unchecked by default.
+- Select among 60 application and system capability removal items, with localized impact descriptions, keyword search, and a selection summary. Items are unchecked by default.
 - Configure `$OEM$` media configuration sets and AppLocker policy XML, with policy editing and structural validation.
 - Configure Narrator-assisted setup, the Edge uninstall option, and system protection on drive C:. All three are unchecked by default.
 - Configure guest tool installation for VMware, VirtualBox, KVM / QEMU (VirtIO), and Parallels, with media requirements and scope descriptions.
@@ -58,6 +60,16 @@ The displayed product key is a public generic installation key for selecting an 
 - Manage System, DefaultUser, FirstLogon, and UserOnce custom scripts using the original execution-stage design. Duplicate scripts with copies disabled by default for review.
 - Save and restore JSON plans; review summaries, recommended-setting differences, checks, redacted previews, and XML exports.
 - Import existing XML and edit supported settings while preserving unknown content. Export stops with an explanation when changes cannot be merged reliably.
+
+## V1.20 Chinese and English interface
+
+- Switch instantly between Simplified Chinese and English, with the choice remembered separately from the target Windows installation language.
+- Localize titles, options, help, summaries, diagnostics and confirmation dialogs through independent JSON resources, with wrapped and paragraphed explanations.
+- Update translations in the adjacent `Languages` folder. Embedded resources provide a fallback; invalid packs are rejected without replacing valid translations.
+- Add stable resource keys, translation-state checks and provider-neutral job export/import for incremental maintenance and future automated translation.
+- Preserve existing plan values, original IDs, scripts, user input and generated XML. Program archives include editable language files.
+
+Usage and maintenance: [Internationalization and language packs](docs/Localization.md).
 
 ## V1.19 application installation and desktop shortcut templates
 
@@ -130,7 +142,9 @@ For media preparation and explicit invocation, see [XML and ISO export](docs/Ans
 
 ## 📦 Download and usage
 
-Download and run the matching Windows x64 executable from the repository’s [**Releases**](https://github.com/tigerJX95/UnattendLocal/releases/latest) page: `UnattendLocal_V1.19_x64_SelfContained.exe` or `UnattendLocal_V1.19_x64_FrameworkDependent.exe`. Choose `UnattendLocal_V1.19_x64_SelfContained.exe` for a bundled .NET runtime, or `UnattendLocal_V1.19_x64_FrameworkDependent.exe` if .NET 10 Desktop Runtime x64 is already installed. Both have the same features. Use a virtual machine for initial testing.
+Download and fully extract the program ZIP to keep the editable `Languages` folder beside the EXE. The EXE also has embedded Chinese and English fallback resources. See [language packs](docs/Localization.md).
+
+Download and run the matching Windows x64 executable from the repository’s [**Releases**](https://github.com/tigerJX95/UnattendLocal/releases/latest) page: `UnattendLocal_V1.20_x64_SelfContained.exe` or `UnattendLocal_V1.20_x64_FrameworkDependent.exe`. Choose `UnattendLocal_V1.20_x64_SelfContained.exe` for a bundled .NET runtime, or `UnattendLocal_V1.20_x64_FrameworkDependent.exe` if .NET 10 Desktop Runtime x64 is already installed. Both have the same features. Use a virtual machine for initial testing.
 
 1. Choose a recommended scenario or a custom configuration and enter the required account and image settings.
 2. Adjust system, appearance, and application removal options as needed.

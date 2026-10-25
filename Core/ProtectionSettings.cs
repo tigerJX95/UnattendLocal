@@ -9,12 +9,12 @@ public static class ProtectionSettings
     public record Item(string Property, string Label, string Command, string Marker);
     public static IReadOnlyList<Item> Items { get; } = new Item[]
     {
-        new(nameof(InstallPlan.DisableUac), "用户账户控制（UAC）", "reg.exe add \"HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Policies\\System\" /v EnableLUA /t REG_DWORD /d 0 /f", "EnableLUA"),
-        new(nameof(InstallPlan.DisableWpbt), "WPBT 固件程序", "reg.exe add \"HKLM\\System\\CurrentControlSet\\Control\\Session Manager\" /v \"DisableWpbtExecution\" /t REG_DWORD /d 1 /f;", "DisableWpbtExecution")
+        new(nameof(InstallPlan.DisableUac), global::UnattendLocal.Localization.UiText.Source("text.b2771e6e82de"), "reg.exe add \"HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Policies\\System\" /v EnableLUA /t REG_DWORD /d 0 /f", "EnableLUA"),
+        new(nameof(InstallPlan.DisableWpbt), global::UnattendLocal.Localization.UiText.Source("text.83cd4c6e5228"), "reg.exe add \"HKLM\\System\\CurrentControlSet\\Control\\Session Manager\" /v \"DisableWpbtExecution\" /t REG_DWORD /d 1 /f;", "DisableWpbtExecution")
     };
-    public const string UacDescription = "沿用原生成器，在目标 Windows 的 specialize 阶段将 EnableLUA 设为 0，关闭用户账户控制（UAC）。这不是只隐藏权限提升提示，会降低管理员审批/权限提升保护，可能影响依赖 UAC 的应用。默认不勾选，不写入覆盖，遵循 Windows 默认设置。取消只影响新生成配置，不重新启用已安装系统的 UAC；本工具不修改当前电脑。";
-    public const string WpbtDescription = "沿用原生成器，在目标 Windows 的 specialize 阶段设置 DisableWpbtExecution=1，阻止执行通过 Windows Platform Binary Table（WPBT）提供的固件程序。可能影响厂商通过该机制提供的软件；不卸载已有软件，不修改 BIOS/UEFI 固件，不等于全面禁止厂商应用或驱动安装。默认不勾选，遵循 Windows 默认行为；取消只影响新配置，不撤销已安装系统的策略。本工具不修改当前电脑。";
-    private static string Normal(string body) => string.Join('\n', body.Replace("\r\n", "\n").Split('\n').Select(l => l.Trim()).Where(l => l.Length > 0));
+    public static readonly string UacDescription = global::UnattendLocal.Localization.UiText.Source("text.3402500bca0e");
+    public static readonly string WpbtDescription = global::UnattendLocal.Localization.UiText.Source("text.d3893a765a65");
+    private static string Normal(string body) => global::UnattendLocal.Localization.UiText.Join('\n', body.Replace("\r\n", "\n").Split('\n').Select(l => l.Trim()).Where(l => l.Length > 0), false);
     public record State(bool Enabled, bool Ambiguous);
     public static Dictionary<string, State> Inspect(XmlDocument doc)
     {
@@ -38,7 +38,7 @@ public static class ProtectionSettings
         foreach (var item in Items)
         {
             typeof(InstallPlan).GetProperty(item.Property)!.SetValue(p, states[item.Property].Enabled);
-            if (states[item.Property].Ambiguous) notes.Add(item.Label + "命令或执行管线未完整识别，原文保留；不能用此开关覆盖。");
+            if (states[item.Property].Ambiguous) notes.Add(global::UnattendLocal.Localization.UiText.Concat(new object?[] { item.Label, global::UnattendLocal.Localization.UiText.Source("text.2286b6e20992") },new bool[]{false,false}));
         }
     }
     public static void ValidateImported(InstallPlan p, XmlDocument doc)
@@ -46,9 +46,9 @@ public static class ProtectionSettings
         var states = Inspect(doc);
         foreach (var item in Items)
             if (states[item.Property].Ambiguous && (bool)typeof(InstallPlan).GetProperty(item.Property)!.GetValue(p)!)
-                throw new ArgumentException(item.Label + "与原 XML 中未完整识别的内容重叠，请用原工具调整后重新导入。");
+                throw new ArgumentException(global::UnattendLocal.Localization.UiText.Concat(new object?[] { item.Label, global::UnattendLocal.Localization.UiText.Source("text.3f1e7bc717a9") },new bool[]{false,false}));
     }
-    public static string Summary(InstallPlan p) => "用户账户控制（UAC）：" + (p.DisableUac ? "关闭（权限提升保护降低）" : "遵循 Windows 默认设置") + "\nWPBT 固件程序：" + (p.DisableWpbt ? "阻止执行（不修改固件、不卸载已有软件）" : "遵循 Windows 默认行为");
+    public static string Summary(InstallPlan p) => global::UnattendLocal.Localization.UiText.Concat(new object?[] { global::UnattendLocal.Localization.UiText.Source("text.45b430124b7e"), (p.DisableUac ? global::UnattendLocal.Localization.UiText.Source("text.007cf5896cb6") : global::UnattendLocal.Localization.UiText.Source("text.76e08c70fb95")), global::UnattendLocal.Localization.UiText.Source("text.2af64899969d"), (p.DisableWpbt ? global::UnattendLocal.Localization.UiText.Source("text.c2024b7f5fc4") : global::UnattendLocal.Localization.UiText.Source("text.4e9901953ce4")) },new bool[]{false,false,false,false});
     public static void NormalizeLoaded(InstallPlan p, JsonElement json)
     {
         if (p.ImportedXml is not { OriginalOmitted: false } data || data.SourceXml.Length == 0 || data.BaselineXml.Length == 0) return;
@@ -59,9 +59,9 @@ public static class ProtectionSettings
         foreach (var item in missing)
         {
             typeof(InstallPlan).GetProperty(item.Property)!.SetValue(p, states[item.Property].Enabled);
-            if (states[item.Property].Ambiguous) data.Notices = data.Notices.Append(item.Label + "未完整识别，原文保留，不能覆盖。").Distinct().ToArray();
+            if (states[item.Property].Ambiguous) data.Notices = data.Notices.Append(global::UnattendLocal.Localization.UiText.Concat(new object?[] { item.Label, global::UnattendLocal.Localization.UiText.Source("text.e3dccaf58f64") },new bool[]{false,false})).Distinct().ToArray();
             else if (states[item.Property].Enabled)
-                data.Notices = data.Notices.Where(n => !n.Contains("生成参数：" + item.Property + "；", StringComparison.Ordinal)).ToArray();
+                data.Notices = data.Notices.Where(n => !n.Contains(global::UnattendLocal.Localization.UiText.Concat(new object?[] { global::UnattendLocal.Localization.UiText.Source("text.3c0a3997fdd8"), item.Property, "；" },new bool[]{false,false,false}), StringComparison.Ordinal)).ToArray();
         }
         if (!missing.Any(i => states[i.Property].Enabled)) return;
         var after = JsonSerializer.Deserialize<InstallPlan>(JsonSerializer.Serialize(before))!;
@@ -73,7 +73,7 @@ public static class ProtectionSettings
         }
         catch (Exception e) when (e is ArgumentException or ConfigurationException or XmlException)
         {
-            data.Blockers = data.Blockers.Append("旧方案的 UAC/WPBT 编辑基准无法可靠迁移，请重新导入原 XML 后再导出。").Distinct().ToArray();
+            data.Blockers = data.Blockers.Append(global::UnattendLocal.Localization.UiText.Source("text.b51d24194bbd")).Distinct().ToArray();
         }
     }
 }

@@ -1,4 +1,4 @@
-﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:local="clr-namespace:UnattendLocal.Desktop">
+<ResourceDictionary xmlns:loc="clr-namespace:UnattendLocal.Desktop" xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:local="clr-namespace:UnattendLocal.Desktop">
   <BooleanToVisibilityConverter x:Key="VisibleWhen"/>
   <local:DiagnosticErrorConverter x:Key="DiagnosticError"/>
   <local:ActionIconConverter x:Key="ActionIcon"/>
@@ -53,7 +53,7 @@
       <Border Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="4">
         <Grid ClipToBounds="True">
           <ScrollViewer x:Name="PART_ContentHost" Margin="{TemplateBinding Padding}"/>
-          <TextBlock x:Name="Example" Text="{Binding Path=(local:ExampleText.Value),RelativeSource={RelativeSource TemplatedParent}}" Margin="{TemplateBinding Padding}" Foreground="{DynamicResource ForegroundBrush}" Opacity="0.42" IsHitTestVisible="False" TextWrapping="NoWrap" Visibility="Collapsed"/>
+          <TextBlock x:Name="Example" Text="{loc:Display Value={Binding Path=(local:ExampleText.Value),RelativeSource={RelativeSource TemplatedParent}}}" Margin="{TemplateBinding Padding}" Foreground="{DynamicResource ForegroundBrush}" Opacity="0.42" IsHitTestVisible="False" TextWrapping="NoWrap" Visibility="Collapsed"/>
         </Grid>
       </Border>
       <ControlTemplate.Triggers><Trigger Property="Text" Value=""><Setter TargetName="Example" Property="Visibility" Value="Visible"/></Trigger></ControlTemplate.Triggers>
@@ -70,7 +70,7 @@
     <Setter Property="Width" Value="36"/><Setter Property="Height" Value="36"/><Setter Property="Padding" Value="6"/><Setter Property="Margin" Value="4"/>
     <Setter Property="Background" Value="{DynamicResource AccentTintBrush}"/><Setter Property="Foreground" Value="{DynamicResource AccentTextBrush}"/>
     <Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}"/><Setter Property="BorderThickness" Value="1"/>
-    <Setter Property="AutomationProperties.Name" Value="{Binding Content,RelativeSource={RelativeSource Self}}"/>
+    <Setter Property="AutomationProperties.Name" Value="{loc:Display Value={Binding Content,RelativeSource={RelativeSource Self}}}"/>
     <Setter Property="ToolTip" Value="{Binding Content,RelativeSource={RelativeSource Self},Converter={StaticResource ActionHelp}}"/>
     <Setter Property="ToolTipService.ShowOnDisabled" Value="True"/><Setter Property="ToolTipService.InitialShowDelay" Value="250"/><Setter Property="ToolTipService.ShowDuration" Value="45000"/>
     <Setter Property="ContentTemplate"><Setter.Value><DataTemplate><Path Data="{Binding Converter={StaticResource ActionIcon}}" Width="20" Height="20" Stretch="Uniform" Stroke="{Binding Foreground,RelativeSource={RelativeSource AncestorType=Button}}" StrokeThickness="1.6" StrokeStartLineCap="Round" StrokeEndLineCap="Round" StrokeLineJoin="Round"/></DataTemplate></Setter.Value></Setter>
@@ -118,19 +118,19 @@
     <Setter Property="Template"><Setter.Value><ControlTemplate TargetType="ComboBox">
       <Grid>
         <Border x:Name="ComboBorder" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="1" CornerRadius="5"/>
-        <TextBox x:Name="SearchInput" Style="{x:Null}" Margin="10,7,34,7" Padding="0" BorderThickness="0" MinHeight="18" Background="Transparent" Foreground="{TemplateBinding Foreground}" CaretBrush="{DynamicResource ForegroundBrush}" SelectionBrush="{DynamicResource SelectionBrush}" VerticalContentAlignment="Center" IsReadOnly="True" AutomationProperties.HelpText="单击展开选项；双击文字或直接打字进入筛选。使用上下方向键选择，按 Enter 确认。"/>
+        <TextBox x:Name="SearchInput" Style="{x:Null}" Margin="10,7,34,7" Padding="0" BorderThickness="0" MinHeight="18" Background="Transparent" Foreground="{TemplateBinding Foreground}" CaretBrush="{DynamicResource ForegroundBrush}" SelectionBrush="{DynamicResource SelectionBrush}" VerticalContentAlignment="Center" IsReadOnly="True" AutomationProperties.HelpText="{loc:Text language.comboHelp}"/>
         <ToggleButton x:Name="DropDownToggle" Focusable="False" ClickMode="Press" Width="32" HorizontalAlignment="Right" IsChecked="{Binding IsDropDownOpen,Mode=TwoWay,RelativeSource={RelativeSource TemplatedParent}}">
           <ToggleButton.Template><ControlTemplate TargetType="ToggleButton"><Grid Background="Transparent"><Path Data="M0,0 L5,5 L10,0" Stroke="{DynamicResource SecondaryBrush}" StrokeThickness="1.6" Width="10" Height="5" HorizontalAlignment="Center" VerticalAlignment="Center"/></Grid></ControlTemplate></ToggleButton.Template>
         </ToggleButton>
         <Popup x:Name="PART_Popup" Placement="Bottom" AllowsTransparency="True" Focusable="False" IsOpen="{TemplateBinding IsDropDownOpen}" PopupAnimation="None">
           <Border Background="{DynamicResource InputBrush}" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1" CornerRadius="5" MinWidth="{Binding ActualWidth,RelativeSource={RelativeSource TemplatedParent}}" MaxHeight="{TemplateBinding MaxDropDownHeight}" Padding="4">
             <Grid><Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="*"/></Grid.RowDefinitions>
-              <TextBlock Text="双击上方文字或直接打字筛选 · ↑↓选择 · Enter 确认" Margin="6,4,6,8" Foreground="{DynamicResource SecondaryBrush}" FontSize="12"/>
+              <TextBlock Text="{loc:Text text.0feb99436062}" Margin="6,4,6,8" Foreground="{DynamicResource SecondaryBrush}" FontSize="12"/>
               <ListBox x:Name="SearchResults" Grid.Row="1" Margin="0" Padding="0" BorderThickness="0" Background="Transparent" ItemsSource="{Binding Path=(local:ComboSearch.Results),RelativeSource={RelativeSource TemplatedParent}}" ScrollViewer.HorizontalScrollBarVisibility="Auto" ScrollViewer.VerticalScrollBarVisibility="Auto" VirtualizingPanel.IsVirtualizing="True" VirtualizingPanel.VirtualizationMode="Recycling" KeyboardNavigation.TabNavigation="None">
                 <ListBox.ItemContainerStyle><Style TargetType="ListBoxItem" BasedOn="{StaticResource {x:Type ListBoxItem}}"><Setter Property="IsEnabled" Value="{Binding Enabled}"/><Setter Property="ToolTip" Value="{Binding Tip}"/></Style></ListBox.ItemContainerStyle>
                 <ListBox.ItemTemplate><DataTemplate><ContentPresenter Content="{Binding DisplayContent}" ContentTemplate="{Binding PresentationTemplate}"/></DataTemplate></ListBox.ItemTemplate>
               </ListBox>
-              <TextBlock Grid.Row="1" Text="未找到匹配项，请更换关键词。" Foreground="{DynamicResource SecondaryBrush}" Margin="8" Visibility="{Binding Path=(local:ComboSearch.NoMatches),RelativeSource={RelativeSource TemplatedParent},Converter={StaticResource VisibleWhen}}" IsHitTestVisible="False"/>
+              <TextBlock Grid.Row="1" Text="{loc:Text text.44534d041958}" Foreground="{DynamicResource SecondaryBrush}" Margin="8" Visibility="{Binding Path=(local:ComboSearch.NoMatches),RelativeSource={RelativeSource TemplatedParent},Converter={StaticResource VisibleWhen}}" IsHitTestVisible="False"/>
             </Grid>
           </Border>
         </Popup>
@@ -179,9 +179,9 @@
   <Style TargetType="ToolTip">
     <Setter Property="MaxWidth" Value="380"/><Setter Property="Padding" Value="14"/><Setter Property="Background" Value="{DynamicResource SurfaceBrush}"/><Setter Property="Foreground" Value="{DynamicResource ForegroundBrush}"/><Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}"/><Setter Property="FontSize" Value="13"/>
     <Setter Property="ContentTemplate"><Setter.Value><DataTemplate><StackPanel>
-      <TextBlock Text="{Binding Title}" FontWeight="SemiBold" TextWrapping="Wrap" Margin="0,0,0,8"/>
+      <TextBlock Text="{loc:Display Value={Binding Title}}" FontWeight="SemiBold" TextWrapping="Wrap" Margin="0,0,0,8"/>
       <ItemsControl ItemsSource="{Binding Sections}"><ItemsControl.ItemTemplate><DataTemplate>
-        <TextBlock Text="{Binding Text}" TextWrapping="Wrap" LineHeight="21" Margin="0,0,0,8"><TextBlock.Style>
+        <TextBlock Text="{loc:Display Value={Binding Text}}" TextWrapping="Wrap" LineHeight="21" Margin="0,0,0,8"><TextBlock.Style>
           <Style TargetType="TextBlock" BasedOn="{StaticResource {x:Type TextBlock}}">
             <Setter Property="Foreground" Value="{DynamicResource ForegroundBrush}"/>
             <Style.Triggers><DataTrigger Binding="{Binding IsError}" Value="True"><Setter Property="Foreground" Value="{DynamicResource ErrorBrush}"/></DataTrigger></Style.Triggers>

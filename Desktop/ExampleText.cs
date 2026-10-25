@@ -28,8 +28,8 @@ public static class ExampleText {
   public bool CanExecute(object? parameter)=>parameter is TextBox editor&&!string.IsNullOrEmpty(GetValue(editor));
   public void Execute(object? parameter){
    if(parameter is not TextBox editor||!CanExecute(editor))return;
-   try{Clipboard.SetText(GetValue(editor));feedback.GetValue(editor,e=>new Feedback(e)).Show("已复制");}
-   catch(Exception ex) when(ex is System.Runtime.InteropServices.ExternalException or System.Threading.ThreadStateException){feedback.GetValue(editor,e=>new Feedback(e)).Show("复制未成功，请重试",true);}
+   try{Clipboard.SetText(GetValue(editor));feedback.GetValue(editor,e=>new Feedback(e)).Show(global::UnattendLocal.Localization.UiText.Source("text.8f6f8d979c98"));}
+   catch(Exception ex) when(ex is System.Runtime.InteropServices.ExternalException or System.Threading.ThreadStateException){feedback.GetValue(editor,e=>new Feedback(e)).Show(global::UnattendLocal.Localization.UiText.Source("text.7bf5dea678e3"),true);}
   }
  }
 }

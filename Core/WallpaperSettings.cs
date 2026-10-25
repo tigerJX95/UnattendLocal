@@ -12,18 +12,18 @@ public static class WallpaperSettings
     public static IWallpaperSettings Build(InstallPlan plan)
     {
         if (plan.WallpaperMode == Default) return new DefaultWallpaperSettings();
-        if (IsScript(plan)) return new ScriptWallpaperSettings(ImageBackgroundSettings.ValidateScript(plan.WallpaperImageScript, "桌面图片"));
-        if (!IsSolid(plan)) throw new ArgumentException("请选择有效的桌面背景设置方式。");
-        if (!ColorSettings.TryNormalize(plan.WallpaperColorHex, out var hex)) throw new ArgumentException("桌面背景颜色应为 #RRGGBB，例如 #003366；只接受六位十六进制颜色。");
+        if (IsScript(plan)) return new ScriptWallpaperSettings(ImageBackgroundSettings.ValidateScript(plan.WallpaperImageScript, global::UnattendLocal.Localization.UiText.Source("text.e8af3df2fae6")));
+        if (!IsSolid(plan)) throw new ArgumentException(global::UnattendLocal.Localization.UiText.Source("text.c54c28634450"));
+        if (!ColorSettings.TryNormalize(plan.WallpaperColorHex, out var hex)) throw new ArgumentException(global::UnattendLocal.Localization.UiText.Source("text.4ba3adbcb03b"));
         int rgb = int.Parse(hex.AsSpan(1), NumberStyles.HexNumber, CultureInfo.InvariantCulture);
         return new SolidWallpaperSettings(Color.FromArgb(rgb >> 16, (rgb >> 8) & 255, rgb & 255));
     }
     public static string ModeSummary(InstallPlan plan) => plan.WallpaperMode switch
     {
-        Default => "Windows 默认背景（不写入背景覆盖）",
-        Solid => ColorSettings.TryNormalize(plan.WallpaperColorHex, out var hex) ? "纯色背景 " + hex : "纯色背景：颜色无效，请输入 #RRGGBB",
-        Script => string.IsNullOrWhiteSpace(plan.WallpaperImageScript) ? "图片背景：尚未填写加载脚本" : "脚本加载图片（安装时读取，每个用户首次登录应用）",
-        _ => "背景设置方式无效，请重新选择"
+        Default => global::UnattendLocal.Localization.UiText.Source("text.0989e32d9ac3"),
+        Solid => ColorSettings.TryNormalize(plan.WallpaperColorHex, out var hex) ? global::UnattendLocal.Localization.UiText.Concat(new object?[] { global::UnattendLocal.Localization.UiText.Source("text.d7b543eff71f"), hex },new bool[]{false,false}) : global::UnattendLocal.Localization.UiText.Source("text.773edb91fc04"),
+        Script => string.IsNullOrWhiteSpace(plan.WallpaperImageScript) ? global::UnattendLocal.Localization.UiText.Source("text.94f354712d0f") : global::UnattendLocal.Localization.UiText.Source("text.11c57a9b45fc"),
+        _ => global::UnattendLocal.Localization.UiText.Source("text.058a6ecea59c")
     };
-    public static string Summary(InstallPlan plan) => "桌面背景：" + ModeSummary(plan);
+    public static string Summary(InstallPlan plan) => global::UnattendLocal.Localization.UiText.Concat(new object?[] { global::UnattendLocal.Localization.UiText.Source("text.ff8ec58d5c4d"), ModeSummary(plan) },new bool[]{false,false});
 }

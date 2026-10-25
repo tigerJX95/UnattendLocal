@@ -7,11 +7,11 @@ public static class HelpText
 {
     public static string RemovalDescription(string description)
     {
-        int split = description.IndexOf("匹配项：", StringComparison.Ordinal);
+        int split = description.IndexOf(global::UnattendLocal.Localization.UiText.Source("text.447f01fe8a3a"), StringComparison.Ordinal);
         if (split < 0) return Paragraphs(description);
         var identifiers = description[(split + 4)..].Trim().TrimEnd('。')
             .Split('；', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
-        return Paragraphs(description[..split].TrimEnd()) + "\n\n匹配项：\n" + string.Join("\n", identifiers);
+        return global::UnattendLocal.Localization.UiText.Alias(description, global::UnattendLocal.Localization.UiText.Concat(new object?[] { Paragraphs(description[..split].TrimEnd()), global::UnattendLocal.Localization.UiText.Source("text.eeb748f9241b"), global::UnattendLocal.Localization.UiText.Join("\n", identifiers, false) },new bool[]{false,false,false}));
     }
 
     public static string Paragraphs(string text)
@@ -30,6 +30,6 @@ public static class HelpText
             if (next < text.Length && text[next] is not ('\r' or '\n')) result.Append('\n');
             i = next - 1;
         }
-        return result.ToString();
+        return UnattendLocal.Localization.UiText.Alias(text, result.ToString());
     }
 }

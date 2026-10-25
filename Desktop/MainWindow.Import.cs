@@ -23,25 +23,25 @@ public partial class MainWindow {
   e.Handled=true;e.Effects=DragDropEffects.None;
   if(loading||vm.IsLoadingPlan)return;
   try{
-   if(e.Data.GetData(DataFormats.FileDrop) is not string[] paths)throw new ArgumentException("无法读取拖入的文件，本次未导入。");
+   if(e.Data.GetData(DataFormats.FileDrop) is not string[] paths)throw new ArgumentException(global::UnattendLocal.Localization.UiText.Source("text.d7361479b693"));
    string path=PlanFileImport.SingleFile(paths);
    if(ImportConfigurationFile(path))e.Effects=DragDropEffects.Copy;
-  }catch(Exception error){vm.Status="文件导入失败，当前配置未改变。";ErrorDialog.Show(this,error.Message,"文件导入失败");}
+  }catch(Exception error){vm.Status=global::UnattendLocal.Localization.UiText.Source("text.94a9765decb7");ErrorDialog.Show(this,error.Message,global::UnattendLocal.Localization.UiText.Source("text.582f42199cd6"));}
  }
  private bool ImportConfigurationFile(string path){
-  var previous=loading;loading=true;string type="文件";
+  var previous=loading;loading=true;string type=global::UnattendLocal.Localization.UiText.Source("text.39932f24fe11");
   try{
-   var kind=PlanFileImport.Kind(path);type=kind==PlanFileKind.AnswerXml?"XML":"JSON 方案";
+   var kind=PlanFileImport.Kind(path);type=kind==PlanFileKind.AnswerXml?"XML":global::UnattendLocal.Localization.UiText.Source("text.c0c2246e71af");
    string text=PlanFileImport.Read(path);
-   bool Confirm()=>MessageBox.Show(this,
+   bool Confirm()=>LocalizedMessageBox.Show(this,
     kind==PlanFileKind.AnswerXml?
-    "导入 XML 将替换当前界面中的配置，当前未保存的修改将被放弃。\n已识别设置会映射到界面，其他内容保留原文；无法可靠合并的修改会在导出时被阻止。\n\n选择“是”：导入并替换当前配置。\n选择“否”：取消整次导入，保留当前配置。\n是否继续导入？":
-    "载入 JSON 方案将替换当前界面中的配置，当前未保存的修改将被放弃。\n方案中省略的密码和密钥需重新输入。\n\n选择“是”：载入并替换当前配置。\n选择“否”：取消整次载入，保留当前配置。\n是否继续？",
-    "确认导入"+type,MessageBoxButton.YesNo,MessageBoxImage.Question,MessageBoxResult.No)==MessageBoxResult.Yes;
+    global::UnattendLocal.Localization.UiText.Source("text.70563728940b"):
+    global::UnattendLocal.Localization.UiText.Source("text.80e519e280d6"),
+    global::UnattendLocal.Localization.UiText.Concat(new object?[] { global::UnattendLocal.Localization.UiText.Source("text.4a8d6841b402"), type },new bool[]{false,false}),MessageBoxButton.YesNo,MessageBoxImage.Question,MessageBoxResult.No)==MessageBoxResult.Yes;
    bool accepted=kind==PlanFileKind.AnswerXml?vm.ImportXml(text,Confirm):vm.ImportJson(text,Confirm);
-   if(!accepted){MessageBox.Show(this,vm.Status,type+"导入已取消",MessageBoxButton.OK,MessageBoxImage.Information);return false;}
+   if(!accepted){LocalizedMessageBox.Show(this,vm.Status,global::UnattendLocal.Localization.UiText.Concat(new object?[] { type, global::UnattendLocal.Localization.UiText.Source("text.00cd011fe5c0") },new bool[]{false,false}),MessageBoxButton.OK,MessageBoxImage.Information);return false;}
    string status=vm.Status;Load(vm.Plan);Pages.SelectedIndex=0;vm.Status=status;return true;
-  }catch(Exception error){vm.Status=type+"导入失败，当前配置未改变。";ErrorDialog.Show(this,error.Message,type+"导入失败");return false;}
+  }catch(Exception error){vm.Status=global::UnattendLocal.Localization.UiText.Concat(new object?[] { type, global::UnattendLocal.Localization.UiText.Source("text.ff00d66cc95b") },new bool[]{false,false});ErrorDialog.Show(this,error.Message,global::UnattendLocal.Localization.UiText.Concat(new object?[] { type, global::UnattendLocal.Localization.UiText.Source("text.01aaebc96af1") },new bool[]{false,false}));return false;}
   finally{loading=previous;}
  }
 }

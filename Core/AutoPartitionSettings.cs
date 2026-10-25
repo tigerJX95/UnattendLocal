@@ -5,16 +5,16 @@ using System.Xml;
 namespace UnattendLocal.Core;
 
 public static class AutoPartitionSettings {
- public const string ReadOnlyNotice="自动分区命令未完整识别，原文保留；不能用自动分区控件覆盖，请先在原工具调整后重新导入。";
+ public static readonly string ReadOnlyNotice=global::UnattendLocal.Localization.UiText.Source("text.d2f2d8e00b8f");
  private const string File=@"X:\UnattendLocal-diskpart.txt";
  public static int SystemSize(InstallPlan p)=>p.SystemPartitionSizeMB??(p.DiskLayout=="UEFI / GPT"?300:500);
  public static bool CanEdit(InstallPlan p)=>p.ImportedXml?.AutoPartitionReadOnly!=true;
  public static void Validate(InstallPlan p){
   if(p.DiskMode!=InstallationSettings.Wipe)return;
   int minimum=p.DiskLayout=="UEFI / GPT"?300:100;
-  if(SystemSize(p)<minimum||SystemSize(p)>8192)throw new ArgumentException($"系统分区大小应为 {minimum}–8192 MB；留空使用当前布局的默认大小（GPT 300 / MBR 500 MB）。更复杂布局请使用自定义分区脚本。");
+  if(SystemSize(p)<minimum||SystemSize(p)>8192)throw new ArgumentException(global::UnattendLocal.Localization.UiText.Format("message.870221ca764f", new string[] { global::UnattendLocal.Localization.UiText.Arg((minimum), 0, null) }));
  }
- public static string Summary(InstallPlan p)=>p.ImportedXml?.AutoPartitionReadOnly==true?"原 XML 的分区流程未完整识别，大小与暂停状态不按界面默认值推断；请核对原文。":p.DiskMode!=InstallationSettings.Wipe?"系统分区大小与分区前暂停仅用于清空指定磁盘后自动分区。":$"系统分区 {SystemSize(p)} MB（{(p.SystemPartitionSizeMB.HasValue?"指定大小":"布局默认")}）；恢复分区 {p.RecoverySizeMB} MB；{(p.PauseBeforeFormatting?"执行 DiskPart 前暂停，按任意键继续":"不额外暂停")}";
+ public static string Summary(InstallPlan p)=>p.ImportedXml?.AutoPartitionReadOnly==true?global::UnattendLocal.Localization.UiText.Source("text.3bb1b856b181"):p.DiskMode!=InstallationSettings.Wipe?global::UnattendLocal.Localization.UiText.Source("text.334f133990e7"):global::UnattendLocal.Localization.UiText.Format("message.f77a47535855", new string[] { global::UnattendLocal.Localization.UiText.Arg((SystemSize(p)), 0, null), global::UnattendLocal.Localization.UiText.Arg(((p.SystemPartitionSizeMB.HasValue?global::UnattendLocal.Localization.UiText.Source("text.2ed4b0396e9b"):global::UnattendLocal.Localization.UiText.Source("text.edcae49ae0bc"))), 0, null), global::UnattendLocal.Localization.UiText.Arg((p.RecoverySizeMB), 0, null), global::UnattendLocal.Localization.UiText.Arg(((p.PauseBeforeFormatting?global::UnattendLocal.Localization.UiText.Source("text.7a872af9a86d"):global::UnattendLocal.Localization.UiText.Source("text.38dacff801fa"))), 0, null) });
  public static string Command(InstallPlan p){
   string Number(int? n)=>n!.Value.ToString(CultureInfo.InvariantCulture);
   var commands=new List<string>{"select disk "+Number(p.TargetDiskId),"clean"};
@@ -23,7 +23,7 @@ public static class AutoPartitionSettings {
   commands.AddRange(["create partition primary","format quick fs=ntfs label=Windows",$"shrink minimum={p.RecoverySizeMB.ToString(CultureInfo.InvariantCulture)} desired={p.RecoverySizeMB.ToString(CultureInfo.InvariantCulture)}","create partition primary","format quick fs=ntfs label=Recovery"]);
   if(p.DiskLayout=="UEFI / GPT")commands.AddRange(["set id=de94bba4-06d1-4d40-a16a-bfd50179d6ac","gpt attributes=0x8000000000000001"]);else commands.Add("set id=27");
   string pause=p.PauseBeforeFormatting?$"echo WARNING: Disk {Number(p.TargetDiskId)} will be erased. Verify the target disk before continuing. && pause && ":"";
-  return "cmd.exe /c \"("+string.Join(" & ",commands.Select(c=>"echo "+c))+") > "+File+" && "+pause+"diskpart.exe /s "+File+"\"";
+  return global::UnattendLocal.Localization.UiText.Concat(new object?[] { global::UnattendLocal.Localization.UiText.Concat(new object?[] { global::UnattendLocal.Localization.UiText.Concat(new object?[] { global::UnattendLocal.Localization.UiText.Concat(new object?[] { global::UnattendLocal.Localization.UiText.Concat(new object?[] { global::UnattendLocal.Localization.UiText.Concat(new object?[] { global::UnattendLocal.Localization.UiText.Concat(new object?[] { global::UnattendLocal.Localization.UiText.Concat(new object?[] { "cmd.exe /c \"(", global::UnattendLocal.Localization.UiText.Join(" & ", commands.Select(c=>"echo "+c), false) },new bool[] { false, false }), ") > " },new bool[] { false, false }), File },new bool[] { false, false }), " && " },new bool[] { false, false }), pause },new bool[] { false, false }), "diskpart.exe /s " },new bool[] { false, false }), File },new bool[] { false, false }), "\"" },new bool[] { false, false });
  }
  public record Source(bool Mentioned,bool Known,InstallPlan? Values,XmlElement? Path);
  private static XmlNamespaceManager Ns(XmlDocument doc){var n=new XmlNamespaceManager(doc.NameTable);n.AddNamespace("u",XmlMerge.Namespace);return n;}
@@ -68,6 +68,6 @@ public static class AutoPartitionSettings {
   if(old is {Known:true,Values:{} oldValues,Path:{} path}){
    if(sizeMissing)oldValues.SystemPartitionSizeMB=values.SystemPartitionSizeMB;if(pauseMissing)oldValues.PauseBeforeFormatting=values.PauseBeforeFormatting;
    path.InnerText=Command(oldValues);data.BaselineXml=baseline.OuterXml;
-  }else if(values.SystemPartitionSizeMB.HasValue||values.PauseBeforeFormatting)data.Blockers=data.Blockers.Append("旧方案的自动分区编辑基准无法可靠迁移，请重新导入原 XML；当前修改已保留。").Distinct().ToArray();
+  }else if(values.SystemPartitionSizeMB.HasValue||values.PauseBeforeFormatting)data.Blockers=data.Blockers.Append(global::UnattendLocal.Localization.UiText.Source("text.b3081f6165f1")).Distinct().ToArray();
  }
 }

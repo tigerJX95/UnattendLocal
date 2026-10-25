@@ -8,7 +8,7 @@ public partial class ColorPickerWindow : Window
     public string SelectedHex => Draft.ColorHex;
     public bool RestoreWindowsDefault => Draft.UseWindowsDefault;
     public ColorPickerWindow(string label,string initial) {
-        Draft=new(initial);InitializeComponent();Title="选择"+label;PickerHeading.Text="选择"+label;DataContext=Draft;
+        Draft=new(initial);InitializeComponent();Title=global::UnattendLocal.Localization.UiText.Translate(global::UnattendLocal.Localization.UiText.Concat(new object?[] { global::UnattendLocal.Localization.UiText.Source("text.c11330b85234"), label },new bool[]{false,false}));PickerHeading.Text=global::UnattendLocal.Localization.UiText.Translate(global::UnattendLocal.Localization.UiText.Concat(new object?[] { global::UnattendLocal.Localization.UiText.Source("text.c11330b85234"), label },new bool[]{false,false}));DataContext=Draft;
         Draft.PropertyChanged+=(_,_)=>UpdateMarker();Loaded+=(_,_)=>UpdateMarker();SourceInitialized+=(_,_)=>UiTheme.UpdateTitleBar(this);
     }
     private void UpdateMarker() { if(ColorPlane==null)return;double x=Draft.Saturation*ColorPlane.ActualWidth,y=(1-Draft.Brightness)*ColorPlane.ActualHeight;Canvas.SetLeft(SelectionRing,x-7);Canvas.SetTop(SelectionRing,y-7);Canvas.SetLeft(SelectionOutline,x-9);Canvas.SetTop(SelectionOutline,y-9); if(HueStrip!=null)Canvas.SetLeft(HueMarker,Math.Clamp(Draft.Hue/360*HueStrip.ActualWidth-3,0,Math.Max(0,HueStrip.ActualWidth-6))); }

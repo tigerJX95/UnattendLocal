@@ -1,48 +1,48 @@
-<Window x:Class="UnattendLocal.Desktop.AboutWindow" xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" Title="帮助与关于" Icon="Assets/App.ico" Width="820" Height="640" MinWidth="680" MinHeight="460" WindowStartupLocation="CenterOwner" ShowInTaskbar="False" FontFamily="Microsoft YaHei UI" FontSize="14" Background="{DynamicResource CanvasBrush}" Foreground="{DynamicResource ForegroundBrush}">
+<Window xmlns:loc="clr-namespace:UnattendLocal.Desktop" x:Class="UnattendLocal.Desktop.AboutWindow" xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" Title="{loc:Text text.4b9659ed544c}" Icon="Assets/App.ico" Width="820" Height="640" MinWidth="680" MinHeight="460" WindowStartupLocation="CenterOwner" ShowInTaskbar="False" FontFamily="Microsoft YaHei UI" FontSize="14" Background="{DynamicResource CanvasBrush}" Foreground="{DynamicResource ForegroundBrush}">
   <Grid>
     <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
     <Border Background="{DynamicResource SurfaceBrush}" Padding="20,18"><StackPanel>
-      <TextBlock Text="帮助与关于" FontSize="23" FontWeight="SemiBold" HorizontalAlignment="Center"/>
-      <TextBlock Text="版本 · 使用说明 · 第三方许可" Foreground="{DynamicResource SecondaryBrush}" HorizontalAlignment="Center" Margin="0,6,0,0"/>
+      <TextBlock Text="{loc:Text text.4b9659ed544c}" FontSize="23" FontWeight="SemiBold" HorizontalAlignment="Center"/>
+      <TextBlock Text="{loc:Text text.b55baaa9f16b}" Foreground="{DynamicResource SecondaryBrush}" HorizontalAlignment="Center" Margin="0,6,0,0"/>
     </StackPanel></Border>
     <TabControl x:Name="Sections" Grid.Row="1" TabStripPlacement="Left" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch" BorderThickness="0">
-      <TabItem Header="关于">
+      <TabItem Header="{loc:Source text.52d25a9e30ba}">
         <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled"><StackPanel Margin="24">
           <Border Style="{StaticResource Card}"><StackPanel>
             <Image x:Name="ProductIcon" Width="56" Height="56" Margin="0,0,0,12" RenderOptions.BitmapScalingMode="HighQuality" SnapsToDevicePixels="True"/>
             <TextBlock Text="UnattendLocal" FontSize="26" FontWeight="SemiBold" TextAlignment="Center"/>
             <TextBlock x:Name="VersionText" Foreground="{DynamicResource AccentTextBrush}" FontSize="18" TextAlignment="Center" Margin="0,8,0,0"/>
             <TextBlock Text="MIT License · Copyright © 2026 tigerJX95" TextAlignment="Center" TextWrapping="Wrap" Foreground="{DynamicResource SecondaryBrush}" Margin="0,8,0,0"/>
-            <TextBlock Text="Windows 无人值守配置工具" TextAlignment="Center" Margin="0,12,0,4"/>
+            <TextBlock Text="{loc:Text text.bf91a0c0460e}" TextAlignment="Center" Margin="0,12,0,4"/>
             <TextBlock Text="Windows x64 · .NET 10" TextAlignment="Center" Foreground="{DynamicResource SecondaryBrush}"/>
           </StackPanel></Border>
-          <TextBlock Style="{StaticResource ExplanationText}" Text="在本地离线编辑、保存和生成 Windows 10 / 11 的 autounattend.xml，方便复用安装方案。本工具用于准备配置，不在当前电脑执行生成的安装脚本。"/>
-          <TextBlock Text="原项目与鸣谢" FontWeight="SemiBold" Margin="0,12,0,0"/>
-          <TextBlock Style="{StaticResource ExplanationText}" Text="生成核心基于 Christoph Schneegans 的 UnattendGenerator。本地中文界面与适配为独立项目，并非原作者的官方桌面发行版。感谢 ChatGPT Codex 提供开发协助。"/>
-          <TextBox x:Name="UpstreamLinks" IsReadOnly="True" TextWrapping="Wrap" AcceptsReturn="True" Text="本项目 GitHub：https://github.com/tigerJX95/UnattendLocal&#xA;原项目 GitHub：https://github.com/cschneegans/unattend-generator" AutomationProperties.Name="本项目与原项目的 GitHub 地址，可选择复制"/>
-          <TextBlock Text="GitHub 项目地址可选择复制；完整许可请查看“开源许可”。" TextWrapping="Wrap" Foreground="{DynamicResource SecondaryBrush}"/>
+          <TextBlock Style="{StaticResource ExplanationText}" Text="{loc:Text text.bf9d3bf450fd}"/>
+          <TextBlock Text="{loc:Text text.ef4b1999984a}" FontWeight="SemiBold" Margin="0,12,0,0"/>
+          <TextBlock Style="{StaticResource ExplanationText}" Text="{loc:Text text.02b056aa5848}"/>
+          <TextBox x:Name="UpstreamLinks" IsReadOnly="True" TextWrapping="Wrap" AcceptsReturn="True" Text="{loc:Text text.53389690ec85}" AutomationProperties.Name="{loc:Text text.59463068ece0}"/>
+          <TextBlock Text="{loc:Text text.d5aacdb5bf2c}" TextWrapping="Wrap" Foreground="{DynamicResource SecondaryBrush}"/>
         </StackPanel></ScrollViewer>
       </TabItem>
-      <TabItem Header="法律信息与使用说明">
+      <TabItem Header="{loc:Source text.027d17dd49ef}">
         <Grid Margin="20"><Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="*"/></Grid.RowDefinitions>
-          <TextBlock Text="使用前请核对配置与目标设备" FontSize="18" FontWeight="SemiBold" TextWrapping="Wrap" Margin="0,0,0,12"/>
-          <TextBox x:Name="LegalText" Grid.Row="1" IsReadOnly="True" AcceptsReturn="True" TextWrapping="Wrap" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" Margin="0" AutomationProperties.Name="法律信息与使用说明全文"/>
+          <TextBlock Text="{loc:Text text.27b806078d8a}" FontSize="18" FontWeight="SemiBold" TextWrapping="Wrap" Margin="0,0,0,12"/>
+          <TextBox x:Name="LegalText" Grid.Row="1" IsReadOnly="True" AcceptsReturn="True" TextWrapping="Wrap" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" Margin="0" AutomationProperties.Name="{loc:Text text.cb56e4fc8e0c}"/>
         </Grid>
       </TabItem>
-      <TabItem Header="开源许可">
+      <TabItem Header="{loc:Source text.038ad816c53f}">
         <Grid Margin="20"><Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/></Grid.RowDefinitions>
-          <TextBlock Text="第三方组件与许可全文" FontSize="18" FontWeight="SemiBold" TextWrapping="Wrap" Margin="0,0,0,10"/>
-          <ComboBox x:Name="LicensePicker" Grid.Row="1" DisplayMemberPath="Title" SelectionChanged="LicenseChanged" AutomationProperties.Name="选择第三方组件或许可文件"/>
-          <TextBox x:Name="LicenseText" Grid.Row="2" IsReadOnly="True" AcceptsReturn="True" TextWrapping="Wrap" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" Margin="0" FontSize="13" AutomationProperties.Name="所选组件的许可全文"/>
+          <TextBlock Text="{loc:Text text.24e1b1a67d45}" FontSize="18" FontWeight="SemiBold" TextWrapping="Wrap" Margin="0,0,0,10"/>
+          <ComboBox x:Name="LicensePicker" Grid.Row="1"  SelectionChanged="LicenseChanged" AutomationProperties.Name="{loc:Text text.fdd2efe9d38b}" loc:LocalizedItems.DisplayPath="Title"><ComboBox.ItemTemplate><DataTemplate><TextBlock Text="{loc:Display Value={Binding Title}}" TextWrapping="Wrap"/></DataTemplate></ComboBox.ItemTemplate></ComboBox>
+          <TextBox x:Name="LicenseText" Grid.Row="2" IsReadOnly="True" AcceptsReturn="True" TextWrapping="Wrap" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" Margin="0" FontSize="13" AutomationProperties.Name="{loc:Text text.5e04a0e44066}"/>
         </Grid>
       </TabItem>
     </TabControl>
     <Border Grid.Row="2" Background="{DynamicResource SurfaceBrush}" Padding="16,8"><DockPanel>
       <StackPanel DockPanel.Dock="Right" Orientation="Horizontal">
-        <Button Click="CopyClick" ContentTemplate="{x:Null}" AutomationProperties.Name="复制当前页面内容"><Button.ToolTip><ToolTip ContentTemplate="{x:Null}" Content="复制当前页面内容"/></Button.ToolTip><Path Data="M8,7 H20 V21 H8 Z M4,17 H2 V2 H14 V5" Stroke="{DynamicResource AccentTextBrush}" StrokeThickness="1.6" Width="20" Height="20" Stretch="Uniform"/></Button>
-        <Button IsCancel="True" ContentTemplate="{x:Null}" AutomationProperties.Name="关闭帮助与关于"><Button.ToolTip><ToolTip ContentTemplate="{x:Null}" Content="关闭（Esc）"/></Button.ToolTip><Path Data="M4,4 L18,18 M18,4 L4,18" Stroke="{DynamicResource AccentTextBrush}" StrokeThickness="1.6" Width="18" Height="18" Stretch="Uniform"/></Button>
+        <Button Click="CopyClick" ContentTemplate="{x:Null}" AutomationProperties.Name="{loc:Text text.8bdb205c40cc}"><Button.ToolTip><ToolTip ContentTemplate="{x:Null}" Content="{loc:Source text.8bdb205c40cc}"/></Button.ToolTip><Path Data="M8,7 H20 V21 H8 Z M4,17 H2 V2 H14 V5" Stroke="{DynamicResource AccentTextBrush}" StrokeThickness="1.6" Width="20" Height="20" Stretch="Uniform"/></Button>
+        <Button IsCancel="True" ContentTemplate="{x:Null}" AutomationProperties.Name="{loc:Text text.7a8b7ea77812}"><Button.ToolTip><ToolTip ContentTemplate="{x:Null}" Content="{loc:Source text.240d2127ad8d}"/></Button.ToolTip><Path Data="M4,4 L18,18 M18,4 L4,18" Stroke="{DynamicResource AccentTextBrush}" StrokeThickness="1.6" Width="18" Height="18" Stretch="Uniform"/></Button>
       </StackPanel>
-      <TextBlock x:Name="StatusText" Text="内容已内置，可离线查看；可选择文字或复制整页。" Foreground="{DynamicResource SecondaryBrush}" TextWrapping="Wrap" VerticalAlignment="Center" Margin="0,0,12,0"/>
+      <TextBlock x:Name="StatusText" Text="{loc:Text text.e1ce7b07e0e9}" Foreground="{DynamicResource SecondaryBrush}" TextWrapping="Wrap" VerticalAlignment="Center" Margin="0,0,12,0"/>
     </DockPanel></Border>
   </Grid>
 </Window>

@@ -4,9 +4,9 @@
 
 **简体中文** | [English](README_EN.md)
 
-UnattendLocal 是基于 [Christoph Schneegans 的 UnattendGenerator](https://github.com/cschneegans/unattend-generator) 开发的中文 Windows 桌面配置工具，用于在本地编辑、检查和生成 Windows 10 / 11 的 `autounattend.xml`。
+UnattendLocal 是基于 [Christoph Schneegans 的 UnattendGenerator](https://github.com/cschneegans/unattend-generator) 开发的 Windows 桌面配置工具，支持简体中文与英语界面，用于在本地编辑、检查和生成 Windows 10 / 11 的 `autounattend.xml`。
 
-当前版本：**V1.19**。支持静态 IPv4 / IPv6 双栈、子网掩码输入、设置搜索、安装驱动目录、动态更新、自动分区、OOBE 与账户配置，以及已有 XML 的导入编辑。
+当前版本：**V1.20**。支持简体中文 / English 即时切换、独立语言包维护、静态 IPv4 / IPv6 双栈、子网掩码输入、设置搜索、安装驱动目录、动态更新、自动分区、OOBE 与账户配置，以及已有 XML 的导入编辑。
 
 ## 💡 开发初衷
 
@@ -36,6 +36,8 @@ UnattendLocal 是基于 [Christoph Schneegans 的 UnattendGenerator](https://git
 
 ## ✨ 主要功能
 
+- 即时切换简体中文与英语界面；语言资源独立存放，支持增量翻译维护。
+
 - 按目标网卡 MAC 分别配置静态 IPv4 / IPv6，可同时启用双栈；指定地址、前缀、网关和 DNS，IPv4 在同一框填写子网掩码或 /前缀长度。
 
 - 通过右上角“帮助与关于”查看版本、使用说明和内置第三方许可，支持离线查看与复制。
@@ -56,6 +58,16 @@ UnattendLocal 是基于 [Christoph Schneegans 的 UnattendGenerator](https://git
 - 按原设计管理 System、DefaultUser、FirstLogon、UserOnce 自定义脚本；支持复制条目，副本默认停用供核对。
 - 保存和恢复 JSON 方案，提供配置摘要、推荐差异、检查、脱敏预览和 XML 导出。
 - 导入已有 XML 后编辑已支持设置，保留未知内容；遇到无法可靠合并的修改时停止导出并说明原因。
+
+## V1.20 简体中文与英语界面 · 2026-10-25
+
+- 新增简体中文 / English 即时切换，记住界面语言；界面语言与目标 Windows 的安装语言分别设置。
+- 页面标题、选项、帮助、摘要、诊断和确认提示统一接入独立 JSON 语言资源，长说明分段并自动换行。
+- 程序旁的 `Languages` 目录支持独立更新译文；缺少文件时使用内置资源，异常语言包校验失败后保留有效译文。
+- 提供稳定资源键、翻译状态检查，以及与服务无关的翻译任务导出 / 导入工具，便于后续增量维护和自动化翻译。
+- 保持旧方案取值、原始 ID、脚本、用户输入及生成 XML 的兼容性；程序压缩包包含可编辑语言文件。
+
+使用与维护：[国际化与语言包](docs/Localization.md)。
 
 ## V1.19 应用安装与桌面快捷方式模板 · 2026-10-25
 
@@ -128,12 +140,14 @@ UnattendLocal 是基于 [Christoph Schneegans 的 UnattendGenerator](https://git
 
 ## 📦 下载与使用
 
-从仓库的 [**Releases**](https://github.com/tigerJX95/UnattendLocal/releases/latest) 页面下载并直接运行对应的 `UnattendLocal_V1.19_x64_SelfContained.exe` 或 `UnattendLocal_V1.19_x64_FrameworkDependent.exe`：
+推荐下载程序 ZIP 并完整解压，保留 EXE 旁的 `Languages` 文件夹，以便单独更新译文。仅运行 EXE 时仍有内置中英文资源回退。详见[语言包说明](docs/Localization.md)。
+
+从仓库的 [**Releases**](https://github.com/tigerJX95/UnattendLocal/releases/latest) 页面下载并直接运行对应的 `UnattendLocal_V1.20_x64_SelfContained.exe` 或 `UnattendLocal_V1.20_x64_FrameworkDependent.exe`：
 
 | 程序文件 | 运行要求 |
 | --- | --- |
-| `UnattendLocal_V1.19_x64_SelfContained.exe` | 集成 .NET 运行时，无需单独安装；通常选择此版。 |
-| `UnattendLocal_V1.19_x64_FrameworkDependent.exe` | 文件较小，需安装 .NET 10 Desktop Runtime x64。 |
+| `UnattendLocal_V1.20_x64_SelfContained.exe` | 集成 .NET 运行时，无需单独安装；通常选择此版。 |
+| `UnattendLocal_V1.20_x64_FrameworkDependent.exe` | 文件较小，需安装 .NET 10 Desktop Runtime x64。 |
 
 两版功能相同。首次安装测试建议使用虚拟机。
 

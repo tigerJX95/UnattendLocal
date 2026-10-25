@@ -1,4 +1,4 @@
-﻿using System.Text.Json.Serialization;
+using System.Text.Json.Serialization;
 using System.Xml;
 using Schneegans.Unattend;
 
@@ -14,17 +14,17 @@ public class XmlComponentEntry : Observable
     public string Pass { get => pass; set { Set(ref pass, value); Notify(nameof(Label)); } }
     private string content = "";
     public string Content { get => content; set => Set(ref content, value); }
-    [JsonIgnore] public string Label => (Enabled ? "启用 · " : "停用 · ") + Pass + " · " + Component;
+    [JsonIgnore] public string Label => global::UnattendLocal.Localization.UiText.Concat(new object?[] { global::UnattendLocal.Localization.UiText.Concat(new object?[] { (Enabled ? global::UnattendLocal.Localization.UiText.Source("text.ffb37c8f4af0") : global::UnattendLocal.Localization.UiText.Source("text.2737a5a13905")), Pass },new bool[] { false, false }), " · ", Component },new bool[]{false,false,false});
 }
 
 public static class AdditionalXmlSettings
 {
     public const int MaxCount = 15, MaxLength = 131072;
-    public const string Example = "<OEMInformation>\n  <SupportProvider>示例技术支持</SupportProvider>\n  <SupportURL>https://example.com/support</SupportURL>\n</OEMInformation>";
+    public static readonly string Example = global::UnattendLocal.Localization.UiText.Source("text.01c258b845e1");
     private static readonly Lazy<UnattendGenerator> Catalog = new(() => new());
     public static IReadOnlyList<string> Components => Catalog.Value.Components.Keys.Order(StringComparer.Ordinal).ToArray();
     public record PhaseChoice(string Id, string Label);
-    public static PhaseChoice[] Passes => [new("windowsPE", "Windows PE 安装环境（windowsPE）"), new("offlineServicing", "脱机维护（offlineServicing）"), new("generalize", "系统通用化（generalize）"), new("specialize", "系统安装配置（specialize）"), new("auditSystem", "审核模式系统配置（auditSystem）"), new("auditUser", "审核模式用户配置（auditUser）"), new("oobeSystem", "首次开机准备（oobeSystem）")];
+    public static PhaseChoice[] Passes => [new("windowsPE", global::UnattendLocal.Localization.UiText.Source("text.48694c417434")), new("offlineServicing", global::UnattendLocal.Localization.UiText.Source("text.1c69f09085d1")), new("generalize", global::UnattendLocal.Localization.UiText.Source("text.e0bfcb6182f5")), new("specialize", global::UnattendLocal.Localization.UiText.Source("text.74b1377ca623")), new("auditSystem", global::UnattendLocal.Localization.UiText.Source("text.b62eef04e8bd")), new("auditUser", global::UnattendLocal.Localization.UiText.Source("text.7df9ef1246ad")), new("oobeSystem", global::UnattendLocal.Localization.UiText.Source("text.6fe4b8c2d667"))];
 
     // These fields are parsed by existing UI controls, including after a snapshot import.
     // Letting fragments own them would create two editors for one setting on re-import.
@@ -45,41 +45,41 @@ public static class AdditionalXmlSettings
     {
         if (!Catalog.Value.Components.TryGetValue(row.Component ?? "", out var component) ||
             !Enum.TryParse<Pass>(row.Pass, out var pass) || !Enum.IsDefined(pass) || row.Pass != pass.ToString() || !component.Passes.Contains(pass))
-            throw new ConfigurationValidationException(nameof(InstallPlan.XmlComponents), "额外 XML 的组件与执行阶段不匹配，请核对当前组件目录及微软文档。");
+            throw new ConfigurationValidationException(nameof(InstallPlan.XmlComponents), global::UnattendLocal.Localization.UiText.Source("text.88472f8d1d84"));
         if (string.IsNullOrWhiteSpace(row.Content) || row.Content.Length > MaxLength)
-            throw new ConfigurationValidationException(nameof(InstallPlan.XmlComponents), "请填写额外 XML 的子元素，每项最多 131,072 个字符。");
+            throw new ConfigurationValidationException(nameof(InstallPlan.XmlComponents), global::UnattendLocal.Localization.UiText.Source("text.e2e5b70a48cc"));
         try
         {
             using var reader = XmlReader.Create(new StringReader("<root xmlns='" + XmlMerge.Namespace + "' xmlns:wcm='http://schemas.microsoft.com/WMIConfig/2002/State' xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance'>" + row.Content + "</root>"),
                 new XmlReaderSettings { DtdProcessing = DtdProcessing.Prohibit, XmlResolver = null, MaxCharactersInDocument = MaxLength + 1024 });
             var doc = new XmlDocument { XmlResolver = null }; doc.Load(reader);
-            if(doc.SelectNodes("//processing-instruction()")!.Count>0)throw new ArgumentException("额外 XML 不支持处理指令。");
+            if(doc.SelectNodes("//processing-instruction()")!.Count>0)throw new ArgumentException(global::UnattendLocal.Localization.UiText.Source("text.bd1c5b82683e"));
             var pending=new Stack<(XmlElement Node,int Depth)>();pending.Push((doc.DocumentElement!,0));int count=0;
-            while(pending.Count>0){var item=pending.Pop();if(item.Depth>64||++count>2048)throw new ArgumentException("额外 XML 层级或项目过多，每项最多 64 层、2,048 个元素。");foreach(var child in item.Node.ChildNodes.OfType<XmlElement>())pending.Push((child,item.Depth+1));}
+            while(pending.Count>0){var item=pending.Pop();if(item.Depth>64||++count>2048)throw new ArgumentException(global::UnattendLocal.Localization.UiText.Source("text.ca275b850bc5"));foreach(var child in item.Node.ChildNodes.OfType<XmlElement>())pending.Push((child,item.Depth+1));}
             var elements = doc.DocumentElement!.ChildNodes.OfType<XmlElement>().ToArray();
             if (elements.Length == 0 || doc.DocumentElement.ChildNodes.Cast<XmlNode>().Any(n => n is not (XmlElement or XmlComment or XmlWhitespace or XmlSignificantWhitespace) && !string.IsNullOrWhiteSpace(n.Value)))
-                throw new ArgumentException("额外 XML 需包含一个或多个设置子元素，不能只有文本。");
+                throw new ArgumentException(global::UnattendLocal.Localization.UiText.Source("text.59606a826069"));
             if (doc.SelectNodes("//*")!.Cast<XmlElement>().Any(e => e != doc.DocumentElement && (e.NamespaceURI != XmlMerge.Namespace || e.LocalName is "unattend" or "settings" or "component" or "Extensions")))
-                throw new ArgumentException("只填写应答文件命名空间中的设置子元素，不要包含 unattend、settings、component 或扩展文件包装。");
+                throw new ArgumentException(global::UnattendLocal.Localization.UiText.Source("text.c1bf6135a33a"));
             if (elements.GroupBy(e => e.LocalName).Any(g => g.Count() > 1))
-                throw new ArgumentException("额外 XML 的顶层设置名称不能重复；列表项目应放在同一个设置元素内。");
+                throw new ArgumentException(global::UnattendLocal.Localization.UiText.Source("text.7fd7dde81ef1"));
             if(Managed.TryGetValue(row.Component ?? "",out var managed)&&elements.Any(element=>managed.Contains(element.LocalName)))
-                throw new ArgumentException("此顶层设置已有对应界面或生成流程，请使用现有控件，不能通过额外 XML 重复配置。");
+                throw new ArgumentException(global::UnattendLocal.Localization.UiText.Source("text.e5e224fffa61"));
             return doc;
         }
         catch (Exception e) when (e is XmlException or ArgumentException)
         {
-            throw new ConfigurationValidationException(nameof(InstallPlan.XmlComponents), "额外 XML 无效：" + e.Message);
+            throw new ConfigurationValidationException(nameof(InstallPlan.XmlComponents), global::UnattendLocal.Localization.UiText.Concat(new object?[] { global::UnattendLocal.Localization.UiText.Source("text.3bfa38fae34b"), e.Message },new bool[]{false,false}));
         }
     }
 
     public static void Validate(InstallPlan plan, bool requireConsent)
     {
         if (plan.XmlComponents == null || plan.XmlComponents.Count > MaxCount || plan.XmlComponents.Any(row => row == null))
-            throw new ConfigurationValidationException(nameof(InstallPlan.XmlComponents), "额外 XML 组件列表无效，最多 15 项。");
+            throw new ConfigurationValidationException(nameof(InstallPlan.XmlComponents), global::UnattendLocal.Localization.UiText.Source("text.c21c4601cc0d"));
         foreach (var row in plan.XmlComponents.Where(row => row.Enabled)) _ = Parse(row);
         if (requireConsent && plan.XmlComponents.Any(row => row.Enabled) && !plan.ConfirmAdditionalXml)
-            throw new ConfigurationValidationException(nameof(InstallPlan.XmlComponents), "请先核对额外 XML 的设置、执行阶段及实际作用，并勾选确认；结构检查不能代替目标镜像验证。");
+            throw new ConfigurationValidationException(nameof(InstallPlan.XmlComponents), global::UnattendLocal.Localization.UiText.Source("text.a71066b92d40"));
     }
 
     // Add independent child settings; never replace content managed by existing controls.
@@ -89,7 +89,7 @@ public static class AdditionalXmlSettings
         {
             var fragment = Parse(row);
             var groups = doc.DocumentElement!.ChildNodes.OfType<XmlElement>().Where(e => e.LocalName == "settings" && e.NamespaceURI == XmlMerge.Namespace && e.GetAttribute("pass") == row.Pass).ToArray();
-            if (groups.Length > 1) throw new ArgumentException("额外 XML 的执行阶段重复，不能可靠添加。");
+            if (groups.Length > 1) throw new ArgumentException(global::UnattendLocal.Localization.UiText.Source("text.6f30b6c91229"));
             if (groups.Length == 0)
             {
                 var group = doc.CreateElement("settings", XmlMerge.Namespace); group.SetAttribute("pass", row.Pass); var extensions=doc.DocumentElement.ChildNodes.OfType<XmlElement>().FirstOrDefault(e=>e.NamespaceURI!=XmlMerge.Namespace); doc.DocumentElement.InsertBefore(group,extensions);
@@ -98,7 +98,7 @@ public static class AdditionalXmlSettings
             foreach (var child in fragment.DocumentElement!.ChildNodes.OfType<XmlElement>())
             {
                 if (target.ChildNodes.OfType<XmlElement>().Any(e => e.LocalName == child.LocalName && e.NamespaceURI == child.NamespaceURI))
-                    throw new ConfigurationValidationException(nameof(InstallPlan.XmlComponents), "额外 XML 与已有设置或其他条目重复：" + row.Pass + " / " + row.Component + " / " + child.LocalName + "。请通过原有设置修改，或移除重复的额外 XML。");
+                    throw new ConfigurationValidationException(nameof(InstallPlan.XmlComponents), global::UnattendLocal.Localization.UiText.Concat(new object?[] { global::UnattendLocal.Localization.UiText.Source("text.985780fa809e"), row.Pass, " / ", row.Component, " / ", child.LocalName, global::UnattendLocal.Localization.UiText.Source("text.07a755a5147c") },new bool[]{false,false,false,false,false,true,false}));
                 target.AppendChild(doc.ImportNode(child, true));
             }
         }
@@ -113,7 +113,7 @@ public static class AdditionalXmlSettings
             foreach (var child in fragment.DocumentElement!.ChildNodes.OfType<XmlElement>())
                 foreach (XmlElement value in preview.SelectNodes("/u:unattend/u:settings[@pass='" + row.Pass + "']/u:component[@name='" + row.Component + "']/u:" + child.LocalName, ns)!)
                 {
-                    value.RemoveAll(); value.InnerText = "[额外 XML 内容已遮蔽，请核对实际导出文件]";
+                    value.RemoveAll(); value.InnerText = global::UnattendLocal.Localization.UiText.Source("text.9b148fe92613");
                 }
         }
     }

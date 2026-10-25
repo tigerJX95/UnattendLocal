@@ -12,23 +12,23 @@ public static class ProcessAuditSettings
     public static IReadOnlyList<string> Modes { get; } = new[] { Default, Enabled, WithCommandLine };
     public const string AuditCommand = "auditpol.exe /set /subcategory:\"{0CCE922B-69AE-11D9-BED3-505054503030}\" /success:enable /failure:enable;";
     public const string CommandLineCommand = "reg.exe add \"HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Policies\\System\\Audit\" /v ProcessCreationIncludeCmdLine_Enabled /t REG_DWORD /d 1 /f;";
-    public const string Description = "在目标 Windows 的 specialize 阶段沿用原生成器设置进程创建审计，启用后可在安全日志查看进程创建事件（4688）。只启用审计时，不写入命令行记录策略覆盖；已有镜像或组织策略仍可能记录命令行。选择记录命令行时，参数会明文写入安全日志，可能包含密码、密钥或令牌，有权读取安全日志的人可查看；日志量也可能增加。不是屏幕录制或程序运行报告。默认不配置，不修改当前电脑。切回默认仅影响新生成配置，不关闭已安装系统的审计、不删除已有日志。";
+    public static readonly string Description = global::UnattendLocal.Localization.UiText.Source("text.00b2b1d95cc5");
     public static IProcessAuditSettings Build(InstallPlan p) => p.ProcessAuditMode switch
     {
         Default => new DisabledProcessAuditSettings(),
         Enabled => new EnabledProcessAuditSettings(false),
         WithCommandLine => new EnabledProcessAuditSettings(true),
-        _ => throw new ArgumentException("请选择有效的进程创建审计模式。")
+        _ => throw new ArgumentException(global::UnattendLocal.Localization.UiText.Source("text.2f176f30d848"))
     };
     public static string ModeSummary(InstallPlan p) => p.ProcessAuditMode switch
     {
-        Default => "遵循 Windows 默认设置（不写入覆盖）",
-        Enabled => "启用进程创建审计；命令行记录遵循已有策略",
-        WithCommandLine => "启用进程创建审计并明文记录命令行参数",
-        _ => "模式无效，请重新选择"
+        Default => global::UnattendLocal.Localization.UiText.Source("text.51b24d043869"),
+        Enabled => global::UnattendLocal.Localization.UiText.Source("text.8deb3f230a96"),
+        WithCommandLine => global::UnattendLocal.Localization.UiText.Source("text.97aa91689fe7"),
+        _ => global::UnattendLocal.Localization.UiText.Source("text.d56a00583df4")
     };
-    public static string Summary(InstallPlan p) => "进程创建审计：" + ModeSummary(p);
-    private static string Normal(string body) => string.Join('\n', body.Replace("\r\n", "\n").Split('\n').Select(l => l.Trim()).Where(l => l.Length > 0));
+    public static string Summary(InstallPlan p) => global::UnattendLocal.Localization.UiText.Concat(new object?[] { global::UnattendLocal.Localization.UiText.Source("text.e973c65acea3"), ModeSummary(p) },new bool[]{false,false});
+    private static string Normal(string body) => global::UnattendLocal.Localization.UiText.Join('\n', body.Replace("\r\n", "\n").Split('\n').Select(l => l.Trim()).Where(l => l.Length > 0), false);
     public record Source(string Mode, bool Ambiguous);
     public static Source Inspect(XmlDocument doc)
     {
@@ -36,7 +36,7 @@ public static class ProcessAuditSettings
         var files = doc.SelectNodes("//*[local-name()='File']")!.Cast<XmlElement>();
         var ns = new XmlNamespaceManager(doc.NameTable); ns.AddNamespace("u", XmlMerge.Namespace);
         var paths = doc.SelectNodes("//u:settings[@pass='specialize']//u:Path", ns)!.Cast<XmlElement>();
-        string[] markers = ["0CCE922B-69AE-11D9-BED3-505054503030", "ProcessCreationIncludeCmdLine", "Process Creation", "进程创建"];
+        string[] markers = ["0CCE922B-69AE-11D9-BED3-505054503030", "ProcessCreationIncludeCmdLine", "Process Creation", global::UnattendLocal.Localization.UiText.Source("text.6d7b5be63c89")];
         var relevant = files.SelectMany(f => Normal(f.InnerText).Split('\n')).Concat(paths.Select(p => p.InnerText)).Where(l => markers.Any(m => l.Contains(m, StringComparison.OrdinalIgnoreCase))).ToArray();
         bool audit = blocks.Count(b => b == AuditCommand) == 1 && relevant.Count(l => l == AuditCommand) == 1;
         bool commandLine = blocks.Count(b => b == CommandLineCommand) == 1 && relevant.Count(l => l == CommandLineCommand) == 1;
@@ -46,12 +46,12 @@ public static class ProcessAuditSettings
     public static void ReadIntoPlan(XmlDocument doc, InstallPlan p, List<string> notes)
     {
         var state = Inspect(doc); p.ProcessAuditMode = state.Mode;
-        if (state.Ambiguous) notes.Add("进程创建审计命令或执行管线未完整识别，原文保留；不能用该设置覆盖。");
+        if (state.Ambiguous) notes.Add(global::UnattendLocal.Localization.UiText.Source("text.c3c2c55cb022"));
     }
     public static void ValidateImported(InstallPlan p, XmlDocument doc)
     {
         if (p.ProcessAuditMode != Default && Inspect(doc).Ambiguous)
-            throw new ArgumentException("进程创建审计与原 XML 中未完整识别的设置重叠，请用原工具调整后重新导入。");
+            throw new ArgumentException(global::UnattendLocal.Localization.UiText.Source("text.e5cca573d529"));
     }
     public static void NormalizeLoaded(InstallPlan p, JsonElement json)
     {
@@ -60,7 +60,7 @@ public static class ProcessAuditSettings
         var before = JsonSerializer.Deserialize<InstallPlan>(JsonSerializer.Serialize(p))!;
         before.ImportedXml = null; before.ConfirmWipeDisk = before.ConfirmFormatPartition = before.ConfirmDiskScript = true;
         p.ProcessAuditMode = state.Mode;
-        if (state.Ambiguous) data.Notices = data.Notices.Append("进程创建审计未完整识别，原文保留，不能覆盖。").Distinct().ToArray();
+        if (state.Ambiguous) data.Notices = data.Notices.Append(global::UnattendLocal.Localization.UiText.Source("text.d003e816ce06")).Distinct().ToArray();
         if (state.Mode == Default) return;
         var after = JsonSerializer.Deserialize<InstallPlan>(JsonSerializer.Serialize(before))!; after.ProcessAuditMode = state.Mode;
         try
@@ -70,7 +70,7 @@ public static class ProcessAuditSettings
         }
         catch (Exception e) when (e is ArgumentException or ConfigurationException or XmlException)
         {
-            data.Blockers = data.Blockers.Append("旧方案的进程审计编辑基准无法可靠迁移，请重新导入原 XML 后再导出。").Distinct().ToArray();
+            data.Blockers = data.Blockers.Append(global::UnattendLocal.Localization.UiText.Source("text.84a95ebeca49")).Distinct().ToArray();
         }
     }
 }

@@ -24,7 +24,7 @@ public sealed class ColorPickerModel : Observable
     public string ColorHex => $"#{red:X2}{green:X2}{blue:X2}";
     public string HueHex { get { var (r,g,b)=FromHsv(hue,1,1); return $"#{r:X2}{g:X2}{b:X2}"; } }
     public bool IsValid => ColorSettings.TryNormalize(hex, out _);
-    public string ValidationMessage => UseWindowsDefault ? "将恢复 Windows 默认；点击确定后生效，取消仍保留打开前设置。" : IsValid ? "HEX 与 RGB 会双向同步；可在色板中拖动选择。" : "请输入完整的 #RRGGBB；无效颜色不能应用。";
+    public string ValidationMessage => UseWindowsDefault ? global::UnattendLocal.Localization.UiText.Source("text.a8db5364e534") : IsValid ? global::UnattendLocal.Localization.UiText.Source("text.e81fc282cfdf") : global::UnattendLocal.Localization.UiText.Source("text.8b18c272cf7b");
     public int Red { get => red; set { if (red == value) return; red = Math.Clamp(value,0,255); FromRgb(); } }
     public int Green { get => green; set { if (green == value) return; green = Math.Clamp(value,0,255); FromRgb(); } }
     public int Blue { get => blue; set { if (blue == value) return; blue = Math.Clamp(value,0,255); FromRgb(); } }

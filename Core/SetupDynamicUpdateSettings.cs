@@ -12,10 +12,10 @@ public static class SetupDynamicUpdateSettings {
  public const string UiAlways="始终显示更新界面";
  public static string[] Modes=>[Default,Enabled,Disabled];
  public static string[] UiModes=>[UiDefault,UiOnError,UiNever,UiAlways];
- public const string ReadOnlyNotice="原 XML 的动态更新配置或 PE 流程未完整识别，原文保留；动态更新区域只读，不能用界面默认值覆盖。";
- public const string Description="默认不写入覆盖。此项控制 Windows Setup 安装阶段的动态更新，可获取新的安装文件、驱动及其他安装所需文件；实际支持及联网行为取决于目标安装程序、介质、网络和组织策略。启用不保证能取得更新，也不替代安装后的 Windows Update；禁用仅影响此安装阶段，不关闭安装后的更新服务。界面显示行为可独立设置；默认不写入 WillShowUI，微软文档的默认值为仅出错时显示。不显示更新界面不保证隐藏严重错误，也不自动处理错误。更改动态更新方式后需重新确认危险磁盘操作。不会更改当前电脑，不会配置 PE 网络或访问凭据。自定义 PE/DISM 安装流程只读保留，不由本区域覆盖。";
+ public static readonly string ReadOnlyNotice=global::UnattendLocal.Localization.UiText.Source("text.07f6f2af0ae4");
+ public static readonly string Description=global::UnattendLocal.Localization.UiText.Source("text.c0de46d77a33");
  private const string Component="Microsoft-Windows-Setup";
- private const string MigrationBlocker="旧方案的动态更新编辑基准无法可靠迁移，请重新导入原 XML；当前待处理修改保留。";
+ private static readonly string MigrationBlocker=global::UnattendLocal.Localization.UiText.Source("text.f5ad704b26dd");
  public record Source(bool Present,bool Known,string Mode,string UiMode);
  private static XmlNamespaceManager Ns(XmlDocument doc){var ns=new XmlNamespaceManager(doc.NameTable);ns.AddNamespace("u",XmlMerge.Namespace);return ns;}
  private static XmlElement[] Nodes(XmlDocument doc)=>doc.SelectNodes("//*[local-name()='DynamicUpdate']")!.Cast<XmlElement>().ToArray();
@@ -23,15 +23,15 @@ public static class SetupDynamicUpdateSettings {
  public static bool CanEdit(InstallPlan p)=>p.ImportedXml?.SetupDynamicUpdateReadOnly!=true;
  private static bool Configured(InstallPlan p)=>p.SetupDynamicUpdateMode!=Default||p.SetupDynamicUpdateUi!=UiDefault;
  public static void Validate(InstallPlan p){
-  if(!Modes.Contains(p.SetupDynamicUpdateMode)||!UiModes.Contains(p.SetupDynamicUpdateUi))throw new ArgumentException("请选择有效的安装阶段动态更新及界面显示方式。");
+  if(!Modes.Contains(p.SetupDynamicUpdateMode)||!UiModes.Contains(p.SetupDynamicUpdateUi))throw new ArgumentException(global::UnattendLocal.Localization.UiText.Source("text.c25a7cde28d1"));
  }
- private static string? UiValue(string mode)=>mode switch {UiDefault=>null,UiOnError=>"OnError",UiNever=>"Never",UiAlways=>"Always",_=>throw new ArgumentException("动态更新界面显示方式无效。")};
- public static string Summary(InstallPlan p)=>!CanEdit(p)?"安装阶段动态更新：原 XML 只读保留，请核对原文。":"安装阶段动态更新："+p.SetupDynamicUpdateMode+"；"+p.SetupDynamicUpdateUi+"。";
+ private static string? UiValue(string mode)=>mode switch {UiDefault=>null,UiOnError=>"OnError",UiNever=>"Never",UiAlways=>"Always",_=>throw new ArgumentException(global::UnattendLocal.Localization.UiText.Source("text.01d09529958c"))};
+ public static string Summary(InstallPlan p)=>!CanEdit(p)?global::UnattendLocal.Localization.UiText.Source("text.d76eb772da6b"):global::UnattendLocal.Localization.UiText.Concat(new object?[] { global::UnattendLocal.Localization.UiText.Source("text.6ae881a5eaa2"), p.SetupDynamicUpdateMode, "；", p.SetupDynamicUpdateUi, "。" },new bool[]{false,false,false,false,false});
  public static void Apply(XmlDocument doc,XmlNamespaceManager ns,InstallPlan p){
   Validate(p);if(!Configured(p))return;
-  if(Nodes(doc).Length>0||SetupDriverSettings.CustomPe(doc))throw new ArgumentException("已有动态更新配置或自定义 PE 流程，不能重复添加动态更新设置。");
+  if(Nodes(doc).Length>0||SetupDriverSettings.CustomPe(doc))throw new ArgumentException(global::UnattendLocal.Localization.UiText.Source("text.ffd10393c9d2"));
   var components=SetupComponents(doc);
-  if(components.Length!=1||components[0].ParentNode is not XmlElement settings||settings.ParentNode!=doc.DocumentElement||settings.GetAttribute("pass")!="windowsPE"||components[0].GetAttribute("processorArchitecture")!=p.Architecture)throw new ArgumentException("缺少唯一匹配的 Windows Setup / windowsPE 组件，不能配置动态更新。");
+  if(components.Length!=1||components[0].ParentNode is not XmlElement settings||settings.ParentNode!=doc.DocumentElement||settings.GetAttribute("pass")!="windowsPE"||components[0].GetAttribute("processorArchitecture")!=p.Architecture)throw new ArgumentException(global::UnattendLocal.Localization.UiText.Source("text.a601076935d7"));
   var node=doc.CreateElement("DynamicUpdate",XmlMerge.Namespace);components[0].PrependChild(node);
   void Add(string name,string value){var e=doc.CreateElement(name,XmlMerge.Namespace);e.InnerText=value;node.AppendChild(e);}
   if(p.SetupDynamicUpdateMode!=Default)Add("Enable",p.SetupDynamicUpdateMode==Enabled?"true":"false");

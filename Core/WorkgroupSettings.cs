@@ -6,30 +6,30 @@ namespace UnattendLocal.Core;
 public static class WorkgroupSettings
 {
     private const string Component = "Microsoft-Windows-UnattendedJoin";
-    public const string ReadOnlyNotice = "原 XML 的域/工作组加入配置未完整识别，原文保留；工作组区域只读，不能覆盖域加入、凭据或其他未知设置。";
-    private const string MigrationBlocker = "旧方案的工作组编辑基准无法可靠迁移，请重新导入原 XML；当前待处理修改保留。";
-    public const string Description = "默认不指定工作组，遵循 Windows 安装默认行为。启用后在 specialize 阶段指定目标电脑的工作组名称。本版采用便于跨语言部署的名称范围：1–15 个英文字母、数字或连字符，首尾须为字母或数字，至少含一个字母。不能与已知固定计算机名相同；动态生成的计算机名须在安装时核对。不会加入域、创建账户、开启共享、网络发现或修改当前电脑。完整识别的原生工作组可修改或取消；含域加入、凭据、离线加入或其他额外结构时原文只读保留。省略凭据时仍保存工作组名称，预览不遮蔽名称。";
+    public static readonly string ReadOnlyNotice = global::UnattendLocal.Localization.UiText.Source("text.0be8bf11c431");
+    private static readonly string MigrationBlocker = global::UnattendLocal.Localization.UiText.Source("text.2bc1ca99d59c");
+    public static readonly string Description = global::UnattendLocal.Localization.UiText.Source("text.af34fa2c43c9");
     public record Source(bool Present, bool Known, string Name, string Architecture = "amd64");
     private static XmlElement[] Nodes(XmlDocument d) => d.SelectNodes("//*[local-name()='JoinWorkgroup' or local-name()='JoinDomain']")!.Cast<XmlElement>().ToArray();
     public static bool CanEdit(InstallPlan p) => p.ImportedXml?.WorkgroupReadOnly != true;
     public static void ValidateName(string? name)
     {
         if (name == null || !Regex.IsMatch(name, @"\A[A-Za-z0-9](?:[A-Za-z0-9-]{0,13}[A-Za-z0-9])?\z", RegexOptions.CultureInvariant) || !name.Any(char.IsAsciiLetter))
-            throw new ArgumentException("工作组名称须为 1–15 个英文字母、数字或连字符，首尾为字母或数字，且至少包含一个英文字母。");
+            throw new ArgumentException(global::UnattendLocal.Localization.UiText.Source("text.2da4b17730ad"));
     }
     public static void Validate(InstallPlan p)
     {
         if (!p.UseWorkgroup) return;
         ValidateName(p.WorkgroupName);
-        if (p.ComputerNameMode == ComputerNamingSettings.Existing && p.WorkgroupName.Equals(p.ComputerName, StringComparison.OrdinalIgnoreCase)) throw new ArgumentException("工作组名称不能与固定计算机名相同。");
+        if (p.ComputerNameMode == ComputerNamingSettings.Existing && p.WorkgroupName.Equals(p.ComputerName, StringComparison.OrdinalIgnoreCase)) throw new ArgumentException(global::UnattendLocal.Localization.UiText.Source("text.26eac63f6428"));
     }
-    public static string Summary(InstallPlan p) => !CanEdit(p) ? "工作组：原 XML 的域/工作组配置只读保留，请核对原文。" : p.UseWorkgroup ? "工作组：" + p.WorkgroupName + "（specialize）" : "工作组：不写入覆盖。";
+    public static string Summary(InstallPlan p) => !CanEdit(p) ? global::UnattendLocal.Localization.UiText.Source("text.82740df2e975") : p.UseWorkgroup ? global::UnattendLocal.Localization.UiText.Concat(new object?[] { global::UnattendLocal.Localization.UiText.Source("text.59d05a089dd9"), p.WorkgroupName, "（specialize）" },new bool[]{false,true,false}) : global::UnattendLocal.Localization.UiText.Source("text.5fb3fcbc70b7");
     public static void Apply(XmlDocument doc, InstallPlan p)
     {
         Validate(p);
         bool retain = p.ImportedXml is { WorkgroupReadOnly: false, SourceXml.Length: > 0 } imported && Inspect(XmlMerge.Read(imported.SourceXml)) is { Present: true, Known: true };
         if (!p.UseWorkgroup && !retain) return;
-        if (Nodes(doc).Length > 0 || NativeSetupXml.Components(doc, Component).Length > 0) throw new ArgumentException("生成基准已有域/工作组组件，不能重复添加工作组配置。");
+        if (Nodes(doc).Length > 0 || NativeSetupXml.Components(doc, Component).Length > 0) throw new ArgumentException(global::UnattendLocal.Localization.UiText.Source("text.f0134570f556"));
         var component = NativeSetupXml.GetComponent(doc, Component, "specialize", p.Architecture);
         var id = NativeSetupXml.Add(component, "Identification");
         if (p.UseWorkgroup) NativeSetupXml.Add(id, "JoinWorkgroup", p.WorkgroupName);

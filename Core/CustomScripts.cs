@@ -9,41 +9,41 @@ public class ScriptEntry : Observable {
  private string type="Ps1";public string Type {get=>type;set{Set(ref type,value);Notify(nameof(Example));Notify(nameof(Label));Notify(nameof(Hint));Notify(nameof(IsRemovedType));}}
  private string content="";public string Content {get=>content;set=>Set(ref content,value);}
  [JsonIgnore] public bool IsRemovedType=>string.Equals(Type,"Js",StringComparison.OrdinalIgnoreCase);
- [JsonIgnore] public string Label=>(string.IsNullOrWhiteSpace(Name)?"":Name.Trim()+" · ")+(IsRemovedType?"JScript（.js）已停止支持，请移除或手动改写":$"{CustomScripts.PhaseLabel(Phase)} · .{Type.ToLowerInvariant()}");
- [JsonIgnore] public string Hint=>IsRemovedType?"JScript（.js）已停止支持。旧脚本内容保留并停用；请移除或手动改写，不会自动转换格式。":Phase switch {
-  "System"=>"系统安装（specialize）：以 SYSTEM 身份执行，在创建用户账户之前。",
-  "DefaultUser"=>"默认用户配置：在 System 后、创建账户前执行。默认用户注册表已挂载为 HKU\\DefaultUser，勿使用 HKCU 修改模板。",
-  "FirstLogon"=>"全机首次登录：首个用户登录时执行一次。管理员首次登录时通常具有提升权限；不会自动开启自动登录。",
-  "UserOnce"=>"每个用户首次登录：通过默认用户 RunOnce 执行，在各用户上下文中运行；不能保证桌面已完全加载，也不自动提升权限。",
-  _=>"请选择有效执行阶段。"};
- [JsonIgnore] public string Example=>Phase=="System"&&Type=="Cmd"?CustomScripts.DirectoryExample:Phase=="FirstLogon"&&Type=="Ps1"?CustomScripts.NetworkExample:"填写脚本内容；空白不会载入任何示例。\nDefaultUser 注册表前缀：\n.cmd：HKU\\DefaultUser\\…\n.ps1：Registry::HKU\\DefaultUser\\…\n.reg：[HKEY_USERS\\DefaultUser\\…]";
+ [JsonIgnore] public string Label=>global::UnattendLocal.Localization.UiText.Concat(new object?[] { (string.IsNullOrWhiteSpace(Name)?"":Name.Trim()+" · "), (IsRemovedType?global::UnattendLocal.Localization.UiText.Source("text.f16e63ea9048"):$"{CustomScripts.PhaseLabel(Phase)} · .{Type.ToLowerInvariant()}") },new bool[] { true, false });
+ [JsonIgnore] public string Hint=>IsRemovedType?global::UnattendLocal.Localization.UiText.Source("text.d88a757877d2"):Phase switch {
+  "System"=>global::UnattendLocal.Localization.UiText.Source("text.df68c33e673d"),
+  "DefaultUser"=>global::UnattendLocal.Localization.UiText.Source("text.f0518d6f658d"),
+  "FirstLogon"=>global::UnattendLocal.Localization.UiText.Source("text.99cfd7ccc574"),
+  "UserOnce"=>global::UnattendLocal.Localization.UiText.Source("text.57f0b5c7ffba"),
+  _=>global::UnattendLocal.Localization.UiText.Source("text.c04c267d85a1")};
+ [JsonIgnore] public string Example=>Phase=="System"&&Type=="Cmd"?CustomScripts.DirectoryExample:Phase=="FirstLogon"&&Type=="Ps1"?CustomScripts.NetworkExample:global::UnattendLocal.Localization.UiText.Source("text.24458f3c07fe");
 }
 public static class CustomScripts {
  public const int MaxNameLength=80;
  public static void ValidateName(string name){
-  if(name.Length>MaxNameLength||name.Any(char.IsControl))throw new ArgumentException("脚本名称最多 80 个字符，且不能包含换行或控制字符。");
-  try{System.Xml.XmlConvert.VerifyXmlChars(name);}catch(System.Xml.XmlException){throw new ArgumentException("脚本名称包含无效字符。");}
+  if(name.Length>MaxNameLength||name.Any(char.IsControl))throw new ArgumentException(global::UnattendLocal.Localization.UiText.Source("text.92900c89549e"));
+  try{System.Xml.XmlConvert.VerifyXmlChars(name);}catch(System.Xml.XmlException){throw new ArgumentException(global::UnattendLocal.Localization.UiText.Source("text.9e72b6eb398c"));}
  }
  public const string DirectoryExample="setx.exe DIRCMD \"/A /O:GN /C /N\" /m";
  public const string NetworkExample="Get-NetConnectionProfile -InterfaceAlias 'Ethernet*' | Set-NetConnectionProfile -NetworkCategory 'Private';";
- public static string PhaseLabel(string phase)=>phase switch {"System"=>"系统安装时","DefaultUser"=>"默认用户配置","FirstLogon"=>"全机首次登录","UserOnce"=>"每个用户首次登录",_=>"未知阶段"};
+ public static string PhaseLabel(string phase)=>phase switch {"System"=>global::UnattendLocal.Localization.UiText.Source("text.c46f6d22bea9"),"DefaultUser"=>global::UnattendLocal.Localization.UiText.Source("text.3db15e52c093"),"FirstLogon"=>global::UnattendLocal.Localization.UiText.Source("text.82f0d8457c07"),"UserOnce"=>global::UnattendLocal.Localization.UiText.Source("text.69bb08106fb5"),_=>global::UnattendLocal.Localization.UiText.Source("text.8106dad736f1")};
  public static ScriptEntry Duplicate(InstallPlan p,ScriptEntry source){
-  int index=p.Scripts.IndexOf(source);if(index<0)throw new ArgumentException("请选择当前方案中的脚本。");
-  if(p.Scripts.Count>=60)throw new ArgumentException("最多 60 条脚本。");
+  int index=p.Scripts.IndexOf(source);if(index<0)throw new ArgumentException(global::UnattendLocal.Localization.UiText.Source("text.02e7f6d78d69"));
+  if(p.Scripts.Count>=60)throw new ArgumentException(global::UnattendLocal.Localization.UiText.Source("text.bca97a516f08"));
   var copy=new ScriptEntry{Name=source.Name,Enabled=false,Phase=source.Phase,Type=source.Type,Content=source.Content};p.Scripts.Insert(index+1,copy);return copy;
  }
  public static ScriptSettings Build(InstallPlan p){
-  if(p.Scripts==null||p.Scripts.Any(s=>s==null)||p.Scripts.Count>60)throw new ArgumentException("自定义脚本列表无效，最多 60 条。");
+  if(p.Scripts==null||p.Scripts.Any(s=>s==null)||p.Scripts.Count>60)throw new ArgumentException(global::UnattendLocal.Localization.UiText.Source("text.1cdf8549adec"));
   var result=new List<Script>();
   foreach(var row in p.Scripts.Where(s=>s.Enabled)){
-   if(row.IsRemovedType)throw new ArgumentException("JScript（.js）已停止支持；请停用、移除或手动改写该脚本后再导出。");
-   if(!Enum.TryParse<ScriptPhase>(row.Phase,out var phase)||!Enum.IsDefined(phase)||row.Phase!=phase.ToString())throw new ArgumentException("请选择有效脚本阶段。");
-   if(!Enum.TryParse<ScriptType>(row.Type,out var type)||!Enum.IsDefined(type)||row.Type!=type.ToString()||!phase.GetAllowedTypes().Contains(type))throw new ArgumentException("请选择有效脚本格式；DefaultUser 仅支持 CMD、PowerShell 和 REG。");
+   if(row.IsRemovedType)throw new ArgumentException(global::UnattendLocal.Localization.UiText.Source("text.e6495adccb35"));
+   if(!Enum.TryParse<ScriptPhase>(row.Phase,out var phase)||!Enum.IsDefined(phase)||row.Phase!=phase.ToString())throw new ArgumentException(global::UnattendLocal.Localization.UiText.Source("text.fd772a42d227"));
+   if(!Enum.TryParse<ScriptType>(row.Type,out var type)||!Enum.IsDefined(type)||row.Type!=type.ToString()||!phase.GetAllowedTypes().Contains(type))throw new ArgumentException(global::UnattendLocal.Localization.UiText.Source("text.92a3d9fff9ef"));
    ScriptFiles.ValidateContent(row.Content);
-   if(result.Count(s=>s.Phase==phase)>=15)throw new ArgumentException("每个执行阶段最多启用 15 条脚本。");
+   if(result.Count(s=>s.Phase==phase)>=15)throw new ArgumentException(global::UnattendLocal.Localization.UiText.Source("text.589016ad3a88"));
    result.Add(new Script(row.Content,phase,type));
   }
   return new ScriptSettings(result,p.RestartExplorerAfterScripts);
  }
- public static string Summary(InstallPlan p)=>"自定义脚本："+string.Join("；",new[]{"System","DefaultUser","FirstLogon","UserOnce"}.Select(phase=>$"{PhaseLabel(phase)} {p.Scripts?.Count(s=>s!=null&&s.Enabled&&s.Phase==phase)??0} 条"))+$"；脚本后重启资源管理器 {(p.RestartExplorerAfterScripts?"开启":"关闭")}";
+ public static string Summary(InstallPlan p)=>global::UnattendLocal.Localization.UiText.Concat(new object?[] { global::UnattendLocal.Localization.UiText.Source("text.9118de80ac7e"), global::UnattendLocal.Localization.UiText.Join("；", new[]{"System","DefaultUser","FirstLogon","UserOnce"}.Select(phase=>global::UnattendLocal.Localization.UiText.Format("message.535ea1099c2f", new string[] { global::UnattendLocal.Localization.UiText.Arg((PhaseLabel(phase)), 0, null), global::UnattendLocal.Localization.UiText.Arg((p.Scripts?.Count(s=>s!=null&&s.Enabled&&s.Phase==phase)??0), 0, null) })), false), global::UnattendLocal.Localization.UiText.Format("message.6eda7f92109e", new string[] { global::UnattendLocal.Localization.UiText.Arg(((p.RestartExplorerAfterScripts?global::UnattendLocal.Localization.UiText.Source("text.8da97ddda990"):global::UnattendLocal.Localization.UiText.Source("text.3fd47edce45b"))), 0, null) }) },new bool[]{false,false,false});
 }

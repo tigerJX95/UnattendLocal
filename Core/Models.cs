@@ -1,4 +1,4 @@
-﻿using System.ComponentModel;
+using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Collections.ObjectModel;
 namespace UnattendLocal.Core;
@@ -142,7 +142,7 @@ public class InstallPlan : Observable {
  private bool _BypassTPMCheck; public bool BypassTPMCheck {get=>_BypassTPMCheck;set=>Set(ref _BypassTPMCheck,value);}
  private bool _BypassSecureBootCheck; public bool BypassSecureBootCheck {get=>_BypassSecureBootCheck;set=>Set(ref _BypassSecureBootCheck,value);}
  private bool _BypassRAMCheck; public bool BypassRAMCheck {get=>_BypassRAMCheck;set=>Set(ref _BypassRAMCheck,value);}
- private string _VisualEffectsMode="使用 Windows 默认设置"; public string VisualEffectsMode {get=>_VisualEffectsMode;set=>Set(ref _VisualEffectsMode,value);}
+ private string _VisualEffectsMode=global::UnattendLocal.Localization.UiText.Source("text.54a8207458f7"); public string VisualEffectsMode {get=>_VisualEffectsMode;set=>Set(ref _VisualEffectsMode,value);}
  private bool _EffectControlAnimations; public bool EffectControlAnimations {get=>_EffectControlAnimations;set=>Set(ref _EffectControlAnimations,value);}
  private bool _EffectAnimateMinMax; public bool EffectAnimateMinMax {get=>_EffectAnimateMinMax;set=>Set(ref _EffectAnimateMinMax,value);}
  private bool _EffectTaskbarAnimations; public bool EffectTaskbarAnimations {get=>_EffectTaskbarAnimations;set=>Set(ref _EffectTaskbarAnimations,value);}
@@ -182,31 +182,31 @@ public class InstallPlan : Observable {
  private bool _StartFolderPictures; public bool StartFolderPictures {get=>_StartFolderPictures;set=>Set(ref _StartFolderPictures,value);}
  private bool _StartFolderSettings; public bool StartFolderSettings {get=>_StartFolderSettings;set=>Set(ref _StartFolderSettings,value);}
  private bool _StartFolderVideos; public bool StartFolderVideos {get=>_StartFolderVideos;set=>Set(ref _StartFolderVideos,value);}
- private string _DesktopIconsMode="使用 Windows 默认图标"; public string DesktopIconsMode {get=>_DesktopIconsMode;set=>Set(ref _DesktopIconsMode,value);}
- private string _StartFoldersMode="使用 Windows 默认文件夹"; public string StartFoldersMode {get=>_StartFoldersMode;set=>Set(ref _StartFoldersMode,value);}
+ private string _DesktopIconsMode=global::UnattendLocal.Localization.UiText.Source("text.86db4171d7fb"); public string DesktopIconsMode {get=>_DesktopIconsMode;set=>Set(ref _DesktopIconsMode,value);}
+ private string _StartFoldersMode=global::UnattendLocal.Localization.UiText.Source("text.0b8312769b1d"); public string StartFoldersMode {get=>_StartFoldersMode;set=>Set(ref _StartFoldersMode,value);}
  private bool _DeleteEdgeDesktopIcon; public bool DeleteEdgeDesktopIcon {get=>_DeleteEdgeDesktopIcon;set=>Set(ref _DeleteEdgeDesktopIcon,value);}
- private string _HideFilesMode="使用 Windows 默认设置"; public string HideFilesMode {get=>_HideFilesMode;set=>Set(ref _HideFilesMode,value);}
+ private string _HideFilesMode=global::UnattendLocal.Localization.UiText.Source("text.54a8207458f7"); public string HideFilesMode {get=>_HideFilesMode;set=>Set(ref _HideFilesMode,value);}
  private bool _ShowFileExtensions; public bool ShowFileExtensions {get=>_ShowFileExtensions;set=>Set(ref _ShowFileExtensions,value);}
  private bool _ClassicContextMenu; public bool ClassicContextMenu {get=>_ClassicContextMenu;set=>Set(ref _ClassicContextMenu,value);}
  private bool _HideInfoTip; public bool HideInfoTip {get=>_HideInfoTip;set=>Set(ref _HideInfoTip,value);}
  private bool _LaunchToThisPC; public bool LaunchToThisPC {get=>_LaunchToThisPC;set=>Set(ref _LaunchToThisPC,value);}
  private bool _ShowEndTask; public bool ShowEndTask {get=>_ShowEndTask;set=>Set(ref _ShowEndTask,value);}
- private string _TaskbarSearch="完整搜索框"; public string TaskbarSearch {get=>_TaskbarSearch;set=>Set(ref _TaskbarSearch,value);}
- private string _TaskbarIconsMode="使用默认图标"; public string TaskbarIconsMode {get=>_TaskbarIconsMode;set=>Set(ref _TaskbarIconsMode,value);}
+ private string _TaskbarSearch=global::UnattendLocal.Localization.UiText.Source("text.f2e4f338f5b2"); public string TaskbarSearch {get=>_TaskbarSearch;set=>Set(ref _TaskbarSearch,value);}
+ private string _TaskbarIconsMode=global::UnattendLocal.Localization.UiText.Source("text.b71c73b95540"); public string TaskbarIconsMode {get=>_TaskbarIconsMode;set=>Set(ref _TaskbarIconsMode,value);}
  private string _TaskbarIconsXml=""; public string TaskbarIconsXml {get=>_TaskbarIconsXml;set=>Set(ref _TaskbarIconsXml,value);}
- private string _StartTilesMode="使用默认磁贴"; public string StartTilesMode {get=>_StartTilesMode;set=>Set(ref _StartTilesMode,value);}
+ private string _StartTilesMode=global::UnattendLocal.Localization.UiText.Source("text.ea371476026f"); public string StartTilesMode {get=>_StartTilesMode;set=>Set(ref _StartTilesMode,value);}
  private string _StartTilesXml=""; public string StartTilesXml {get=>_StartTilesXml;set=>Set(ref _StartTilesXml,value);}
- private string _StartPinsMode="使用默认固定应用"; public string StartPinsMode {get=>_StartPinsMode;set=>Set(ref _StartPinsMode,value);}
+ private string _StartPinsMode=global::UnattendLocal.Localization.UiText.Source("text.0b6ea014b2f6"); public string StartPinsMode {get=>_StartPinsMode;set=>Set(ref _StartPinsMode,value);}
  private string _StartPinsJson=""; public string StartPinsJson {get=>_StartPinsJson;set=>Set(ref _StartPinsJson,value);}
  private bool _DisableWidgets; public bool DisableWidgets {get=>_DisableWidgets;set=>Set(ref _DisableWidgets,value);}
  private bool _LeftTaskbar; public bool LeftTaskbar {get=>_LeftTaskbar;set=>Set(ref _LeftTaskbar,value);}
  private bool _HideTaskViewButton; public bool HideTaskViewButton {get=>_HideTaskViewButton;set=>Set(ref _HideTaskViewButton,value);}
  private bool _ShowAllTrayIcons; public bool ShowAllTrayIcons {get=>_ShowAllTrayIcons;set=>Set(ref _ShowAllTrayIcons,value);}
  private bool _DisableBingResults; public bool DisableBingResults {get=>_DisableBingResults;set=>Set(ref _DisableBingResults,value);}
- private string _ImageSelection="由安装程序决定"; public string ImageSelection {get=>_ImageSelection;set=>Set(ref _ImageSelection,value);}
+ private string _ImageSelection=global::UnattendLocal.Localization.UiText.Source("text.cc65b6582544"); public string ImageSelection {get=>_ImageSelection;set=>Set(ref _ImageSelection,value);}
  private string _ImageName=""; public string ImageName {get=>_ImageName;set=>Set(ref _ImageName,value);}
  private int? _ImageIndex; public int? ImageIndex {get=>_ImageIndex;set=>Set(ref _ImageIndex,value);}
- private string _DiskMode="手动选择磁盘与分区"; public string DiskMode {get=>_DiskMode;set{if(_DiskMode==value)return;ClearDiskConsent();Set(ref _DiskMode,value);}}
+ private string _DiskMode=global::UnattendLocal.Localization.UiText.Source("text.4a9df1058984"); public string DiskMode {get=>_DiskMode;set{if(_DiskMode==value)return;ClearDiskConsent();Set(ref _DiskMode,value);}}
  private int? _TargetDiskId; public int? TargetDiskId {get=>_TargetDiskId;set{if(_TargetDiskId==value)return;ClearDiskConsent();Set(ref _TargetDiskId,value);}}
  private int? _TargetPartitionId; public int? TargetPartitionId {get=>_TargetPartitionId;set{if(_TargetPartitionId==value)return;ClearDiskConsent();Set(ref _TargetPartitionId,value);}}
  private string _DiskLayout="UEFI / GPT"; public string DiskLayout {get=>_DiskLayout;set{if(_DiskLayout==value)return;ClearDiskConsent();Set(ref _DiskLayout,value);}}
@@ -219,9 +219,9 @@ public class InstallPlan : Observable {
  private string _DiskPartScript=""; public string DiskPartScript {get=>_DiskPartScript;set{if(_DiskPartScript==value)return;ClearDiskConsent();Set(ref _DiskPartScript,value);}}
  private bool _ConfirmDiskScript; public bool ConfirmDiskScript {get=>_ConfirmDiskScript;set=>Set(ref _ConfirmDiskScript,value);}
  public void ClearDiskConsent(){ConfirmAdditionalXml=false;ConfirmImportedXmlRisk=false;ConfirmDiskScript=false;ConfirmWipeDisk=false;ConfirmFormatPartition=false;}
- private string _CustomStartingPoint="保留当前设置"; public string CustomStartingPoint {get=>_CustomStartingPoint;set=>Set(ref _CustomStartingPoint,value);}
- private string _TimeZoneMode="指定时区"; public string TimeZoneMode {get=>_TimeZoneMode;set=>Set(ref _TimeZoneMode,value);}
- private string _ConfigurationMode="自定义配置"; public string ConfigurationMode {get=>_ConfigurationMode;set=>Set(ref _ConfigurationMode,value);}
+ private string _CustomStartingPoint=global::UnattendLocal.Localization.UiText.Source("text.f0866be5e5a3"); public string CustomStartingPoint {get=>_CustomStartingPoint;set=>Set(ref _CustomStartingPoint,value);}
+ private string _TimeZoneMode=global::UnattendLocal.Localization.UiText.Source("text.980f34c4425d"); public string TimeZoneMode {get=>_TimeZoneMode;set=>Set(ref _TimeZoneMode,value);}
+ private string _ConfigurationMode=global::UnattendLocal.Localization.UiText.Source("text.cb1e0e22c7de"); public string ConfigurationMode {get=>_ConfigurationMode;set=>Set(ref _ConfigurationMode,value);}
  private string _TargetWindows="Windows 11"; public string TargetWindows {get=>_TargetWindows;set=>Set(ref _TargetWindows,value);}
  private string _RecommendationId=""; public string RecommendationId {get=>_RecommendationId;set=>Set(ref _RecommendationId,value);}
  private string _RecommendationWindows=""; public string RecommendationWindows {get=>_RecommendationWindows;set=>Set(ref _RecommendationWindows,value);}
@@ -229,7 +229,7 @@ public class InstallPlan : Observable {
 
  private bool _PreventDeviceEncryption; public bool PreventDeviceEncryption {get=>_PreventDeviceEncryption;set=>Set(ref _PreventDeviceEncryption,value);}
  private bool _HidePowerShellWindows; public bool HidePowerShellWindows {get=>_HidePowerShellWindows;set=>Set(ref _HidePowerShellWindows,value);}
- private string _EditionMode = "安装时输入密钥"; public string EditionMode {get=>_EditionMode;set=>Set(ref _EditionMode,value);}
+ private string _EditionMode = global::UnattendLocal.Localization.UiText.Source("text.5056d73b13ec"); public string EditionMode {get=>_EditionMode;set=>Set(ref _EditionMode,value);}
  private string _EditionId = "pro"; public string EditionId {get=>_EditionId;set=>Set(ref _EditionId,value);}
  private string _CustomProductKey = ""; public string CustomProductKey {get=>_CustomProductKey;set{Set(ref _CustomProductKey,value);if(!string.IsNullOrWhiteSpace(value))NeedsInstallationKey=false;}}
  private bool _UseActivationKey; public bool UseActivationKey {get=>_UseActivationKey;set=>Set(ref _UseActivationKey,value);}
@@ -245,20 +245,20 @@ public class InstallPlan : Observable {
  private string _GeoId = "45"; public string GeoId {get=>_GeoId;set=>Set(ref _GeoId,value);}
  private string _TimeZone = "China Standard Time"; public string TimeZone {get=>_TimeZone;set=>Set(ref _TimeZone,value);}
  private bool _InteractiveLanguage = false; public bool InteractiveLanguage {get=>_InteractiveLanguage;set=>Set(ref _InteractiveLanguage,value);}
- private string _AccountMode = "自动创建本地账户"; public string AccountMode {get=>_AccountMode;set=>Set(ref _AccountMode,value);}
+ private string _AccountMode = global::UnattendLocal.Localization.UiText.Source("text.cdaa9a6700f6"); public string AccountMode {get=>_AccountMode;set=>Set(ref _AccountMode,value);}
  private bool _AutoLogon = true; public bool AutoLogon {get=>_AutoLogon;set=>Set(ref _AutoLogon,value);}
- private string _PasswordExpiration = "永不过期"; public string PasswordExpiration {get=>_PasswordExpiration;set=>Set(ref _PasswordExpiration,value);}
+ private string _PasswordExpiration = global::UnattendLocal.Localization.UiText.Source("text.2c60316d5ea6"); public string PasswordExpiration {get=>_PasswordExpiration;set=>Set(ref _PasswordExpiration,value);}
  private int _PasswordDays = 42; public int PasswordDays {get=>_PasswordDays;set=>Set(ref _PasswordDays,value);}
  private string _WifiProfileXml=""; public string WifiProfileXml {get=>_WifiProfileXml;set{Set(ref _WifiProfileXml,value);if(!string.IsNullOrWhiteSpace(value))NeedsWifiProfile=false;}}
  private bool _NeedsWifiProfile;public bool NeedsWifiProfile {get=>_NeedsWifiProfile;set=>Set(ref _NeedsWifiProfile,value);}
- private string _WifiMode = "安装时手动选择"; public string WifiMode {get=>_WifiMode;set=>Set(ref _WifiMode,value);}
+ private string _WifiMode = global::UnattendLocal.Localization.UiText.Source("text.fd17c35ec3cc"); public string WifiMode {get=>_WifiMode;set=>Set(ref _WifiMode,value);}
  private string _Ssid = ""; public string Ssid {get=>_Ssid;set=>Set(ref _Ssid,value);}
  private string _WifiPassword = ""; public string WifiPassword {get=>_WifiPassword;set=>Set(ref _WifiPassword,value);}
  private bool _NeedsWifiPassword = false; public bool NeedsWifiPassword {get=>_NeedsWifiPassword;set=>Set(ref _NeedsWifiPassword,value);}
  private bool _HiddenWifi = false; public bool HiddenWifi {get=>_HiddenWifi;set=>Set(ref _HiddenWifi,value);}
  private bool _ConnectWifi = true; public bool ConnectWifi {get=>_ConnectWifi;set=>Set(ref _ConnectWifi,value);}
  private bool _BypassNetwork = false; public bool BypassNetwork {get=>_BypassNetwork;set=>Set(ref _BypassNetwork,value);}
- private string _PrivacyMode = "安装时手动选择"; public string PrivacyMode {get=>_PrivacyMode;set=>Set(ref _PrivacyMode,value);}
+ private string _PrivacyMode = global::UnattendLocal.Localization.UiText.Source("text.fd17c35ec3cc"); public string PrivacyMode {get=>_PrivacyMode;set=>Set(ref _PrivacyMode,value);}
  private bool _HideOEMRegistration; public bool HideOEMRegistration {get=>_HideOEMRegistration;set=>Set(ref _HideOEMRegistration,value);}
  private bool _HideEula = false; public bool HideEula {get=>_HideEula;set=>Set(ref _HideEula,value);}
  private bool _HideOnlineAccount = true; public bool HideOnlineAccount {get=>_HideOnlineAccount;set=>Set(ref _HideOnlineAccount,value);}
@@ -268,6 +268,6 @@ public class InstallPlan : Observable {
  public ObservableCollection<UserEntry> Users {get;set;} = new();
  // Operational defaults avoid installation prompts; identity and environment values must be filled in the tool.
  // Do not change field initializers: older saved plans rely on their compatibility defaults.
- public static InstallPlan NewCustom()=>new(){PreventDeviceEncryption=true,ConfigurationMode="自定义配置",CustomStartingPoint="基础配置",AccountMode="自动创建本地账户",AutoLogon=true,PasswordExpiration="Windows 默认",EditionMode="按 SKU 使用通用安装密钥",EditionId="",WifiMode="隐藏无线网络选择页",ConnectWifi=false,BypassNetwork=true,PrivacyMode="关闭快捷隐私设置",HideOnlineAccount=true,HideEula=true,HideOEMRegistration=true,InteractiveLanguage=false,ImageLanguage="",Locale="",Keyboard="",GeoId="",TimeZoneMode="由 Windows 决定",TimeZone="",HidePowerShellWindows=true,ObscurePasswords=true};
+ public static InstallPlan NewCustom()=>new(){PreventDeviceEncryption=true,ConfigurationMode=global::UnattendLocal.Localization.UiText.Source("text.cb1e0e22c7de"),CustomStartingPoint=global::UnattendLocal.Localization.UiText.Source("text.12a6c9d91dc8"),AccountMode=global::UnattendLocal.Localization.UiText.Source("text.cdaa9a6700f6"),AutoLogon=true,PasswordExpiration=global::UnattendLocal.Localization.UiText.Source("text.1823400b7251"),EditionMode=global::UnattendLocal.Localization.UiText.Source("text.cc706914a2ad"),EditionId="",WifiMode=global::UnattendLocal.Localization.UiText.Source("text.307f498ede07"),ConnectWifi=false,BypassNetwork=true,PrivacyMode=global::UnattendLocal.Localization.UiText.Source("text.9d9c1d7fb13c"),HideOnlineAccount=true,HideEula=true,HideOEMRegistration=true,InteractiveLanguage=false,ImageLanguage="",Locale="",Keyboard="",GeoId="",TimeZoneMode=global::UnattendLocal.Localization.UiText.Source("text.499ff33c1078"),TimeZone="",HidePowerShellWindows=true,ObscurePasswords=true};
  public static InstallPlan New() {var p=new InstallPlan();p.Users.Add(new());Recommendations.Apply(p,"wired");return p;}
 }

@@ -1,4 +1,4 @@
-﻿using System.Collections.ObjectModel;
+using System.Collections.ObjectModel;
 using System.Reflection;
 using System.Security.Cryptography;
 using System.Text;
@@ -15,10 +15,10 @@ public static class XmlPlanImport {
  private static bool IsTrue(string? text)=>text is "true" or "1";
  public static InstallPlan Import(string xml,GeneratorService service){
   var original=XmlMerge.Read(xml);var doc=XmlImportPaths.Inspection(original);var ns=new XmlNamespaceManager(doc.NameTable);ns.AddNamespace("u",XmlMerge.Namespace);
-  if(doc.SelectNodes("//u:component[@name='Microsoft-Windows-UnattendedJoin']//u:Credentials/u:Password | //u:component[@name='Microsoft-Windows-UnattendedJoin']//u:MachinePassword | //u:component[@name='Microsoft-Windows-UnattendedJoin']//u:Provisioning/u:AccountData",ns)!.Cast<XmlElement>().Any(n=>n.InnerText==GeneratorService.DomainCredentialPlaceholder))throw new ArgumentException("此 XML 是遮蔽后的域加入预览，请导入实际导出的原始 XML。");
+  if(doc.SelectNodes("//u:component[@name='Microsoft-Windows-UnattendedJoin']//u:Credentials/u:Password | //u:component[@name='Microsoft-Windows-UnattendedJoin']//u:MachinePassword | //u:component[@name='Microsoft-Windows-UnattendedJoin']//u:Provisioning/u:AccountData",ns)!.Cast<XmlElement>().Any(n=>n.InnerText==GeneratorService.DomainCredentialPlaceholder))throw new ArgumentException(global::UnattendLocal.Localization.UiText.Source("text.4fe17c3916ca"));
   var arches=doc.SelectNodes("//u:component/@processorArchitecture",ns)!.Cast<XmlAttribute>().Select(a=>a.Value).Distinct().ToArray();
-  if(arches.Length>1)throw new ArgumentException("此 XML 含多个安装架构，当前界面仅支持单一架构；请先在原工具中导出单一架构文件。");
-  if(arches.Length==1&&arches[0] is not ("amd64" or "arm64" or "x86"))throw new ArgumentException("此 XML 使用了尚不支持的安装架构。");
+  if(arches.Length>1)throw new ArgumentException(global::UnattendLocal.Localization.UiText.Source("text.3c620e817ae8"));
+  if(arches.Length==1&&arches[0] is not ("amd64" or "arm64" or "x86"))throw new ArgumentException(global::UnattendLocal.Localization.UiText.Source("text.d8a4acade665"));
   var notes=new List<string>();var blockers=new List<string>();
   var p=ReadSnapshot(original,notes)??new InstallPlan();
   if(p.ImportedXml!=null)p.ImportedXml=null;
@@ -58,11 +58,11 @@ public static class XmlPlanImport {
   var peLogState=PeLogSettings.ReadIntoPlan(doc,p,notes);
   var nativePreferenceStates=NativePreferences.ReadIntoPlan(doc,p,notes);
   p.Architecture=arches.FirstOrDefault()??"amd64";
-  p.ConfigurationMode="自定义配置";p.CustomStartingPoint="保留当前设置";p.RecommendationId="";p.RecommendationVersion=0;p.RecommendationWindows="";
+  p.ConfigurationMode=global::UnattendLocal.Localization.UiText.Source("text.cb1e0e22c7de");p.CustomStartingPoint=global::UnattendLocal.Localization.UiText.Source("text.f0866be5e5a3");p.RecommendationId="";p.RecommendationVersion=0;p.RecommendationWindows="";
   p.ClearDiskConsent();
   var scripts=doc.SelectNodes("//*[local-name()='File']")!.Cast<XmlElement>();
   if(HasRemovedScript(doc)||p.Scripts.Any(s=>s.IsRemovedType))
-   blockers.Add("检测到已移除支持的 JScript（.js）；请在原 XML 中移除或手动改写后重新导入，不能通过原文保留恢复启用。");
+   blockers.Add(global::UnattendLocal.Localization.UiText.Source("text.2ceb5ddfec91"));
   bool disk=NeedsDiskReview(doc);
   // Generate an editable baseline without granting the user's risk consent.
   var clone=PlanStore.Deserialize(PlanStore.Serialize(p,true));clone.ImportedXml=null;
@@ -70,7 +70,7 @@ public static class XmlPlanImport {
   string baseline="";
   try{baseline=Encoding.UTF8.GetString(service.GenerateImportBaseline(clone));var seed=XmlMerge.Read(baseline);NativePreferences.SeedBaseline(seed,doc,p);baseline=seed.OuterXml;}
   catch(Exception e)when(e is ArgumentException or ConfigurationException or XmlException){
-   blockers.Add("部分设置无法建立可靠的编辑基准，暂不能再导出。请先使用原工具调整后重新导入；原因："+SafeReason(e.Message));
+   blockers.Add(global::UnattendLocal.Localization.UiText.Concat(new object?[] { global::UnattendLocal.Localization.UiText.Source("text.7ce37087b03b"), SafeReason(e.Message) },new bool[]{false,false}));
   }
   XmlImportParameters.Reconcile(doc,p,appRemovalState,notes);
   if(baseline.Length>0)DescribeRemainder(doc,XmlMerge.Read(baseline),notes);
@@ -88,7 +88,7 @@ public static class XmlPlanImport {
   FirstLogonSettings.UpdateImportState(p.ImportedXml,p,firstLogonState);
   p.ClearDiskConsent();return p;
  }
- private static string SafeReason(string message)=>message.Contains("'")?"原有模式或参数暂不受支持，请核对设置。":message;
+ private static string SafeReason(string message)=>message.Contains("'")?global::UnattendLocal.Localization.UiText.Source("text.b80caac11032"):message;
  private static void ReadBasic(XmlDocument doc,XmlNamespaceManager ns,InstallPlan p,GeneratorService service,List<string> notes){
   var computer=Text(doc,"//u:settings[@pass='specialize']/u:component[@name='Microsoft-Windows-Shell-Setup']/u:ComputerName",ns);p.ComputerName=computer is null or "*"?"":computer;
   var language=Text(doc,"//u:component[@name='Microsoft-Windows-International-Core']/u:UILanguage",ns);p.InteractiveLanguage=language==null;
@@ -99,25 +99,25 @@ public static class XmlPlanImport {
    var generator=new UnattendGenerator();p.GeoId=generator.UserLocales.TryGetValue(p.Locale,out var locale)?locale.GeoLocation?.Id??"45":"45";
    var geo=Match(doc.InnerText,@"Set-WinHomeLocation -GeoId (\d+)");if(geo.Success)p.GeoId=geo.Groups[1].Value;
   }
-  var timezone=Text(doc,"//u:component[@name='Microsoft-Windows-Shell-Setup']/u:TimeZone",ns);p.TimeZoneMode=timezone==null?"由 Windows 决定":"指定时区";p.TimeZone=timezone??"";
+  var timezone=Text(doc,"//u:component[@name='Microsoft-Windows-Shell-Setup']/u:TimeZone",ns);p.TimeZoneMode=timezone==null?global::UnattendLocal.Localization.UiText.Source("text.499ff33c1078"):global::UnattendLocal.Localization.UiText.Source("text.980f34c4425d");p.TimeZone=timezone??"";
   p.HideEula=IsTrue(Text(doc,"//u:OOBE/u:HideEULAPage",ns));p.HideOEMRegistration=IsTrue(Text(doc,"//u:OOBE/u:HideOEMRegistrationScreen",ns));p.HideOnlineAccount=IsTrue(Text(doc,"//u:OOBE/u:HideOnlineAccountScreens",ns));
-  p.AccountMode=doc.SelectNodes("//u:LocalAccount",ns)!.Count>0?"自动创建本地账户":p.HideOnlineAccount?"安装时创建本地账户":"安装时添加微软账户";
+  p.AccountMode=doc.SelectNodes("//u:LocalAccount",ns)!.Count>0?global::UnattendLocal.Localization.UiText.Source("text.cdaa9a6700f6"):p.HideOnlineAccount?global::UnattendLocal.Localization.UiText.Source("text.189b388c95be"):global::UnattendLocal.Localization.UiText.Source("text.5f78e95b6bd9");
   p.AutoLogon=IsTrue(Text(doc,"//u:AutoLogon/u:Enabled",ns));
-  p.PrivacyMode=Text(doc,"//u:OOBE/u:ProtectYourPC",ns) switch {"3"=>"关闭快捷隐私设置","1"=>"启用快捷设置",_=>"安装时手动选择"};
+  p.PrivacyMode=Text(doc,"//u:OOBE/u:ProtectYourPC",ns) switch {"3"=>global::UnattendLocal.Localization.UiText.Source("text.9d9c1d7fb13c"),"1"=>global::UnattendLocal.Localization.UiText.Source("text.cb6a542df169"),_=>global::UnattendLocal.Localization.UiText.Source("text.fd17c35ec3cc")};
   var key=Text(doc,"//u:UserData/u:ProductKey/u:Key",ns);var show=Text(doc,"//u:UserData/u:ProductKey/u:WillShowUI",ns);
-  if(key==null)p.EditionMode=show=="Never"?"使用 BIOS/UEFI 固件密钥":"安装时输入密钥";
+  if(key==null)p.EditionMode=show=="Never"?global::UnattendLocal.Localization.UiText.Source("text.42a0cbd1b22f"):global::UnattendLocal.Localization.UiText.Source("text.5056d73b13ec");
   else{
    var edition=service.Editions.FirstOrDefault(e=>service.GenericInstallationKey(e.Id)==key);
-   p.EditionMode=edition==null?"指定自己的产品密钥":"按 SKU 使用通用安装密钥";if(edition!=null)p.EditionId=edition.Id;p.CustomProductKey=edition==null?key:"";
+   p.EditionMode=edition==null?global::UnattendLocal.Localization.UiText.Source("text.2a5194b6a242"):global::UnattendLocal.Localization.UiText.Source("text.cc706914a2ad");if(edition!=null)p.EditionId=edition.Id;p.CustomProductKey=edition==null?key:"";
   }
   var activation=Text(doc,"//u:component[@name='Microsoft-Windows-Shell-Setup']/u:ProductKey",ns);p.UseActivationKey=activation!=null&&activation!=key;p.ActivationProductKey=p.UseActivationKey?activation!:"";
-  p.WifiMode=IsTrue(Text(doc,"//u:OOBE/u:HideWirelessSetupInOOBE",ns))?"隐藏无线网络选择页":"安装时手动选择";
+  p.WifiMode=IsTrue(Text(doc,"//u:OOBE/u:HideWirelessSetupInOOBE",ns))?global::UnattendLocal.Localization.UiText.Source("text.307f498ede07"):global::UnattendLocal.Localization.UiText.Source("text.fd17c35ec3cc");
   p.KeepSensitiveFiles=!doc.InnerText.Contains("unattend-original.xml");p.HidePowerShellWindows=Match(doc.InnerText,@"-WindowStyle ['""]?Hidden").Success;
   p.BypassNetwork=doc.InnerText.Contains("BypassNRO",StringComparison.OrdinalIgnoreCase);
   foreach(var item in HardwareSettings.Items)typeof(InstallPlan).GetProperty(item.Property)!.SetValue(p,doc.InnerText.Contains(item.RegistryValue));
   p.BypassHardware=false;
   var metadata=doc.SelectSingleNode("//u:ImageInstall/u:OSImage/u:InstallFrom/u:MetaData",ns);
-  if(metadata!=null){p.ImageSelection=Text(metadata,"u:Key",ns)=="/IMAGE/NAME"?"按镜像名称":"按镜像索引";p.ImageName=Text(metadata,"u:Value",ns)??"";if(int.TryParse(p.ImageName,out int index))p.ImageIndex=index;}
+  if(metadata!=null){p.ImageSelection=Text(metadata,"u:Key",ns)=="/IMAGE/NAME"?global::UnattendLocal.Localization.UiText.Source("text.5965e61aee4c"):global::UnattendLocal.Localization.UiText.Source("text.9cbbdbe44e5d");p.ImageName=Text(metadata,"u:Value",ns)??"";if(int.TryParse(p.ImageName,out int index))p.ImageIndex=index;}
   var target=doc.SelectSingleNode("//u:ImageInstall/u:OSImage/u:InstallTo",ns);p.DiskMode=InstallationSettings.Manual;
   if(target!=null&&int.TryParse(Text(target,"u:DiskID",ns),out int disk)&&int.TryParse(Text(target,"u:PartitionID",ns),out int part)){
    p.DiskMode=InstallationSettings.Existing;p.TargetDiskId=disk;p.TargetPartitionId=part;
@@ -130,23 +130,23 @@ public static class XmlPlanImport {
   }
  }
  private static void ReadCredentials(XmlDocument doc,XmlNamespaceManager ns,InstallPlan p,List<string> notes){
-  if(p.AccountMode=="自动创建本地账户"){
+  if(p.AccountMode==global::UnattendLocal.Localization.UiText.Source("text.cdaa9a6700f6")){
    var users=new ObservableCollection<UserEntry>();
    foreach(XmlElement user in doc.SelectNodes("//u:LocalAccount",ns)!) {
     string name=Text(user,"u:Name",ns)??"";string value=Text(user,"u:Password/u:Value",ns)??"";bool plain=IsTrue(Text(user,"u:Password/u:PlainText",ns));
     if(!plain&&value.Length>0){
      try{value=new UnicodeEncoding(false,false,true).GetString(Convert.FromBase64String(value));if(!value.EndsWith("Password",StringComparison.Ordinal))throw new FormatException();value=value[..^8];}
-     catch(Exception e)when(e is FormatException or DecoderFallbackException){throw new ArgumentException("账户密码编码无法还原，未导入；请使用原始安装 XML。");}
+     catch(Exception e)when(e is FormatException or DecoderFallbackException){throw new ArgumentException(global::UnattendLocal.Localization.UiText.Source("text.b939de06a603"));}
     }
-    if(value.Contains("密码已遮蔽"))throw new ArgumentException("此 XML 是遮蔽后的预览，不能恢复密码；请导入实际导出的文件。");
+    if(value.Contains(global::UnattendLocal.Localization.UiText.Source("text.069d51fb67fa")))throw new ArgumentException(global::UnattendLocal.Localization.UiText.Source("text.842bb7781370"));
     string group=Text(user,"u:Group",ns)??"";
-    if(group is not ("Administrators" or "Users"))notes.Add("账户分组含界面尚不支持的组；原分组保留，修改账户组时可能产生冲突。");
+    if(group is not ("Administrators" or "Users"))notes.Add(global::UnattendLocal.Localization.UiText.Source("text.78b76660e6a5"));
     users.Add(new UserEntry{Name=name,DisplayName=Text(user,"u:DisplayName",ns)??"",Administrator=group=="Administrators",Password=value,AllowEmptyPassword=value.Length==0,NeedsPassword=false});
     p.ObscurePasswords=!plain;
    }
    p.Users=users;
   }else p.Users.Clear();
-  var install=Text(doc,"//u:UserData/u:ProductKey/u:Key",ns);if(p.EditionMode=="指定自己的产品密钥"&&install!=null)p.CustomProductKey=install;
+  var install=Text(doc,"//u:UserData/u:ProductKey/u:Key",ns);if(p.EditionMode==global::UnattendLocal.Localization.UiText.Source("text.2a5194b6a242")&&install!=null)p.CustomProductKey=install;
   if(p.UseActivationKey)p.ActivationProductKey=Text(doc,"//u:component[@name='Microsoft-Windows-Shell-Setup']/u:ProductKey",ns)??"";
   p.NeedsInstallationKey=false;p.NeedsActivationKey=false;
  }
@@ -159,8 +159,8 @@ public static class XmlPlanImport {
   var hidden=Match(File("DefaultUser.ps1"),@"/v ""?ShowSuperHidden""?.*?/d 1");
   if(!hidden.Success)hidden=Match(File("DefaultUser.ps1"),@"/v ""?ShowSuperHidden""?");
   p.HideFilesMode=body.Contains("ShowSuperHidden")?ExplorerSettings.ShowAll:Match(body,@"/v ""?Hidden""? /t REG_DWORD /d 1").Success?ExplorerSettings.ProtectedOnly:ExplorerSettings.Default;
-  var search=Match(body,@"-Name 'SearchboxTaskbarMode' -Type 'DWord' -Value (\d+)");if(search.Success)p.TaskbarSearch=search.Groups[1].Value switch {"0"=>"隐藏","1"=>"仅图标","3"=>"图标和文字",_=>"完整搜索框"};
-  var age=Match(File("Specialize.ps1"),@"/maxpwage:(UNLIMITED|\d+)");p.PasswordExpiration=age.Success?age.Groups[1].Value.Equals("UNLIMITED",StringComparison.OrdinalIgnoreCase)?"永不过期":"指定天数":"Windows 默认";if(age.Success&&int.TryParse(age.Groups[1].Value,out int days))p.PasswordDays=days;
+  var search=Match(body,@"-Name 'SearchboxTaskbarMode' -Type 'DWord' -Value (\d+)");if(search.Success)p.TaskbarSearch=search.Groups[1].Value switch {"0"=>global::UnattendLocal.Localization.UiText.Source("text.145219e726b8"),"1"=>global::UnattendLocal.Localization.UiText.Source("text.aa7a29114a77"),"3"=>global::UnattendLocal.Localization.UiText.Source("text.f849cf64210f"),_=>global::UnattendLocal.Localization.UiText.Source("text.f2e4f338f5b2")};
+  var age=Match(File("Specialize.ps1"),@"/maxpwage:(UNLIMITED|\d+)");p.PasswordExpiration=age.Success?age.Groups[1].Value.Equals("UNLIMITED",StringComparison.OrdinalIgnoreCase)?global::UnattendLocal.Localization.UiText.Source("text.2c60316d5ea6"):global::UnattendLocal.Localization.UiText.Source("text.5fb01e314f6b"):global::UnattendLocal.Localization.UiText.Source("text.1823400b7251");if(age.Success&&int.TryParse(age.Groups[1].Value,out int days))p.PasswordDays=days;
   var lockout=Match(File("Specialize.ps1"),@"/lockoutthreshold:(\d+)(?: /lockoutduration:(\d+) /lockoutwindow:(\d+))?");
   if(lockout.Success){p.AccountLockoutMode=lockout.Groups[2].Success?AccountLockoutPolicy.Custom:AccountLockoutPolicy.Disabled;p.LockoutThreshold=int.Parse(lockout.Groups[1].Value);if(lockout.Groups[2].Success){p.LockoutDurationMinutes=int.Parse(lockout.Groups[2].Value);p.LockoutResetMinutes=int.Parse(lockout.Groups[3].Value);}}
   var indicators=Match(File("DefaultUser.ps1"),@"-Name 'InitialKeyboardIndicators' -Type 'String' -Value (\d+)");
@@ -168,8 +168,8 @@ public static class XmlPlanImport {
   var scan=Match(File("Specialize.ps1"),@"Scancode Map'.*?FromBase64String\('([^']+)'\)");
   if(scan.Success){
    try{var bytes=Convert.FromBase64String(scan.Groups[1].Value);if(bytes.Length<16||(bytes.Length-12)%4!=0)throw new FormatException();
-    for(int i=12;i<bytes.Length-4;i+=4){if(bytes[i]!=0||bytes[i+1]!=0||bytes[i+3]!=0){notes.Add("键盘扫描码含其他重映射，原文保留，修改锁定键映射可能冲突。");continue;}switch(bytes[i+2]){case 0x3a:p.IgnoreCapsLock=true;break;case 0x45:p.IgnoreNumLock=true;break;case 0x46:p.IgnoreScrollLock=true;break;default:notes.Add("键盘扫描码含其他按键映射，原文保留。");break;}}
-   }catch(FormatException){notes.Add("无法还原键盘扫描码映射，原文保留。");}
+    for(int i=12;i<bytes.Length-4;i+=4){if(bytes[i]!=0||bytes[i+1]!=0||bytes[i+3]!=0){notes.Add(global::UnattendLocal.Localization.UiText.Source("text.e10e60fe1e78"));continue;}switch(bytes[i+2]){case 0x3a:p.IgnoreCapsLock=true;break;case 0x45:p.IgnoreNumLock=true;break;case 0x46:p.IgnoreScrollLock=true;break;default:notes.Add(global::UnattendLocal.Localization.UiText.Source("text.f4a9ea02ff99"));break;}}
+   }catch(FormatException){notes.Add(global::UnattendLocal.Localization.UiText.Source("text.258c126f131f"));}
   }
   var sticky=Match(File("DefaultUser.ps1"),@"Accessibility\\StickyKeys"" /v Flags /t REG_SZ /d (\d+)");
   if(sticky.Success){int bits=int.Parse(sticky.Groups[1].Value);p.StickyKeysMode=bits==10?StickyKeySettings.Disabled:StickyKeySettings.Custom;p.StickyHotKeyActive=(bits&4)!=0;p.StickyHotKeySound=(bits&16)!=0;p.StickyIndicator=(bits&32)!=0;p.StickyAudibleFeedback=(bits&64)!=0;p.StickyTriState=(bits&128)!=0;p.StickyTwoKeysOff=(bits&256)!=0;}
@@ -197,12 +197,12 @@ public static class XmlPlanImport {
   if(p.Scripts.Count==0)foreach(var file in files.Where(f=>Match(f.GetAttribute("path"),@"\\unattend-[0-9a-f]{2}\.(cmd|ps1|reg|vbs|js)$").Success)){
    string path=file.GetAttribute("path");string[] phases={"System","DefaultUser","FirstLogon","UserOnce"};string[] names={"Specialize.ps1","DefaultUser.ps1","FirstLogon.ps1","UserOnce.ps1"};
    var found=phases.Where((phase,i)=>File(names[i]).Contains(path,StringComparison.OrdinalIgnoreCase)).ToArray();
-   if(found.Length!=1){notes.Add("有自定义脚本无法确定执行阶段，保留原文及调用，未放入脚本编辑列表。");continue;}
+   if(found.Length!=1){notes.Add(global::UnattendLocal.Localization.UiText.Source("text.5494eb54983b"));continue;}
    string ext=Path.GetExtension(path)[1..];p.Scripts.Add(new ScriptEntry{Phase=found[0],Type=char.ToUpperInvariant(ext[0])+ext[1..],Enabled=ext!="js",Content=file.InnerText.Trim()});
   }
   ReadLayout("TaskbarLayoutModification.xml","taskbar");ReadLayout("LayoutModification.xml","tiles");
-  var pins=Match(File("SetStartPins.ps1"),@"^\s*\$json = '((?:''|[^'])*)';");if(pins.Success){p.StartPinsJson=pins.Groups[1].Value.Replace("''","'");p.StartPinsMode=p.StartPinsJson.Replace(" ","").Replace("\n","").Replace("\r","")=="{\"pinnedList\":[]}"?"移除全部固定应用":ShellSettings.CustomJson;}
-  void ReadLayout(string name,string kind){string value=File(name);if(value.Length==0)return;try{ShellSettings.ValidateDocument(kind,value);if(kind=="taskbar"){p.TaskbarIconsXml=value;p.TaskbarIconsMode=value.Contains("#leaveempty")?"移除全部固定图标":ShellSettings.CustomXml;}else{p.StartTilesXml=value;p.StartTilesMode=ShellSettings.CustomXml;}}catch(ArgumentException){if(kind=="tiles"&&!value.Contains("Tile "))p.StartTilesMode="移除全部磁贴";else notes.Add("部分开始菜单/任务栏布局无法在界面还原，原布局保留。");}}
+  var pins=Match(File("SetStartPins.ps1"),@"^\s*\$json = '((?:''|[^'])*)';");if(pins.Success){p.StartPinsJson=pins.Groups[1].Value.Replace("''","'");p.StartPinsMode=p.StartPinsJson.Replace(" ","").Replace("\n","").Replace("\r","")=="{\"pinnedList\":[]}"?global::UnattendLocal.Localization.UiText.Source("text.3b7c66281c7d"):ShellSettings.CustomJson;}
+  void ReadLayout(string name,string kind){string value=File(name);if(value.Length==0)return;try{ShellSettings.ValidateDocument(kind,value);if(kind=="taskbar"){p.TaskbarIconsXml=value;p.TaskbarIconsMode=value.Contains("#leaveempty")?global::UnattendLocal.Localization.UiText.Source("text.2e47eec2d1cb"):ShellSettings.CustomXml;}else{p.StartTilesXml=value;p.StartTilesMode=ShellSettings.CustomXml;}}catch(ArgumentException){if(kind=="tiles"&&!value.Contains("Tile "))p.StartTilesMode=global::UnattendLocal.Localization.UiText.Source("text.b3b00df3cdfb");else notes.Add(global::UnattendLocal.Localization.UiText.Source("text.dadaff30ef57"));}}
  }
  private static void DescribeRemainder(XmlDocument source,XmlDocument baseline,List<string> notes){
   var comparison=AppRemovalSettings.ComparisonDocument(source);
@@ -213,16 +213,16 @@ public static class XmlPlanImport {
     if(XmlMerge.Equal(file,other))continue;
     if(ScriptImportDetails.Describe(comparison,file,other,notes)){file.InnerText=other.InnerText;continue;}
    }
-   string prefix=path.EndsWith(".ps1",StringComparison.OrdinalIgnoreCase)?"脚本原文已保留，内容与界面生成版本存在差异：":"文件原文已保留，内容未完整映射为界面设置：";
+   string prefix=path.EndsWith(".ps1",StringComparison.OrdinalIgnoreCase)?global::UnattendLocal.Localization.UiText.Source("text.df27dc88b8b3"):global::UnattendLocal.Localization.UiText.Source("text.2d552b7653ed");
    notes.Add(prefix+PathName(path));
   }
   var known=baseline.SelectNodes("//*[local-name()='component']")!.Cast<XmlElement>().Select(XmlMerge.Identity).ToHashSet();
-  foreach(XmlElement component in source.SelectNodes("//u:component",NamespaceManager(source))!)if(!known.Contains(XmlMerge.Identity(component))&&component.GetAttribute("name") is not (StaticIPv4Settings.Tcp or StaticIPv4Settings.Dns or SetupDriverSettings.ComponentName))notes.Add("原文保留，未实现的组件："+component.GetAttribute("name"));
-  if(!XmlMerge.Equal(comparison.DocumentElement,baseline.DocumentElement)&&notes.Count==0)notes.Add("原 XML 含无法完整还原的参数或组件内容；原文保留，修改发生冲突时将阻止导出。");
+  foreach(XmlElement component in source.SelectNodes("//u:component",NamespaceManager(source))!)if(!known.Contains(XmlMerge.Identity(component))&&component.GetAttribute("name") is not (StaticIPv4Settings.Tcp or StaticIPv4Settings.Dns or SetupDriverSettings.ComponentName))notes.Add(global::UnattendLocal.Localization.UiText.Concat(new object?[] { global::UnattendLocal.Localization.UiText.Source("text.8af4bbf685c1"), component.GetAttribute("name") },new bool[]{false,true}));
+  if(!XmlMerge.Equal(comparison.DocumentElement,baseline.DocumentElement)&&notes.Count==0)notes.Add(global::UnattendLocal.Localization.UiText.Source("text.b3584c949a1f"));
  }
  internal static void RefreshRemainder(InstallPlan p){
   if(p.ImportedXml is not {OriginalOmitted:false} data||data.SourceXml.Length==0||data.BaselineXml.Length==0)return;
-  var prefixes=new[]{"原文保留，未完全还原到界面：","脚本原文已保留，","文件原文已保留，","脚本原文已保留：","脚本中的设置已识别：","原文保留，未实现的组件：","原 XML 含无法完整还原的参数或组件内容；"};
+  var prefixes=new[]{global::UnattendLocal.Localization.UiText.Source("text.9eee6c2b8190"),global::UnattendLocal.Localization.UiText.Source("text.4c3edd7b0617"),global::UnattendLocal.Localization.UiText.Source("text.c7d1ca7be040"),global::UnattendLocal.Localization.UiText.Source("text.744284b7b7ca"),global::UnattendLocal.Localization.UiText.Source("text.37bb8b2fec20"),global::UnattendLocal.Localization.UiText.Source("text.8af4bbf685c1"),global::UnattendLocal.Localization.UiText.Source("text.52db4d9bfdb7")};
   var notes=data.Notices.Where(n=>!prefixes.Any(prefix=>n.StartsWith(prefix,StringComparison.Ordinal))).ToList();
   DescribeRemainder(XmlMerge.Read(data.SourceXml),XmlMerge.Read(data.BaselineXml),notes);
   data.Notices=notes.Distinct().ToArray();
@@ -236,7 +236,7 @@ public static class XmlPlanImport {
   foreach(var prop in typeof(InstallPlan).GetProperties().Where(prop=>prop.PropertyType==typeof(bool)&&prop.CanWrite))if(values.ContainsKey(prop.Name)){known.Add(prop.Name);prop.SetValue(p,Checked(prop.Name));}
   void Mode(string key,string property,params string[] pairs){
    known.Add(key);var value=Value(key);for(int i=0;i<pairs.Length;i+=2)if(value==pairs[i]){typeof(InstallPlan).GetProperty(property)!.SetValue(p,pairs[i+1]);return;}
-   if(value.Length>0&&value is not ("Default" or "Implicit"))notes.Add("生成参数暂不能完全还原："+key+"；相关 XML 原文保留。");
+   if(value.Length>0&&value is not ("Default" or "Implicit"))notes.Add(global::UnattendLocal.Localization.UiText.Concat(new object?[] { global::UnattendLocal.Localization.UiText.Source("text.990030e78bf8"), key, global::UnattendLocal.Localization.UiText.Source("text.aead92aa0750") },new bool[]{false,true,false}));
   }
   Mode("EffectsMode",nameof(p.VisualEffectsMode),"Default",VisualEffectsSettings.Default,"Appearance",VisualEffectsSettings.Appearance,"Performance",VisualEffectsSettings.Performance,"Custom",VisualEffectsSettings.Custom);
   Mode("DesktopIconsMode",nameof(p.DesktopIconsMode),"Default",DesktopSettings.DefaultIcons,"Custom",DesktopSettings.CustomIcons);
@@ -258,17 +258,17 @@ public static class XmlPlanImport {
    if(XmlImportParameters.IsHandled(pair.Key,pair.Value)||known.Contains(pair.Key)||Match(pair.Key,@"^(Account(Name|DisplayName|Password|Group)|(?:System|DefaultUser|FirstLogon|UserOnce)Script(?:Type)?)[0-9]+$").Success)continue;
    if(pair.Value is "false" or "Default" or "" or "Implicit")continue;
    // Report names only: parameters can contain passwords, keys or whole scripts.
-   if(pair.Value=="true"||pair.Key.EndsWith("Mode")||pair.Key.StartsWith("Remove"))notes.Add("暂未识别的生成参数："+pair.Key+"；相关 XML 原文保留，未自动套用此参数。");
+   if(pair.Value=="true"||pair.Key.EndsWith("Mode")||pair.Key.StartsWith("Remove"))notes.Add(global::UnattendLocal.Localization.UiText.Concat(new object?[] { global::UnattendLocal.Localization.UiText.Source("text.4e00ee262381"), pair.Key, global::UnattendLocal.Localization.UiText.Source("text.29527e6a456d") },new bool[]{false,true,false}));
   }
  }
  private static string PathName(string path)=>path[(path.LastIndexOf('\\')+1)..];
  private static XmlNamespaceManager NamespaceManager(XmlDocument d){var n=new XmlNamespaceManager(d.NameTable);n.AddNamespace("u",XmlMerge.Namespace);return n;}
  private static InstallPlan? ReadSnapshot(XmlDocument doc,List<string> notes){
   var comments=doc.SelectNodes("//comment()")!.Cast<XmlComment>().Where(c=>c.Value?.StartsWith(Marker)==true).ToArray();if(comments.Length==0)return null;
-  if(comments.Length!=1){notes.Add("配置还原记录重复，已忽略记录并读取实际 XML。");return null;}
+  if(comments.Length!=1){notes.Add(global::UnattendLocal.Localization.UiText.Source("text.5f5736fb9f1c"));return null;}
   string[] parts=comments[0].Value![Marker.Length..].Split(' ',2);
-  if(parts.Length!=2||parts[0]!=Digest(doc)){notes.Add("XML 已在导出后修改，配置还原记录已失效；以实际 XML 可识别内容为准，其余原文保留。");return null;}
-  try{return PlanStore.Deserialize(Encoding.UTF8.GetString(Convert.FromBase64String(parts[1])));}catch(Exception e)when(e is FormatException or JsonException or ArgumentException){throw new ArgumentException("XML 配置还原记录无效，未导入。");}
+  if(parts.Length!=2||parts[0]!=Digest(doc)){notes.Add(global::UnattendLocal.Localization.UiText.Source("text.44f795ad4b14"));return null;}
+  try{return PlanStore.Deserialize(Encoding.UTF8.GetString(Convert.FromBase64String(parts[1])));}catch(Exception e)when(e is FormatException or JsonException or ArgumentException){throw new ArgumentException(global::UnattendLocal.Localization.UiText.Source("text.f35cf19b6579"));}
  }
  private static string Digest(XmlDocument doc)=>Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(XmlMerge.Canonical(doc.DocumentElement!))));
  public static void AddSnapshot(XmlDocument doc,InstallPlan plan){
@@ -278,7 +278,7 @@ public static class XmlPlanImport {
   copy.ExportNonAutomaticFilename=false; // Output preference belongs to JSON, not installation settings.
   copy.XmlComponents=new(copy.XmlComponents.Where(row=>row.Enabled));
   copy.Scripts=new(copy.Scripts.Where(s=>s.Enabled&&!s.IsRemovedType));
-  if(copy.AccountMode!="自动创建本地账户")copy.Users.Clear();
+  if(copy.AccountMode!=global::UnattendLocal.Localization.UiText.Source("text.cdaa9a6700f6"))copy.Users.Clear();
   if(!WifiSettings.IsPreset(copy)){copy.Ssid="";copy.WifiPassword="";}
   if(!copy.UseStaticIPv4){copy.UseStaticIPv4SubnetMask=false;copy.StaticIPv4SubnetMask="";}
   else {copy.StaticIPv4Prefix=StaticIPv4Settings.EffectivePrefix(copy);if(!copy.UseStaticIPv4SubnetMask)copy.StaticIPv4SubnetMask="";}
@@ -302,11 +302,11 @@ public static class XmlPlanImport {
   var payload=Convert.ToBase64String(Encoding.UTF8.GetBytes(snapshot.ToJsonString()));
   doc.DocumentElement!.PrependChild(doc.CreateComment(Marker+Digest(doc)+" "+payload));
  }
- public static string Summary(InstallPlan p)=>p.ImportedXml is not {} data?"未导入 XML":data.OriginalOmitted?"XML 原文未随方案保存，请重新导入原 XML 后导出":data.Blockers.Length>0?"已导入；存在阻止导出的项目":data.Notices.Length>0?"已导入；部分内容原文保留，修改冲突时停止导出":"已导入；可修改已还原的配置";
+ public static string Summary(InstallPlan p)=>p.ImportedXml is not {} data?global::UnattendLocal.Localization.UiText.Source("text.b1b7a712ae60"):data.OriginalOmitted?global::UnattendLocal.Localization.UiText.Source("text.ef4099095cee"):data.Blockers.Length>0?global::UnattendLocal.Localization.UiText.Source("text.c82661157026"):data.Notices.Length>0?global::UnattendLocal.Localization.UiText.Source("text.f064ecdd0c81"):global::UnattendLocal.Localization.UiText.Source("text.efa080329876");
  public static void ValidateImported(InstallPlan p){
   if(p.ImportedXml is not {} data)return;
-  if(data.OriginalOmitted||data.SourceXml.Length==0||data.BaselineXml.Length==0)throw new ArgumentException("缺少完整 XML 原文/编辑基准，请重新导入原 XML；不会使用界面默认值代替丢失内容。");
-  if(data.Blockers.Length>0)throw new ArgumentException(string.Join("\n",data.Blockers));
+  if(data.OriginalOmitted||data.SourceXml.Length==0||data.BaselineXml.Length==0)throw new ArgumentException(global::UnattendLocal.Localization.UiText.Source("text.76fd34fad718"));
+  if(data.Blockers.Length>0)throw new ArgumentException(global::UnattendLocal.Localization.UiText.Join("\n", data.Blockers, false));
   var source=XmlImportPaths.Inspection(XmlMerge.Read(data.SourceXml));
   AutoPartitionSettings.ValidateImported(p,source);
   CompactOsSettings.ValidateImported(p,source);
@@ -335,8 +335,8 @@ public static class XmlPlanImport {
   JunctionSettings.ValidateImported(p,source);
   AppControlSettings.ValidateImported(p,source);
   ConfigurationSetSettings.ValidateImported(p,source);
-  if(HasRemovedScript(source))throw new ArgumentException("原 XML 仍含已移除支持的 JScript，不能再导出。");
-  if((data.RequiresDiskReview||NeedsDiskReview(source))&&!p.ConfirmImportedXmlRisk)throw new ArgumentException("导入的 XML 含磁盘配置或 Windows PE 命令，请在配置方案页重新核对原文操作范围并勾选风险确认。");
+  if(HasRemovedScript(source))throw new ArgumentException(global::UnattendLocal.Localization.UiText.Source("text.9e36e67732d8"));
+  if((data.RequiresDiskReview||NeedsDiskReview(source))&&!p.ConfirmImportedXmlRisk)throw new ArgumentException(global::UnattendLocal.Localization.UiText.Source("text.abbc406ea006"));
  }
  private static bool NeedsDiskReview(XmlDocument doc){
   var ns=NamespaceManager(doc);

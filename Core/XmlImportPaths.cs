@@ -15,7 +15,7 @@ if( $str.Length -le $max ) {
 }
 """;
  private const string CompactLog="$script.ToString().Trim() -replace '\\s+', ' ' -replace '^(.{99})(.+)$', '$1…';";
- private static readonly Regex DetailedLogPattern=new("(?m)^"+string.Join(@"[ \t]*\r?\n",DetailedLog.Split('\n').Select(l=>@"[ \t]*"+Regex.Escape(l.Trim())))+@"[ \t]*$",RegexOptions.CultureInvariant,TimeSpan.FromSeconds(1));
+ private static readonly Regex DetailedLogPattern=new(global::UnattendLocal.Localization.UiText.Concat(new object?[] { global::UnattendLocal.Localization.UiText.Concat(new object?[] { "(?m)^", global::UnattendLocal.Localization.UiText.Join(@"[ \t]*\r?\n", DetailedLog.Split('\n').Select(l=>@"[ \t]*"+Regex.Escape(l.Trim())), false) },new bool[] { false, false }), @"[ \t]*$" },new bool[] { false, false }),RegexOptions.CultureInvariant,TimeSpan.FromSeconds(1));
  private static readonly Regex QuotedPath=new("'(?<path>[A-Za-z]:\\\\[^'\\r\\n]*)'|\"(?<path>[A-Za-z]:\\\\[^\"`$\\r\\n]*)\"",RegexOptions.CultureInvariant,TimeSpan.FromSeconds(1));
  internal static string Path(string value)=>Regex.IsMatch(value,@"\A[A-Za-z]:\\",RegexOptions.CultureInvariant,TimeSpan.FromSeconds(1))?Regex.Replace(value,@"\\{2,}","\\",RegexOptions.None,TimeSpan.FromSeconds(1)):value;
  internal static string Command(string value)=>QuotedPath.Replace(value,m=>m.Value.Replace(m.Groups["path"].Value,Path(m.Groups["path"].Value),StringComparison.Ordinal));

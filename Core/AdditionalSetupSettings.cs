@@ -13,32 +13,30 @@ public static class AdditionalSetupSettings
     public record Item(string Property, string Label, string HelpId, string[] Markers);
     public static IReadOnlyList<Item> Items { get; } = new Item[]
     {
-        new(nameof(InstallPlan.UseNarrator), "讲述人辅助安装", "narrator", ["Narrator.exe", "/d narrator"]),
-        new(nameof(InstallPlan.MakeEdgeUninstallable), "允许卸载 Edge", "edgeuninstall", ["MakeEdgeUninstallable.ps1", "1bca278a-5d11-4acf-ad2f-f9ab6d7f93a6"]),
-        new(nameof(InstallPlan.DisableSystemRestore), "C 盘系统还原", "systemrestore", ["Disable-ComputerRestore"])
+        new(nameof(InstallPlan.UseNarrator), global::UnattendLocal.Localization.UiText.Source("text.d45604280001"), "narrator", ["Narrator.exe", "/d narrator"]),
+        new(nameof(InstallPlan.MakeEdgeUninstallable), global::UnattendLocal.Localization.UiText.Source("text.3c2010a271a7"), "edgeuninstall", ["MakeEdgeUninstallable.ps1", "1bca278a-5d11-4acf-ad2f-f9ab6d7f93a6"]),
+        new(nameof(InstallPlan.DisableSystemRestore), global::UnattendLocal.Localization.UiText.Source("text.63e5e50b2b64"), "systemrestore", ["Disable-ComputerRestore"])
     };
     public static string Description(string property) => property switch
     {
-        nameof(InstallPlan.UseNarrator) => "默认不勾选。启用后在 Windows PE 安装环境启动讲述人，在系统安装阶段和每位用户首次登录时启动，并配置相应的辅助功能注册表项。适合需要屏幕朗读辅助的安装；需要安装介质包含讲述人及可用语音、音频支持，不保证定制 PE 可用。不会自动关闭朗读，也不强制开启首次自动登录；安装后可在辅助功能设置中调整。取消只影响新生成配置，不关闭已安装系统的讲述人；本工具不启动当前电脑的讲述人。",
-        nameof(InstallPlan.MakeEdgeUninstallable) => "默认不勾选。启用后在目标系统安装阶段尝试修改 IntegratedServicesRegionPolicySet.json 中 Edge 对应策略的 defaultState，使支持此机制的 Windows 版本提供卸载入口。不实际卸载 Edge，不移除 WebView2，也不更改默认浏览器。系统版本、策略文件权限及后续更新可能使修改失败或恢复原值，不能保证所有版本可卸载；脚本失败时记录错误并继续。取消只影响新配置，不还原已安装系统的策略文件；本工具不修改当前电脑。",
-        nameof(InstallPlan.DisableSystemRestore) => "默认不勾选。启用后在目标 Windows 的全机首次登录阶段执行 Disable-ComputerRestore -Drive 'C:\\'，关闭 C 盘系统还原。关闭系统还原可能删除该盘已有还原点，并失去通过还原点回退系统设置的能力；请按需要保留恢复手段。这不是仅暂停创建还原点，不关闭其他盘，也不等于关闭 Windows 恢复环境、文件历史记录或所有备份。不强制开启首次自动登录；需实际执行首次登录脚本。取消只影响新生成配置，不重新启用已安装系统的系统还原；本工具不修改当前电脑。",
-        _ => throw new ArgumentException("未知安装选项。")
+        nameof(InstallPlan.UseNarrator) => global::UnattendLocal.Localization.UiText.Source("text.12c81b0789cc"),
+        nameof(InstallPlan.MakeEdgeUninstallable) => global::UnattendLocal.Localization.UiText.Source("text.e84ab79c8f74"),
+        nameof(InstallPlan.DisableSystemRestore) => global::UnattendLocal.Localization.UiText.Source("text.24d571acf7df"),
+        _ => throw new ArgumentException(global::UnattendLocal.Localization.UiText.Source("text.4b4d3df7dcfd"))
     };
     public static bool Selected(InstallPlan p, Item item) => (bool)typeof(InstallPlan).GetProperty(item.Property)!.GetValue(p)!;
-    public static string Summary(InstallPlan p) => "讲述人辅助安装：" + (p.UseNarrator ? "启用（PE、安装阶段及每位用户首次登录）" : "不添加启动命令") +
-        "\nEdge 卸载入口：" + (p.MakeEdgeUninstallable ? "尝试允许卸载；不实际卸载" : "遵循 Windows 默认行为") +
-        "\nC 盘系统还原：" + (p.DisableSystemRestore ? "首次登录时关闭；可能删除已有还原点" : "遵循 Windows 默认行为");
+    public static string Summary(InstallPlan p) => global::UnattendLocal.Localization.UiText.Concat(new object?[] { global::UnattendLocal.Localization.UiText.Source("text.c70aa51c1697"), (p.UseNarrator ? global::UnattendLocal.Localization.UiText.Source("text.65e9471512b3") : global::UnattendLocal.Localization.UiText.Source("text.506d351b1729")), global::UnattendLocal.Localization.UiText.Source("text.da6baf3f6e56"), (p.MakeEdgeUninstallable ? global::UnattendLocal.Localization.UiText.Source("text.079e8f650d39") : global::UnattendLocal.Localization.UiText.Source("text.4e9901953ce4")), global::UnattendLocal.Localization.UiText.Source("text.63f3d2f5b91c"), (p.DisableSystemRestore ? global::UnattendLocal.Localization.UiText.Source("text.84f84a76095f") : global::UnattendLocal.Localization.UiText.Source("text.4e9901953ce4")) },new bool[]{false,false,false,false,false,false});
     public static string HelpState(InstallPlan p, string id)
     {
         var item = Items.Single(i => i.HelpId == id);
-        return "当前：" + (Selected(p, item) ? item.Property switch
+        return global::UnattendLocal.Localization.UiText.Concat(new object?[] { global::UnattendLocal.Localization.UiText.Source("text.660648805666"), (Selected(p, item) ? item.Property switch
         {
-            nameof(InstallPlan.UseNarrator) => "启用讲述人辅助安装。",
-            nameof(InstallPlan.MakeEdgeUninstallable) => "尝试提供 Edge 卸载入口，不实际卸载。",
-            _ => "首次登录时关闭 C 盘系统还原，可能删除已有还原点。"
-        } : "不添加此项配置，遵循 Windows 默认行为。");
+            nameof(InstallPlan.UseNarrator) => global::UnattendLocal.Localization.UiText.Source("text.dc863196075b"),
+            nameof(InstallPlan.MakeEdgeUninstallable) => global::UnattendLocal.Localization.UiText.Source("text.c2bfde530874"),
+            _ => global::UnattendLocal.Localization.UiText.Source("text.e2ef501fcfeb")
+        } : global::UnattendLocal.Localization.UiText.Source("text.e1de76978e36")) },new bool[]{false,false});
     }
-    private static string Normal(string value) => string.Join('\n', value.Replace("\r\n", "\n").Split('\n').Select(l => l.Trim()).Where(l => l.Length > 0));
+    private static string Normal(string value) => global::UnattendLocal.Localization.UiText.Join('\n', value.Replace("\r\n", "\n").Split('\n').Select(l => l.Trim()).Where(l => l.Length > 0), true);
     private static string Style(string value) => value.Replace("Hidden", "Normal", StringComparison.Ordinal);
     private static string Skeleton(string body) => Normal(Regex.Replace(body.Replace("\r\n", "\n"), BlockPattern, "", RegexOptions.None, TimeSpan.FromSeconds(1)));
     private static string[] Blocks(string body) => Regex.Matches(body.Replace("\r\n", "\n"), BlockPattern, RegexOptions.None, TimeSpan.FromSeconds(1)).Select(m => Normal(m.Groups["body"].Value)).ToArray();
@@ -136,7 +134,7 @@ public static class AdditionalSetupSettings
         foreach (var item in Items)
         {
             typeof(InstallPlan).GetProperty(item.Property)!.SetValue(p, states[item.Property].Enabled);
-            if (states[item.Property].Ambiguous) notes.Add(item.Label + "脚本或执行管线未完整识别，原文保留；不能用此开关覆盖。");
+            if (states[item.Property].Ambiguous) notes.Add(global::UnattendLocal.Localization.UiText.Concat(new object?[] { item.Label, global::UnattendLocal.Localization.UiText.Source("text.66e029170dda") },new bool[]{false,false}));
         }
     }
     public static void ValidateImported(InstallPlan p, XmlDocument doc)
@@ -144,7 +142,7 @@ public static class AdditionalSetupSettings
         var states = Inspect(doc);
         foreach (var item in Items)
             if (Selected(p, item) && states[item.Property].Ambiguous)
-                throw new ArgumentException(item.Label + "与原 XML 中未完整识别的内容重叠，请用原工具调整后重新导入。");
+                throw new ArgumentException(global::UnattendLocal.Localization.UiText.Concat(new object?[] { item.Label, global::UnattendLocal.Localization.UiText.Source("text.3f1e7bc717a9") },new bool[]{false,false}));
     }
     public static void NormalizeLoaded(InstallPlan p, JsonElement json)
     {
@@ -157,8 +155,8 @@ public static class AdditionalSetupSettings
         foreach (var item in missing)
         {
             typeof(InstallPlan).GetProperty(item.Property)!.SetValue(p, states[item.Property].Enabled);
-            if (states[item.Property].Ambiguous) data.Notices = data.Notices.Append(item.Label + "未完整识别，原文保留，不能覆盖。").Distinct().ToArray();
-            else if (states[item.Property].Enabled) data.Notices = data.Notices.Where(n => !n.Contains("生成参数：" + item.Property + "；", StringComparison.Ordinal)).ToArray();
+            if (states[item.Property].Ambiguous) data.Notices = data.Notices.Append(global::UnattendLocal.Localization.UiText.Concat(new object?[] { item.Label, global::UnattendLocal.Localization.UiText.Source("text.e3dccaf58f64") },new bool[]{false,false})).Distinct().ToArray();
+            else if (states[item.Property].Enabled) data.Notices = data.Notices.Where(n => !n.Contains(global::UnattendLocal.Localization.UiText.Concat(new object?[] { global::UnattendLocal.Localization.UiText.Source("text.3c0a3997fdd8"), item.Property, "；" },new bool[]{false,false,false}), StringComparison.Ordinal)).ToArray();
         }
         if (!missing.Any(i => states[i.Property].Enabled)) return;
         var after = JsonSerializer.Deserialize<InstallPlan>(JsonSerializer.Serialize(before))!;
@@ -170,7 +168,7 @@ public static class AdditionalSetupSettings
         }
         catch (Exception e) when (e is ArgumentException or ConfigurationException or XmlException)
         {
-            data.Blockers = data.Blockers.Append("旧方案的新增安装选项编辑基准无法可靠迁移，请重新导入原 XML 后再导出。").Distinct().ToArray();
+            data.Blockers = data.Blockers.Append(global::UnattendLocal.Localization.UiText.Source("text.94df6ea1bda7")).Distinct().ToArray();
         }
     }
 }

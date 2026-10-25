@@ -16,7 +16,7 @@ public static class XmlImportParameters
             var pair = entry.Split('=', 2);
             static string Decode(string value) => Uri.UnescapeDataString(value.Replace('+', ' '));
             string key = Decode(pair[0]);
-            if (!result.TryAdd(key, pair.Length == 2 ? Decode(pair[1]) : "")) notes?.Add("生成参数有重复项，优先读取实际 XML；重复项：" + key);
+            if (!result.TryAdd(key, pair.Length == 2 ? Decode(pair[1]) : "")) notes?.Add(global::UnattendLocal.Localization.UiText.Concat(new object?[] { global::UnattendLocal.Localization.UiText.Source("text.dc8e51e38acd"), key },new bool[]{false,true}));
         }
         return result;
     }
@@ -32,7 +32,7 @@ public static class XmlImportParameters
     };
     private static bool StaleNotice(string notice, IReadOnlyDictionary<string, string> values)
     {
-        foreach (string prefix in new[] { "界面尚未实现或无法完整还原的生成参数：", "生成参数暂不能完全还原：", "暂未识别的生成参数：" })
+        foreach (string prefix in new[] { global::UnattendLocal.Localization.UiText.Source("text.14828b99e96e"), global::UnattendLocal.Localization.UiText.Source("text.990030e78bf8"), global::UnattendLocal.Localization.UiText.Source("text.4e00ee262381") })
             if (notice.StartsWith(prefix, StringComparison.Ordinal))
             {
                 string key = notice[prefix.Length..].Split('；')[0];
@@ -47,18 +47,18 @@ public static class XmlImportParameters
         var declarations = values.Where(v => AppIds.Contains(v.Key)).ToArray();
         int selected = declarations.Count(v => v.Value == "true");
         if (appState.Ambiguous && selected > 0)
-            notes.Add($"原文件的生成参数声明选择了 {selected} 项应用移除；这是原文件的选择记录，不代表目标系统实际安装了这些应用。原脚本保留，清单暂不可编辑。");
+            notes.Add(global::UnattendLocal.Localization.UiText.Format("message.7dd6cddf5703", new string[] { global::UnattendLocal.Localization.UiText.Arg((selected), 0, null) }));
         else if (!appState.Ambiguous)
         {
             var differences = declarations.Where(v => v.Value is "true" or "false" && (v.Value == "true") != appState.Selected.Contains(v.Key)).Select(v => AppRemovalSettings.Items.Single(i => i.Id == v.Key).Label).ToArray();
-            if (differences.Length > 0) notes.Add($"应用移除生成参数与实际脚本不一致（{differences.Length} 项）：" + string.Join("、", differences) + "；界面以实际脚本为准，原 XML 保留。");
+            if (differences.Length > 0) notes.Add(global::UnattendLocal.Localization.UiText.Concat(new object?[] { global::UnattendLocal.Localization.UiText.Format("message.810897f5f711", new string[] { global::UnattendLocal.Localization.UiText.Arg((differences.Length), 0, null) }), global::UnattendLocal.Localization.UiText.Join("、", differences, false), global::UnattendLocal.Localization.UiText.Source("text.50c0feafcaaa") },new bool[]{false,false,false}));
         }
-        if (declarations.Any(v => v.Value is not ("true" or "false" or ""))) notes.Add("部分应用移除生成参数的取值无法识别；未依据参数自动勾选，以实际脚本为准。");
+        if (declarations.Any(v => v.Value is not ("true" or "false" or ""))) notes.Add(global::UnattendLocal.Localization.UiText.Source("text.96bea43344c9"));
         if (values.TryGetValue("CompactOsMode", out var compact) && compact is "Always" or "Never")
         {
             var state = CompactOsSettings.Inspect(doc);
             if (state.Known && state.Mode != (compact == "Always" ? CompactOsSettings.Enabled : CompactOsSettings.Disabled))
-                notes.Add("CompactOS 生成参数与实际安装配置不一致；界面以实际 XML 或已识别的安装脚本为准，原文保留。");
+                notes.Add(global::UnattendLocal.Localization.UiText.Source("text.aad6b6b3c7af"));
         }
     }
     public static void RefreshLoaded(InstallPlan plan)
@@ -69,7 +69,7 @@ public static class XmlImportParameters
         data.AppRemovalReadOnly = state.Ambiguous;
         var notes = data.Notices.ToList();
         var legacyHelpers = AppRemovalSettings.KnownLegacyHelpers(doc).ToHashSet();
-        notes.RemoveAll(n => n == "应用移除脚本含未知、修改过或不完整的内容，原文保留；本版不能通过应用移除列表覆盖这些脚本。" || n == AppRemovalSettings.ReadOnlyDescription || n == AppRemovalSettings.LegacyDescription || n.StartsWith("原文件的生成参数声明选择了 ",StringComparison.Ordinal) || n.StartsWith("应用移除生成参数与实际脚本不一致",StringComparison.Ordinal) || n.StartsWith("部分应用移除生成参数的取值无法识别",StringComparison.Ordinal) || n.StartsWith("CompactOS 生成参数与实际安装配置不一致",StringComparison.Ordinal) || legacyHelpers.Any(name=>n=="原文保留，未完全还原到界面："+name));
+        notes.RemoveAll(n => n == global::UnattendLocal.Localization.UiText.Source("text.157be5561045") || n == AppRemovalSettings.ReadOnlyDescription || n == AppRemovalSettings.LegacyDescription || n.StartsWith(global::UnattendLocal.Localization.UiText.Source("text.3e87bc6aa5b0"),StringComparison.Ordinal) || n.StartsWith(global::UnattendLocal.Localization.UiText.Source("text.4139b51569ad"),StringComparison.Ordinal) || n.StartsWith(global::UnattendLocal.Localization.UiText.Source("text.dfe7674760c8"),StringComparison.Ordinal) || n.StartsWith(global::UnattendLocal.Localization.UiText.Source("text.df67d84033fe"),StringComparison.Ordinal) || legacyHelpers.Any(name=>n==global::UnattendLocal.Localization.UiText.Concat(new object?[] { global::UnattendLocal.Localization.UiText.Source("text.9eee6c2b8190"), name },new bool[]{false,true})));
         if (state.Ambiguous) notes.Add(AppRemovalSettings.ReadOnlyDescription);
         else if (AppRemovalSettings.IsEditableLegacy(doc)) notes.Add(AppRemovalSettings.LegacyDescription);
         Reconcile(doc, plan, state, notes);

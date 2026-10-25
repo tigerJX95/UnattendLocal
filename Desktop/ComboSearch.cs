@@ -31,7 +31,7 @@ public static class ComboSearch {
   private TextBox? input;private ListBox? list;private bool updating,editing,composing,alive;
   private List<Option> options=[];
   private readonly DependencyPropertyDescriptor sourceDescriptor=DependencyPropertyDescriptor.FromProperty(ItemsControl.ItemsSourceProperty,typeof(ComboBox));
-  private const string InteractionHint="单击展开选项；\n双击文字或直接打字进入筛选。\n↑↓选择，Enter 确认，Esc 取消。";
+  private static readonly string InteractionHint=global::UnattendLocal.Localization.UiText.Source("text.e4c98e0a6fdf");
   private readonly DependencyPropertyDescriptor tipDescriptor=DependencyPropertyDescriptor.FromProperty(FrameworkElement.ToolTipProperty,typeof(ComboBox));
   private readonly DependencyPropertyDescriptor templateDescriptor=DependencyPropertyDescriptor.FromProperty(Control.TemplateProperty,typeof(ComboBox));
   public void Attach(){
@@ -39,10 +39,11 @@ public static class ComboSearch {
    combo.SelectionChanged+=SelectionChanged;combo.DropDownOpened+=Opened;combo.DropDownClosed+=Closed;combo.PreviewKeyDown+=KeyDown;
    combo.PreviewMouseLeftButtonDown+=ComboMouse;combo.PreviewMouseWheel+=Wheel;combo.IsKeyboardFocusWithinChanged+=FocusChanged;combo.DataContextChanged+=ContextChanged;
    tipDescriptor.AddValueChanged(combo,TipChanged);sourceDescriptor.AddValueChanged(combo,SourceChanged);templateDescriptor.AddValueChanged(combo,TemplateChanged);
-   Reset();
+   UnattendLocal.Localization.UiText.LanguageChanged+=LanguageChanged;Reset();
   }
+  private void LanguageChanged(object? sender,EventArgs e)=>Queue(Reset);
   public void Detach(){
-   alive=false;DisconnectParts();combo.SelectionChanged-=SelectionChanged;combo.DropDownOpened-=Opened;combo.DropDownClosed-=Closed;combo.PreviewKeyDown-=KeyDown;
+   alive=false;UnattendLocal.Localization.UiText.LanguageChanged-=LanguageChanged;DisconnectParts();combo.SelectionChanged-=SelectionChanged;combo.DropDownOpened-=Opened;combo.DropDownClosed-=Closed;combo.PreviewKeyDown-=KeyDown;
    combo.PreviewMouseLeftButtonDown-=ComboMouse;combo.PreviewMouseWheel-=Wheel;combo.IsKeyboardFocusWithinChanged-=FocusChanged;combo.DataContextChanged-=ContextChanged;
    tipDescriptor.RemoveValueChanged(combo,TipChanged);sourceDescriptor.RemoveValueChanged(combo,SourceChanged);templateDescriptor.RemoveValueChanged(combo,TemplateChanged);
   }
@@ -61,7 +62,7 @@ public static class ComboSearch {
   }
   private void TemplateChanged(object? sender,EventArgs e)=>Queue(()=>{DisconnectParts();combo.ApplyTemplate();ConnectParts();Reset();});
   private void TipChanged(object? sender,EventArgs e)=>UpdateTip();
-  private void UpdateTip(){if(input is not null)input.ToolTip=combo.ToolTip is HelpTopic tip?tip with {Body=tip.Body+"\n\n"+InteractionHint,Parts=[..tip.Sections,new(InteractionHint)]}:new HelpTopic("combosearch","选项选择",InteractionHint);}
+  private void UpdateTip(){if(input is not null)input.ToolTip=combo.ToolTip is HelpTopic tip?tip with {Body=tip.Body+"\n\n"+InteractionHint,Parts=[..tip.Sections,new(InteractionHint)]}:new HelpTopic("combosearch",global::UnattendLocal.Localization.UiText.Source("text.fe323490f04c"),InteractionHint);}
   private void BeginEditing(){if(input is null||combo.IsReadOnly)return;editing=true;input.IsReadOnly=false;input.Focus();input.SelectAll();combo.SetCurrentValue(ComboBox.IsDropDownOpenProperty,true);}
   private static bool Inside(DependencyObject? element,DependencyObject? ancestor){while(element is not null){if(ReferenceEquals(element,ancestor))return true;element=element is Visual or System.Windows.Media.Media3D.Visual3D?VisualTreeHelper.GetParent(element):LogicalTreeHelper.GetParent(element);}return false;}
   private void ComboMouse(object sender,MouseButtonEventArgs e){
@@ -79,7 +80,7 @@ public static class ComboSearch {
   private void Queue(Action action)=>combo.Dispatcher.BeginInvoke(DispatcherPriority.DataBind,new Action(()=>{if(alive)action();}));
   private Option Describe(object item){
    var container=item as ComboBoxItem;var content=container?.Content??item;
-   string label=Value(content,combo.DisplayMemberPath);
+   string label=Value(content,string.IsNullOrEmpty(combo.DisplayMemberPath)?LocalizedItems.GetDisplayPath(combo):combo.DisplayMemberPath);
    if(string.IsNullOrEmpty(label))label=Value(content,"Label");
    if(string.IsNullOrEmpty(label))label=content?.ToString()??"";
    string identifier=container?.Tag?.ToString()??Value(item,"Id");
@@ -99,7 +100,7 @@ public static class ComboSearch {
   }
   private void Reset(){
    if(!alive||input is null)return;updating=true;
-   try{editing=false;composing=false;input.IsReadOnly=true;UpdateTip();Refresh("");input.Text=options.FirstOrDefault(o=>ReferenceEquals(o.Item,combo.SelectedItem))?.Label??"";}
+   try{editing=false;composing=false;input.IsReadOnly=true;UpdateTip();Refresh("");input.Text=UnattendLocal.Localization.UiText.Translate(options.FirstOrDefault(o=>ReferenceEquals(o.Item,combo.SelectedItem))?.Label??"");}
    finally{updating=false;}
   }
   private void TextChanged(object sender,TextChangedEventArgs e){if(updating||!alive||input is null||composing)return;editing=true;Refresh(input.Text);combo.SetCurrentValue(ComboBox.IsDropDownOpenProperty,true);}

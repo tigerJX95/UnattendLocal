@@ -18,26 +18,26 @@ public static class ColorSettings
     private static ColorTheme Theme(string value, string label) => value switch
     {
         Light => ColorTheme.Light, Dark => ColorTheme.Dark,
-        _ => throw new ArgumentException($"请在 配色与背景页选择有效的{label}：浅色或深色。")
+        _ => throw new ArgumentException(global::UnattendLocal.Localization.UiText.Format("message.6b3886fd3683", new string[] { global::UnattendLocal.Localization.UiText.Arg((label), 0, null) }))
     };
     public static IColorSettings Build(InstallPlan plan)
     {
         if (plan.ColorSettingsMode == Default) return new DefaultColorSettings();
-        if (!IsCustom(plan)) throw new ArgumentException("请选择有效的 Windows 配色设置方式。");
-        var system = Theme(plan.WindowsColorTheme, "系统模式");
-        var apps = Theme(plan.AppsColorTheme, "应用模式");
-        if (!TryNormalize(plan.AccentColorHex, out var hex)) throw new ArgumentException("Windows 强调色应为 #RRGGBB，例如 #0078D4；只接受六位十六进制颜色。");
+        if (!IsCustom(plan)) throw new ArgumentException(global::UnattendLocal.Localization.UiText.Source("text.5c1ae03ec732"));
+        var system = Theme(plan.WindowsColorTheme, global::UnattendLocal.Localization.UiText.Source("text.fac85ce99e72"));
+        var apps = Theme(plan.AppsColorTheme, global::UnattendLocal.Localization.UiText.Source("text.68357d2d3318"));
+        if (!TryNormalize(plan.AccentColorHex, out var hex)) throw new ArgumentException(global::UnattendLocal.Localization.UiText.Source("text.c2556d8fe330"));
         int rgb = int.Parse(hex.AsSpan(1), NumberStyles.HexNumber, CultureInfo.InvariantCulture);
         return new CustomColorSettings(system, apps, plan.EnableColorTransparency, StartAccentEnabled(plan), plan.AccentColorOnBorders, Color.FromArgb(rgb >> 16, (rgb >> 8) & 255, rgb & 255));
     }
-    private static string State(bool value) => value ? "开启" : "关闭";
+    private static string State(bool value) => value ? global::UnattendLocal.Localization.UiText.Source("text.8da97ddda990") : global::UnattendLocal.Localization.UiText.Source("text.3fd47edce45b");
     public static string ModeSummary(InstallPlan plan)
     {
-        if (plan.ColorSettingsMode == Default) return "Windows 默认配色（不写入颜色主题覆盖）";
-        if (!IsCustom(plan)) return "配色设置方式无效，请重新选择";
-        var accent = TryNormalize(plan.AccentColorHex, out var hex) ? hex : "无效，请输入 #RRGGBB";
-        var start = plan.WindowsColorTheme == Light ? "不生效（系统浅色模式）" : State(StartAccentEnabled(plan));
-        return $"系统{plan.WindowsColorTheme}；应用{plan.AppsColorTheme}；强调色 {accent}；透明效果{State(plan.EnableColorTransparency)}；开始 / 任务栏强调色{start}；标题栏 / 边框强调色{State(plan.AccentColorOnBorders)}";
+        if (plan.ColorSettingsMode == Default) return global::UnattendLocal.Localization.UiText.Source("text.928f624718f7");
+        if (!IsCustom(plan)) return global::UnattendLocal.Localization.UiText.Source("text.e63e1066f987");
+        var accent = TryNormalize(plan.AccentColorHex, out var hex) ? hex : global::UnattendLocal.Localization.UiText.Source("text.2f54f0e00f68");
+        var start = plan.WindowsColorTheme == Light ? global::UnattendLocal.Localization.UiText.Source("text.6936ed43f47e") : State(StartAccentEnabled(plan));
+        return global::UnattendLocal.Localization.UiText.Format("message.0311e2a6d91b", new string[] { global::UnattendLocal.Localization.UiText.Arg((plan.WindowsColorTheme), 0, null), global::UnattendLocal.Localization.UiText.Arg((plan.AppsColorTheme), 0, null), global::UnattendLocal.Localization.UiText.Arg((accent), 0, null), global::UnattendLocal.Localization.UiText.Arg((State(plan.EnableColorTransparency)), 0, null), global::UnattendLocal.Localization.UiText.Arg((start), 0, null), global::UnattendLocal.Localization.UiText.Arg((State(plan.AccentColorOnBorders)), 0, null) });
     }
-    public static string Summary(InstallPlan plan) => "Windows 配色：" + ModeSummary(plan);
+    public static string Summary(InstallPlan plan) => global::UnattendLocal.Localization.UiText.Concat(new object?[] { global::UnattendLocal.Localization.UiText.Source("text.22630e2b80b4"), ModeSummary(plan) },new bool[]{false,false});
 }

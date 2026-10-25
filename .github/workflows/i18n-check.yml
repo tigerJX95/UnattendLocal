@@ -1,0 +1,126 @@
+name: i18n check
+
+on:
+  pull_request:
+  push:
+    branches: [main, master]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: i18n-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  detect-changes:
+    name: Detect i18n changes
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    outputs:
+      relevant: ${{ steps.detect.outputs.relevant }}
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          persist-credentials: false
+          fetch-depth: 0
+      - name: Identify internationalization changes
+        id: detect
+        shell: bash
+        env:
+          PR_BASE: ${{ github.event.pull_request.base.sha }}
+          PR_HEAD: ${{ github.event.pull_request.head.sha }}
+          EVENT_NAME: ${{ github.event_name }}
+        run: |
+          if [[ "$EVENT_NAME" != "pull_request" ]]; then
+            echo "relevant=true" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          # Compare actual PR commits (not just the last commit or a filename substring).
+          if ! git cat-file -e "$PR_BASE^{commit}" || ! git cat-file -e "$PR_HEAD^{commit}"; then
+            echo "Cannot resolve PR revisions" >&2
+            exit 1
+          fi
+          git diff --name-only -z "$PR_BASE...$PR_HEAD" > "$RUNNER_TEMP/changed-paths.bin"
+          python3 - <<'PYCODE'
+          import os
+          from pathlib import Path
+          names = Path(os.environ['RUNNER_TEMP'], 'changed-paths.bin').read_bytes().split(b'\0')
+          relevant = any(
+              n.startswith((b'Localization/', b'Desktop/'))
+              or n in (
+                  b'Tests/LocalizationTests.cs',
+                  b'Tools/check_i18n.py',
+                  b'.github/workflows/i18n-check.yml',
+                  b'docs/InternationalizationCI.md',
+              )
+              for n in names if n
+          )
+          with open(os.environ['GITHUB_OUTPUT'], 'a', encoding='utf-8') as output:
+              output.write(f'relevant={str(relevant).lower()}\n')
+          print('i18n changes:', relevant)
+          PYCODE
+
+  validate-resources:
+    needs: detect-changes
+    if: needs.detect-changes.outputs.relevant == 'true'
+    name: Validate translations
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          persist-credentials: false
+      - name: Check localization resource consistency
+        run: python3 Tools/check_i18n.py
+
+  localization-regression:
+    needs: detect-changes
+    if: needs.detect-changes.outputs.relevant == 'true'
+    name: Build and localization regression
+    runs-on: windows-2025
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          persist-credentials: false
+      - uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6
+        with:
+          dotnet-version: '10.0.x'
+      - name: Build test runner
+        shell: pwsh
+        run: dotnet build Tests/Tests.csproj -c Release -m:1 -nr:false -warnaserror
+      - name: Verify runtime localization behavior
+        shell: pwsh
+        run: dotnet Tests/bin/Release/net10.0/Tests.dll --localization-only
+
+  required-i18n-gate:
+    name: i18n required gate
+    needs: [detect-changes, validate-resources, localization-regression]
+    if: always()
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Enforce i18n checks for relevant changes
+        env:
+          DETECT_RESULT: ${{ needs.detect-changes.result }}
+          RELEVANT: ${{ needs.detect-changes.outputs.relevant }}
+          RESOURCE_RESULT: ${{ needs.validate-resources.result }}
+          REGRESSION_RESULT: ${{ needs.localization-regression.result }}
+        shell: bash
+        run: |
+          if [[ "$DETECT_RESULT" != "success" ]]; then
+            echo 'Change detection failed; cannot safely bypass the gate.' >&2
+            exit 1
+          fi
+          if [[ "$RELEVANT" == "false" ]]; then
+            echo 'No i18n changes: gate passed; validation jobs intentionally skipped.'
+            exit 0
+          fi
+          if [[ "$RELEVANT" == "true" && "$RESOURCE_RESULT" == "success" && "$REGRESSION_RESULT" == "success" ]]; then
+            echo 'Internationalization checks passed.'
+            exit 0
+          fi
+          echo "i18n checks not successful: resources=$RESOURCE_RESULT, regression=$REGRESSION_RESULT" >&2
+          exit 1

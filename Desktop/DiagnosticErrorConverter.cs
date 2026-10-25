@@ -5,6 +5,6 @@ namespace UnattendLocal.Desktop;
 
 public sealed class DiagnosticErrorConverter : IValueConverter
 {
-    public object Convert(object value, Type targetType, object parameter, CultureInfo culture) => DiagnosticText.IsErrorSummary(value as string);
+    public object Convert(object value, Type targetType, object parameter, CultureInfo culture) => DiagnosticText.IsErrorSummary(UnattendLocal.Localization.UiText.Original(value as string));
     public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture) => Binding.DoNothing;
 }

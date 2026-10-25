@@ -1,140 +1,140 @@
-﻿using System.Reflection;
+using System.Reflection;
 namespace UnattendLocal.Core;
 public static class Recommendations {
  public record Difference(string Property,string Label,string Current,string Recommended);
  // Only policy fields are reset. Machine identity, locale, SKU and all credentials remain user-owned.
  private static readonly Dictionary<string,string> Fields=new(){
-  [nameof(InstallPlan.DeleteJunctions)]="删除旧版兼容联接点",
-  [nameof(InstallPlan.UseAppLocker)]="应用 AppLocker 策略",[nameof(InstallPlan.UseConfigurationSet)]="使用 $OEM$ 配置集",
-  [nameof(InstallPlan.DisableSac)]="关闭智能应用控制（SAC）",
-  [nameof(InstallPlan.DisableSmartScreen)]="关闭 Windows 与 Edge 的 SmartScreen",
-  [nameof(InstallPlan.DisableCoreIsolation)]="关闭核心隔离（VBS / 内存完整性）",
-  [nameof(InstallPlan.HardenSystemDriveAcl)]="收紧 C 盘根目录写入权限",
+  [nameof(InstallPlan.DeleteJunctions)]=global::UnattendLocal.Localization.UiText.Source("text.32d71cdd1bb0"),
+  [nameof(InstallPlan.UseAppLocker)]=global::UnattendLocal.Localization.UiText.Source("text.c91bedf4b178"),[nameof(InstallPlan.UseConfigurationSet)]=global::UnattendLocal.Localization.UiText.Source("text.da62dcad820e"),
+  [nameof(InstallPlan.DisableSac)]=global::UnattendLocal.Localization.UiText.Source("text.bc695532793b"),
+  [nameof(InstallPlan.DisableSmartScreen)]=global::UnattendLocal.Localization.UiText.Source("text.ff473b49a6a6"),
+  [nameof(InstallPlan.DisableCoreIsolation)]=global::UnattendLocal.Localization.UiText.Source("text.7b2b6db9d9af"),
+  [nameof(InstallPlan.HardenSystemDriveAcl)]=global::UnattendLocal.Localization.UiText.Source("text.e875cabd1080"),
 
-  [nameof(InstallPlan.UseSecondLanguage)]="启用第二组语言与键盘",[nameof(InstallPlan.UseThirdLanguage)]="启用第三组语言与键盘",
-  [nameof(InstallPlan.UseNarrator)]="讲述人辅助安装",[nameof(InstallPlan.MakeEdgeUninstallable)]="允许卸载 Edge",[nameof(InstallPlan.DisableSystemRestore)]="关闭 C 盘系统还原",
-  [nameof(InstallPlan.VMwareTools)]="安装 VMware Tools",[nameof(InstallPlan.VBoxGuestAdditions)]="安装 VirtualBox 增强功能",[nameof(InstallPlan.VirtIoGuestTools)]="安装 VirtIO Guest Tools",[nameof(InstallPlan.ParallelsTools)]="安装 Parallels Tools",
-  [nameof(InstallPlan.DisableUac)]="关闭用户账户控制（UAC）",[nameof(InstallPlan.DisableWpbt)]="阻止 WPBT 固件程序执行",
-  [nameof(InstallPlan.ProcessAuditMode)]="进程创建审计",
-  [nameof(InstallPlan.PreventAutomaticReboot)]="减少 Windows 更新自动重启",[nameof(InstallPlan.DisableLastAccess)]="禁用 NTFS 最后访问时间更新",
-  [nameof(InstallPlan.EnableRemoteDesktop)]="启用远程桌面",[nameof(InstallPlan.AllowPowerShellScripts)]="Windows PowerShell 执行策略",
-  [nameof(InstallPlan.RemovedApps)]="应用移除",
-  [nameof(InstallPlan.DisableAutomaticRestartSignOn)]="禁用重启后的最后用户自动登录",
-  [nameof(InstallPlan.PreventDeviceApps)]="阻止硬件关联应用自动安装",
-  [nameof(InstallPlan.DeleteWindowsOld)]="清理空 Windows.old 文件夹",
-  [nameof(InstallPlan.CompactOsMode)]="CompactOS 系统文件压缩",
-  [nameof(InstallPlan.DisablePointerPrecision)]="关闭鼠标提高指针精确度",
-  [nameof(InstallPlan.StickyKeysMode)]="粘滞键设置",
-  [nameof(InstallPlan.DisableAppSuggestions)]="禁用应用建议和自动推广",
-  [nameof(InstallPlan.DisableWindowsUpdate)]="循环暂停 Windows 更新",
-  [nameof(InstallPlan.HideEdgeFre)]="跳过 Edge 首次运行引导",
-  [nameof(InstallPlan.DisableEdgeStartupBoost)]="关闭 Edge 启动加速及后台运行",
-  [nameof(InstallPlan.EnableLongPaths)]="启用长路径支持",
-  [nameof(InstallPlan.TurnOffSystemSounds)]="关闭系统声音",
-  [nameof(InstallPlan.DisableFastStartup)]="禁用快速启动",
-  [nameof(InstallPlan.AccountLockoutMode)]="账户锁定策略",
-  [nameof(InstallPlan.LockKeyMode)]="键盘初始状态",
-  [nameof(InstallPlan.WallpaperMode)]="桌面背景",
-  [nameof(InstallPlan.LockScreenMode)]="锁屏图片",
-  [nameof(InstallPlan.ColorSettingsMode)]="Windows 配色",
-  [nameof(InstallPlan.VisualEffectsMode)]="视觉效果",
-  [nameof(InstallPlan.BypassTPMCheck)]="绕过 TPM 2.0 检查",[nameof(InstallPlan.BypassSecureBootCheck)]="绕过安全启动检查",[nameof(InstallPlan.BypassRAMCheck)]="绕过内存容量检查",
-  [nameof(InstallPlan.EditionMode)]="安装密钥方式",[nameof(InstallPlan.AccountMode)]="账户创建方式",
-  [nameof(InstallPlan.AutoLogon)]="首次自动登录",[nameof(InstallPlan.UseBuiltinAdministrator)]="首次登录使用内置 Administrator",[nameof(InstallPlan.PasswordExpiration)]="密码到期策略",
-  [nameof(InstallPlan.WifiMode)]="网络配置方式",[nameof(InstallPlan.HiddenWifi)]="隐藏无线网络",
-  [nameof(InstallPlan.ConnectWifi)]="自动连接预设 Wi-Fi",[nameof(InstallPlan.BypassNetwork)]="允许无互联网安装",
-  [nameof(InstallPlan.PrivacyMode)]="OOBE 快捷隐私",[nameof(InstallPlan.HideEula)]="隐藏许可页面",
-  [nameof(InstallPlan.HideOnlineAccount)]="隐藏在线账户页面",[nameof(InstallPlan.HideOEMRegistration)]="隐藏 OEM 注册页面",
-  [nameof(InstallPlan.HidePowerShellWindows)]="隐藏 PowerShell 窗口",[nameof(InstallPlan.KeepSensitiveFiles)]="保留安装隐私文件",
-  [nameof(InstallPlan.ObscurePasswords)]="编码 XML 中的密码",[nameof(InstallPlan.BypassHardware)]="绕过硬件检查",
-  [nameof(InstallPlan.PreventDeviceEncryption)]="禁止 BitLocker 自动设备加密",
-  [nameof(InstallPlan.TaskbarSearch)]="任务栏搜索样式",[nameof(InstallPlan.TaskbarIconsMode)]="任务栏固定图标",
-  [nameof(InstallPlan.StartTilesMode)]="Windows 10 开始菜单磁贴",[nameof(InstallPlan.StartPinsMode)]="Windows 11 开始菜单固定应用",
-  [nameof(InstallPlan.DisableWidgets)]="禁用小组件",[nameof(InstallPlan.LeftTaskbar)]="任务栏左对齐",
-  [nameof(InstallPlan.HideTaskViewButton)]="隐藏任务视图",[nameof(InstallPlan.ShowAllTrayIcons)]="显示全部托盘图标",[nameof(InstallPlan.DisableBingResults)]="不显示 Bing 搜索结果",
-  [nameof(InstallPlan.HideFilesMode)]="隐藏文件显示方式",[nameof(InstallPlan.ShowFileExtensions)]="始终显示文件扩展名",
-  [nameof(InstallPlan.ClassicContextMenu)]="使用经典右键菜单",[nameof(InstallPlan.HideInfoTip)]="隐藏悬停说明",
-  [nameof(InstallPlan.LaunchToThisPC)]="打开资源管理器时进入此电脑",[nameof(InstallPlan.ShowEndTask)]="任务栏显示结束任务",
-  [nameof(InstallPlan.DesktopIconsMode)]="系统桌面图标",[nameof(InstallPlan.StartFoldersMode)]="开始菜单电源按钮旁文件夹",[nameof(InstallPlan.DeleteEdgeDesktopIcon)]="删除 Edge 桌面快捷方式",
-  [nameof(InstallPlan.TimeZoneMode)]="时区设置方式",[nameof(InstallPlan.InteractiveLanguage)]="手动选择语言与区域"};
+  [nameof(InstallPlan.UseSecondLanguage)]=global::UnattendLocal.Localization.UiText.Source("text.cd3f0251d73e"),[nameof(InstallPlan.UseThirdLanguage)]=global::UnattendLocal.Localization.UiText.Source("text.ccd7b23e7165"),
+  [nameof(InstallPlan.UseNarrator)]=global::UnattendLocal.Localization.UiText.Source("text.d45604280001"),[nameof(InstallPlan.MakeEdgeUninstallable)]=global::UnattendLocal.Localization.UiText.Source("text.3c2010a271a7"),[nameof(InstallPlan.DisableSystemRestore)]=global::UnattendLocal.Localization.UiText.Source("text.df7f6dd1adf7"),
+  [nameof(InstallPlan.VMwareTools)]=global::UnattendLocal.Localization.UiText.Source("text.02a33ac3ee81"),[nameof(InstallPlan.VBoxGuestAdditions)]=global::UnattendLocal.Localization.UiText.Source("text.4b3df255eb6a"),[nameof(InstallPlan.VirtIoGuestTools)]=global::UnattendLocal.Localization.UiText.Source("text.45a8fac144a2"),[nameof(InstallPlan.ParallelsTools)]=global::UnattendLocal.Localization.UiText.Source("text.9933d3141d6d"),
+  [nameof(InstallPlan.DisableUac)]=global::UnattendLocal.Localization.UiText.Source("text.8b7255e34e81"),[nameof(InstallPlan.DisableWpbt)]=global::UnattendLocal.Localization.UiText.Source("text.e6d14b2373a0"),
+  [nameof(InstallPlan.ProcessAuditMode)]=global::UnattendLocal.Localization.UiText.Source("text.4d21ee8328ab"),
+  [nameof(InstallPlan.PreventAutomaticReboot)]=global::UnattendLocal.Localization.UiText.Source("text.5c0d4ac1e048"),[nameof(InstallPlan.DisableLastAccess)]=global::UnattendLocal.Localization.UiText.Source("text.4bfe7645d74b"),
+  [nameof(InstallPlan.EnableRemoteDesktop)]=global::UnattendLocal.Localization.UiText.Source("text.0b35607d3abf"),[nameof(InstallPlan.AllowPowerShellScripts)]=global::UnattendLocal.Localization.UiText.Source("text.c33ffb14d26a"),
+  [nameof(InstallPlan.RemovedApps)]=global::UnattendLocal.Localization.UiText.Source("text.91ebd1a7c347"),
+  [nameof(InstallPlan.DisableAutomaticRestartSignOn)]=global::UnattendLocal.Localization.UiText.Source("text.29d265ce3beb"),
+  [nameof(InstallPlan.PreventDeviceApps)]=global::UnattendLocal.Localization.UiText.Source("text.4d0d421c643c"),
+  [nameof(InstallPlan.DeleteWindowsOld)]=global::UnattendLocal.Localization.UiText.Source("text.f47435507d77"),
+  [nameof(InstallPlan.CompactOsMode)]=global::UnattendLocal.Localization.UiText.Source("text.a019e8f52463"),
+  [nameof(InstallPlan.DisablePointerPrecision)]=global::UnattendLocal.Localization.UiText.Source("text.1b85d20d3d80"),
+  [nameof(InstallPlan.StickyKeysMode)]=global::UnattendLocal.Localization.UiText.Source("text.a7a300550c3b"),
+  [nameof(InstallPlan.DisableAppSuggestions)]=global::UnattendLocal.Localization.UiText.Source("text.3ed6c2276e6f"),
+  [nameof(InstallPlan.DisableWindowsUpdate)]=global::UnattendLocal.Localization.UiText.Source("text.fdbaf6354d26"),
+  [nameof(InstallPlan.HideEdgeFre)]=global::UnattendLocal.Localization.UiText.Source("text.b056a04e2c72"),
+  [nameof(InstallPlan.DisableEdgeStartupBoost)]=global::UnattendLocal.Localization.UiText.Source("text.ba38fe793667"),
+  [nameof(InstallPlan.EnableLongPaths)]=global::UnattendLocal.Localization.UiText.Source("text.2da1f5027c64"),
+  [nameof(InstallPlan.TurnOffSystemSounds)]=global::UnattendLocal.Localization.UiText.Source("text.c079556169d5"),
+  [nameof(InstallPlan.DisableFastStartup)]=global::UnattendLocal.Localization.UiText.Source("text.becacede81db"),
+  [nameof(InstallPlan.AccountLockoutMode)]=global::UnattendLocal.Localization.UiText.Source("text.fa67952632ed"),
+  [nameof(InstallPlan.LockKeyMode)]=global::UnattendLocal.Localization.UiText.Source("text.fcb62ca5dfa1"),
+  [nameof(InstallPlan.WallpaperMode)]=global::UnattendLocal.Localization.UiText.Source("text.fbd77c61ce36"),
+  [nameof(InstallPlan.LockScreenMode)]=global::UnattendLocal.Localization.UiText.Source("text.c7a90b8fdf58"),
+  [nameof(InstallPlan.ColorSettingsMode)]=global::UnattendLocal.Localization.UiText.Source("text.fa6a7f591b47"),
+  [nameof(InstallPlan.VisualEffectsMode)]=global::UnattendLocal.Localization.UiText.Source("text.0ab315b8cb23"),
+  [nameof(InstallPlan.BypassTPMCheck)]=global::UnattendLocal.Localization.UiText.Source("text.03d4d9f03919"),[nameof(InstallPlan.BypassSecureBootCheck)]=global::UnattendLocal.Localization.UiText.Source("text.443cc44b8f86"),[nameof(InstallPlan.BypassRAMCheck)]=global::UnattendLocal.Localization.UiText.Source("text.3d712e0edce3"),
+  [nameof(InstallPlan.EditionMode)]=global::UnattendLocal.Localization.UiText.Source("text.ce721facbbd9"),[nameof(InstallPlan.AccountMode)]=global::UnattendLocal.Localization.UiText.Source("text.d8ee97da527d"),
+  [nameof(InstallPlan.AutoLogon)]=global::UnattendLocal.Localization.UiText.Source("text.03d982fd2e43"),[nameof(InstallPlan.UseBuiltinAdministrator)]=global::UnattendLocal.Localization.UiText.Source("text.2921cb2a1896"),[nameof(InstallPlan.PasswordExpiration)]=global::UnattendLocal.Localization.UiText.Source("text.444f1003027d"),
+  [nameof(InstallPlan.WifiMode)]=global::UnattendLocal.Localization.UiText.Source("text.bbbf23d6c0e1"),[nameof(InstallPlan.HiddenWifi)]=global::UnattendLocal.Localization.UiText.Source("text.55c62c34db4a"),
+  [nameof(InstallPlan.ConnectWifi)]=global::UnattendLocal.Localization.UiText.Source("text.a6425a764c35"),[nameof(InstallPlan.BypassNetwork)]=global::UnattendLocal.Localization.UiText.Source("text.6c594ce671b5"),
+  [nameof(InstallPlan.PrivacyMode)]=global::UnattendLocal.Localization.UiText.Source("text.64b4d76ab8e6"),[nameof(InstallPlan.HideEula)]=global::UnattendLocal.Localization.UiText.Source("text.c31a36182ad6"),
+  [nameof(InstallPlan.HideOnlineAccount)]=global::UnattendLocal.Localization.UiText.Source("text.f7c5466a4751"),[nameof(InstallPlan.HideOEMRegistration)]=global::UnattendLocal.Localization.UiText.Source("text.9fa15516bd4c"),
+  [nameof(InstallPlan.HidePowerShellWindows)]=global::UnattendLocal.Localization.UiText.Source("text.7c2eae94d517"),[nameof(InstallPlan.KeepSensitiveFiles)]=global::UnattendLocal.Localization.UiText.Source("text.0b8cc964217a"),
+  [nameof(InstallPlan.ObscurePasswords)]=global::UnattendLocal.Localization.UiText.Source("text.5c8d647f3b07"),[nameof(InstallPlan.BypassHardware)]=global::UnattendLocal.Localization.UiText.Source("text.07a2520b854f"),
+  [nameof(InstallPlan.PreventDeviceEncryption)]=global::UnattendLocal.Localization.UiText.Source("text.3dd6efa9eecd"),
+  [nameof(InstallPlan.TaskbarSearch)]=global::UnattendLocal.Localization.UiText.Source("text.c5b4794cc702"),[nameof(InstallPlan.TaskbarIconsMode)]=global::UnattendLocal.Localization.UiText.Source("text.27dfcbb03c53"),
+  [nameof(InstallPlan.StartTilesMode)]=global::UnattendLocal.Localization.UiText.Source("text.5d713274fde0"),[nameof(InstallPlan.StartPinsMode)]=global::UnattendLocal.Localization.UiText.Source("text.8252e535891f"),
+  [nameof(InstallPlan.DisableWidgets)]=global::UnattendLocal.Localization.UiText.Source("text.49902cfaa3a7"),[nameof(InstallPlan.LeftTaskbar)]=global::UnattendLocal.Localization.UiText.Source("text.bfd564c34b91"),
+  [nameof(InstallPlan.HideTaskViewButton)]=global::UnattendLocal.Localization.UiText.Source("text.45dcb8c1c79c"),[nameof(InstallPlan.ShowAllTrayIcons)]=global::UnattendLocal.Localization.UiText.Source("text.ee6213c78a88"),[nameof(InstallPlan.DisableBingResults)]=global::UnattendLocal.Localization.UiText.Source("text.32bfee4fabca"),
+  [nameof(InstallPlan.HideFilesMode)]=global::UnattendLocal.Localization.UiText.Source("text.8641baa2e90a"),[nameof(InstallPlan.ShowFileExtensions)]=global::UnattendLocal.Localization.UiText.Source("text.ba2e8c9e5c9f"),
+  [nameof(InstallPlan.ClassicContextMenu)]=global::UnattendLocal.Localization.UiText.Source("text.29db1a886bd8"),[nameof(InstallPlan.HideInfoTip)]=global::UnattendLocal.Localization.UiText.Source("text.b0935e61434b"),
+  [nameof(InstallPlan.LaunchToThisPC)]=global::UnattendLocal.Localization.UiText.Source("text.2fa6807a1930"),[nameof(InstallPlan.ShowEndTask)]=global::UnattendLocal.Localization.UiText.Source("text.bd100ac26d3f"),
+  [nameof(InstallPlan.DesktopIconsMode)]=global::UnattendLocal.Localization.UiText.Source("text.d49ecddf530b"),[nameof(InstallPlan.StartFoldersMode)]=global::UnattendLocal.Localization.UiText.Source("text.aee448a5470c"),[nameof(InstallPlan.DeleteEdgeDesktopIcon)]=global::UnattendLocal.Localization.UiText.Source("text.d694db6e8c6a"),
+  [nameof(InstallPlan.TimeZoneMode)]=global::UnattendLocal.Localization.UiText.Source("text.aa45e3c019c1"),[nameof(InstallPlan.InteractiveLanguage)]=global::UnattendLocal.Localization.UiText.Source("text.3360ef1a389c")};
  public static bool Known(string id)=>id is "wired" or "wifi";
- internal static string SettingLabel(string property)=>Fields.GetValueOrDefault(property,"此设置");
- public static string Name(string id)=>id=="wifi"?"预设 Wi-Fi":"有线局域网";
+ internal static string SettingLabel(string property)=>Fields.GetValueOrDefault(property,global::UnattendLocal.Localization.UiText.Source("text.21e969066e46"));
+ public static string Name(string id)=>id=="wifi"?global::UnattendLocal.Localization.UiText.Source("text.c9bdb5792a47"):global::UnattendLocal.Localization.UiText.Source("text.4015da7497ad");
  private static InstallPlan Baseline(string id,string windows,bool preventDeviceEncryption=false){
-  if(!Known(id))throw new ArgumentException("未知推荐方案。");
-  if(windows is not ("Windows 10" or "Windows 11" or "common"))throw new ArgumentException("推荐基准系统无效。");
-  return new(){PreventDeviceEncryption=preventDeviceEncryption,EditionMode="按 SKU 使用通用安装密钥",AccountMode="自动创建本地账户",AutoLogon=true,UseBuiltinAdministrator=false,PasswordExpiration="永不过期",WifiMode=id=="wifi"?"预设 WPA2 Wi-Fi":"隐藏无线网络选择页",HiddenWifi=false,ConnectWifi=id=="wifi",BypassNetwork=windows!="Windows 10",PrivacyMode="关闭快捷隐私设置",HideEula=true,HideOnlineAccount=true,HideOEMRegistration=true,HidePowerShellWindows=true,KeepSensitiveFiles=false,ObscurePasswords=true,BypassHardware=false,InteractiveLanguage=false};
+  if(!Known(id))throw new ArgumentException(global::UnattendLocal.Localization.UiText.Source("text.9da014724757"));
+  if(windows is not ("Windows 10" or "Windows 11" or "common"))throw new ArgumentException(global::UnattendLocal.Localization.UiText.Source("text.7ae1a9250859"));
+  return new(){PreventDeviceEncryption=preventDeviceEncryption,EditionMode=global::UnattendLocal.Localization.UiText.Source("text.cc706914a2ad"),AccountMode=global::UnattendLocal.Localization.UiText.Source("text.cdaa9a6700f6"),AutoLogon=true,UseBuiltinAdministrator=false,PasswordExpiration=global::UnattendLocal.Localization.UiText.Source("text.2c60316d5ea6"),WifiMode=id=="wifi"?global::UnattendLocal.Localization.UiText.Source("text.7f988900440d"):global::UnattendLocal.Localization.UiText.Source("text.307f498ede07"),HiddenWifi=false,ConnectWifi=id=="wifi",BypassNetwork=windows!="Windows 10",PrivacyMode=global::UnattendLocal.Localization.UiText.Source("text.9d9c1d7fb13c"),HideEula=true,HideOnlineAccount=true,HideOEMRegistration=true,HidePowerShellWindows=true,KeepSensitiveFiles=false,ObscurePasswords=true,BypassHardware=false,InteractiveLanguage=false};
  }
  private static PropertyInfo Property(string name)=>typeof(InstallPlan).GetProperty(name)!;
  // Historical version-1 Windows-specific policy; the current UI uses the shared version-3 overload.
- public static void Apply(InstallPlan p,string id,string windows){var b=Baseline(id,windows);foreach(var name in Fields.Keys){if(name==nameof(InstallPlan.CompactOsMode)&&!CompactOsSettings.CanEdit(p))continue;Property(name).SetValue(p,Property(name).GetValue(b));}p.TargetWindows=windows;p.RecommendationId=id;p.RecommendationWindows=windows;p.RecommendationVersion=1;p.ConfigurationMode="推荐配置";}
- public static void Apply(InstallPlan p,string id){var b=Baseline(id,"common",true);foreach(var name in Fields.Keys){if(name==nameof(InstallPlan.CompactOsMode)&&!CompactOsSettings.CanEdit(p))continue;Property(name).SetValue(p,Property(name).GetValue(b));}p.DiskMode="手动选择磁盘与分区";p.FormatExistingPartition=false;p.ClearDiskConsent();p.RecommendationId=id;p.RecommendationWindows="";p.RecommendationVersion=3;p.ConfigurationMode="推荐配置";}
+ public static void Apply(InstallPlan p,string id,string windows){var b=Baseline(id,windows);foreach(var name in Fields.Keys){if(name==nameof(InstallPlan.CompactOsMode)&&!CompactOsSettings.CanEdit(p))continue;Property(name).SetValue(p,Property(name).GetValue(b));}p.TargetWindows=windows;p.RecommendationId=id;p.RecommendationWindows=windows;p.RecommendationVersion=1;p.ConfigurationMode=global::UnattendLocal.Localization.UiText.Source("text.933c2fd10345");}
+ public static void Apply(InstallPlan p,string id){var b=Baseline(id,"common",true);foreach(var name in Fields.Keys){if(name==nameof(InstallPlan.CompactOsMode)&&!CompactOsSettings.CanEdit(p))continue;Property(name).SetValue(p,Property(name).GetValue(b));}p.DiskMode=global::UnattendLocal.Localization.UiText.Source("text.4a9df1058984");p.FormatExistingPartition=false;p.ClearDiskConsent();p.RecommendationId=id;p.RecommendationWindows="";p.RecommendationVersion=3;p.ConfigurationMode=global::UnattendLocal.Localization.UiText.Source("text.933c2fd10345");}
  // Scene selection updates only its dependent network fields. Full policy restoration remains explicit.
  public static void SelectNetworkScene(InstallPlan p,string id){
   var b=Baseline(id,"common");p.WifiMode=b.WifiMode;p.HiddenWifi=b.HiddenWifi;p.ConnectWifi=b.ConnectWifi;
   p.RecommendationId=id;p.RecommendationWindows="";p.RecommendationVersion=3;
  }
  public static bool HasBaseline(InstallPlan p)=>Known(p.RecommendationId)&&(p.RecommendationVersion is 2 or 3||(p.RecommendationVersion==1&&p.RecommendationWindows is "Windows 10" or "Windows 11"));
- private static string Display(object? value)=>value switch{bool b=>b?"开启":"关闭","隐藏无线网络选择页"=>"有线局域网（跳过 Wi-Fi 配置）",WifiSettings.Wpa2 or WifiSettings.Wpa3 or WifiSettings.Open=>WifiSettings.ModeLabel((string)value),"关闭快捷隐私设置"=>"全部关闭",_=>value?.ToString()??""};
+ private static string Display(object? value)=>value switch{bool b=>b?global::UnattendLocal.Localization.UiText.Source("text.8da97ddda990"):global::UnattendLocal.Localization.UiText.Source("text.3fd47edce45b"),"隐藏无线网络选择页"=>global::UnattendLocal.Localization.UiText.Source("text.4b9816f67464"),WifiSettings.Wpa2 or WifiSettings.Wpa3 or WifiSettings.Open=>WifiSettings.ModeLabel((string)value),"关闭快捷隐私设置"=>global::UnattendLocal.Localization.UiText.Source("text.34f7336d3983"),_=>value?.ToString()??""};
  private static string DisplayField(InstallPlan p,string name)=>name switch {nameof(InstallPlan.RemovedApps)=>AppRemovalSettings.Selection(p),nameof(InstallPlan.CompactOsMode)=>CompactOsSettings.ModeSummary(p),nameof(InstallPlan.StickyKeysMode)=>StickyKeySettings.ModeSummary(p),nameof(InstallPlan.AccountLockoutMode)=>AccountLockoutPolicy.ModeSummary(p),nameof(InstallPlan.LockKeyMode)=>KeyboardLockSettings.ModeSummary(p),nameof(InstallPlan.WallpaperMode)=>WallpaperSettings.ModeSummary(p),nameof(InstallPlan.LockScreenMode)=>ImageBackgroundSettings.LockSummary(p),nameof(InstallPlan.ColorSettingsMode)=>ColorSettings.ModeSummary(p),nameof(InstallPlan.VisualEffectsMode)=>VisualEffectsSettings.ModeSummary(p),nameof(InstallPlan.DesktopIconsMode)=>DesktopSettings.IconSummary(p),nameof(InstallPlan.StartFoldersMode)=>DesktopSettings.FolderSummary(p),_=>Display(Property(name).GetValue(p))};
  public static List<Difference> Differences(InstallPlan p){
   if(!HasBaseline(p))return new();var b=Baseline(p.RecommendationId,p.RecommendationVersion>=2?"common":p.RecommendationWindows,p.RecommendationVersion>=3);
   var result=Fields.Where(f=>!(f.Key==nameof(InstallPlan.RemovedApps)?p.RemovedApps.Order().SequenceEqual(b.RemovedApps.Order()):Equals(Property(f.Key).GetValue(p),Property(f.Key).GetValue(b)))).Select(f=>new Difference(f.Key,f.Value,DisplayField(p,f.Key),DisplayField(b,f.Key))).ToList();
-  if(p.DiskMode!="手动选择磁盘与分区")result.Add(new(nameof(InstallPlan.DiskMode),"磁盘与分区",p.DiskMode,"手动选择磁盘与分区"));return result;
+  if(p.DiskMode!=global::UnattendLocal.Localization.UiText.Source("text.4a9df1058984"))result.Add(new(nameof(InstallPlan.DiskMode),global::UnattendLocal.Localization.UiText.Source("text.272d80cb5501"),p.DiskMode,global::UnattendLocal.Localization.UiText.Source("text.4a9df1058984")));return result;
  }
- public static void Restore(InstallPlan p,string name){if(!HasBaseline(p))throw new ArgumentException("此方案没有可用的推荐基准。");if(name==nameof(InstallPlan.DiskMode)){p.DiskMode="手动选择磁盘与分区";p.FormatExistingPartition=false;p.ClearDiskConsent();return;}if(name==nameof(InstallPlan.CompactOsMode)&&!CompactOsSettings.CanEdit(p))throw new ArgumentException("原 XML 的 CompactOS 由自定义安装/压缩脚本控制，请使用原工具修改参数后重新导入。");if(!Fields.ContainsKey(name))throw new ArgumentException("此项不属于推荐设置。");Property(name).SetValue(p,Property(name).GetValue(Baseline(p.RecommendationId,p.RecommendationVersion>=2?"common":p.RecommendationWindows,p.RecommendationVersion>=3)));}
- public static string State(InstallPlan p)=>p.ConfigurationMode!="推荐配置"&&p.CustomStartingPoint is QuickPresets.Minimal or QuickPresets.LocalAccount?"自定义配置 · 起点："+p.CustomStartingPoint+"，可继续逐项调整":p.ConfigurationMode!="推荐配置"?(p.CustomStartingPoint=="基础配置"?"自定义配置 · 从基础值开始，请逐项选择或填写":"自定义配置 · 保留当前设置，所有选项均可自主调整"):!HasBaseline(p)?"推荐基准不可用，请重新应用推荐方案":$"基于 {Name(p.RecommendationId)}推荐 · {(Differences(p).Count==0?"推荐值已应用":"已修改")}";
+ public static void Restore(InstallPlan p,string name){if(!HasBaseline(p))throw new ArgumentException(global::UnattendLocal.Localization.UiText.Source("text.fca7b3b31c5a"));if(name==nameof(InstallPlan.DiskMode)){p.DiskMode=global::UnattendLocal.Localization.UiText.Source("text.4a9df1058984");p.FormatExistingPartition=false;p.ClearDiskConsent();return;}if(name==nameof(InstallPlan.CompactOsMode)&&!CompactOsSettings.CanEdit(p))throw new ArgumentException(global::UnattendLocal.Localization.UiText.Source("text.71d69699e0a4"));if(!Fields.ContainsKey(name))throw new ArgumentException(global::UnattendLocal.Localization.UiText.Source("text.1020a05dc196"));Property(name).SetValue(p,Property(name).GetValue(Baseline(p.RecommendationId,p.RecommendationVersion>=2?"common":p.RecommendationWindows,p.RecommendationVersion>=3)));}
+ public static string State(InstallPlan p)=>p.ConfigurationMode!=global::UnattendLocal.Localization.UiText.Source("text.933c2fd10345")&&p.CustomStartingPoint is QuickPresets.Minimal or QuickPresets.LocalAccount?global::UnattendLocal.Localization.UiText.Concat(new object?[] { global::UnattendLocal.Localization.UiText.Source("text.bed1d3320842"), p.CustomStartingPoint, global::UnattendLocal.Localization.UiText.Source("text.a1f9e06713cd") },new bool[]{false,false,false}):p.ConfigurationMode!=global::UnattendLocal.Localization.UiText.Source("text.933c2fd10345")?(p.CustomStartingPoint==global::UnattendLocal.Localization.UiText.Source("text.12a6c9d91dc8")?global::UnattendLocal.Localization.UiText.Source("text.46ac609b88a8"):global::UnattendLocal.Localization.UiText.Source("text.105cc6489641")):!HasBaseline(p)?global::UnattendLocal.Localization.UiText.Source("text.aaaba4546df5"):global::UnattendLocal.Localization.UiText.Format("message.36f22b932109", new string[] { global::UnattendLocal.Localization.UiText.Arg((Name(p.RecommendationId)), 0, null), global::UnattendLocal.Localization.UiText.Arg(((Differences(p).Count==0?global::UnattendLocal.Localization.UiText.Source("text.fffd5560f67c"):global::UnattendLocal.Localization.UiText.Source("text.682d211b7142"))), 0, null) });
  public static string InteractiveSteps(InstallPlan p){
   var steps=new List<string>();
-  if(p.InteractiveLanguage)steps.Add("语言与区域");
-  if(p.ComputerNameMode==ComputerNamingSettings.Prompt)steps.Add("计算机名输入");
-  if(p.EditionMode=="安装时输入密钥")steps.Add("产品密钥与版本");
-  if(p.AccountMode is "安装时创建本地账户" or "安装时添加微软账户")steps.Add("账户创建");
-  if(p.WifiMode=="安装时手动选择")steps.Add("无线网络");
-  if(p.PrivacyMode=="安装时手动选择")steps.Add("快捷隐私");
-  if(!p.HideEula)steps.Add("许可协议");
-  if(!p.HideOEMRegistration)steps.Add("OEM 注册（若适用）");
-  if(p.AccountMode!="安装时添加微软账户"&&!p.HideOnlineAccount)steps.Add("在线账户页面（若适用）");
-  if(InstallationReview.ForPlan(p).MayNeedSelection)steps.Add("磁盘与分区（安装目标可能需要选择或核对）");
-  return steps.Count==0?"所列步骤已预设；仍须验证镜像、驱动及目标环境。":string.Join("、",steps);
+  if(p.InteractiveLanguage)steps.Add(global::UnattendLocal.Localization.UiText.Source("text.29a94580f825"));
+  if(p.ComputerNameMode==ComputerNamingSettings.Prompt)steps.Add(global::UnattendLocal.Localization.UiText.Source("text.f953e0a40266"));
+  if(p.EditionMode==global::UnattendLocal.Localization.UiText.Source("text.5056d73b13ec"))steps.Add(global::UnattendLocal.Localization.UiText.Source("text.1235621bb371"));
+  if(p.AccountMode is "安装时创建本地账户" or "安装时添加微软账户")steps.Add(global::UnattendLocal.Localization.UiText.Source("text.c5d5e281d36b"));
+  if(p.WifiMode==global::UnattendLocal.Localization.UiText.Source("text.fd17c35ec3cc"))steps.Add(global::UnattendLocal.Localization.UiText.Source("text.011fdba1ddda"));
+  if(p.PrivacyMode==global::UnattendLocal.Localization.UiText.Source("text.fd17c35ec3cc"))steps.Add(global::UnattendLocal.Localization.UiText.Source("text.964b2354c843"));
+  if(!p.HideEula)steps.Add(global::UnattendLocal.Localization.UiText.Source("text.8fd2032ce8fb"));
+  if(!p.HideOEMRegistration)steps.Add(global::UnattendLocal.Localization.UiText.Source("text.0bc7cece683a"));
+  if(p.AccountMode!=global::UnattendLocal.Localization.UiText.Source("text.5f78e95b6bd9")&&!p.HideOnlineAccount)steps.Add(global::UnattendLocal.Localization.UiText.Source("text.84384815b32e"));
+  if(InstallationReview.ForPlan(p).MayNeedSelection)steps.Add(global::UnattendLocal.Localization.UiText.Source("text.5cf9e6eebffc"));
+  return steps.Count==0?global::UnattendLocal.Localization.UiText.Source("text.cafe0af0399a"):global::UnattendLocal.Localization.UiText.Join("、", steps, false);
  }
  public static string MissingInputs(InstallPlan p){
   var items=new List<string>();
   string networkWarning=StaticIPv4Settings.DeploymentWarning(p);if(networkWarning.Length>0)items.Add(networkWarning);
-  if(p.UseSetupDrivers){try{SetupDriverSettings.Validate(p);}catch(ArgumentException e){items.Add("安装驱动目录："+e.Message);}}
-  if(p.UseStaticIPv4||p.UseStaticIPv6){try{StaticIPv4Settings.Validate(p);}catch(ArgumentException e){items.Add((p.UseStaticIPv4&&!p.UseStaticIPv6?"静态 IPv4：":p.UseStaticIPv6&&!p.UseStaticIPv4?"静态 IPv6：":"IP 配置：")+e.Message);}}
-  if(p.UseAppLocker&&string.IsNullOrWhiteSpace(p.AppLockerPolicyXml))items.Add("AppLocker 策略 XML");
-  if(p.ComputerNameMode==ComputerNamingSettings.Script&&string.IsNullOrWhiteSpace(p.ComputerNameScript))items.Add("计算机命名脚本");
-  if(!p.InteractiveLanguage){if(p.UseSecondLanguage&&(string.IsNullOrWhiteSpace(p.SecondLocale)||string.IsNullOrWhiteSpace(p.SecondKeyboard)))items.Add("第二组语言与键盘");if(p.UseThirdLanguage&&(string.IsNullOrWhiteSpace(p.ThirdLocale)||string.IsNullOrWhiteSpace(p.ThirdKeyboard)))items.Add("第三组语言与键盘");}
-  if(!p.InteractiveLanguage){if(string.IsNullOrWhiteSpace(p.ImageLanguage))items.Add("显示语言");if(string.IsNullOrWhiteSpace(p.Locale))items.Add("区域格式");if(string.IsNullOrWhiteSpace(p.Keyboard))items.Add("键盘 / 输入法");if(string.IsNullOrWhiteSpace(p.GeoId))items.Add("国家或地区");}
-  if(p.TimeZoneMode=="指定时区"&&string.IsNullOrWhiteSpace(p.TimeZone))items.Add("时区");
-  if(p.EditionMode=="按 SKU 使用通用安装密钥"&&string.IsNullOrWhiteSpace(p.EditionId))items.Add("SKU");
-  if(p.EditionMode=="指定自己的产品密钥"&&string.IsNullOrWhiteSpace(p.CustomProductKey))items.Add("安装密钥");
-  if(p.UseActivationKey&&string.IsNullOrWhiteSpace(p.ActivationProductKey))items.Add("激活密钥");
-  if(p.AccountMode=="自动创建本地账户"){
-   if(p.Users.Count==0&&!FirstLogonSettings.IsBuiltin(p))items.Add("本地账户");
-   else{if(p.Users.Any(u=>string.IsNullOrWhiteSpace(u.Name)))items.Add("账户名称");if(!FirstLogonSettings.IsBuiltin(p)&&!p.Users.Any(u=>u.Administrator))items.Add("管理员账户");if(p.Users.Any(u=>!u.AllowEmptyPassword&&string.IsNullOrEmpty(u.Password)))items.Add("账户密码或明确允许空密码");}
+  if(p.UseSetupDrivers){try{SetupDriverSettings.Validate(p);}catch(ArgumentException e){items.Add(global::UnattendLocal.Localization.UiText.Concat(new object?[] { global::UnattendLocal.Localization.UiText.Source("text.3a38633ed97d"), e.Message },new bool[]{false,false}));}}
+  if(p.UseStaticIPv4||p.UseStaticIPv6){try{StaticIPv4Settings.Validate(p);}catch(ArgumentException e){items.Add(global::UnattendLocal.Localization.UiText.Concat(new object?[] { (p.UseStaticIPv4&&!p.UseStaticIPv6?global::UnattendLocal.Localization.UiText.Source("text.5ffa5afc119a"):p.UseStaticIPv6&&!p.UseStaticIPv4?global::UnattendLocal.Localization.UiText.Source("text.0ccb854f9ccd"):global::UnattendLocal.Localization.UiText.Source("text.591f2b8cc0e5")), e.Message },new bool[] { false, false }));}}
+  if(p.UseAppLocker&&string.IsNullOrWhiteSpace(p.AppLockerPolicyXml))items.Add(global::UnattendLocal.Localization.UiText.Source("text.e5a4051773b8"));
+  if(p.ComputerNameMode==ComputerNamingSettings.Script&&string.IsNullOrWhiteSpace(p.ComputerNameScript))items.Add(global::UnattendLocal.Localization.UiText.Source("text.b07b1e183c29"));
+  if(!p.InteractiveLanguage){if(p.UseSecondLanguage&&(string.IsNullOrWhiteSpace(p.SecondLocale)||string.IsNullOrWhiteSpace(p.SecondKeyboard)))items.Add(global::UnattendLocal.Localization.UiText.Source("text.e8ab79d0360e"));if(p.UseThirdLanguage&&(string.IsNullOrWhiteSpace(p.ThirdLocale)||string.IsNullOrWhiteSpace(p.ThirdKeyboard)))items.Add(global::UnattendLocal.Localization.UiText.Source("text.30b78fa90b1c"));}
+  if(!p.InteractiveLanguage){if(string.IsNullOrWhiteSpace(p.ImageLanguage))items.Add(global::UnattendLocal.Localization.UiText.Source("text.ce9b6f1c7c23"));if(string.IsNullOrWhiteSpace(p.Locale))items.Add(global::UnattendLocal.Localization.UiText.Source("text.911ff3378792"));if(string.IsNullOrWhiteSpace(p.Keyboard))items.Add(global::UnattendLocal.Localization.UiText.Source("text.996de30d0eb7"));if(string.IsNullOrWhiteSpace(p.GeoId))items.Add(global::UnattendLocal.Localization.UiText.Source("text.228d61b9e981"));}
+  if(p.TimeZoneMode==global::UnattendLocal.Localization.UiText.Source("text.980f34c4425d")&&string.IsNullOrWhiteSpace(p.TimeZone))items.Add(global::UnattendLocal.Localization.UiText.Source("text.b5d72c5c00f2"));
+  if(p.EditionMode==global::UnattendLocal.Localization.UiText.Source("text.cc706914a2ad")&&string.IsNullOrWhiteSpace(p.EditionId))items.Add("SKU");
+  if(p.EditionMode==global::UnattendLocal.Localization.UiText.Source("text.2a5194b6a242")&&string.IsNullOrWhiteSpace(p.CustomProductKey))items.Add(global::UnattendLocal.Localization.UiText.Source("text.659a1d88508e"));
+  if(p.UseActivationKey&&string.IsNullOrWhiteSpace(p.ActivationProductKey))items.Add(global::UnattendLocal.Localization.UiText.Source("text.3bb76d626db6"));
+  if(p.AccountMode==global::UnattendLocal.Localization.UiText.Source("text.cdaa9a6700f6")){
+   if(p.Users.Count==0&&!FirstLogonSettings.IsBuiltin(p))items.Add(global::UnattendLocal.Localization.UiText.Source("text.99d2089f4407"));
+   else{if(p.Users.Any(u=>string.IsNullOrWhiteSpace(u.Name)))items.Add(global::UnattendLocal.Localization.UiText.Source("text.9c8a86c04269"));if(!FirstLogonSettings.IsBuiltin(p)&&!p.Users.Any(u=>u.Administrator))items.Add(global::UnattendLocal.Localization.UiText.Source("text.aea56d3951f2"));if(p.Users.Any(u=>!u.AllowEmptyPassword&&string.IsNullOrEmpty(u.Password)))items.Add(global::UnattendLocal.Localization.UiText.Source("text.7d6e13752e2e"));}
   }
-  if(FirstLogonSettings.IsBuiltin(p)&&(p.NeedsBuiltinAdministratorPassword||string.IsNullOrEmpty(p.BuiltinAdministratorPassword))&&!p.AllowEmptyBuiltinAdministratorPassword)items.Add("内置 Administrator 密码或明确允许空密码");
-  if(WifiSettings.IsPreset(p)){if(string.IsNullOrWhiteSpace(p.Ssid))items.Add("Wi-Fi 名称");if(WifiSettings.NeedsPassword(p)&&string.IsNullOrEmpty(p.WifiPassword))items.Add("Wi-Fi 密码");}
-  if(p.WifiMode==WifiSettings.Profile&&(p.NeedsWifiProfile||string.IsNullOrWhiteSpace(p.WifiProfileXml)))items.Add("无线配置 XML");
-  if(p.DiskMode!=InstallationSettings.Manual&&p.TargetDiskId==null)items.Add("目标磁盘编号");
-  if((p.DiskMode==InstallationSettings.Existing||p.DiskMode==DiskScriptSettings.Mode)&&p.TargetPartitionId==null)items.Add("目标分区编号");
-  if(p.UseWorkgroup&&string.IsNullOrWhiteSpace(p.WorkgroupName))items.Add("工作组名称");
-  if(p.UsePeLogPath&&string.IsNullOrWhiteSpace(p.PeLogPath))items.Add("PE 日志目录");
-  if(p.DiskMode==DiskScriptSettings.Mode&&string.IsNullOrWhiteSpace(p.DiskPartScript))items.Add("DiskPart 脚本");
-  if(p.XmlComponents.Any(row=>row.Enabled&&string.IsNullOrWhiteSpace(row.Content)))items.Add("启用的额外 XML 片段");
-  if(p.Scripts?.Any(s=>s.Enabled&&string.IsNullOrWhiteSpace(s.Content))==true)items.Add("启用的自定义脚本内容");
-  if(p.TaskbarIconsMode==ShellSettings.CustomXml&&string.IsNullOrWhiteSpace(p.TaskbarIconsXml))items.Add("任务栏图标 XML");
-  if(p.StartTilesMode==ShellSettings.CustomXml&&string.IsNullOrWhiteSpace(p.StartTilesXml))items.Add("Windows 10 磁贴 XML");
-  if(p.StartPinsMode==ShellSettings.CustomJson&&string.IsNullOrWhiteSpace(p.StartPinsJson))items.Add("Windows 11 固定应用 JSON");
-  if(ColorSettings.IsCustom(p)&&!ColorSettings.TryNormalize(p.AccentColorHex,out _))items.Add("有效的 Windows 强调色（#RRGGBB）");
-  if(WallpaperSettings.IsSolid(p)&&!ColorSettings.TryNormalize(p.WallpaperColorHex,out _))items.Add("有效的桌面背景颜色（#RRGGBB）");
-  if(WallpaperSettings.IsScript(p)&&string.IsNullOrWhiteSpace(p.WallpaperImageScript))items.Add("桌面图片加载脚本");
-  if(ImageBackgroundSettings.IsLockScript(p)&&string.IsNullOrWhiteSpace(p.LockScreenImageScript))items.Add("锁屏图片加载脚本");
+  if(FirstLogonSettings.IsBuiltin(p)&&(p.NeedsBuiltinAdministratorPassword||string.IsNullOrEmpty(p.BuiltinAdministratorPassword))&&!p.AllowEmptyBuiltinAdministratorPassword)items.Add(global::UnattendLocal.Localization.UiText.Source("text.1cd971e6e90a"));
+  if(WifiSettings.IsPreset(p)){if(string.IsNullOrWhiteSpace(p.Ssid))items.Add(global::UnattendLocal.Localization.UiText.Source("text.69cb8180a5ff"));if(WifiSettings.NeedsPassword(p)&&string.IsNullOrEmpty(p.WifiPassword))items.Add(global::UnattendLocal.Localization.UiText.Source("text.1daa0afe663e"));}
+  if(p.WifiMode==WifiSettings.Profile&&(p.NeedsWifiProfile||string.IsNullOrWhiteSpace(p.WifiProfileXml)))items.Add(global::UnattendLocal.Localization.UiText.Source("text.0df2ceca75db"));
+  if(p.DiskMode!=InstallationSettings.Manual&&p.TargetDiskId==null)items.Add(global::UnattendLocal.Localization.UiText.Source("text.897aea379b8f"));
+  if((p.DiskMode==InstallationSettings.Existing||p.DiskMode==DiskScriptSettings.Mode)&&p.TargetPartitionId==null)items.Add(global::UnattendLocal.Localization.UiText.Source("text.b4644bffaf8f"));
+  if(p.UseWorkgroup&&string.IsNullOrWhiteSpace(p.WorkgroupName))items.Add(global::UnattendLocal.Localization.UiText.Source("text.9ac6c62a1aab"));
+  if(p.UsePeLogPath&&string.IsNullOrWhiteSpace(p.PeLogPath))items.Add(global::UnattendLocal.Localization.UiText.Source("text.cc267fdab07e"));
+  if(p.DiskMode==DiskScriptSettings.Mode&&string.IsNullOrWhiteSpace(p.DiskPartScript))items.Add(global::UnattendLocal.Localization.UiText.Source("text.051be0431a1c"));
+  if(p.XmlComponents.Any(row=>row.Enabled&&string.IsNullOrWhiteSpace(row.Content)))items.Add(global::UnattendLocal.Localization.UiText.Source("text.b5103d7601c5"));
+  if(p.Scripts?.Any(s=>s.Enabled&&string.IsNullOrWhiteSpace(s.Content))==true)items.Add(global::UnattendLocal.Localization.UiText.Source("text.8b0248a65b16"));
+  if(p.TaskbarIconsMode==ShellSettings.CustomXml&&string.IsNullOrWhiteSpace(p.TaskbarIconsXml))items.Add(global::UnattendLocal.Localization.UiText.Source("text.0ec7d9ab7696"));
+  if(p.StartTilesMode==ShellSettings.CustomXml&&string.IsNullOrWhiteSpace(p.StartTilesXml))items.Add(global::UnattendLocal.Localization.UiText.Source("text.eaff4584199a"));
+  if(p.StartPinsMode==ShellSettings.CustomJson&&string.IsNullOrWhiteSpace(p.StartPinsJson))items.Add(global::UnattendLocal.Localization.UiText.Source("text.b4ab0abe0171"));
+  if(ColorSettings.IsCustom(p)&&!ColorSettings.TryNormalize(p.AccentColorHex,out _))items.Add(global::UnattendLocal.Localization.UiText.Source("text.f11081d4cdb9"));
+  if(WallpaperSettings.IsSolid(p)&&!ColorSettings.TryNormalize(p.WallpaperColorHex,out _))items.Add(global::UnattendLocal.Localization.UiText.Source("text.7470fee2f518"));
+  if(WallpaperSettings.IsScript(p)&&string.IsNullOrWhiteSpace(p.WallpaperImageScript))items.Add(global::UnattendLocal.Localization.UiText.Source("text.71e39362571e"));
+  if(ImageBackgroundSettings.IsLockScript(p)&&string.IsNullOrWhiteSpace(p.LockScreenImageScript))items.Add(global::UnattendLocal.Localization.UiText.Source("text.02418e0cdcf3"));
   if(StickyKeySettings.ValidationError(p) is {} stickyError)items.Add(stickyError);
   if(AccountLockoutPolicy.ValidationError(p) is {} lockoutError)items.Add(lockoutError);
-  return items.Count==0?"未发现空缺必填项；仍需检查配置与 XML。":string.Join("、",items);
+  return items.Count==0?global::UnattendLocal.Localization.UiText.Source("text.22d0ab66926f"):global::UnattendLocal.Localization.UiText.Join("、", items, false);
  }
- public static string Summary(InstallPlan p)=>$"适用系统：Windows 10 / 11（由安装介质决定）\n版本与密钥：{p.EditionMode}；SKU：{p.EditionId}\n区域与时区：{(p.InteractiveLanguage?"安装时选择语言区域":"预设语言区域")}；{(p.TimeZoneMode=="由 Windows 决定"?p.TimeZoneMode:ChoiceLocalization.Get("TimeOffset",p.TimeZone,p.TimeZone))}\n账户：{p.AccountMode}；预设 {p.Users.Count} 个账户；首次登录：{FirstLogonSettings.Summary(p)}\n网络：{Display(p.WifiMode)}；允许无互联网安装：{Display(p.BypassNetwork)}\n隐私：{Display(p.PrivacyMode)}；隐藏许可 / 在线账户 / OEM：{Display(p.HideEula)} / {Display(p.HideOnlineAccount)} / {Display(p.HideOEMRegistration)}\n脚本：隐藏 PowerShell {Display(p.HidePowerShellWindows)}；安装隐私文件：{(p.KeepSensitiveFiles?"保留":"首次管理员登录时清理")}\n{RegisteredInformationSettings.Summary(p)}\n{WorkgroupSettings.Summary(p)}\n{PeLogSettings.Summary(p)}\n{ComputerNamingSettings.Summary(p)}\n{LanguagePreferences.Summary(p)}\n{WifiSettings.Summary(p)}\n{StaticIPv4Settings.Summary(p)}\n{StaticIPv4Settings.SummaryIPv6(p)}\n{SetupDriverSettings.Summary(p)}\n{SetupDynamicUpdateSettings.Summary(p)}\n{CustomScripts.Summary(p)}\n设备自动加密：{(p.PreventDeviceEncryption?"禁止自动启用":"遵循 Windows 默认行为")}\n{ShellSettings.Summary(p)}\n{ExplorerSettings.Summary(p)}\n{DesktopSettings.Summary(p)}\n{VisualEffectsSettings.Summary(p)}\n{ColorSettings.Summary(p)}\n{WallpaperSettings.Summary(p)}\n锁屏图片：{ImageBackgroundSettings.LockSummary(p)}\n{KeyboardLockSettings.Summary(p)}\n{StickyKeySettings.Summary(p)}\n鼠标指针精确度：{(p.DisablePointerPrecision?"关闭提高指针精确度":"遵循 Windows 默认行为")}\n{AccountLockoutPolicy.Summary(p)}\n快速启动：{(p.DisableFastStartup?"禁用":"遵循 Windows 默认行为")}\n长路径：{(p.EnableLongPaths?"启用（应用须支持）":"遵循 Windows 默认行为")}；系统声音：{(p.TurnOffSystemSounds?"关闭系统提示音方案":"遵循 Windows 默认行为")}\n{CommonSystemSettings.Summary(p)}\n{AppRemovalSettings.Summary(p)}\n{AdvancedSystemSettings.Summary(p)}\n{SystemMaintenanceSettings.Summary(p)}\n{ProcessAuditSettings.Summary(p)}\n{ProtectionSettings.Summary(p)}\n{SecurityOptions.Summary(p)}\n{JunctionSettings.Summary(p)}\n{AppControlSettings.Summary(p)}\n{ConfigurationSetSettings.Summary(p)}\n{VmGuestToolsSettings.Summary(p)}\n{AdditionalSetupSettings.Summary(p)}\n应用建议：{(p.DisableAppSuggestions?"禁用建议与自动推广（移动设备管理可能受影响）":"遵循 Windows 默认行为")}\nWindows 更新：{(p.DisableWindowsUpdate?"循环暂停 7 天（PauseWindowsUpdate 任务）":"遵循 Windows 默认行为")}\nEdge：首次引导{(p.HideEdgeFre?"跳过":"遵循默认")}；启动加速/后台运行{(p.DisableEdgeStartupBoost?"默认关闭（用户可调整）":"遵循默认")}\nXML 导入：{XmlPlanImport.Summary(p)}\n{HardwareSettings.Summary(p)}\n旧版 MoSetup 升级兼容：{(p.ImportedXml?.LegacyUpgradeReadOnly==true?"原文保留（只读）":p.AllowUnsupportedUpgrade?"写入旧版兼容设置（适用性需实测）":"不添加")}\n安装镜像：{InstallationSettings.ImageSummary(p)}\n{CompactOsSettings.Summary(p)}\n磁盘分区：{InstallationSettings.DiskSummary(p)}{(p.ImportedXml?.RequiresDiskReview==true?"；原 XML 另含磁盘配置或 Windows PE 命令，须核对完整原文":"")}\n生成前待填：{MissingInputs(p)}\n安装时可能需要操作：{InteractiveSteps(p)}\n请核对镜像、SKU、驱动及目标磁盘；错误配置可能中止或要求人工处理。";
+ public static string Summary(InstallPlan p)=>global::UnattendLocal.Localization.UiText.Format("message.9cfb89552a6d", new string[] { global::UnattendLocal.Localization.UiText.Arg((p.EditionMode), 0, null), global::UnattendLocal.Localization.UiText.Arg((p.EditionId), 0, null), global::UnattendLocal.Localization.UiText.Arg(((p.InteractiveLanguage?global::UnattendLocal.Localization.UiText.Source("text.bd21b17fd91c"):global::UnattendLocal.Localization.UiText.Source("text.c71d5873b0ac"))), 0, null), global::UnattendLocal.Localization.UiText.Arg(((p.TimeZoneMode==global::UnattendLocal.Localization.UiText.Source("text.499ff33c1078")?p.TimeZoneMode:ChoiceLocalization.Get("TimeOffset",p.TimeZone,p.TimeZone))), 0, null), global::UnattendLocal.Localization.UiText.Arg((p.AccountMode), 0, null), global::UnattendLocal.Localization.UiText.Arg((p.Users.Count), 0, null), global::UnattendLocal.Localization.UiText.Arg((FirstLogonSettings.Summary(p)), 0, null), global::UnattendLocal.Localization.UiText.Arg((Display(p.WifiMode)), 0, null), global::UnattendLocal.Localization.UiText.Arg((Display(p.BypassNetwork)), 0, null), global::UnattendLocal.Localization.UiText.Arg((Display(p.PrivacyMode)), 0, null), global::UnattendLocal.Localization.UiText.Arg((Display(p.HideEula)), 0, null), global::UnattendLocal.Localization.UiText.Arg((Display(p.HideOnlineAccount)), 0, null), global::UnattendLocal.Localization.UiText.Arg((Display(p.HideOEMRegistration)), 0, null), global::UnattendLocal.Localization.UiText.Arg((Display(p.HidePowerShellWindows)), 0, null), global::UnattendLocal.Localization.UiText.Arg(((p.KeepSensitiveFiles?global::UnattendLocal.Localization.UiText.Source("text.670ec25af841"):global::UnattendLocal.Localization.UiText.Source("text.f3b7da86b08b"))), 0, null), global::UnattendLocal.Localization.UiText.Arg((RegisteredInformationSettings.Summary(p)), 0, null), global::UnattendLocal.Localization.UiText.Arg((WorkgroupSettings.Summary(p)), 0, null), global::UnattendLocal.Localization.UiText.Arg((PeLogSettings.Summary(p)), 0, null), global::UnattendLocal.Localization.UiText.Arg((ComputerNamingSettings.Summary(p)), 0, null), global::UnattendLocal.Localization.UiText.Arg((LanguagePreferences.Summary(p)), 0, null), global::UnattendLocal.Localization.UiText.Arg((WifiSettings.Summary(p)), 0, null), global::UnattendLocal.Localization.UiText.Arg((StaticIPv4Settings.Summary(p)), 0, null), global::UnattendLocal.Localization.UiText.Arg((StaticIPv4Settings.SummaryIPv6(p)), 0, null), global::UnattendLocal.Localization.UiText.Arg((SetupDriverSettings.Summary(p)), 0, null), global::UnattendLocal.Localization.UiText.Arg((SetupDynamicUpdateSettings.Summary(p)), 0, null), global::UnattendLocal.Localization.UiText.Arg((CustomScripts.Summary(p)), 0, null), global::UnattendLocal.Localization.UiText.Arg(((p.PreventDeviceEncryption?global::UnattendLocal.Localization.UiText.Source("text.2206344892a0"):global::UnattendLocal.Localization.UiText.Source("text.4e9901953ce4"))), 0, null), global::UnattendLocal.Localization.UiText.Arg((ShellSettings.Summary(p)), 0, null), global::UnattendLocal.Localization.UiText.Arg((ExplorerSettings.Summary(p)), 0, null), global::UnattendLocal.Localization.UiText.Arg((DesktopSettings.Summary(p)), 0, null), global::UnattendLocal.Localization.UiText.Arg((VisualEffectsSettings.Summary(p)), 0, null), global::UnattendLocal.Localization.UiText.Arg((ColorSettings.Summary(p)), 0, null), global::UnattendLocal.Localization.UiText.Arg((WallpaperSettings.Summary(p)), 0, null), global::UnattendLocal.Localization.UiText.Arg((ImageBackgroundSettings.LockSummary(p)), 0, null), global::UnattendLocal.Localization.UiText.Arg((KeyboardLockSettings.Summary(p)), 0, null), global::UnattendLocal.Localization.UiText.Arg((StickyKeySettings.Summary(p)), 0, null), global::UnattendLocal.Localization.UiText.Arg(((p.DisablePointerPrecision?global::UnattendLocal.Localization.UiText.Source("text.c7ed109b851b"):global::UnattendLocal.Localization.UiText.Source("text.4e9901953ce4"))), 0, null), global::UnattendLocal.Localization.UiText.Arg((AccountLockoutPolicy.Summary(p)), 0, null), global::UnattendLocal.Localization.UiText.Arg(((p.DisableFastStartup?global::UnattendLocal.Localization.UiText.Source("text.7df5c456c765"):global::UnattendLocal.Localization.UiText.Source("text.4e9901953ce4"))), 0, null), global::UnattendLocal.Localization.UiText.Arg(((p.EnableLongPaths?global::UnattendLocal.Localization.UiText.Source("text.97ab5c21ca07"):global::UnattendLocal.Localization.UiText.Source("text.4e9901953ce4"))), 0, null), global::UnattendLocal.Localization.UiText.Arg(((p.TurnOffSystemSounds?global::UnattendLocal.Localization.UiText.Source("text.31433808e3e8"):global::UnattendLocal.Localization.UiText.Source("text.4e9901953ce4"))), 0, null), global::UnattendLocal.Localization.UiText.Arg((CommonSystemSettings.Summary(p)), 0, null), global::UnattendLocal.Localization.UiText.Arg((AppRemovalSettings.Summary(p)), 0, null), global::UnattendLocal.Localization.UiText.Arg((AdvancedSystemSettings.Summary(p)), 0, null), global::UnattendLocal.Localization.UiText.Arg((SystemMaintenanceSettings.Summary(p)), 0, null), global::UnattendLocal.Localization.UiText.Arg((ProcessAuditSettings.Summary(p)), 0, null), global::UnattendLocal.Localization.UiText.Arg((ProtectionSettings.Summary(p)), 0, null), global::UnattendLocal.Localization.UiText.Arg((SecurityOptions.Summary(p)), 0, null), global::UnattendLocal.Localization.UiText.Arg((JunctionSettings.Summary(p)), 0, null), global::UnattendLocal.Localization.UiText.Arg((AppControlSettings.Summary(p)), 0, null), global::UnattendLocal.Localization.UiText.Arg((ConfigurationSetSettings.Summary(p)), 0, null), global::UnattendLocal.Localization.UiText.Arg((VmGuestToolsSettings.Summary(p)), 0, null), global::UnattendLocal.Localization.UiText.Arg((AdditionalSetupSettings.Summary(p)), 0, null), global::UnattendLocal.Localization.UiText.Arg(((p.DisableAppSuggestions?global::UnattendLocal.Localization.UiText.Source("text.0f330f4f925c"):global::UnattendLocal.Localization.UiText.Source("text.4e9901953ce4"))), 0, null), global::UnattendLocal.Localization.UiText.Arg(((p.DisableWindowsUpdate?global::UnattendLocal.Localization.UiText.Source("text.e5ffdad9e5d9"):global::UnattendLocal.Localization.UiText.Source("text.4e9901953ce4"))), 0, null), global::UnattendLocal.Localization.UiText.Arg(((p.HideEdgeFre?global::UnattendLocal.Localization.UiText.Source("text.fc50a99caae0"):global::UnattendLocal.Localization.UiText.Source("text.36ec9302eb93"))), 0, null), global::UnattendLocal.Localization.UiText.Arg(((p.DisableEdgeStartupBoost?global::UnattendLocal.Localization.UiText.Source("text.663fef8b2cf2"):global::UnattendLocal.Localization.UiText.Source("text.36ec9302eb93"))), 0, null), global::UnattendLocal.Localization.UiText.Arg((XmlPlanImport.Summary(p)), 0, null), global::UnattendLocal.Localization.UiText.Arg((HardwareSettings.Summary(p)), 0, null), global::UnattendLocal.Localization.UiText.Arg(((p.ImportedXml?.LegacyUpgradeReadOnly==true?global::UnattendLocal.Localization.UiText.Source("text.ad8621618103"):p.AllowUnsupportedUpgrade?global::UnattendLocal.Localization.UiText.Source("text.696ca9831794"):global::UnattendLocal.Localization.UiText.Source("text.ef6d08702acb"))), 0, null), global::UnattendLocal.Localization.UiText.Arg((InstallationSettings.ImageSummary(p)), 0, null), global::UnattendLocal.Localization.UiText.Arg((CompactOsSettings.Summary(p)), 0, null), global::UnattendLocal.Localization.UiText.Arg((InstallationSettings.DiskSummary(p)), 0, null), global::UnattendLocal.Localization.UiText.Arg(((p.ImportedXml?.RequiresDiskReview==true?global::UnattendLocal.Localization.UiText.Source("text.43a6d47a61b4"):"")), 0, null), global::UnattendLocal.Localization.UiText.Arg((MissingInputs(p)), 0, null), global::UnattendLocal.Localization.UiText.Arg((InteractiveSteps(p)), 0, null) });
 }

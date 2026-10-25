@@ -32,23 +32,23 @@ public static class ImageBackgroundSettings
     public static string ValidateScript(string? script, string label)
     {
         if (string.IsNullOrWhiteSpace(script) || script.Length > 2 * 1024 * 1024 || script.Any(c => !XmlConvert.IsXmlChar(c)))
-            throw new ArgumentException(label + "加载脚本必须填写，且不超过 2 Mi 字符、不含 XML 非法字符。");
+            throw new ArgumentException(global::UnattendLocal.Localization.UiText.Concat(new object?[] { label, global::UnattendLocal.Localization.UiText.Source("text.2cfa3c7f4a76") },new bool[]{false,false}));
         return script;
     }
     public static bool IsLockScript(InstallPlan plan) => plan.LockScreenMode == LockScript;
     public static ILockScreenSettings BuildLockScreen(InstallPlan plan) => plan.LockScreenMode switch
     {
         LockDefault => new DefaultLockScreenSettings(),
-        LockScript => new ScriptLockScreenSettings(ValidateScript(plan.LockScreenImageScript, "锁屏图片")),
-        _ => throw new ArgumentException("请选择有效的锁屏图片设置方式。")
+        LockScript => new ScriptLockScreenSettings(ValidateScript(plan.LockScreenImageScript, global::UnattendLocal.Localization.UiText.Source("text.c7a90b8fdf58"))),
+        _ => throw new ArgumentException(global::UnattendLocal.Localization.UiText.Source("text.766afc1b8793"))
     };
     public static string LockSummary(InstallPlan p) => p.LockScreenMode switch
     {
-        LockDefault => "Windows 默认锁屏（不写入图片覆盖）",
-        LockScript => string.IsNullOrWhiteSpace(p.LockScreenImageScript) ? "锁屏图片：尚未填写加载脚本" : "脚本加载锁屏图片（效果取决于目标版本及策略）",
-        _ => "锁屏设置方式无效，请重新选择"
+        LockDefault => global::UnattendLocal.Localization.UiText.Source("text.a584fc9be0b8"),
+        LockScript => string.IsNullOrWhiteSpace(p.LockScreenImageScript) ? global::UnattendLocal.Localization.UiText.Source("text.bb8a66a606ef") : global::UnattendLocal.Localization.UiText.Source("text.9877e78554d2"),
+        _ => global::UnattendLocal.Localization.UiText.Source("text.3ea77b88ac04")
     };
-    private static string Normal(string value) => string.Join('\n', value.Replace("\r\n", "\n").Split('\n').Select(l => l.Trim()).Where(l => l.Length > 0));
+    private static string Normal(string value) => global::UnattendLocal.Localization.UiText.Join('\n', value.Replace("\r\n", "\n").Split('\n').Select(l => l.Trim()).Where(l => l.Length > 0), true);
     private static int Occurrences(string body, string value) => Regex.Matches(body, Regex.Escape(value), RegexOptions.IgnoreCase, TimeSpan.FromSeconds(1)).Count;
     public record Source(string? Script, bool Ambiguous);
     public static Source Inspect(XmlDocument doc, bool locked)
@@ -64,7 +64,7 @@ public static class ImageBackgroundSettings
         var expected = new List<string> { "try {", "$bytes = & '" + getter + "';", "[System.IO.File]::WriteAllBytes( '" + image + "', $bytes );" };
         if (locked) expected.Add("reg.exe add \"HKLM\\Software\\Microsoft\\Windows\\CurrentVersion\\PersonalizationCSP\" /v LockScreenImagePath /t REG_SZ /d \"" + image + "\" /f;");
         expected.AddRange(["} catch {", "$_;", "}"]);
-        bool known = loaders.Length == 1 && !string.IsNullOrWhiteSpace(loaders[0].InnerText) && setup.Contains(Normal(string.Join('\n', expected)), StringComparison.Ordinal) && Occurrences(setup, getter) == 1;
+        bool known = loaders.Length == 1 && !string.IsNullOrWhiteSpace(loaders[0].InnerText) && setup.Contains(Normal(global::UnattendLocal.Localization.UiText.Join('\n', expected, false)), StringComparison.Ordinal) && Occurrences(setup, getter) == 1;
         if (locked) known &= Occurrences(setup, "LockScreenImagePath") == 1;
         else
         {
@@ -85,15 +85,15 @@ public static class ImageBackgroundSettings
         else if (desktop.Ambiguous || WallpaperSettings.IsScript(plan)) plan.WallpaperMode = WallpaperSettings.Default;
         plan.LockScreenImageScript = locked.Script ?? "";
         plan.LockScreenMode = locked.Script != null ? LockScript : LockDefault;
-        if (desktop.Ambiguous) notes.Add("桌面图片加载或应用脚本未完整识别，原文保留；暂不能用桌面背景设置覆盖该脚本。");
-        if (locked.Ambiguous) notes.Add("锁屏图片加载或应用脚本未完整识别，原文保留；暂不能用锁屏图片设置覆盖该脚本。");
+        if (desktop.Ambiguous) notes.Add(global::UnattendLocal.Localization.UiText.Source("text.5239d06b6f71"));
+        if (locked.Ambiguous) notes.Add(global::UnattendLocal.Localization.UiText.Source("text.ed371be2247d"));
     }
     public static void ValidateImported(InstallPlan plan, XmlDocument source)
     {
         if (plan.WallpaperMode != WallpaperSettings.Default && Inspect(source, false).Ambiguous)
-            throw new ArgumentException("桌面背景与原 XML 中未完整识别的图片脚本重叠，请用原工具调整后重新导入。");
+            throw new ArgumentException(global::UnattendLocal.Localization.UiText.Source("text.6e9f955e6645"));
         if (IsLockScript(plan) && Inspect(source, true).Ambiguous)
-            throw new ArgumentException("锁屏图片与原 XML 中未完整识别的脚本重叠，请用原工具调整后重新导入。");
+            throw new ArgumentException(global::UnattendLocal.Localization.UiText.Source("text.edcabf7d9574"));
     }
     public static void NormalizeLoaded(InstallPlan plan, JsonElement json)
     {
@@ -117,7 +117,7 @@ public static class ImageBackgroundSettings
         }
         catch (Exception e) when (e is ArgumentException or ConfigurationException or XmlException)
         {
-            data.Blockers = data.Blockers.Append("旧方案的图片设置无法可靠迁移编辑基准，请重新导入原 XML 后再导出。").Distinct().ToArray();
+            data.Blockers = data.Blockers.Append(global::UnattendLocal.Localization.UiText.Source("text.6df4da77ed66")).Distinct().ToArray();
         }
     }
 }

@@ -1,4 +1,4 @@
-﻿using System.Text.Json;
+using System.Text.Json;
 namespace UnattendLocal.Core;
 public static class PlanStore {
  private static readonly JsonSerializerOptions Options=new(){WriteIndented=true};
@@ -8,23 +8,23 @@ public static class PlanStore {
   copy.ClearDiskConsent();
   if(!includeSecrets)foreach(var row in copy.XmlComponents){row.Content="";}
 
-  if(!includeSecrets&&copy.ImportedXml is {} imported){imported.SourceXml="";imported.BaselineXml="";imported.OriginalOmitted=true;imported.Blockers=["未保存 XML 原文（可能含凭据及其他敏感内容），请重新导入原 XML 后再导出。"];}
-  if(!includeSecrets) {copy.NeedsBuiltinAdministratorPassword=copy.NeedsBuiltinAdministratorPassword||FirstLogonSettings.IsBuiltin(copy)&&!copy.AllowEmptyBuiltinAdministratorPassword;copy.BuiltinAdministratorPassword="";foreach(var u in copy.Users){u.NeedsPassword=u.NeedsPassword||!u.AllowEmptyPassword;u.Password="";}copy.NeedsWifiPassword=copy.NeedsWifiPassword||WifiSettings.NeedsPassword(copy);copy.WifiPassword="";copy.NeedsWifiProfile=copy.NeedsWifiProfile||copy.WifiMode==WifiSettings.Profile;copy.WifiProfileXml="";copy.NeedsInstallationKey=copy.EditionMode=="指定自己的产品密钥";copy.NeedsActivationKey=copy.UseActivationKey;copy.CustomProductKey="";copy.ActivationProductKey="";}
+  if(!includeSecrets&&copy.ImportedXml is {} imported){imported.SourceXml="";imported.BaselineXml="";imported.OriginalOmitted=true;imported.Blockers=[global::UnattendLocal.Localization.UiText.Source("text.63a1b3bd6a5c")];}
+  if(!includeSecrets) {copy.NeedsBuiltinAdministratorPassword=copy.NeedsBuiltinAdministratorPassword||FirstLogonSettings.IsBuiltin(copy)&&!copy.AllowEmptyBuiltinAdministratorPassword;copy.BuiltinAdministratorPassword="";foreach(var u in copy.Users){u.NeedsPassword=u.NeedsPassword||!u.AllowEmptyPassword;u.Password="";}copy.NeedsWifiPassword=copy.NeedsWifiPassword||WifiSettings.NeedsPassword(copy);copy.WifiPassword="";copy.NeedsWifiProfile=copy.NeedsWifiProfile||copy.WifiMode==WifiSettings.Profile;copy.WifiProfileXml="";copy.NeedsInstallationKey=copy.EditionMode==global::UnattendLocal.Localization.UiText.Source("text.2a5194b6a242");copy.NeedsActivationKey=copy.UseActivationKey;copy.CustomProductKey="";copy.ActivationProductKey="";}
   return JsonSerializer.Serialize(copy,Options);
  }
  public static InstallPlan Deserialize(string json) {
   using var input=JsonDocument.Parse(json);
   PlanFileImport.ValidateJsonPlan(input.RootElement);
-  var p=JsonSerializer.Deserialize<InstallPlan>(json,Options)??throw new ArgumentException("方案文件为空。");
-  if(p.SchemaVersion!=1)throw new ArgumentException("不支持此方案版本。");
-  if(p.XmlComponents==null||p.XmlComponents.Count>AdditionalXmlSettings.MaxCount||p.XmlComponents.Any(row=>row==null))throw new ArgumentException("额外 XML 组件列表无效，最多 15 项。");
-  if(p.Users==null||p.Users.Any(u=>u==null))throw new ArgumentException("账户列表无效。");
-  if(p.Scripts==null||p.Scripts.Any(s=>s==null)||p.Scripts.Count>60)throw new ArgumentException("脚本列表无效。最多 60 条。 ");
+  var p=JsonSerializer.Deserialize<InstallPlan>(json,Options)??throw new ArgumentException(global::UnattendLocal.Localization.UiText.Source("text.1fe246685916"));
+  if(p.SchemaVersion!=1)throw new ArgumentException(global::UnattendLocal.Localization.UiText.Source("text.b8956bfee619"));
+  if(p.XmlComponents==null||p.XmlComponents.Count>AdditionalXmlSettings.MaxCount||p.XmlComponents.Any(row=>row==null))throw new ArgumentException(global::UnattendLocal.Localization.UiText.Source("text.c21c4601cc0d"));
+  if(p.Users==null||p.Users.Any(u=>u==null))throw new ArgumentException(global::UnattendLocal.Localization.UiText.Source("text.29ec97c86b4a"));
+  if(p.Scripts==null||p.Scripts.Any(s=>s==null)||p.Scripts.Count>60)throw new ArgumentException(global::UnattendLocal.Localization.UiText.Source("text.604d5c4da0f2"));
   foreach(var script in p.Scripts.Where(s=>s.IsRemovedType))script.Enabled=false;
   HardwareSettings.NormalizeLegacy(p);
   AppRemovalSettings.Validate(p);
-  if(p.ImportedXml is {} imported&&(imported.SourceXml==null||imported.BaselineXml==null||imported.SourceXml.Length>XmlMerge.MaxLength||imported.BaselineXml.Length>XmlMerge.MaxLength||imported.Notices==null||imported.Blockers==null))throw new ArgumentException("方案中的 XML 导入记录无效。");
-  if(p.ImportedXml is {} data&&(data.Notices.Any(n=>n==null)||data.Blockers.Any(n=>n==null)))throw new ArgumentException("方案中的 XML 导入说明无效。");
+  if(p.ImportedXml is {} imported&&(imported.SourceXml==null||imported.BaselineXml==null||imported.SourceXml.Length>XmlMerge.MaxLength||imported.BaselineXml.Length>XmlMerge.MaxLength||imported.Notices==null||imported.Blockers==null))throw new ArgumentException(global::UnattendLocal.Localization.UiText.Source("text.2f5f18e96a91"));
+  if(p.ImportedXml is {} data&&(data.Notices.Any(n=>n==null)||data.Blockers.Any(n=>n==null)))throw new ArgumentException(global::UnattendLocal.Localization.UiText.Source("text.65d971214b02"));
   using(var document=JsonDocument.Parse(json)){
    CompactOsSettings.NormalizeLoaded(p,document.RootElement.TryGetProperty(nameof(InstallPlan.CompactOsMode),out _));
    CommonSystemSettings.NormalizeLoaded(p,document.RootElement);

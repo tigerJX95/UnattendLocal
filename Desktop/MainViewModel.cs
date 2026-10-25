@@ -1,4 +1,4 @@
-﻿using UnattendLocal.Core;
+using UnattendLocal.Core;
 namespace UnattendLocal.Desktop;
 public class AppRemovalChoice(AppRemovalSettings.Item item, Func<InstallPlan> current) : Observable {
  public string Id=>item.Id;public string Label=>item.Label;public string Group=>item.Group;public string Description=>item.Description;
@@ -10,19 +10,19 @@ public class MainViewModel : Observable {
  private System.Collections.ObjectModel.ObservableCollection<string>? observedApps;
  public List<AppRemovalChoice> AppRemovalChoices {get;private set;}=new();
  private string appRemovalFilter="";public string AppRemovalFilter {get=>appRemovalFilter;set{Set(ref appRemovalFilter,value);Notify(nameof(FilteredAppRemovalChoices));Notify(nameof(AppRemovalFilterSummary));}}
- public List<AppRemovalChoice> FilteredAppRemovalChoices=>AppRemovalChoices.Where(i=>SearchTextMatcher.Matches(i.Label+" "+i.Id+" "+i.Group+" "+i.Description,AppRemovalFilter)).ToList();
- public string AppRemovalFilterSummary=>$"显示 {FilteredAppRemovalChoices.Count} / {AppRemovalChoices.Count} 项；搜索不会改变勾选。";
+ public List<AppRemovalChoice> FilteredAppRemovalChoices=>AppRemovalChoices.Where(i=>SearchTextMatcher.Matches(i.Label+" "+i.Id+" "+i.Group+" "+i.Description+" "+UnattendLocal.Localization.UiText.EnglishText(i.Label)+" "+UnattendLocal.Localization.UiText.EnglishText(i.Description),AppRemovalFilter)).ToList();
+ public string AppRemovalFilterSummary=>global::UnattendLocal.Localization.UiText.Format("message.f9d13e1e985e", new string[] { global::UnattendLocal.Localization.UiText.Arg((FilteredAppRemovalChoices.Count), 0, null), global::UnattendLocal.Localization.UiText.Arg((AppRemovalChoices.Count), 0, null) });
  public IReadOnlyList<string> FirstLogonModes=>HasReadonlyFirstLogon?[FirstLogonSettings.Summary(Plan)]:FirstLogonSettings.Modes;
  public string SelectedFirstLogon {get=>HasReadonlyFirstLogon?FirstLogonSettings.Summary(Plan):FirstLogonSettings.Mode(Plan);set{if(updating||!CanEditFirstLogon||!FirstLogonSettings.Modes.Contains(value)||SelectedFirstLogon==value)return;updating=true;try{Plan.UseBuiltinAdministrator=value==FirstLogonSettings.Builtin;Plan.AutoLogon=value!=FirstLogonSettings.None;}finally{updating=false;}RefreshAll();InvalidatePreview();}}
- public bool CanEditFirstLogon=>Plan.AccountMode=="自动创建本地账户"&&Plan.ImportedXml?.FirstLogonReadOnly!=true;
+ public bool CanEditFirstLogon=>Plan.AccountMode==global::UnattendLocal.Localization.UiText.Source("text.cdaa9a6700f6")&&Plan.ImportedXml?.FirstLogonReadOnly!=true;
  public bool IsBuiltinAdministrator=>FirstLogonSettings.IsBuiltin(Plan);
  public bool HasReadonlyFirstLogon=>Plan.ImportedXml?.FirstLogonReadOnly==true;
  public bool CanEditAppRemoval=>Plan.ImportedXml?.AppRemovalReadOnly!=true;
- public void SelectFilteredApps(bool selected){if(!CanEditAppRemoval)throw new ArgumentException("原 XML 的应用移除脚本暂不能通过清单编辑，请在原工具调整后重新导入。");var ids=FilteredAppRemovalChoices.Select(i=>i.Id).ToHashSet();var next=selected?Plan.RemovedApps.Concat(ids).Distinct().ToArray():Plan.RemovedApps.Where(id=>!ids.Contains(id)).ToArray();if(!Plan.RemovedApps.SequenceEqual(next))Plan.RemovedApps=new(next);}
+ public void SelectFilteredApps(bool selected){if(!CanEditAppRemoval)throw new ArgumentException(global::UnattendLocal.Localization.UiText.Source("text.9a41b899ad94"));var ids=FilteredAppRemovalChoices.Select(i=>i.Id).ToHashSet();var next=selected?Plan.RemovedApps.Concat(ids).Distinct().ToArray():Plan.RemovedApps.Where(id=>!ids.Contains(id)).ToArray();if(!Plan.RemovedApps.SequenceEqual(next))Plan.RemovedApps=new(next);}
  public IReadOnlyList<ScriptTemplate> ScriptTemplateChoices=>ScriptTemplates.All;
  private ScriptTemplate selectedScriptTemplate=ScriptTemplates.All[0];
  public ScriptTemplate SelectedScriptTemplate {get=>selectedScriptTemplate;set{if(value!=null)Set(ref selectedScriptTemplate,value);}}
- public void AddSelectedScriptTemplate(){SelectedScript=ScriptTemplates.Add(Plan,SelectedScriptTemplate.Id);Status="模板已添加并选中，默认停用；请核对内容与条件后启用。";}
+ public void AddSelectedScriptTemplate(){SelectedScript=ScriptTemplates.Add(Plan,SelectedScriptTemplate.Id);Status=global::UnattendLocal.Localization.UiText.Source("text.0da763fde8c8");}
  public ScriptEntry? DuplicateSelectedScript(){if(SelectedScript is not {} source)return null;var copy=CustomScripts.Duplicate(Plan,source);SelectedScript=copy;return copy;}
  public string AppRemovalSummary=>AppRemovalSettings.Selection(Plan);
  private void ObserveApps(){if(ReferenceEquals(observedApps,Plan.RemovedApps))return;if(observedApps!=null)observedApps.CollectionChanged-=AppsChanged;observedApps=Plan.RemovedApps;observedApps.CollectionChanged+=AppsChanged;}
@@ -32,14 +32,14 @@ public class MainViewModel : Observable {
  public bool HasReadonlyLegacyUpgrade=>Plan.ImportedXml?.LegacyUpgradeReadOnly==true;
  public bool CanEditLegacyUpgrade=>Plan.ImportedXml?.LegacyUpgradeReadOnly!=true;
  public bool ImportJson(string json,Func<bool> confirm){
-  InstallPlan candidate;try{candidate=PlanStore.Deserialize(json);PlanFileImport.ValidateForDisplay(candidate);}catch{Status="JSON 方案导入失败，当前配置未改变。";throw;}
-  if(!confirm()){Status="已取消 JSON 方案导入，当前配置未改变。";return false;}
-  Plan=candidate;Status="JSON 方案已载入；请核对配置，未保存的密码和密钥需重新输入。";return true;
+  InstallPlan candidate;try{candidate=PlanStore.Deserialize(json);PlanFileImport.ValidateForDisplay(candidate);}catch{Status=global::UnattendLocal.Localization.UiText.Source("text.a7aa2377538a");throw;}
+  if(!confirm()){Status=global::UnattendLocal.Localization.UiText.Source("text.5e736d1a599c");return false;}
+  Plan=candidate;Status=global::UnattendLocal.Localization.UiText.Source("text.33c8b312a91e");return true;
  }
  public bool ImportXml(string xml,Func<bool> confirm){
-  InstallPlan candidate;try{candidate=XmlPlanImport.Import(xml,Service);PlanFileImport.ValidateForDisplay(candidate);}catch{Status="XML 导入失败，当前配置未改变。";throw;}
-  if(!confirm()){Status="已取消 XML 导入，当前配置未改变。";return false;}
-  Plan=candidate;Status=candidate.ImportedXml!.Blockers.Length>0?"XML 已导入；存在阻止导出的项目，请查看配置方案页。":"XML 已导入为自定义配置；已识别设置可编辑，其他原文保留，请查看导入说明。";return true;
+  InstallPlan candidate;try{candidate=XmlPlanImport.Import(xml,Service);PlanFileImport.ValidateForDisplay(candidate);}catch{Status=global::UnattendLocal.Localization.UiText.Source("text.96325785aa0d");throw;}
+  if(!confirm()){Status=global::UnattendLocal.Localization.UiText.Source("text.90c07a228f7e");return false;}
+  Plan=candidate;Status=candidate.ImportedXml!.Blockers.Length>0?global::UnattendLocal.Localization.UiText.Source("text.b27d37e9013c"):global::UnattendLocal.Localization.UiText.Source("text.f4804d7eaefb");return true;
  }
  private InstallPlan plan=InstallPlan.New();
  private readonly HashSet<UserEntry> observedUsers=new();
@@ -62,7 +62,7 @@ public class MainViewModel : Observable {
  public bool IsLoadingPlan {get;private set;}
  public InstallPlan Plan {get=>plan;set{
   if(ReferenceEquals(plan,value))return;
-  if(IsLoadingPlan)throw new InvalidOperationException("配置正在载入，不能在绑定更新中替换方案。");
+  if(IsLoadingPlan)throw new InvalidOperationException(global::UnattendLocal.Localization.UiText.Source("text.ae62636bb75e"));
   IsLoadingPlan=true;
   try{
   HardwareSettings.NormalizeLegacy(value);
@@ -77,11 +77,11 @@ public class MainViewModel : Observable {
   }finally{IsLoadingPlan=false;}
  }}
  private UserEntry? selected;public UserEntry? SelectedUser {get=>selected;set{Set(ref selected,value);RefreshHelp();}}
- private string preview="配置完成后，点击“检查与预览”。",status=ProductIdentity.ReadyStatus;
+ private string preview=global::UnattendLocal.Localization.UiText.Source("text.fae7e313af33"),status=ProductIdentity.ReadyStatus;
  public string Preview {get=>preview;set=>Set(ref preview,value);} public string Status {get=>status;set=>Set(ref status,value);}
- public string ExportXmlButtonText=>"导出 "+AnswerFileExport.FileName(Plan.ExportNonAutomaticFilename);
+ public string ExportXmlButtonText=>global::UnattendLocal.Localization.UiText.Concat(new object?[] { global::UnattendLocal.Localization.UiText.Source("text.199c1f379826"), AnswerFileExport.FileName(Plan.ExportNonAutomaticFilename) },new bool[]{false,true});
  public string ExportUsage=>AnswerFileExport.Usage(Plan.ExportNonAutomaticFilename);
- public string ExportIsoDescription=>"ISO 仅含应答 XML，不包含 Windows 系统，不能独立启动。\n\n虚拟机请从 Windows 安装 ISO 启动，并将应答文件 ISO 挂载到第二台光驱。";
+ public string ExportIsoDescription=>global::UnattendLocal.Localization.UiText.Source("text.61d6ce2fd717");
  public GeneratorService Service {get;}=new();
  public List<GeneratorService.Choice> Editions=>Service.Editions;
  public IReadOnlyList<string> ProcessAuditModes=>ProcessAuditSettings.Modes;
@@ -159,13 +159,13 @@ public class MainViewModel : Observable {
  public string SelectedEditionKey {get=>selectedEditionKey;private set=>Set(ref selectedEditionKey,value);}
  public string EditionHint {get=>editionHint;private set=>Set(ref editionHint,value);}
  private void RefreshEdition(){
-  IsGenericEdition=Plan.EditionMode=="按 SKU 使用通用安装密钥";IsCustomEdition=Plan.EditionMode=="指定自己的产品密钥";
+  IsGenericEdition=Plan.EditionMode==global::UnattendLocal.Localization.UiText.Source("text.cc706914a2ad");IsCustomEdition=Plan.EditionMode==global::UnattendLocal.Localization.UiText.Source("text.2a5194b6a242");
   SelectedEditionKey=Service.GenericInstallationKey(Plan.EditionId);
   EditionHint=Plan.EditionMode switch {
-   "按 SKU 使用通用安装密钥"=>"通用安装密钥用于选择 SKU，不提供激活授权；安装镜像必须包含所选 SKU。",
-   "指定自己的产品密钥"=>"此密钥用于安装，也会写入激活配置；单独指定激活密钥时，使用下方的激活密钥。",
-   "使用 BIOS/UEFI 固件密钥"=>"由安装程序使用目标电脑的固件密钥，适合重装预装 Windows 的设备；镜像需支持该密钥对应的 SKU。",
-   _=>"由安装程序提示输入密钥并完成版本选择。"};
+   "按 SKU 使用通用安装密钥"=>global::UnattendLocal.Localization.UiText.Source("text.786c6aba30d6"),
+   "指定自己的产品密钥"=>global::UnattendLocal.Localization.UiText.Source("text.dcf1c7cef18c"),
+   "使用 BIOS/UEFI 固件密钥"=>global::UnattendLocal.Localization.UiText.Source("text.35eb6aee2ff7"),
+   _=>global::UnattendLocal.Localization.UiText.Source("text.ad3a30f3ada0")};
  }
  public List<GeneratorService.Choice> Languages=>Service.Languages;
  public List<GeneratorService.Choice> Locales=>Service.Locales;
@@ -181,10 +181,10 @@ public class MainViewModel : Observable {
    // Only explicit edits normalize dependent choices; loading a saved plan preserves its values.
    if(ReferenceEquals(sender,Plan)){
     if(e.PropertyName==nameof(InstallPlan.AccountMode)){
-     if(Plan.AccountMode=="安装时添加微软账户"){Plan.BypassNetwork=false;Plan.HideOnlineAccount=false;}
+     if(Plan.AccountMode==global::UnattendLocal.Localization.UiText.Source("text.5f78e95b6bd9")){Plan.BypassNetwork=false;Plan.HideOnlineAccount=false;}
      else if(Plan.AccountMode is "自动创建本地账户" or "安装时创建本地账户")Plan.HideOnlineAccount=true;
     }
-    if(Plan.AccountMode=="安装时添加微软账户"&&e.PropertyName is nameof(InstallPlan.BypassNetwork) or nameof(InstallPlan.HideOnlineAccount)){
+    if(Plan.AccountMode==global::UnattendLocal.Localization.UiText.Source("text.5f78e95b6bd9")&&e.PropertyName is nameof(InstallPlan.BypassNetwork) or nameof(InstallPlan.HideOnlineAccount)){
      Plan.BypassNetwork=false;Plan.HideOnlineAccount=false;
     }
     if(e.PropertyName==nameof(InstallPlan.WifiMode)&&WifiSettings.IsPreset(Plan))Plan.ConnectWifi=true;
@@ -203,10 +203,10 @@ public class MainViewModel : Observable {
  public bool HasImportedXml=>Plan.ImportedXml!=null;
  public bool HasImportedXmlRisk=>Plan.ImportedXml?.RequiresDiskReview==true;
  public string XmlImportSummary=>XmlPlanImport.Summary(Plan);
- public string XmlImportErrors=>Plan.ImportedXml is {} data?string.Join("\n",(data.OriginalOmitted?new[]{"XML 原文未随方案保存，请重新导入原 XML 后再导出。"}:Array.Empty<string>()).Concat(data.Blockers)):"";
- public string XmlImportNotices=>Plan.ImportedXml is {} data?string.Join("\n",data.Notices):"";
+ public string XmlImportErrors=>Plan.ImportedXml is {} data?global::UnattendLocal.Localization.UiText.Join("\n", (data.OriginalOmitted?new[]{global::UnattendLocal.Localization.UiText.Source("text.7872b0c5f6cf")}:Array.Empty<string>()).Concat(data.Blockers), false):"";
+ public string XmlImportNotices=>Plan.ImportedXml is {} data?global::UnattendLocal.Localization.UiText.Join("\n", data.Notices, false):"";
  public bool HasXmlImportErrors=>XmlImportErrors.Length>0;
- public string XmlImportDetails=>Plan.ImportedXml is {} data?string.Join("\n",data.Blockers.Concat(data.Notices).Select(n=>"　　"+n)):"";
+ public string XmlImportDetails=>Plan.ImportedXml is {} data?global::UnattendLocal.Localization.UiText.Join("\n", data.Blockers.Concat(data.Notices).Select(n=>"　　"+n), false):"";
  private void RefreshXmlImport(){Notify(nameof(CanEditLegacyUpgrade));Notify(nameof(HasReadonlyLegacyUpgrade));Notify(nameof(CanEditAppRemoval));Notify(nameof(HasImportedXml));Notify(nameof(HasImportedXmlRisk));Notify(nameof(XmlImportSummary));Notify(nameof(XmlImportDetails));Notify(nameof(XmlImportErrors));Notify(nameof(XmlImportNotices));Notify(nameof(HasXmlImportErrors));}
  public bool IsCustomStickyKeys=>Plan.StickyKeysMode==StickyKeySettings.Custom;
  public bool IsStickyKeysDisabled=>Plan.StickyKeysMode==StickyKeySettings.Disabled;
@@ -222,36 +222,36 @@ public class MainViewModel : Observable {
  public string DesktopImageExample=>ImageBackgroundSettings.DesktopExample;
  public string LockScreenImageExample=>ImageBackgroundSettings.LockExample;
  public string DesktopWallpaperSummary=>WallpaperSettings.ModeSummary(Plan);
- public List<GeneratorService.Choice> WallpaperColorChoices {get;}=new(){new("#000000","黑色"),new("#202020","深灰"),new("#E5E5E5","浅灰"),new("#FFFFFF","白色"),new("#003366","藏蓝"),new("#0078D4","蓝色"),new("#008272","青绿"),new("#744DA9","紫色"),new("#6B4F3B","暖棕")};
+ public List<GeneratorService.Choice> WallpaperColorChoices {get;}=new(){new("#000000",global::UnattendLocal.Localization.UiText.Source("text.ed7d2c54184b")),new("#202020",global::UnattendLocal.Localization.UiText.Source("text.79551187b83c")),new("#E5E5E5",global::UnattendLocal.Localization.UiText.Source("text.fe07a094f39e")),new("#FFFFFF",global::UnattendLocal.Localization.UiText.Source("text.f56e7eff58bf")),new("#003366",global::UnattendLocal.Localization.UiText.Source("text.648a0efd3584")),new("#0078D4",global::UnattendLocal.Localization.UiText.Source("text.67035e6b7f82")),new("#008272",global::UnattendLocal.Localization.UiText.Source("text.9005604ed49f")),new("#744DA9",global::UnattendLocal.Localization.UiText.Source("text.2ed9c6fabac2")),new("#6B4F3B",global::UnattendLocal.Localization.UiText.Source("text.c688f65ef209"))};
  public string? WallpaperColorPreset {get=>ColorSettings.TryNormalize(Plan.WallpaperColorHex,out var hex)&&WallpaperColorChoices.Any(c=>c.Id==hex)?hex:null;set{if(WallpaperColorChoices.Any(c=>c.Id==value))Plan.WallpaperColorHex=value!;}}
  public string WallpaperColorPreview=>ColorSettings.TryNormalize(Plan.WallpaperColorHex,out var hex)?hex:"Transparent";
- public string WallpaperColorHint=>ColorSettings.TryNormalize(Plan.WallpaperColorHex,out var hex)?"当前颜色："+hex:"请输入 #RRGGBB，例如 #003366。";
+ public string WallpaperColorHint=>ColorSettings.TryNormalize(Plan.WallpaperColorHex,out var hex)?global::UnattendLocal.Localization.UiText.Concat(new object?[] { global::UnattendLocal.Localization.UiText.Source("text.bdd701681619"), hex },new bool[]{false,false}):global::UnattendLocal.Localization.UiText.Source("text.4b9f73cd286c");
  private void RefreshWallpaper(){foreach(var name in new[]{nameof(IsSolidWallpaper),nameof(IsScriptWallpaper),nameof(IsScriptLockScreen),nameof(LockScreenSummary),nameof(DesktopWallpaperSummary),nameof(WallpaperColorPreset),nameof(WallpaperColorPreview),nameof(WallpaperColorHint)})Notify(name);}
  public bool IsCustomColors=>ColorSettings.IsCustom(Plan);
  public bool CanUseStartAccent=>IsCustomColors&&Plan.WindowsColorTheme==ColorSettings.Dark;
  public bool StartAccentChecked {get=>ColorSettings.StartAccentEnabled(Plan);set{if(CanUseStartAccent)Plan.AccentColorOnStart=value;}}
  public string WindowsColorsSummary=>ColorSettings.ModeSummary(Plan);
- public List<GeneratorService.Choice> AccentColorChoices {get;}=new(){new("#0078D4","Windows 蓝"),new("#0099BC","青蓝"),new("#008272","青绿"),new("#107C10","绿色"),new("#FF8C00","橙色"),new("#E81123","红色"),new("#C239B3","紫红"),new("#744DA9","紫色"),new("#767676","灰色")};
+ public List<GeneratorService.Choice> AccentColorChoices {get;}=new(){new("#0078D4",global::UnattendLocal.Localization.UiText.Source("text.9aba037f8002")),new("#0099BC",global::UnattendLocal.Localization.UiText.Source("text.6119928332f1")),new("#008272",global::UnattendLocal.Localization.UiText.Source("text.9005604ed49f")),new("#107C10",global::UnattendLocal.Localization.UiText.Source("text.30c83dc25b12")),new("#FF8C00",global::UnattendLocal.Localization.UiText.Source("text.aa1e899dd357")),new("#E81123",global::UnattendLocal.Localization.UiText.Source("text.789f61dbfcc7")),new("#C239B3",global::UnattendLocal.Localization.UiText.Source("text.afae64f8320e")),new("#744DA9",global::UnattendLocal.Localization.UiText.Source("text.2ed9c6fabac2")),new("#767676",global::UnattendLocal.Localization.UiText.Source("text.051e67d913f4"))};
  public string? AccentColorPreset {get=>ColorSettings.TryNormalize(Plan.AccentColorHex,out var hex)&&AccentColorChoices.Any(c=>c.Id==hex)?hex:null;set{if(AccentColorChoices.Any(c=>c.Id==value))Plan.AccentColorHex=value!;}}
  public string AccentColorPreview=>ColorSettings.TryNormalize(Plan.AccentColorHex,out var hex)?hex:"Transparent";
- public string AccentColorHint=>ColorSettings.TryNormalize(Plan.AccentColorHex,out var hex)?"当前颜色："+hex:"请输入 #RRGGBB，例如 #0078D4。";
+ public string AccentColorHint=>ColorSettings.TryNormalize(Plan.AccentColorHex,out var hex)?global::UnattendLocal.Localization.UiText.Concat(new object?[] { global::UnattendLocal.Localization.UiText.Source("text.bdd701681619"), hex },new bool[]{false,false}):global::UnattendLocal.Localization.UiText.Source("text.8066acb0bbba");
  private void RefreshColors(){foreach(var name in new[]{nameof(IsCustomColors),nameof(CanUseStartAccent),nameof(StartAccentChecked),nameof(WindowsColorsSummary),nameof(AccentColorPreset),nameof(AccentColorPreview),nameof(AccentColorHint)})Notify(name);}
  public bool IsCustomVisualEffects=>Plan.VisualEffectsMode==VisualEffectsSettings.Custom;
  public string VisualEffectsSummary=>VisualEffectsSettings.ModeSummary(Plan);
  private void RefreshVisualEffects(){Notify(nameof(IsCustomVisualEffects));Notify(nameof(VisualEffectsSummary));}
  public bool IsCustomDesktopIcons=>Plan.DesktopIconsMode==DesktopSettings.CustomIcons;
  public bool IsCustomStartFolders=>Plan.StartFoldersMode==DesktopSettings.CustomFolders;
- public string DesktopIconSelection=>$"已选择 {DesktopSettings.Icons.Count(item=>DesktopSettings.Selected(Plan,item))} / {DesktopSettings.Icons.Count} 项：{DesktopSettings.Selection(Plan,true)}";
- public string StartFolderSelection=>$"已选择 {DesktopSettings.Folders.Count(item=>DesktopSettings.Selected(Plan,item))} / {DesktopSettings.Folders.Count} 项：{DesktopSettings.Selection(Plan,false)}";
+ public string DesktopIconSelection=>global::UnattendLocal.Localization.UiText.Format("message.9e06b6ef415c", new string[] { global::UnattendLocal.Localization.UiText.Arg((DesktopSettings.Icons.Count(item=>DesktopSettings.Selected(Plan,item))), 0, null), global::UnattendLocal.Localization.UiText.Arg((DesktopSettings.Icons.Count), 0, null), global::UnattendLocal.Localization.UiText.Arg((DesktopSettings.Selection(Plan,true)), 0, null) });
+ public string StartFolderSelection=>global::UnattendLocal.Localization.UiText.Format("message.9e06b6ef415c", new string[] { global::UnattendLocal.Localization.UiText.Arg((DesktopSettings.Folders.Count(item=>DesktopSettings.Selected(Plan,item))), 0, null), global::UnattendLocal.Localization.UiText.Arg((DesktopSettings.Folders.Count), 0, null), global::UnattendLocal.Localization.UiText.Arg((DesktopSettings.Selection(Plan,false)), 0, null) });
  private void RefreshDesktop(){foreach(var name in new[]{nameof(IsCustomDesktopIcons),nameof(IsCustomStartFolders),nameof(DesktopIconSelection),nameof(StartFolderSelection)})Notify(name);}
  public bool IsCustomTaskbar=>Plan.TaskbarIconsMode==ShellSettings.CustomXml;
  public bool IsCustomTiles=>Plan.StartTilesMode==ShellSettings.CustomXml;
  public bool IsCustomPins=>Plan.StartPinsMode==ShellSettings.CustomJson;
- public bool ShowSearchPreview=>Plan.TaskbarSearch!="隐藏";
+ public bool ShowSearchPreview=>Plan.TaskbarSearch!=global::UnattendLocal.Localization.UiText.Source("text.145219e726b8");
  public bool ShowSearchText=>Plan.TaskbarSearch is "完整搜索框" or "图标和文字";
  public double SearchPreviewWidth=>Plan.TaskbarSearch switch {"完整搜索框"=>260,"图标和文字"=>120,_=>44};
  private void RefreshShell(){foreach(var name in new[]{nameof(IsCustomTaskbar),nameof(IsCustomTiles),nameof(IsCustomPins),nameof(ShowSearchPreview),nameof(ShowSearchText),nameof(SearchPreviewWidth)})Notify(name);}
- private void InvalidatePreview(){Preview="配置已修改，请重新检查与预览。";Status="配置已修改，尚未重新检查";}
+ private void InvalidatePreview(){Preview=global::UnattendLocal.Localization.UiText.Source("text.92a3dbdf6833");Status=global::UnattendLocal.Localization.UiText.Source("text.aa9344791149");}
  private void ObserveUsers(){
   foreach(var user in observedUsers.Where(u=>!Plan.Users.Contains(u)).ToList()){user.PropertyChanged-=HelpSettingChanged;observedUsers.Remove(user);}
   foreach(var user in Plan.Users)if(observedUsers.Add(user))user.PropertyChanged+=HelpSettingChanged;
@@ -275,7 +275,7 @@ public class MainViewModel : Observable {
  public string AutoPartitionSummary=>AutoPartitionSettings.Summary(Plan);
  public bool IsTargetDisk {get=>isTargetDisk;private set=>Set(ref isTargetDisk,value);} public bool IsExistingDisk {get=>isExistingDisk;private set=>Set(ref isExistingDisk,value);} public bool IsWipeDisk {get=>isWipeDisk;private set=>Set(ref isWipeDisk,value);} public bool IsFormatDisk {get=>isFormatDisk;private set=>Set(ref isFormatDisk,value);} public bool IsDestructiveDisk {get=>isDestructiveDisk;private set=>Set(ref isDestructiveDisk,value);}
  private string diskRisk="";public string DiskRisk {get=>diskRisk;private set=>Set(ref diskRisk,value);}
- private void RefreshInstallation(){foreach(var name in new[]{nameof(CanEditPowerPlan),nameof(IsCustomPowerPlan),nameof(CanEditErrorReporting),nameof(PowerPlanSummary),nameof(ErrorReportingSummary)})Notify(name);Notify(nameof(ExportXmlButtonText));Notify(nameof(ExportUsage));foreach(var name in new[]{nameof(CanEditWorkgroup),nameof(IsWorkgroup),nameof(HasReadonlyWorkgroup),nameof(WorkgroupSummary),nameof(CanEditPeLog),nameof(IsPeLog),nameof(HasReadonlyPeLog),nameof(PeLogSummary)})Notify(name);Notify(nameof(CanEditRegisteredInformation));Notify(nameof(IsRegisteredOwner));Notify(nameof(IsRegisteredOrganization));Notify(nameof(HasReadonlyRegisteredInformation));Notify(nameof(RegisteredInformationSummary));Notify(nameof(CanEditSetupDynamicUpdate));Notify(nameof(HasReadonlySetupDynamicUpdate));Notify(nameof(SetupDynamicUpdateSummary));Notify(nameof(CanEditSetupDrivers));Notify(nameof(IsSetupDrivers));Notify(nameof(HasReadonlySetupDrivers));Notify(nameof(SetupDriversSummary));Notify(nameof(FirstLogonModes));Notify(nameof(SelectedFirstLogon));Notify(nameof(CanEditFirstLogon));Notify(nameof(IsBuiltinAdministrator));Notify(nameof(HasReadonlyFirstLogon));IsAutomaticAccounts=Plan.AccountMode=="自动创建本地账户";NeedsRetentionConsent=IsAutomaticAccounts&&!Plan.AutoLogon&&!Plan.KeepSensitiveFiles;IsPasswordDays=IsAutomaticAccounts&&Plan.PasswordExpiration=="指定天数";var wasEnabled=CanBypassNetwork;CanBypassNetwork=Plan.AccountMode!="安装时添加微软账户";if(wasEnabled!=CanBypassNetwork)Notify(nameof(CanHideOnlineAccount));IsCustomConfiguration=Plan.ConfigurationMode=="自定义配置";IsFixedLanguage=!Plan.InteractiveLanguage;IsFixedTimeZone=Plan.TimeZoneMode=="指定时区";IsImageName=Plan.ImageSelection=="按镜像名称";IsImageIndex=Plan.ImageSelection=="按镜像索引";IsExistingDisk=Plan.DiskMode==InstallationSettings.Existing;IsWipeDisk=Plan.DiskMode==InstallationSettings.Wipe;Notify(nameof(CanEditAutoPartition));Notify(nameof(HasReadonlyAutoPartition));Notify(nameof(AutoPartitionSummary));IsScriptDisk=Plan.DiskMode==DiskScriptSettings.Mode;IsPartitionTarget=IsExistingDisk||IsScriptDisk;IsTargetDisk=IsExistingDisk||IsWipeDisk||IsScriptDisk;IsFormatDisk=IsExistingDisk&&Plan.FormatExistingPartition;IsDestructiveDisk=InstallationSettings.Destructive(Plan)||HasImportedXmlRisk;DiskRisk=InstallationSettings.DiskSummary(Plan)+(HasImportedXmlRisk?"；【危险】原 XML 另含磁盘配置或 Windows PE 命令，须核对完整原文":"");}
+ private void RefreshInstallation(){foreach(var name in new[]{nameof(CanEditPowerPlan),nameof(IsCustomPowerPlan),nameof(CanEditErrorReporting),nameof(PowerPlanSummary),nameof(ErrorReportingSummary)})Notify(name);Notify(nameof(ExportXmlButtonText));Notify(nameof(ExportUsage));foreach(var name in new[]{nameof(CanEditWorkgroup),nameof(IsWorkgroup),nameof(HasReadonlyWorkgroup),nameof(WorkgroupSummary),nameof(CanEditPeLog),nameof(IsPeLog),nameof(HasReadonlyPeLog),nameof(PeLogSummary)})Notify(name);Notify(nameof(CanEditRegisteredInformation));Notify(nameof(IsRegisteredOwner));Notify(nameof(IsRegisteredOrganization));Notify(nameof(HasReadonlyRegisteredInformation));Notify(nameof(RegisteredInformationSummary));Notify(nameof(CanEditSetupDynamicUpdate));Notify(nameof(HasReadonlySetupDynamicUpdate));Notify(nameof(SetupDynamicUpdateSummary));Notify(nameof(CanEditSetupDrivers));Notify(nameof(IsSetupDrivers));Notify(nameof(HasReadonlySetupDrivers));Notify(nameof(SetupDriversSummary));Notify(nameof(FirstLogonModes));Notify(nameof(SelectedFirstLogon));Notify(nameof(CanEditFirstLogon));Notify(nameof(IsBuiltinAdministrator));Notify(nameof(HasReadonlyFirstLogon));IsAutomaticAccounts=Plan.AccountMode==global::UnattendLocal.Localization.UiText.Source("text.cdaa9a6700f6");NeedsRetentionConsent=IsAutomaticAccounts&&!Plan.AutoLogon&&!Plan.KeepSensitiveFiles;IsPasswordDays=IsAutomaticAccounts&&Plan.PasswordExpiration==global::UnattendLocal.Localization.UiText.Source("text.5fb01e314f6b");var wasEnabled=CanBypassNetwork;CanBypassNetwork=Plan.AccountMode!=global::UnattendLocal.Localization.UiText.Source("text.5f78e95b6bd9");if(wasEnabled!=CanBypassNetwork)Notify(nameof(CanHideOnlineAccount));IsCustomConfiguration=Plan.ConfigurationMode==global::UnattendLocal.Localization.UiText.Source("text.cb1e0e22c7de");IsFixedLanguage=!Plan.InteractiveLanguage;IsFixedTimeZone=Plan.TimeZoneMode==global::UnattendLocal.Localization.UiText.Source("text.980f34c4425d");IsImageName=Plan.ImageSelection==global::UnattendLocal.Localization.UiText.Source("text.5965e61aee4c");IsImageIndex=Plan.ImageSelection==global::UnattendLocal.Localization.UiText.Source("text.9cbbdbe44e5d");IsExistingDisk=Plan.DiskMode==InstallationSettings.Existing;IsWipeDisk=Plan.DiskMode==InstallationSettings.Wipe;Notify(nameof(CanEditAutoPartition));Notify(nameof(HasReadonlyAutoPartition));Notify(nameof(AutoPartitionSummary));IsScriptDisk=Plan.DiskMode==DiskScriptSettings.Mode;IsPartitionTarget=IsExistingDisk||IsScriptDisk;IsTargetDisk=IsExistingDisk||IsWipeDisk||IsScriptDisk;IsFormatDisk=IsExistingDisk&&Plan.FormatExistingPartition;IsDestructiveDisk=InstallationSettings.Destructive(Plan)||HasImportedXmlRisk;DiskRisk=global::UnattendLocal.Localization.UiText.Concat(new object?[] { InstallationSettings.DiskSummary(Plan), (HasImportedXmlRisk?global::UnattendLocal.Localization.UiText.Source("text.e0f733509d5c"):"") },new bool[] { false, false });}
  private string pendingRecommendation="wired";
  public string PendingRecommendation {get=>pendingRecommendation;set{
   if(pendingRecommendation==value||!Recommendations.Known(value))return;
@@ -293,6 +293,6 @@ public class MainViewModel : Observable {
  private List<Recommendations.Difference> differences=new();
  public List<Recommendations.Difference> RecommendationDifferences {get=>differences;private set=>Set(ref differences,value);}
  private void UsersChanged(object? sender,System.Collections.Specialized.NotifyCollectionChangedEventArgs e){ObserveUsers();if(SelectedUser==null||!Plan.Users.Contains(SelectedUser))SelectedUser=Plan.Users.FirstOrDefault();RefreshAll();InvalidatePreview();}
- private void RefreshRecommendations(){if(Recommendations.Known(Plan.RecommendationId))Set(ref pendingRecommendation,Plan.RecommendationId,nameof(PendingRecommendation));RefreshInstallation();IsRecommended=Plan.ConfigurationMode=="推荐配置";RecommendationState=Recommendations.State(Plan);ConfigurationSummary=Recommendations.Summary(Plan)+"\n"+NativePreferences.Summary(Plan,NativePreferences.Power)+"\n"+NativePreferences.Summary(Plan,NativePreferences.Wer)+(Plan.XmlComponents.Count>0?"\n额外 XML：启用 "+Plan.XmlComponents.Count(row=>row.Enabled)+" 项；停用 "+Plan.XmlComponents.Count(row=>!row.Enabled)+" 项。":"");RecommendationDifferences=Recommendations.Differences(Plan);DifferenceHint=!Recommendations.HasBaseline(Plan)?"此配置没有推荐基准，可选择推荐场景并应用。":RecommendationDifferences.Count==0?"推荐涉及的设置均与基准一致；账户、镜像和凭据仍需核对。":$"共 {RecommendationDifferences.Count} 项与推荐值不同。";}
+ private void RefreshRecommendations(){if(Recommendations.Known(Plan.RecommendationId))Set(ref pendingRecommendation,Plan.RecommendationId,nameof(PendingRecommendation));RefreshInstallation();IsRecommended=Plan.ConfigurationMode==global::UnattendLocal.Localization.UiText.Source("text.933c2fd10345");RecommendationState=Recommendations.State(Plan);ConfigurationSummary=global::UnattendLocal.Localization.UiText.Concat(new object?[] { Recommendations.Summary(Plan), "\n", NativePreferences.Summary(Plan,NativePreferences.Power), "\n", NativePreferences.Summary(Plan,NativePreferences.Wer), (Plan.XmlComponents.Count>0?global::UnattendLocal.Localization.UiText.Concat(new object?[] { global::UnattendLocal.Localization.UiText.Source("text.08f742fd610d"), Plan.XmlComponents.Count(row=>row.Enabled), global::UnattendLocal.Localization.UiText.Source("text.e4abb182302b"), Plan.XmlComponents.Count(row=>!row.Enabled), global::UnattendLocal.Localization.UiText.Source("text.a2ecf815b7fb") },new bool[]{false,false,false,false,false}):"") },new bool[]{false,false,false,false,false,false});RecommendationDifferences=Recommendations.Differences(Plan);DifferenceHint=!Recommendations.HasBaseline(Plan)?global::UnattendLocal.Localization.UiText.Source("text.a5bb13ae2448"):RecommendationDifferences.Count==0?global::UnattendLocal.Localization.UiText.Source("text.33c3799476bd"):global::UnattendLocal.Localization.UiText.Format("message.ae77a50e4a60", new string[] { global::UnattendLocal.Localization.UiText.Arg((RecommendationDifferences.Count), 0, null) });}
  public MainViewModel(){Plan.XmlComponents.CollectionChanged+=XmlComponentsChanged;ObserveXmlComponents();AppRemovalChoices=AppRemovalSettings.Items.Select(i=>new AppRemovalChoice(i,()=>Plan)).ToList();ObserveApps();Plan.Scripts.CollectionChanged+=ScriptsChanged;ObserveScripts();Plan.PropertyChanged+=HelpSettingChanged;Plan.Users.CollectionChanged+=UsersChanged;ObserveUsers();SelectedUser=Plan.Users.FirstOrDefault();RefreshAll();}
 }

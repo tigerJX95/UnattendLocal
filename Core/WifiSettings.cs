@@ -11,7 +11,7 @@ public static class WifiSettings
     public const int MaxProfileLength = 512 * 1024;
     private const string Root = @"C:\Windows\Setup\Scripts\";
     private const string WlanNamespace = "http://www.microsoft.com/networking/WLAN/profile/v1";
-    public static string ModeLabel(string mode) => mode switch { Wpa2 => "WPA2-Personal（AES）", Wpa3 => "WPA3-Personal（AES，启用过渡模式）", Open => "开放 Wi-Fi（无密码、不加密）", _ => mode };
+    public static string ModeLabel(string mode) => mode switch { Wpa2 => "WPA2-Personal（AES）", Wpa3 => global::UnattendLocal.Localization.UiText.Source("text.d0edf1b7ef5e"), Open => global::UnattendLocal.Localization.UiText.Source("text.0593ea9a4658"), _ => mode };
     public static bool IsPreset(InstallPlan p) => p.WifiMode is Wpa2 or Wpa3 or Open;
     public static bool NeedsPassword(InstallPlan p) => p.WifiMode is Wpa2 or Wpa3;
     public static bool HasProfile(InstallPlan p) => IsPreset(p) || p.WifiMode == Profile;
@@ -19,58 +19,58 @@ public static class WifiSettings
     {
         int length = Encoding.UTF8.GetByteCount(name);
         if (string.IsNullOrWhiteSpace(name) || length > (ssid ? 32 : 256) || name.Any(char.IsControl) || name.IndexOfAny(['"', '$', '`']) >= 0)
-            throw new ArgumentException(ssid ? "Wi-Fi 名称应为 1–32 字节，且不能包含控制字符、双引号、美元符号或反引号。" : "无线配置名称为空、过长或含不支持的脚本特殊字符，请使用不含控制字符、双引号、美元符号或反引号的名称。");
+            throw new ArgumentException(ssid ? global::UnattendLocal.Localization.UiText.Source("text.703c35523d06") : global::UnattendLocal.Localization.UiText.Source("text.3a2e7a44158b"));
     }
     public static IWifiSettings Build(InstallPlan p) => p.WifiMode switch
     {
         "安装时手动选择" => new InteractiveWifiSettings(),
         "隐藏无线网络选择页" => new SkipWifiSettings(),
-        Profile => p.NeedsWifiProfile ? throw new ArgumentException("无线配置 XML 未随方案保存，请重新导入或粘贴完整配置。") : ReadProfile(p.WifiProfileXml),
+        Profile => p.NeedsWifiProfile ? throw new ArgumentException(global::UnattendLocal.Localization.UiText.Source("text.3066b4594dd9")) : ReadProfile(p.WifiProfileXml),
         Wpa2 or Wpa3 or Open => Parameters(p),
-        _ => throw new ArgumentException("请选择有效的网络配置方式。")
+        _ => throw new ArgumentException(global::UnattendLocal.Localization.UiText.Source("text.0ac5d1e1861d"))
     };
     private static ParameterizedWifiSettings Parameters(InstallPlan p)
     {
         ValidateName(p.Ssid, true);
         if (NeedsPassword(p))
         {
-            if (p.NeedsWifiPassword) throw new ArgumentException("请重新输入 Wi-Fi 密码。");
+            if (p.NeedsWifiPassword) throw new ArgumentException(global::UnattendLocal.Localization.UiText.Source("text.1ba3c3011f2d"));
             if (p.WifiPassword.Length is < 8 or > 63 || p.WifiPassword.Any(c => c < 32 || c > 126))
-                throw new ArgumentException("WPA2 / WPA3 密码应为 8–63 位可打印 ASCII 字符。");
+                throw new ArgumentException(global::UnattendLocal.Localization.UiText.Source("text.a0bf8006e998"));
         }
         return new(p.Ssid, NeedsPassword(p) ? p.WifiPassword : "", p.ConnectWifi,
             p.WifiMode == Wpa3 ? WifiAuthentications.WPA3SAE : p.WifiMode == Open ? WifiAuthentications.Open : WifiAuthentications.WPA2PSK, p.HiddenWifi);
     }
     public static XmlWifiSettings ReadProfile(string xml)
     {
-        if (string.IsNullOrWhiteSpace(xml) || xml.Length > MaxProfileLength) throw new ArgumentException("无线配置 XML 为空或超过 512 Ki 字符。");
+        if (string.IsNullOrWhiteSpace(xml) || xml.Length > MaxProfileLength) throw new ArgumentException(global::UnattendLocal.Localization.UiText.Source("text.6e7bee39f155"));
         try
         {
             var doc = new XmlDocument { XmlResolver = null };
             using (var reader = XmlReader.Create(new StringReader(xml), new XmlReaderSettings { DtdProcessing = DtdProcessing.Prohibit, XmlResolver = null, MaxCharactersInDocument = MaxProfileLength })) doc.Load(reader);
-            if (doc.DocumentElement is not { LocalName: "WLANProfile", NamespaceURI: WlanNamespace }) throw new ArgumentException("请选择 WLANProfile 无线配置 XML，不能使用 Windows 应答 XML。");
-            if (doc.SelectNodes("//processing-instruction()")!.Count != 0) throw new ArgumentException("无线配置 XML 不支持处理指令。");
+            if (doc.DocumentElement is not { LocalName: "WLANProfile", NamespaceURI: WlanNamespace }) throw new ArgumentException(global::UnattendLocal.Localization.UiText.Source("text.008d0db2b2a8"));
+            if (doc.SelectNodes("//processing-instruction()")!.Count != 0) throw new ArgumentException(global::UnattendLocal.Localization.UiText.Source("text.43beacaa37c6"));
             var pending = new Stack<(XmlElement Element, int Depth)>(); pending.Push((doc.DocumentElement, 1)); int count = 0;
             while (pending.Count > 0)
             {
-                var node = pending.Pop(); if (node.Depth > 64 || ++count > 10000) throw new ArgumentException("无线配置 XML 层级或元素过多。");
+                var node = pending.Pop(); if (node.Depth > 64 || ++count > 10000) throw new ArgumentException(global::UnattendLocal.Localization.UiText.Source("text.2667a9d3f628"));
                 foreach (var child in node.Element.ChildNodes.OfType<XmlElement>()) pending.Push((child, node.Depth + 1));
             }
             var profile = new XmlWifiSettings(doc.OuterXml);
             ValidateName(profile.Name, false); ValidateName(profile.Ssid, true);
             var ns = WlanNs(doc);
             foreach (XmlNode node in doc.SelectNodes("//w:sharedKey/w:protected", ns)!)
-                if (node.InnerText is not ("false" or "0")) throw new ArgumentException("无线配置中的密钥已加密，不能可靠迁移到目标电脑。请使用 netsh wlan export profile key=clear 导出的配置，并妥善保管明文密钥。");
+                if (node.InnerText is not ("false" or "0")) throw new ArgumentException(global::UnattendLocal.Localization.UiText.Source("text.8f8a242f6c20"));
             // The fixed native connector uses profile.Name for both netsh name and ssid.
             if (profile.ConnectAutomatically && profile.Name != profile.Ssid)
-                throw new ArgumentException("自动连接的无线配置名称需与 SSID 一致。请调整配置名称，或将 XML 的 connectionMode 设为 manual 后在目标系统手动连接。");
+                throw new ArgumentException(global::UnattendLocal.Localization.UiText.Source("text.29e848124771"));
             return profile;
         }
         catch (Exception e) when (e is XmlException or System.Xml.Schema.XmlSchemaException or ConfigurationException or FormatException or InvalidOperationException)
-        { throw new ArgumentException("无线配置 XML 格式、架构或 SSID 编码无效，请核对从 Windows 导出的完整 WLANProfile。", e); }
+        { throw new ArgumentException(global::UnattendLocal.Localization.UiText.Source("text.5ccccaa053a7"), e); }
     }
     private static XmlNamespaceManager WlanNs(XmlDocument doc) { var ns = new XmlNamespaceManager(doc.NameTable); ns.AddNamespace("w", WlanNamespace); return ns; }
-    private static string Normal(string value) => string.Join('\n', value.Replace("\r\n", "\n").Split('\n').Select(l => l.Trim()).Where(l => l.Length > 0));
+    private static string Normal(string value) => global::UnattendLocal.Localization.UiText.Join('\n', value.Replace("\r\n", "\n").Split('\n').Select(l => l.Trim()).Where(l => l.Length > 0), true);
     private static bool Related(string line) => line.Contains("WlanSvc", StringComparison.OrdinalIgnoreCase) || Regex.IsMatch(line, @"netsh\.exe\s+wlan\s+(?:add\s+profile|connect)\b", RegexOptions.IgnoreCase, TimeSpan.FromSeconds(1));
     private static readonly Lazy<string> WaitBlock = new(() =>
     {
@@ -101,7 +101,7 @@ public static class WifiSettings
     private static string BasicMode(XmlDocument doc)
     {
         var ns = new XmlNamespaceManager(doc.NameTable); ns.AddNamespace("u", XmlMerge.Namespace);
-        return doc.SelectSingleNode("//u:OOBE/u:HideWirelessSetupInOOBE", ns)?.InnerText is "true" or "1" ? "隐藏无线网络选择页" : "安装时手动选择";
+        return doc.SelectSingleNode("//u:OOBE/u:HideWirelessSetupInOOBE", ns)?.InnerText is "true" or "1" ? global::UnattendLocal.Localization.UiText.Source("text.307f498ede07") : global::UnattendLocal.Localization.UiText.Source("text.fd17c35ec3cc");
     }
     public static void ReadIntoPlan(XmlDocument doc, InstallPlan p, List<string> notes)
     {
@@ -110,7 +110,7 @@ public static class WifiSettings
         p.WifiMode = BasicMode(doc); p.WifiProfileXml = ""; p.NeedsWifiProfile = false; p.WifiPassword = ""; p.NeedsWifiPassword = false; p.Ssid = "";
         if (!state.Enabled)
         {
-            if (state.Ambiguous) notes.Add("无线配置或安装执行管线未完整识别，原文保留；网络页不覆盖这些内容，请用原工具调整后重新导入。");
+            if (state.Ambiguous) notes.Add(global::UnattendLocal.Localization.UiText.Source("text.99d683ac5899"));
             return;
         }
         var profile = ReadProfile(state.Xml); var ns = WlanNs(profile.ProfileXml);
@@ -131,13 +131,13 @@ public static class WifiSettings
     }
     public static void ValidateImported(InstallPlan p, XmlDocument doc)
     {
-        if (HasProfile(p) && Inspect(doc).Ambiguous) throw new ArgumentException("原 XML 的无线配置或执行管线未完整识别，不能用网络页覆盖；请用原工具调整后重新导入。");
+        if (HasProfile(p) && Inspect(doc).Ambiguous) throw new ArgumentException(global::UnattendLocal.Localization.UiText.Source("text.fa9edff10704"));
     }
     public static string Summary(InstallPlan p) => p.WifiMode switch
     {
-        Profile => "无线配置：使用 WLANProfile XML（名称、认证及连接方式由 XML 决定；可能含凭据）" + (p.NeedsWifiProfile || string.IsNullOrWhiteSpace(p.WifiProfileXml) ? "；需重新导入配置" : ""),
-        Wpa2 or Wpa3 or Open => "无线配置：" + ModeLabel(p.WifiMode) + "；" + (p.HiddenWifi ? "隐藏网络" : "广播网络") + "；" + (p.ConnectWifi ? "自动连接" : "只添加配置，不发起连接") + (p.WifiMode == Open ? "（无无线链路加密，可能仍需门户认证）" : ""),
-        _ => "无线配置：" + p.WifiMode
+        Profile => global::UnattendLocal.Localization.UiText.Concat(new object?[] { global::UnattendLocal.Localization.UiText.Source("text.60c0b09a1b45"), (p.NeedsWifiProfile || string.IsNullOrWhiteSpace(p.WifiProfileXml) ? global::UnattendLocal.Localization.UiText.Source("text.432490e8c1f4") : "") },new bool[]{false,false}),
+        Wpa2 or Wpa3 or Open => global::UnattendLocal.Localization.UiText.Concat(new object?[] { global::UnattendLocal.Localization.UiText.Source("text.9ac9c20a0766"), ModeLabel(p.WifiMode), "；", (p.HiddenWifi ? global::UnattendLocal.Localization.UiText.Source("text.e5edb8e8277b") : global::UnattendLocal.Localization.UiText.Source("text.cf7638fb880a")), "；", (p.ConnectWifi ? global::UnattendLocal.Localization.UiText.Source("text.2b0b82b03406") : global::UnattendLocal.Localization.UiText.Source("text.b41565f81f0b")), (p.WifiMode == Open ? global::UnattendLocal.Localization.UiText.Source("text.7914aa635376") : "") },new bool[]{false,false,false,false,false,false,false}),
+        _ => global::UnattendLocal.Localization.UiText.Concat(new object?[] { global::UnattendLocal.Localization.UiText.Source("text.9ac9c20a0766"), p.WifiMode },new bool[]{false,false})
     };
     public static void NormalizeLoaded(InstallPlan p, JsonElement json)
     {
@@ -150,9 +150,9 @@ public static class WifiSettings
         {
             var service = new GeneratorService();
             data.BaselineXml = XmlMerge.Apply(data.BaselineXml, Encoding.UTF8.GetString(service.GenerateImportBaseline(before)), XmlMerge.Read(Encoding.UTF8.GetString(service.GenerateImportBaseline(after)))).OuterXml;
-            data.Notices = data.Notices.Where(n => !n.StartsWith("Wi-Fi 配置并非当前支持的", StringComparison.Ordinal)).Concat(notes).Distinct().ToArray();
+            data.Notices = data.Notices.Where(n => !n.StartsWith(global::UnattendLocal.Localization.UiText.Source("text.76297af8193e"), StringComparison.Ordinal)).Concat(notes).Distinct().ToArray();
         }
         catch (Exception e) when (e is ArgumentException or ConfigurationException or XmlException)
-        { data.Blockers = data.Blockers.Append("旧方案的无线配置编辑基准无法可靠迁移，请重新导入原 XML。").Distinct().ToArray(); }
+        { data.Blockers = data.Blockers.Append(global::UnattendLocal.Localization.UiText.Source("text.b8a8c00b6761")).Distinct().ToArray(); }
     }
 }

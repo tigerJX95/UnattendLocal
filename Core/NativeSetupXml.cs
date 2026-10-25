@@ -18,10 +18,10 @@ internal static class NativeSetupXml
     internal static XmlElement GetComponent(XmlDocument doc, string name, string pass, string architecture)
     {
         var groups = doc.DocumentElement!.ChildNodes.OfType<XmlElement>().Where(e => e.LocalName == "settings" && e.NamespaceURI == XmlMerge.Namespace && e.GetAttribute("pass") == pass).ToArray();
-        if (groups.Length != 1) throw new ArgumentException("缺少唯一的 " + pass + " 安装阶段，不能添加原生设置。");
+        if (groups.Length != 1) throw new ArgumentException(global::UnattendLocal.Localization.UiText.Concat(new object?[] { global::UnattendLocal.Localization.UiText.Source("text.9984cc4e7538"), pass, global::UnattendLocal.Localization.UiText.Source("text.71692392a2ed") },new bool[]{false,false,false}));
         var group = groups[0];
         var components = group.ChildNodes.OfType<XmlElement>().Where(e => e.LocalName == "component" && e.NamespaceURI == XmlMerge.Namespace && e.GetAttribute("name") == name && e.GetAttribute("processorArchitecture") == architecture).ToArray();
-        if (components.Length > 1) throw new ArgumentException("原生组件重复，不能可靠生成：" + name);
+        if (components.Length > 1) throw new ArgumentException(global::UnattendLocal.Localization.UiText.Concat(new object?[] { global::UnattendLocal.Localization.UiText.Source("text.61e90159559b"), name },new bool[]{false,true}));
         if (components.Length == 1) return components[0];
         var c = doc.CreateElement("component", XmlMerge.Namespace);
         foreach (var item in new Dictionary<string, string> { ["name"] = name, ["processorArchitecture"] = architecture, ["publicKeyToken"] = "31bf3856ad364e35", ["language"] = "neutral", ["versionScope"] = "nonSxS" }) c.SetAttribute(item.Key, item.Value);

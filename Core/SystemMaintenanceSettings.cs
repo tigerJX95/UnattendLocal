@@ -15,18 +15,18 @@ public static class SystemMaintenanceSettings
     public record Item(string Property, string Label, string[] Commands, string[] Markers, string? AuxiliaryPath = null);
     public static IReadOnlyList<Item> Items { get; } = new Item[]
     {
-        new(nameof(InstallPlan.DisableLastAccess), "NTFS 最后访问时间", [
+        new(nameof(InstallPlan.DisableLastAccess), global::UnattendLocal.Localization.UiText.Source("text.ad9c574533ea"), [
             "fsutil.exe behavior set disableLastAccess 1;"
         ], ["disableLastAccess", "NtfsDisableLastAccessUpdate"]),
-        new(nameof(InstallPlan.PreventAutomaticReboot), "Windows 更新自动重启", [
+        new(nameof(InstallPlan.PreventAutomaticReboot), global::UnattendLocal.Localization.UiText.Source("text.dbf530112040"), [
             "reg.exe add \"HKLM\\SOFTWARE\\Policies\\Microsoft\\Windows\\WindowsUpdate\\AU\" /v AUOptions /t REG_DWORD /d 4 /f;",
             "reg.exe add \"HKLM\\SOFTWARE\\Policies\\Microsoft\\Windows\\WindowsUpdate\\AU\" /v NoAutoRebootWithLoggedOnUsers /t REG_DWORD /d 1 /f;",
             "Register-ScheduledTask -TaskName 'MoveActiveHours' -Xml $( Get-Content -LiteralPath 'C:\\Windows\\Setup\\Scripts\\MoveActiveHours.xml' -Raw );"
         ], ["AUOptions", "NoAutoRebootWithLoggedOnUsers", "MoveActiveHours", "ActiveHoursStart", "ActiveHoursEnd", "SmartActiveHoursState"], TaskPath)
     };
-    public const string RestartDescription = "在目标 Windows 安装阶段沿用原生成器的设置：配置 AUOptions=4、NoAutoRebootWithLoggedOnUsers=1，并注册 MoveActiveHours 计划任务，定期调整 Windows 更新活动时间。此项不停止更新下载与安装，与循环暂停更新独立。Windows 版本、组织策略、更新截止期限或用户安排的重启可能覆盖，不保证阻止所有重启；请主动安排重启完成更新。未勾选时遵循 Windows 默认行为。取消只影响新生成配置，不删除已安装系统的任务或策略，也不修改当前电脑。";
-    public const string LastAccessDescription = "在目标 Windows 安装阶段沿用原生成器的 fsutil.exe behavior set disableLastAccess 1，禁用 NTFS 最后访问时间更新。创建时间、修改时间及文件内容不变，不删除文件；依赖最后访问时间的归档、备份或清理规则可能受影响。未勾选时不写入覆盖，遵循 Windows 默认行为。取消只影响新生成配置，不恢复已安装系统的设置；本工具不在当前电脑执行该命令。";
-    private static string Normal(string body) => string.Join('\n', body.Replace("\r\n", "\n").Split('\n').Select(l => l.Trim()).Where(l => l.Length > 0));
+    public static readonly string RestartDescription = global::UnattendLocal.Localization.UiText.Source("text.95b4206761d4");
+    public static readonly string LastAccessDescription = global::UnattendLocal.Localization.UiText.Source("text.b908aed410d5");
+    private static string Normal(string body) => global::UnattendLocal.Localization.UiText.Join('\n', body.Replace("\r\n", "\n").Split('\n').Select(l => l.Trim()).Where(l => l.Length > 0), false);
     private static string WindowStyle(string command) => Regex.Replace(command, "-WindowStyle \"(?:Hidden|Normal)\"", "-WindowStyle \"Hidden\"", RegexOptions.None, TimeSpan.FromSeconds(1));
     private static string Skeleton(string body) => Normal(Regex.Replace(body.Replace("\r\n", "\n"), BlockPattern, "", RegexOptions.None, TimeSpan.FromSeconds(1)));
     private record Template(string Wrapper, string Task, string Extraction, string ExtractionCommand);
@@ -70,7 +70,7 @@ public static class SystemMaintenanceSettings
             bool mentioned = relevant.Length > 0 || auxiliary.Length > 0;
             // Upstream appends the two restart policies as one block, then task registration as another.
             var commandGroups = item.AuxiliaryPath == null ? new[] { item.Commands } : new[] { item.Commands[..2], item.Commands[2..] };
-            bool enabled = validAuxiliary && commandGroups.All(group => blocks.Count(b => b == Normal(string.Join('\n', group))) == 1) && relevant.Length == item.Commands.Length && item.Commands.All(c => relevant.Count(line => line == Normal(c)) == 1);
+            bool enabled = validAuxiliary && commandGroups.All(group => blocks.Count(b => b == Normal(global::UnattendLocal.Localization.UiText.Join('\n', group, false))) == 1) && relevant.Length == item.Commands.Length && item.Commands.All(c => relevant.Count(line => line == Normal(c)) == 1);
             result[item.Property] = new(enabled, mentioned && !enabled);
         }
         return result;
@@ -81,7 +81,7 @@ public static class SystemMaintenanceSettings
         foreach (var item in Items)
         {
             typeof(InstallPlan).GetProperty(item.Property)!.SetValue(p, states[item.Property].Enabled);
-            if (states[item.Property].Ambiguous) notes.Add(item.Label + "命令、任务或执行管线未完整识别，原文保留；不能用此开关覆盖。");
+            if (states[item.Property].Ambiguous) notes.Add(global::UnattendLocal.Localization.UiText.Concat(new object?[] { item.Label, global::UnattendLocal.Localization.UiText.Source("text.6f82f20e70c1") },new bool[]{false,false}));
         }
     }
     public static void ValidateImported(InstallPlan p, XmlDocument doc)
@@ -89,9 +89,9 @@ public static class SystemMaintenanceSettings
         var states = Inspect(doc);
         foreach (var item in Items)
             if (states[item.Property].Ambiguous && (bool)typeof(InstallPlan).GetProperty(item.Property)!.GetValue(p)!)
-                throw new ArgumentException(item.Label + "与原 XML 中未完整识别的内容重叠，请用原工具调整后重新导入。");
+                throw new ArgumentException(global::UnattendLocal.Localization.UiText.Concat(new object?[] { item.Label, global::UnattendLocal.Localization.UiText.Source("text.3f1e7bc717a9") },new bool[]{false,false}));
     }
-    public static string Summary(InstallPlan p) => "Windows 更新自动重启：" + (p.PreventAutomaticReboot ? "减少自动重启（MoveActiveHours 任务及策略；不保证阻止全部重启）" : "遵循 Windows 默认行为") + "\nNTFS 最后访问时间：" + (p.DisableLastAccess ? "禁用更新；创建与修改时间不变" : "遵循 Windows 默认行为");
+    public static string Summary(InstallPlan p) => global::UnattendLocal.Localization.UiText.Concat(new object?[] { global::UnattendLocal.Localization.UiText.Source("text.79038a934b6d"), (p.PreventAutomaticReboot ? global::UnattendLocal.Localization.UiText.Source("text.b397d0495fe4") : global::UnattendLocal.Localization.UiText.Source("text.4e9901953ce4")), global::UnattendLocal.Localization.UiText.Source("text.e359bd7012df"), (p.DisableLastAccess ? global::UnattendLocal.Localization.UiText.Source("text.dcbfd72d1427") : global::UnattendLocal.Localization.UiText.Source("text.4e9901953ce4")) },new bool[]{false,false,false,false});
     public static void NormalizeLoaded(InstallPlan p, JsonElement json)
     {
         if (p.ImportedXml is not { OriginalOmitted: false } data || data.SourceXml.Length == 0 || data.BaselineXml.Length == 0) return;
@@ -102,7 +102,7 @@ public static class SystemMaintenanceSettings
         foreach (var item in missing)
         {
             typeof(InstallPlan).GetProperty(item.Property)!.SetValue(p, states[item.Property].Enabled);
-            if (states[item.Property].Ambiguous) data.Notices = data.Notices.Append(item.Label + "未完整识别，原文保留，不能用此开关覆盖。").Distinct().ToArray();
+            if (states[item.Property].Ambiguous) data.Notices = data.Notices.Append(global::UnattendLocal.Localization.UiText.Concat(new object?[] { item.Label, global::UnattendLocal.Localization.UiText.Source("text.aaf57dc5718a") },new bool[]{false,false})).Distinct().ToArray();
         }
         if (!missing.Any(i => states[i.Property].Enabled)) return;
         var after = JsonSerializer.Deserialize<InstallPlan>(JsonSerializer.Serialize(before))!;
@@ -114,7 +114,7 @@ public static class SystemMaintenanceSettings
         }
         catch (Exception e) when (e is ArgumentException or ConfigurationException or XmlException)
         {
-            data.Blockers = data.Blockers.Append("旧方案的更新重启/NTFS 设置编辑基准无法可靠迁移，请重新导入原 XML 后再导出。").Distinct().ToArray();
+            data.Blockers = data.Blockers.Append(global::UnattendLocal.Localization.UiText.Source("text.145657a4454c")).Distinct().ToArray();
         }
     }
 }

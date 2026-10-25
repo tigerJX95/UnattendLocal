@@ -36,7 +36,7 @@ public static class TextFileImport
         try { return encoding.GetString(bytes[skip..]); }
         catch (DecoderFallbackException)
         {
-            throw new ArgumentException("文件编码无效，无法完整读取。\n\n请另存为 UTF-8，或带 BOM 的 UTF-16 / UTF-32 后重新导入；ANSI / GBK 等编码需先转换。");
+            throw new ArgumentException(global::UnattendLocal.Localization.UiText.Source("text.9bebc69aa3a9"));
         }
     }
 }

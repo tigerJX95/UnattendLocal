@@ -6,18 +6,18 @@ namespace UnattendLocal.Core;
 
 public static class LanguagePreferences
 {
-    public const string Description = "第二、第三组按顺序追加语言偏好与键盘/输入法，可分别启用。第一组继续决定初始区域格式，显示语言仍必须与安装镜像匹配。本设置不下载安装语言包，也不改变本工具的界面语言；输入法能否使用取决于目标系统及已安装组件。切换为安装时手动选择后，保留已填内容但不生成语言覆盖。关闭某组仅影响新配置，不卸载已安装系统的输入法。";
+    public static readonly string Description = global::UnattendLocal.Localization.UiText.Source("text.6cbe94253268");
     public static ILanguageSettings Build(UnattendGenerator g, InstallPlan p)
     {
         if (p.InteractiveLanguage) return new InteractiveLanguageSettings();
         LocaleAndKeyboard Pair(string locale, string keyboard, string label)
         {
-            if (!g.UserLocales.ContainsKey(locale ?? "") || !g.KeyboardIdentifiers.ContainsKey(keyboard ?? "")) throw new ArgumentException("请填写有效的" + label + "语言和键盘 / 输入法。");
+            if (!g.UserLocales.ContainsKey(locale ?? "") || !g.KeyboardIdentifiers.ContainsKey(keyboard ?? "")) throw new ArgumentException(global::UnattendLocal.Localization.UiText.Concat(new object?[] { global::UnattendLocal.Localization.UiText.Source("text.c3448bc65e54"), label, global::UnattendLocal.Localization.UiText.Source("text.d10bc8df9c4c") },new bool[]{false,false,false}));
             return new(g.Lookup<UserLocale>(locale!), g.Lookup<KeyboardIdentifier>(keyboard!));
         }
-        return new UnattendedLanguageSettings(g.Lookup<ImageLanguage>(p.ImageLanguage), Pair(p.Locale, p.Keyboard, "第一组"),
-            p.UseSecondLanguage ? Pair(p.SecondLocale, p.SecondKeyboard, "第二组") : null,
-            p.UseThirdLanguage ? Pair(p.ThirdLocale, p.ThirdKeyboard, "第三组") : null, g.Lookup<GeoLocation>(p.GeoId));
+        return new UnattendedLanguageSettings(g.Lookup<ImageLanguage>(p.ImageLanguage), Pair(p.Locale, p.Keyboard, global::UnattendLocal.Localization.UiText.Source("text.ed8e490189b7")),
+            p.UseSecondLanguage ? Pair(p.SecondLocale, p.SecondKeyboard, global::UnattendLocal.Localization.UiText.Source("text.a89d1ab08f71")) : null,
+            p.UseThirdLanguage ? Pair(p.ThirdLocale, p.ThirdKeyboard, global::UnattendLocal.Localization.UiText.Source("text.237c0a355fb4")) : null, g.Lookup<GeoLocation>(p.GeoId));
     }
     private static string Token(UnattendGenerator g, string image, string locale, string keyboard)
     {
@@ -59,7 +59,7 @@ public static class LanguagePreferences
     {
         var state = Inspect(doc, p); bool thirdOnly = !p.UseSecondLanguage && p.UseThirdLanguage;
         p.UseSecondLanguage = p.UseThirdLanguage = false;
-        if (!state.Supported) { notes.Add("额外语言与键盘组合未完整识别或超过三组，原文保留；不能用新增组覆盖。"); return; }
+        if (!state.Supported) { notes.Add(global::UnattendLocal.Localization.UiText.Source("text.16e680a7e18d")); return; }
         for (int i = 0; i < state.Locales.Length; i++)
         {
             if (i == 0 && !(thirdOnly && state.Locales.Length == 1)) { p.UseSecondLanguage = true; p.SecondLocale = state.Locales[i]; p.SecondKeyboard = state.Keyboards[i]; }
@@ -68,15 +68,15 @@ public static class LanguagePreferences
     }
     public static void ValidateImported(InstallPlan p, XmlDocument doc)
     {
-        if (!p.InteractiveLanguage && (p.UseSecondLanguage || p.UseThirdLanguage) && !Inspect(doc, p).Supported) throw new ArgumentException("原 XML 的额外语言与键盘未完整识别，不能覆盖；请用原工具调整后重新导入。");
+        if (!p.InteractiveLanguage && (p.UseSecondLanguage || p.UseThirdLanguage) && !Inspect(doc, p).Supported) throw new ArgumentException(global::UnattendLocal.Localization.UiText.Source("text.0de30d705e45"));
     }
     public static string Summary(InstallPlan p)
     {
         string Label(string type, string id) => ChoiceLocalization.Get(type, id, id);
         var parts = new List<string>();
-        if (p.UseSecondLanguage) parts.Add("第二组：" + Label("UserLocale", p.SecondLocale) + " / " + Label("KeyboardIdentifier", p.SecondKeyboard));
-        if (p.UseThirdLanguage) parts.Add("第三组：" + Label("UserLocale", p.ThirdLocale) + " / " + Label("KeyboardIdentifier", p.ThirdKeyboard));
-        return "额外语言与键盘：" + (p.InteractiveLanguage ? "安装时选择（已填内容不参与生成）" : parts.Count == 0 ? "未启用" : string.Join("；", parts));
+        if (p.UseSecondLanguage) parts.Add(global::UnattendLocal.Localization.UiText.Concat(new object?[] { global::UnattendLocal.Localization.UiText.Source("text.0ef5ea5aacec"), Label("UserLocale", p.SecondLocale), " / ", Label("KeyboardIdentifier", p.SecondKeyboard) },new bool[]{false,false,false,false}));
+        if (p.UseThirdLanguage) parts.Add(global::UnattendLocal.Localization.UiText.Concat(new object?[] { global::UnattendLocal.Localization.UiText.Source("text.405459afe318"), Label("UserLocale", p.ThirdLocale), " / ", Label("KeyboardIdentifier", p.ThirdKeyboard) },new bool[]{false,false,false,false}));
+        return global::UnattendLocal.Localization.UiText.Concat(new object?[] { global::UnattendLocal.Localization.UiText.Source("text.2e329968c6e6"), (p.InteractiveLanguage ? global::UnattendLocal.Localization.UiText.Source("text.4ad0eaf99025") : parts.Count == 0 ? global::UnattendLocal.Localization.UiText.Source("text.f95ea7f4c063") : global::UnattendLocal.Localization.UiText.Join("；", parts, false)) },new bool[]{false,false});
     }
     public static void NormalizeLoaded(InstallPlan p, JsonElement json)
     {
@@ -87,8 +87,8 @@ public static class LanguagePreferences
         try
         {
             var g = new GeneratorService(); data.BaselineXml = XmlMerge.Apply(data.BaselineXml, Encoding.UTF8.GetString(g.GenerateImportBaseline(before)), XmlMerge.Read(Encoding.UTF8.GetString(g.GenerateImportBaseline(after)))).OuterXml;
-            data.Notices = data.Notices.Where(n => !n.StartsWith("检测到多个键盘/区域组合", StringComparison.Ordinal)).ToArray();
+            data.Notices = data.Notices.Where(n => !n.StartsWith(global::UnattendLocal.Localization.UiText.Source("text.371622eefcab"), StringComparison.Ordinal)).ToArray();
         }
-        catch (Exception e) when (e is ArgumentException or ConfigurationException or XmlException) { data.Blockers = data.Blockers.Append("旧方案的额外语言与键盘基准无法可靠迁移，请重新导入原 XML。").Distinct().ToArray(); }
+        catch (Exception e) when (e is ArgumentException or ConfigurationException or XmlException) { data.Blockers = data.Blockers.Append(global::UnattendLocal.Localization.UiText.Source("text.48900aec0e73")).Distinct().ToArray(); }
     }
 }

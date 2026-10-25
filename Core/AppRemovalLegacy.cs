@@ -8,7 +8,7 @@ namespace UnattendLocal.Core;
 // A narrowly recognized historical helper format. Never infer execution from URL comments.
 public static partial class AppRemovalSettings
 {
-    public const string LegacyDescription = "已还原旧版应用移除脚本，可通过清单编辑；未修改移除清单时保留原脚本，修改后将已识别的移除流程转换为当前生成器格式，其他 XML 内容保留。";
+    public static readonly string LegacyDescription = global::UnattendLocal.Localization.UiText.Source("text.59108a40a20a");
     private static readonly (string Current, string Legacy)[] LegacyNames =
     [
         ("RemovePackage.ps1", "RemovePackages.ps1"),
@@ -141,13 +141,13 @@ public static partial class AppRemovalSettings
             foreach(var old in oldApps)
             {
                 var matches=RawBlocks(input).Where(m=>Key(m)==Key(old)).ToArray();
-                if(matches.Length!=1)throw new ArgumentException("旧版应用移除命令无法唯一匹配，请重新导入原 XML。");
+                if(matches.Length!=1)throw new ArgumentException(global::UnattendLocal.Localization.UiText.Source("text.e67ec3d95540"));
                 if(nextApps.Any(m=>Key(m)==Key(old)))continue;
                 input=input.Remove(matches[0].Index,matches[0].Length);
             }
             foreach(var added in nextApps.Where(m=>!oldApps.Any(o=>Key(o)==Key(m))))
             {
-                if(RawBlocks(input).Any(m=>Key(m)==Key(added)))throw new ArgumentException("新增应用移除命令与原脚本重叠，未导出。");
+                if(RawBlocks(input).Any(m=>Key(m)==Key(added)))throw new ArgumentException(global::UnattendLocal.Localization.UiText.Source("text.5e5f013eaf77"));
                 var blocks=RawBlocks(input);int at=-1;
                 foreach(var preceding in nextBlocks.TakeWhile(m=>m.Index<added.Index).Reverse())
                 {
@@ -178,7 +178,7 @@ public static partial class AppRemovalSettings
             var previous = InspectCurrent(source);
             if (!previous.Selected.Order().SequenceEqual(p.RemovedApps.Order()))
             {
-                data.Blockers=data.Blockers.Append("旧方案的应用移除选择与原脚本不一致，请重新导入原 XML 后编辑。").Distinct().ToArray();
+                data.Blockers=data.Blockers.Append(global::UnattendLocal.Localization.UiText.Source("text.6a2f0fb2d98f")).Distinct().ToArray();
                 return;
             }
             var before = JsonSerializer.Deserialize<InstallPlan>(JsonSerializer.Serialize(p))!;
@@ -193,7 +193,7 @@ public static partial class AppRemovalSettings
             }
             catch(Exception e) when(e is ArgumentException or ConfigurationException or XmlException)
             {
-                data.Blockers=data.Blockers.Append("旧方案的应用移除编辑基准无法可靠迁移，请重新导入原 XML。").Distinct().ToArray();return;
+                data.Blockers=data.Blockers.Append(global::UnattendLocal.Localization.UiText.Source("text.18f8b5e3bac7")).Distinct().ToArray();return;
             }
         }
         data.AppRemovalImportVersion=2;data.AppRemovalReadOnly=false;
