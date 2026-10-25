@@ -14,7 +14,55 @@
             </Grid>
             <Button.ContextMenu>
               <ContextMenu x:Name="LanguagePickerMenu" Background="{DynamicResource SurfaceBrush}" Foreground="{DynamicResource ForegroundBrush}"
-                           BorderBrush="{DynamicResource BorderBrush}" FontFamily="Microsoft YaHei UI" FontSize="14"/>
+                           BorderBrush="{DynamicResource BorderBrush}" FontFamily="Microsoft YaHei UI" FontSize="14">
+                <ContextMenu.Template>
+                  <ControlTemplate TargetType="ContextMenu">
+                    <Border Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}"
+                            BorderThickness="1" CornerRadius="6" Padding="4">
+                      <StackPanel IsItemsHost="True" KeyboardNavigation.DirectionalNavigation="Cycle"/>
+                    </Border>
+                  </ControlTemplate>
+                </ContextMenu.Template>
+                <ContextMenu.Resources>
+                  <Style TargetType="MenuItem">
+                    <Setter Property="Foreground" Value="{DynamicResource ForegroundBrush}"/>
+                    <Setter Property="Template">
+                      <Setter.Value>
+                        <ControlTemplate TargetType="MenuItem">
+                          <Border x:Name="ItemBorder" Background="Transparent" CornerRadius="4"
+                                  BorderThickness="1" BorderBrush="Transparent" Padding="9,8,16,8">
+                            <Grid>
+                              <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="22"/>
+                                <ColumnDefinition Width="Auto"/>
+                              </Grid.ColumnDefinitions>
+                              <Path x:Name="SelectedMark" Grid.Column="0" Data="M 2,7 L 6,11 L 14,2"
+                                    Stroke="{DynamicResource AccentBrush}" StrokeThickness="2"
+                                    StrokeStartLineCap="Round" StrokeEndLineCap="Round" StrokeLineJoin="Round"
+                                    Width="15" Height="15" Stretch="Uniform" Visibility="Collapsed"
+                                    HorizontalAlignment="Left" VerticalAlignment="Center"/>
+                              <ContentPresenter Grid.Column="1" ContentSource="Header" RecognizesAccessKey="True"
+                                                VerticalAlignment="Center"/>
+                            </Grid>
+                          </Border>
+                          <ControlTemplate.Triggers>
+                            <Trigger Property="IsChecked" Value="True">
+                              <Setter TargetName="SelectedMark" Property="Visibility" Value="Visible"/>
+                            </Trigger>
+                            <Trigger Property="IsHighlighted" Value="True">
+                              <Setter TargetName="ItemBorder" Property="Background" Value="{DynamicResource NavSelectedBrush}"/>
+                              <Setter Property="Foreground" Value="{DynamicResource NavSelectedTextBrush}"/>
+                            </Trigger>
+                            <Trigger Property="IsKeyboardFocused" Value="True">
+                              <Setter TargetName="ItemBorder" Property="BorderBrush" Value="{DynamicResource AccentBrush}"/>
+                            </Trigger>
+                          </ControlTemplate.Triggers>
+                        </ControlTemplate>
+                      </Setter.Value>
+                    </Setter>
+                  </Style>
+                </ContextMenu.Resources>
+              </ContextMenu>
             </Button.ContextMenu>
           </Button>
           <Button Click="SettingsSearchClick" AutomationProperties.Name="{loc:Text text.2874151bd36b}" ContentTemplate="{x:Null}"><Button.ToolTip><ToolTip ContentTemplate="{x:Null}" Content="{loc:Source text.3fb1f10f0434}"/></Button.ToolTip><Path Data="M8,1 A7,7 0 1 1 7.99,1 M13,13 L19,19" Width="20" Height="20" Stroke="{DynamicResource AccentTextBrush}" StrokeThickness="1.8" Stretch="Uniform"/></Button>
