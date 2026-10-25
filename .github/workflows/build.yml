@@ -1,16 +1,28 @@
-name: Build EXE (manual)
+name: Build two EXEs and publish tagged releases
 
 on:
+  push:
+    branches: [main]
+    tags:
+      - 'v[0-9]*'
   workflow_dispatch:
 
 permissions:
   contents: read
 
+concurrency:
+  group: windows-exe-${{ github.ref }}
+  cancel-in-progress: false
+
 jobs:
   build:
-    name: Verify and package Windows x64
+    name: Build and verify Windows x64 EXEs
     runs-on: windows-2025
     timeout-minutes: 45
+    permissions:
+      contents: read
+    outputs:
+      version: ${{ steps.outputs.outputs.version }}
     env:
       DOTNET_CLI_TELEMETRY_OPTOUT: '1'
       DOTNET_NOLOGO: '1'
@@ -18,83 +30,98 @@ jobs:
       - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
         with:
           persist-credentials: false
+          fetch-depth: 0
       - uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6
         with:
           dotnet-version: '10.0.x'
-      - name: Audit dependencies before packaging
-        shell: pwsh
-        run: |
-          dotnet restore UnattendLocal.sln --force --disable-parallel -m:1 -nr:false -p:NuGetAudit=true -p:NuGetAuditMode=all -p:NuGetAuditLevel=low -p:TreatWarningsAsErrors=true
-          if ($LASTEXITCODE -ne 0) { throw 'Dependency security audit failed.' }
-      - name: Verify source
-        shell: pwsh
-        run: ./verify.ps1
-      - name: Build both EXE variants
-        shell: pwsh
-        run: ./publish.ps1 -OutputRoot (Join-Path $env:RUNNER_TEMP 'packages') -CreateZip
-      - name: Package source and build information
-        id: package
+      - name: Verify tag matches project version and main history
+        if: github.ref_type == 'tag'
         shell: pwsh
         run: |
           $ErrorActionPreference = 'Stop'
           [xml]$project = Get-Content -LiteralPath Desktop/Desktop.csproj -Raw
           $version = $project.SelectSingleNode('/Project/PropertyGroup/InformationalVersion').InnerText.Trim()
-          if ($version -notmatch '^\d+\.\d+(?:\.\d+)?$') { throw 'Invalid release version.' }
-          $output = Join-Path $env:RUNNER_TEMP 'packages'
-          $source = Join-Path $output "UnattendLocal_V${version}_Source.zip"
-          & git archive --format=zip "--prefix=UnattendLocal-source-v$version/" "--output=$source" HEAD
-          if ($LASTEXITCODE -ne 0) { throw 'Source packaging failed.' }
-          $archives = @(Get-ChildItem -LiteralPath $output -Filter '*.zip' -File | Sort-Object Name)
-          if ($archives.Count -ne 3) { throw 'Expected two program archives and one source archive.' }
-          $commit = (& git rev-parse HEAD).Trim()
-          if ($LASTEXITCODE -ne 0 -or $commit -ne $env:GITHUB_SHA) { throw 'Source commit does not match the workflow commit.' }
-          $sdk = (& dotnet --version).Trim()
-          if ($LASTEXITCODE -ne 0) { throw 'Cannot determine the build SDK version.' }
-          $archiveInfo = @(foreach ($file in $archives) {
-            [ordered]@{
-              File = $file.Name
-              Bytes = $file.Length
-              SHA256 = (Get-FileHash -LiteralPath $file.FullName -Algorithm SHA256).Hash.ToLowerInvariant()
-            }
-          })
-          $buildInfo = [ordered]@{
-            Version = $version
-            FileVersion = $project.SelectSingleNode('/Project/PropertyGroup/FileVersion').InnerText.Trim()
-            SourceCommit = $commit
-            SourceRef = $env:GITHUB_REF
-            DotnetSdk = $sdk
-            Target = 'win-x64'
-            BuiltAtUtc = [DateTime]::UtcNow.ToString('o')
-            RunUrl = "$env:GITHUB_SERVER_URL/$env:GITHUB_REPOSITORY/actions/runs/$env:GITHUB_RUN_ID"
-            RunAttempt = $env:GITHUB_RUN_ATTEMPT
-            Archives = $archiveInfo
+          if ($env:GITHUB_REF_NAME -cne "v$version") { throw "Tag $env:GITHUB_REF_NAME does not match project version v$version" }
+          & git fetch --no-tags origin +refs/heads/main:refs/remotes/origin/main
+          if ($LASTEXITCODE -ne 0) { throw 'Could not fetch main branch.' }
+          & git merge-base --is-ancestor HEAD refs/remotes/origin/main
+          if ($LASTEXITCODE -ne 0) { throw 'Release tag must point to a commit already on main.' }
+      - name: Audit dependencies
+        shell: pwsh
+        run: |
+          dotnet restore UnattendLocal.sln --force --disable-parallel -m:1 -nr:false -p:NuGetAudit=true -p:NuGetAuditMode=all -p:NuGetAuditLevel=low -p:TreatWarningsAsErrors=true
+          if ($LASTEXITCODE -ne 0) { throw 'Dependency security audit failed.' }
+      - name: Verify source and regression tests
+        shell: pwsh
+        run: ./verify.ps1
+      - name: Publish two single-file executables
+        shell: pwsh
+        run: ./publish.ps1 -OutputRoot (Join-Path $env:RUNNER_TEMP 'packages')
+      - name: Validate EXE outputs
+        id: outputs
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          [xml]$project = Get-Content -LiteralPath Desktop/Desktop.csproj -Raw
+          $version = $project.SelectSingleNode('/Project/PropertyGroup/InformationalVersion').InnerText.Trim()
+          $root = Join-Path $env:RUNNER_TEMP 'packages'
+          $expected = @("UnattendLocal_V${version}_x64_SelfContained.exe", "UnattendLocal_V${version}_x64_FrameworkDependent.exe")
+          $actual = @(Get-ChildItem -LiteralPath $root -File | Select-Object -ExpandProperty Name)
+          if (@(Compare-Object $expected $actual).Count -ne 0) { throw "Expected exactly two EXEs, got: $($actual -join ', ')" }
+          foreach ($filename in $expected) {
+            $item = Get-Item -LiteralPath (Join-Path $root $filename)
+            if ($item.Length -le 0) { throw "Empty executable: $filename" }
+            $hash = (Get-FileHash -LiteralPath $item.FullName -Algorithm SHA256).Hash.ToLowerInvariant()
+            "${hash}  $filename" >> $env:GITHUB_STEP_SUMMARY
           }
-          $metadata = Join-Path $output 'BUILD_INFO.json'
-          $buildInfo | ConvertTo-Json -Depth 5 | Set-Content -LiteralPath $metadata -Encoding utf8
-          $checksums = foreach ($file in (@($archives) + @(Get-Item -LiteralPath $metadata))) {
-            $hash = (Get-FileHash -LiteralPath $file.FullName -Algorithm SHA256).Hash.ToLowerInvariant()
-            "$hash  $($file.Name)"
-          }
-          $checksums | Set-Content -LiteralPath (Join-Path $output 'SHA256SUMS.txt') -Encoding ascii
           "version=$version" >> $env:GITHUB_OUTPUT
-          @(
-            "## UnattendLocal V$version"
-            ''
-            "Commit: $commit"
-            "SDK: $sdk"
-            ''
-            '| Archive | Bytes |'
-            '| --- | ---: |'
-            foreach ($item in $archiveInfo) { "| $($item.File) | $($item.Bytes) |" }
-          ) >> $env:GITHUB_STEP_SUMMARY
-      - name: Upload downloadable packages
+      - name: Upload self-contained EXE without ZIP
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
         with:
-          name: UnattendLocal-V${{ steps.package.outputs.version }}-${{ github.run_number }}-${{ github.run_attempt }}
-          path: |
-            ${{ runner.temp }}/packages/*.zip
-            ${{ runner.temp }}/packages/SHA256SUMS.txt
-            ${{ runner.temp }}/packages/BUILD_INFO.json
+          path: ${{ runner.temp }}/packages/UnattendLocal_V${{ steps.outputs.outputs.version }}_x64_SelfContained.exe
+          archive: false
           if-no-files-found: error
-          retention-days: 14
-          compression-level: 0
+          retention-days: 7
+      - name: Upload framework-dependent EXE without ZIP
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
+        with:
+          path: ${{ runner.temp }}/packages/UnattendLocal_V${{ steps.outputs.outputs.version }}_x64_FrameworkDependent.exe
+          archive: false
+          if-no-files-found: error
+          retention-days: 7
+
+  release:
+    name: Publish release for explicit tag
+    if: github.ref_type == 'tag'
+    needs: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: write
+    steps:
+      - name: Download self-contained EXE
+        uses: actions/download-artifact@v8
+        with:
+          name: UnattendLocal_V${{ needs.build.outputs.version }}_x64_SelfContained.exe
+          path: dist
+      - name: Download framework-dependent EXE
+        uses: actions/download-artifact@v8
+        with:
+          name: UnattendLocal_V${{ needs.build.outputs.version }}_x64_FrameworkDependent.exe
+          path: dist
+      - name: Verify downloads and publish release
+        shell: bash
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          tag="${GITHUB_REF_NAME}"
+          if gh release view "$tag" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
+            echo "Release $tag already exists. Refusing to overwrite." >&2
+            exit 1
+          fi
+          files=("dist/UnattendLocal_V${{ needs.build.outputs.version }}_x64_SelfContained.exe" "dist/UnattendLocal_V${{ needs.build.outputs.version }}_x64_FrameworkDependent.exe")
+          for file in "${files[@]}"; do
+            test -s "$file" || { echo "Missing or empty EXE: $file" >&2; exit 1; }
+          done
+          gh release create "$tag" "${files[@]}" --repo "$GITHUB_REPOSITORY" --verify-tag --title "UnattendLocal $tag" --generate-notes
