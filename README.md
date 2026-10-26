@@ -1,7 +1,5 @@
 # UnattendLocal — Windows 无人值守配置工具
 
-**[下载最新版本（Releases）](https://github.com/tigerJX95/UnattendLocal/releases/latest)**
-
 **简体中文** | [English](README_EN.md)
 
 UnattendLocal 是基于 [Christoph Schneegans 的 UnattendGenerator](https://github.com/cschneegans/unattend-generator) 开发的 Windows 桌面配置工具，支持简体中文与英语界面，用于在本地编辑、检查和生成 Windows 10 / 11 的 `autounattend.xml`。
