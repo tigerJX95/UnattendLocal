@@ -8,7 +8,7 @@ The local UI and adaptation code use the [MIT License](LICENSE), Copyright (c) 2
 
 作者：Christoph Schneegans。
 
-源码：https://github.com/cschneegans/unattend-generator
+项目：https://github.com/cschneegans/unattend-generator
 
 原作者网站：https://schneegans.de/windows/unattend-generator/
 
@@ -41,7 +41,7 @@ SOFTWARE.
 
 作者：James Newton-King 与贡献者。
 
-源码与许可证：https://github.com/JamesNK/Newtonsoft.Json
+项目与许可证：https://github.com/JamesNK/Newtonsoft.Json
 
 通过上游项目的标准 NuGet 引用使用 Newtonsoft.Json 13.0.4；该依赖的许可由其项目声明。
 
@@ -49,13 +49,13 @@ SOFTWARE.
 
 Microsoft 与项目贡献者提供运行时及桌面框架。
 
-源码与许可证：https://github.com/dotnet/runtime · https://github.com/dotnet/wpf
+项目与许可证：https://github.com/dotnet/runtime · https://github.com/dotnet/wpf
 
 第三方依赖采用各自的许可声明；本项目的 MIT 全文另见根目录 LICENSE。
 
 ## 完整离线许可 / Full offline licenses
 
-程序“帮助与关于 → 开源许可”以及源码 `docs/licenses/` 保留完整原文：
+程序“帮助与关于 → 开源许可”以及项目目录中的 `docs/licenses/` 保留完整原文：
 
 | 组件 / Component | 版本 / Version | 文件 / File | 来源 / Source |
 | --- | --- | --- | --- |
@@ -71,4 +71,4 @@ License texts are preserved verbatim. The project MIT license and third-party li
 
 ## DiscUtils 0.16.13
 
-ISO export uses DiscUtils.Iso9660 and its transitive DiscUtils.Core / DiscUtils.Streams dependencies under MIT. Full original license: [DiscUtils.txt](docs/licenses/DiscUtils.txt). Source: https://github.com/DiscUtils/DiscUtils .
+ISO export uses DiscUtils.Iso9660 and its transitive DiscUtils.Core / DiscUtils.Streams dependencies under MIT. Full original license: [DiscUtils.txt](docs/licenses/DiscUtils.txt). Project: https://github.com/DiscUtils/DiscUtils .
