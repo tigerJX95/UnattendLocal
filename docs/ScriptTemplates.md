@@ -4,6 +4,20 @@
 
 模板是普通 PowerShell 脚本，可修改、排序、删除、另存文件以及随方案保存。已添加的脚本不会因模板选择变化而改变。启用后，每个阶段最多 15 条，总计最多 60 条；完全相同的模板内容和阶段不能重复添加。
 
+## 安装阶段临时暂停更新一小时 / Temporary setup update pause
+
+参考原作者示例，在 System 阶段设置更新暂停时间。添加后默认停用；核对用途后启用。它不禁用更新服务、不创建持续暂停任务。
+
+用于尝试减少 Windows 11 初始设置期间的常规更新等待，不保证跳过所有 OOBE 更新。微软明确说明，联网后关键 ZDP 更新会自动下载，用户不能选择退出。
+
+以实际执行时的 UTC 时间为开始，结束时间为一小时后；分别处理功能更新、质量更新及汇总暂停值。已有更晚的到期时间保留，不把用户暂停三天缩短为一小时；已有日期无法解析时，在写入暂停值前报错。写入系统错误会停止，但不承诺回滚已经成功写入的注册表值。
+
+到期后继续遵循 Windows 和组织策略的更新行为；也可按需在设置中恢复更新。不要与“禁用 Windows 更新”的持续暂停策略同时启用，以免目的冲突。取消模板仅影响后续导出，不撤销已经部署的暂停值。
+
+Adapted from the upstream sample, this disabled-by-default System script requests a one-hour feature/quality update pause, computed from UTC execution time. It does not disable services or create recurring tasks. Each later existing expiry is preserved. Unknown date formats fail before writing pause values; write failures do not guarantee rollback. Attempts to reduce waits for regular updates during Windows 11 initial setup; it does not guarantee skipping all OOBE updates. Microsoft states that critical ZDP updates download automatically after connecting to a network and users cannot opt out. Do not combine it with persistent update disabling. Removing the template does not undo a deployed pause.
+
+Source: [upstream one-hour update-pause example](https://schneegans.de/windows/unattend-generator/samples/), [Microsoft: Windows updates during OOBE](https://learn.microsoft.com/en-us/windows-hardware/customize/desktop/windows-updates-during-oobe-in-windows-11).
+
 ## 通用应用安装与高级诊断 / Generic installation and advanced diagnostics
 
 安装模板按安装方式分类。具体软件是使用示例，不单独增加一个模板。EXE、WinGet 两种入口添加后都默认停用；先配置并在隔离虚拟机验证，再启用。已有方案与 XML 中保存的脚本仍按原文恢复，不会自动替换为新版通用模板。

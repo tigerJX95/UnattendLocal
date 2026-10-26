@@ -25,6 +25,9 @@ public static class UiText
     public static string Language { get; private set; } = "zh-CN";
     public static bool IsEnglish => Language == "en-US";
     private static readonly JsonSerializerOptions Json = new() { PropertyNameCaseInsensitive = true };
+    // Keep token matching linear for untrusted language packs. Boundary checks
+    // below preserve escaped-brace behavior without unsupported lookarounds.
+    private static readonly Regex PlaceholderPattern = new(@"\{\d+(?:,[^{}]+)?(?::[^{}]+)?\}", RegexOptions.CultureInvariant | RegexOptions.NonBacktracking, TimeSpan.FromMilliseconds(250));
     private static readonly Dictionary<string, Entry> Catalog = Read<Dictionary<string, Entry>>("catalog");
     private static readonly Dictionary<string, string> Chinese = Read<Dictionary<string, string>>("zh-CN");
     private static readonly Dictionary<string, string> English = Read<Dictionary<string, string>>("en-US");
@@ -117,6 +120,11 @@ public static class UiText
     // Packs are data only. Never evaluate markup, commands or scripts from a pack.
     public static bool IsValidEntry(string key, string? value)
     {
+        try { return ValidateEntry(key, value); }
+        catch (RegexMatchTimeoutException) { return false; }
+    }
+    private static bool ValidateEntry(string key, string? value)
+    {
         if (!Catalog.TryGetValue(key, out var entry) || string.IsNullOrWhiteSpace(value)) return false;
         if (Placeholders(Chinese[key]) != Placeholders(value)) return false;
         try { if (ArgumentCount(Chinese[key]) > 0) _ = string.Format(CultureInfo.InvariantCulture, value, Enumerable.Repeat<object>("test", ArgumentCount(Chinese[key])).ToArray()); }
@@ -133,8 +141,13 @@ public static class UiText
         if (entry.FilterPatterns != null && !value.Split('|').Where((_, i) => i % 2 == 1).SequenceEqual(entry.FilterPatterns)) return false;
         return true;
     }
-    private static int ArgumentCount(string value) => Regex.Matches(value, @"(?<!\{)\{(\d+)(?:,[^{}]+)?(?::[^{}]+)?\}(?!\})").Select(m => int.Parse(m.Groups[1].Value, CultureInfo.InvariantCulture) + 1).DefaultIfEmpty(0).Max();
-    public static string Placeholders(string text) => string.Join("|", Regex.Matches(text, @"(?<!\{)\{\d+(?:,[^{}]+)?(?::[^{}]+)?\}(?!\})").Select(m => m.Value).Order(StringComparer.Ordinal));
+    private static IEnumerable<Match> PlaceholderMatches(string text) => PlaceholderPattern.Matches(text).Cast<Match>()
+        .Where(m => (m.Index == 0 || text[m.Index - 1] != '{') && (m.Index + m.Length == text.Length || text[m.Index + m.Length] != '}'));
+    private static int ArgumentCount(string value) => PlaceholderMatches(value).Select(m => {
+        int end = 1; while (end < m.Value.Length && char.IsDigit(m.Value[end])) end++;
+        return checked(int.Parse(m.Value.AsSpan(1, end - 1), CultureInfo.InvariantCulture) + 1);
+    }).DefaultIfEmpty(0).Max();
+    public static string Placeholders(string text) => string.Join("|", PlaceholderMatches(text).Select(m => m.Value).Order(StringComparer.Ordinal));
     private static void Remember(string source, Projection projection)
     {
         if (source.Length > 16384) return;

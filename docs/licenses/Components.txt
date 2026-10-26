@@ -1,6 +1,6 @@
 UnattendLocal 项目许可
 Copyright (c) 2026 tigerJX95
-本项目本地界面与适配代码采用 MIT License，许可全文见“UnattendLocal · MIT 项目许可证”与源码根目录 LICENSE。
+本项目本地界面与适配代码采用 MIT License，许可全文见“UnattendLocal · MIT 项目许可证”与项目根目录 LICENSE。
 项目：https://github.com/tigerJX95/UnattendLocal
 
 第三方组件与授权说明
@@ -9,28 +9,33 @@ UnattendGenerator
 作者：Christoph Schneegans
 用途：Windows 无人值守应答文件生成核心
 许可：MIT（完整原文见对应条目）
-源码：https://github.com/cschneegans/unattend-generator
+项目：https://github.com/cschneegans/unattend-generator
 
 Newtonsoft.Json 13.0.4
 作者：James Newton-King 与贡献者
 用途：生成核心的 JSON 数据处理
 许可：MIT（完整原文见对应条目）
-源码：https://github.com/JamesNK/Newtonsoft.Json
+项目：https://github.com/JamesNK/Newtonsoft.Json
 
 .NET Runtime 与 Windows Desktop / WPF
 作者：.NET Foundation、Microsoft 与项目贡献者
 用途：应用运行时与桌面界面框架
 许可：MIT 及其各自第三方组件声明（原文见对应条目）
-源码：https://github.com/dotnet/runtime
-源码：https://github.com/dotnet/wpf
-自包含版集成运行时；依赖运行时版需另行安装 .NET 10 Desktop Runtime x64。
+项目：https://github.com/dotnet/runtime
+项目：https://github.com/dotnet/wpf
 
-以上第三方许可分别适用于列明组件，其原有版权和许可声明继续保留；本项目 MIT 许可不移除第三方的署名及许可要求。
+自包含版集成运行时。
 
-本窗口不联网加载许可内容，英文许可证与声明按原文保留。
+依赖运行时版需另行安装 .NET 10 Desktop Runtime x64。
 
 DiscUtils.Iso9660、DiscUtils.Core、DiscUtils.Streams 0.16.13
 作者：Kenneth Bell、Quamotion 与 DiscUtils 贡献者
 用途：封装应答文件 ISO；不用于导入外部磁盘镜像
 许可：MIT，原文见 DiscUtils 条目
-源码：https://github.com/DiscUtils/DiscUtils
+项目：https://github.com/DiscUtils/DiscUtils
+
+以上第三方许可分别适用于列明组件，其原有版权和许可声明继续保留。
+
+本项目 MIT 许可不移除第三方的署名及许可要求。
+
+本窗口不联网加载许可内容，英文许可证与声明按原文保留。

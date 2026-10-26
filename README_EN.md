@@ -1,10 +1,11 @@
 # UnattendLocal — Windows Unattended Setup Configuration Tool
 
+
 [简体中文](README.md) | **English**
 
 UnattendLocal is a Windows desktop tool with Simplified Chinese and English interfaces based on [Christoph Schneegans’ UnattendGenerator](https://github.com/cschneegans/unattend-generator). It lets you edit, check, and generate `autounattend.xml` for Windows 10 / 11 locally.
 
-Current version: **V1.23**. Includes static IPv4/IPv6 dual stack, subnet-mask input, settings search, setup driver directories, Dynamic Update, partitioning, OOBE and account settings, and existing XML import/editing.
+Current version: **V1.24**. Includes static IPv4/IPv6 dual stack, subnet-mask input, settings search, setup driver directories, Dynamic Update, partitioning, OOBE and account settings, and existing XML import/editing.
 
 ## 💡 Why this project exists
 
@@ -22,17 +23,13 @@ See [first-logon options](docs/FirstLogon.md) and [XML import behavior](docs/Xml
 
 ## 📸 Screenshots
 
-Screenshot version: **V1.7**. These are actual Windows application screenshots captured on 2026-10-19, preserved as the original PNG files. These older screenshots show the Chinese interface. English is available from V1.20.
+These **V1.23 screenshots captured on Windows** show the English light and dark interfaces. Refer to the V1.24 update notes for the newly added features.
 
-| Configuration plans · Light theme | Configuration plans · Dark theme |
+| English · Light theme | English · Dark theme |
 | :---: | :---: |
-| ![V1.7 configuration plans in the light theme](docs/images/overview-light.png) | ![V1.7 configuration plans in the dark theme](docs/images/overview-dark.png) |
+| ![V1.23 English light interface](docs/images/v123-en-us-light.png) | ![V1.23 English dark interface](docs/images/v123-en-us-dark.png) |
 
-| Edition and product key · Light theme | Edition and product key · Dark theme |
-| :---: | :---: |
-| ![V1.7 edition and product key in the light theme](docs/images/edition-and-key-light.png) | ![V1.7 edition and product key in the dark theme](docs/images/edition-and-key-dark.png) |
-
-The displayed product key is a public generic installation key for selecting an edition; it does not grant an activation license.
+The displayed product key is a public generic installation key for selecting an edition; it does not grant activation.
 
 ## ✨ Main features
 
@@ -40,7 +37,7 @@ The displayed product key is a public generic installation key for selecting an 
 
 - Configure static IPv4 and IPv6 independently for a target MAC, including dual-stack addresses, prefixes, gateways and DNS. IPv4 accepts a dotted subnet mask or /prefix in one input.
 
-- View the version, usage notices and embedded third-party licenses through Help and About, with offline reading and copying.
+- View the version, usage notices and embedded third-party licenses through Help and About, with offline reading and clickable project links.
 
 - Search settings through the toolbar magnifier or Ctrl+F using Chinese/English names and aliases, filter by page, then navigate and highlight the result.
 - Specify target Windows workgroup names and a Windows PE log directory, preserving unknown domain-join configuration.
@@ -59,6 +56,22 @@ The displayed product key is a public generic installation key for selecting an 
 - Save and restore JSON plans; review summaries, recommended-setting differences, checks, redacted previews, and XML exports.
 - Import existing XML and edit supported settings while preserving unknown content. Export stops with an explanation when changes cannot be merged reliably.
 
+## V1.24 MAC-based naming, temporary update pause and security fix
+
+- Add MAC-based computer naming using one physical Ethernet adapter, with explicit errors for missing or ambiguous candidates.
+- Add an optional one-hour setup update-pause template that retains later existing expiry times, without disabling services or creating recurring tasks. Added disabled.
+- Fix external language-pack placeholder backtracking using bounded non-backtracking matching and safe timeout rejection.
+- Keep the project GitHub hyperlink on the About page, opening in the default browser. Retain generator attribution and keep upstream URLs and full licence texts in the licensing section and source documentation.
+- Remove the shared bottom Close and Copy page buttons from About, Legal information and usage, and Open-source licences; retain the title-bar Close button.
+- Improve paragraph spacing and sentence grouping in About and legal information, add bilingual component notices, and make URLs in component and licence documents clickable.
+- Refresh English light/dark screenshots using the supplied V1.23 captures, labeled with their actual version.
+- Remove the duplicate download link at the top. Keep the Release link in Download and usage, with all history preserved in the collapsed section.
+
+Usage: [Computer naming](docs/ComputerNameAndLanguages.md), [Script templates](docs/ScriptTemplates.md).
+
+<details>
+<summary>Update history (click to expand)</summary>
+
 ## V1.23 Generic application installation and advanced diagnostics
 
 - Place script actions directly above the script list, after the explanatory text, to reduce scrolling and searching.
@@ -70,9 +83,6 @@ The displayed product key is a public generic installation key for selecting an 
 - Retain template-name display and current-script clipboard fixes. Show the latest updates by default and preserve all history in a collapsed section.
 
 Usage: [Practical script templates](docs/ScriptTemplates.md).
-
-<details>
-<summary>Update history (click to expand)</summary>
 
 ## V1.22 System volume label and Ultimate Performance templates
 
@@ -134,8 +144,6 @@ Details: [Practical script templates](docs/ScriptTemplates.md).
 
 ## V1.16 file import and save improvements
 
-Download the app from the [latest release](https://github.com/tigerJX95/UnattendLocal/releases/latest).
-
 - Share bounded reading across answer XML, JSON plans, Wi-Fi profiles, AppLocker policies, and Start / taskbar layouts. Byte limits are enforced throughout reading.
 - Reject malformed UTF-8 and BOM-marked UTF-16 / UTF-32 instead of silently replacing invalid bytes. Valid text and line breaks are preserved. Convert ANSI / GBK files before importing.
 - Reuse staged saving for scripts and theme preferences: write and flush a temporary file before replacing the destination. Failed saves preserve the destination and attempt temporary-file cleanup.
@@ -179,7 +187,7 @@ For media preparation and explicit invocation, see [XML and ISO export](docs/Ans
 
 Download and fully extract the program ZIP to keep the editable `Languages` folder beside the EXE. The EXE also has embedded Chinese and English fallback resources. See [language packs](docs/Localization.md).
 
-Download and run the matching Windows x64 executable from the repository’s [**Releases**](https://github.com/tigerJX95/UnattendLocal/releases/latest) page: `UnattendLocal_V1.23_x64_SelfContained.exe` or `UnattendLocal_V1.23_x64_FrameworkDependent.exe`. Choose `UnattendLocal_V1.23_x64_SelfContained.exe` for a bundled .NET runtime, or `UnattendLocal_V1.23_x64_FrameworkDependent.exe` if .NET 10 Desktop Runtime x64 is already installed. Both have the same features. Use a virtual machine for initial testing.
+Download and run the matching Windows x64 executable from the repository’s [**Releases**](https://github.com/tigerJX95/UnattendLocal/releases/latest) page: `UnattendLocal_V1.24_x64_SelfContained.exe` or `UnattendLocal_V1.24_x64_FrameworkDependent.exe`. Choose `UnattendLocal_V1.24_x64_SelfContained.exe` for a bundled .NET runtime, or `UnattendLocal_V1.24_x64_FrameworkDependent.exe` if .NET 10 Desktop Runtime x64 is already installed. Both have the same features. Use a virtual machine for initial testing.
 
 1. Choose a recommended scenario or a custom configuration and enter the required account and image settings.
 2. Adjust system, appearance, and application removal options as needed.

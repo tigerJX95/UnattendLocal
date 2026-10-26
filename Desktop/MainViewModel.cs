@@ -90,6 +90,7 @@ public class MainViewModel : Observable {
  public bool IsPresetWifi {get=>isPresetWifi;private set=>Set(ref isPresetWifi,value);}
  public bool IsFixedComputerName=>Plan.ComputerNameMode==ComputerNamingSettings.Existing;
  public bool IsPromptComputerName=>Plan.ComputerNameMode==ComputerNamingSettings.Prompt;
+ public bool IsMacComputerName=>Plan.ComputerNameMode==ComputerNamingSettings.Mac;
  public bool IsScriptComputerName=>Plan.ComputerNameMode==ComputerNamingSettings.Script;
  public string ComputerNameExample=>ComputerNamingSettings.Example;
  public string ComputerNameSummary=>ComputerNamingSettings.Summary(Plan);
@@ -192,7 +193,7 @@ public class MainViewModel : Observable {
   }finally{updating=false;}
   RefreshAll();InvalidatePreview();
  }
- private void RefreshAll(){foreach(var name in new[]{nameof(IsFixedComputerName),nameof(IsPromptComputerName),nameof(IsScriptComputerName),nameof(ComputerNameSummary),nameof(LanguagePreferencesSummary),nameof(IsSecondLanguage),nameof(IsThirdLanguage)})Notify(name);Notify(nameof(IsAuditCommandLine));RefreshRecommendations();RefreshEdition();RefreshNetwork();RefreshShell();RefreshDesktop();RefreshVisualEffects();RefreshColors();RefreshWallpaper();RefreshLockKeys();RefreshStickyKeys();RefreshAccountLockout();RefreshXmlImport();RefreshCompactOs();RefreshHelp();}
+ private void RefreshAll(){foreach(var name in new[]{nameof(IsFixedComputerName),nameof(IsPromptComputerName),nameof(IsScriptComputerName),nameof(IsMacComputerName),nameof(ComputerNameSummary),nameof(LanguagePreferencesSummary),nameof(IsSecondLanguage),nameof(IsThirdLanguage)})Notify(name);Notify(nameof(IsAuditCommandLine));RefreshRecommendations();RefreshEdition();RefreshNetwork();RefreshShell();RefreshDesktop();RefreshVisualEffects();RefreshColors();RefreshWallpaper();RefreshLockKeys();RefreshStickyKeys();RefreshAccountLockout();RefreshXmlImport();RefreshCompactOs();RefreshHelp();}
  public bool IsCustomAccountLockout=>Plan.AccountLockoutMode==AccountLockoutPolicy.Custom;
  public bool IsAccountLockoutDisabled=>AccountLockoutPolicy.IsDisabled(Plan);
  public string AccountLockoutSummary=>AccountLockoutPolicy.ModeSummary(Plan);

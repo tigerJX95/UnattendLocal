@@ -55,3 +55,9 @@ PR authors cannot approve their own PRs. If needed for a solo repository, grant 
 - [CODEOWNERS](https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-code-owners)
 - [安全扫描合并保护 / Code scanning merge protection](https://docs.github.com/en/code-security/how-tos/find-and-fix-code-vulnerabilities/manage-your-configuration/set-merge-protection)
 - [Actions 仓库设置 / Repository Actions settings](https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/enabling-features-for-your-repository/managing-github-actions-settings-for-a-repository)
+
+## V1.24 外部语言包校验修复
+
+修复 UL-20261026-01：占位符提取使用有界的非回溯匹配，避免畸形文本触发大量回溯；额外的边界检查保留双花括号和现有格式行为。校验超时返回失败，加载失败不会覆盖已有有效语言包。加入已复现长文本、旧格式差异比较和语言覆盖原子性的回归。
+
+This release fixes external language-pack placeholder backtracking using bounded non-backtracking matching. Existing escaped-brace behavior is preserved; validation timeouts fail safely and rejected overlays do not replace a valid overlay.

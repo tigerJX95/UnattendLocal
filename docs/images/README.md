@@ -1,14 +1,12 @@
-# README 界面截图
+# 程序运行截图 / Application screenshots
 
-截图版本：**V1.7**。以下四张 PNG 拍摄于 2026-10-19，展示 Windows 上的实际运行界面；标题栏与初始状态栏均显示 V1.7。
+截图版本为 V1.23，展示 Windows 上的实际界面。主程序版本更新不改变图片中的实际版本标识。
 
-| 文件 | 页面 | 主题 |
-| --- | --- | --- |
-| [overview-light.png](overview-light.png) | 配置方案 | 浅色 |
-| [overview-dark.png](overview-dark.png) | 配置方案 | 深色 |
-| [edition-and-key-light.png](edition-and-key-light.png) | 版本与密钥 | 浅色 |
-| [edition-and-key-dark.png](edition-and-key-dark.png) | 版本与密钥 | 深色 |
+| 文件 / File | 语言 / Language | 主题 / Theme |
+|---|---|---|
+| [v123-zh-cn-light.png](v123-zh-cn-light.png) | 简体中文 | 浅色 |
+| [v123-zh-cn-dark.png](v123-zh-cn-dark.png) | 简体中文 | 深色 |
+| [v123-en-us-light.png](v123-en-us-light.png) | English | Light |
+| [v123-en-us-dark.png](v123-en-us-dark.png) | English | Dark |
 
-中英文 README 共用以上四张图片。版本与密钥页仅显示公开通用安装密钥，激活密钥字段为空。旧版 `overview.png` 已移除。
-
-后续维护时，在 Windows 运行对应版本，使用无私人信息的示例配置拍摄真实窗口；同步更新本说明、中英文 README 的文件引用、页名、主题和截图版本。更新文档图片不需要为软件增加截图功能。
+中文主页使用中文截图，英文主页使用英文截图。图中密钥为公开通用安装密钥，不提供激活授权。

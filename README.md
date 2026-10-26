@@ -1,10 +1,11 @@
 # UnattendLocal — Windows 无人值守配置工具
 
+
 **简体中文** | [English](README_EN.md)
 
 UnattendLocal 是基于 [Christoph Schneegans 的 UnattendGenerator](https://github.com/cschneegans/unattend-generator) 开发的 Windows 桌面配置工具，支持简体中文与英语界面，用于在本地编辑、检查和生成 Windows 10 / 11 的 `autounattend.xml`。
 
-当前版本：**V1.23**。支持简体中文 / English 即时切换、独立语言包维护、静态 IPv4 / IPv6 双栈、子网掩码输入、设置搜索、安装驱动目录、动态更新、自动分区、OOBE 与账户配置，以及已有 XML 的导入编辑。
+当前版本：**V1.24**。支持简体中文 / English 即时切换、独立语言包维护、静态 IPv4 / IPv6 双栈、子网掩码输入、设置搜索、安装驱动目录、动态更新、自动分区、OOBE 与账户配置，以及已有 XML 的导入编辑。
 
 ## 💡 开发初衷
 
@@ -20,15 +21,11 @@ UnattendLocal 是基于 [Christoph Schneegans 的 UnattendGenerator](https://git
 
 ## 📸 运行截图
 
-截图版本：**V1.7**。以下为 Windows 上的实际运行界面，拍摄于 2026-10-19。
+以下为 **V1.23 Windows 实际运行截图**，分别展示简体中文浅色与深色界面；V1.24 新增功能以本页更新说明为准。
 
-| 配置方案 · 浅色主题 | 配置方案 · 深色主题 |
+| 简体中文 · 浅色主题 | 简体中文 · 深色主题 |
 | :---: | :---: |
-| ![V1.7 配置方案：浅色主题](docs/images/overview-light.png) | ![V1.7 配置方案：深色主题](docs/images/overview-dark.png) |
-
-| 版本与密钥 · 浅色主题 | 版本与密钥 · 深色主题 |
-| :---: | :---: |
-| ![V1.7 版本与密钥：浅色主题](docs/images/edition-and-key-light.png) | ![V1.7 版本与密钥：深色主题](docs/images/edition-and-key-dark.png) |
+| ![V1.23 简体中文浅色界面](docs/images/v123-zh-cn-light.png) | ![V1.23 简体中文深色界面](docs/images/v123-zh-cn-dark.png) |
 
 图中的产品密钥为公开通用安装密钥，仅用于选择安装版本，不提供激活授权。
 
@@ -38,7 +35,7 @@ UnattendLocal 是基于 [Christoph Schneegans 的 UnattendGenerator](https://git
 
 - 按目标网卡 MAC 分别配置静态 IPv4 / IPv6，可同时启用双栈；指定地址、前缀、网关和 DNS，IPv4 在同一框填写子网掩码或 /前缀长度。
 
-- 通过右上角“帮助与关于”查看版本、使用说明和内置第三方许可，支持离线查看与复制。
+- 通过右上角“帮助与关于”查看版本、使用说明和内置第三方许可，支持离线查阅，项目地址可直接点击访问。
 
 - 通过顶部放大镜或 Ctrl+F 搜索中英文设置名称与别名，按页面分类筛选，切页定位并高亮结果。
 - 指定目标 Windows 的工作组名称与 PE 阶段日志目录，保留域加入等未知配置的原文。
@@ -57,6 +54,22 @@ UnattendLocal 是基于 [Christoph Schneegans 的 UnattendGenerator](https://git
 - 保存和恢复 JSON 方案，提供配置摘要、推荐差异、检查、脱敏预览和 XML 导出。
 - 导入已有 XML 后编辑已支持设置，保留未知内容；遇到无法可靠合并的修改时停止导出并说明原因。
 
+## V1.24 计算机命名、临时更新暂停与安全修复 · 2026-10-26
+
+- 新增按 MAC 地址生成计算机名：使用唯一物理以太网适配器生成 PC- 加 12 位 MAC 的名称，无匹配或多个匹配时明确报错。
+- 新增安装阶段临时暂停更新一小时模板：保留已有更晚的到期时间，不关闭更新服务或建立持续暂停任务，添加后默认停用。
+- 修复外部语言包占位符校验的正则回溯风险，改用有界的非回溯匹配，并对校验超时安全拒绝。
+- “帮助与关于”主页保留本项目 GitHub 超链接，点击使用默认浏览器打开；保留生成核心来源说明，上游地址及完整许可集中在开源许可与来源文档中。
+- 移除关于、法律信息与使用说明、开源许可三页共用的底部关闭与整页复制按钮，统一保留窗口右上角关闭。
+- 按语义分段整理关于页和法律说明，增加阅读行距与段间距；组件与授权说明支持中英文，组件及许可文档中的网址可直接点击访问。
+- 更新中英文浅色、深色运行截图，明确标注为 V1.23 实机截图。
+- 删除主页顶部重复下载链接，仅保留“下载与使用”段落的 Release 入口；历史更新继续完整折叠保留。
+
+使用说明：[计算机命名](docs/ComputerNameAndLanguages.md)、[脚本模板](docs/ScriptTemplates.md)。
+
+<details>
+<summary>历史更新（点击展开）</summary>
+
 ## V1.23 通用应用安装模板与高级诊断 · 2026-10-26
 
 - 脚本操作按钮集中放在脚本列表正上方，说明文字置于工具栏之前，减少滚动和查找。
@@ -68,9 +81,6 @@ UnattendLocal 是基于 [Christoph Schneegans 的 UnattendGenerator](https://git
 - 保留模板名称显示、脚本正文复制修复；中英文主页仅展开最新版更新，历史内容完整保留在折叠区。
 
 使用说明：[实用脚本模板](docs/ScriptTemplates.md)。
-
-<details>
-<summary>历史更新（点击展开）</summary>
 
 ## V1.22 系统盘卷标与卓越性能模板 · 2026-10-25
 
@@ -132,8 +142,6 @@ UnattendLocal 是基于 [Christoph Schneegans 的 UnattendGenerator](https://git
 
 ## V1.16 文件导入与保存优化 · 2026-10-23
 
-下载程序：前往 [Releases 下载最新版本](https://github.com/tigerJX95/UnattendLocal/releases/latest)。
-
 - 统一应答 XML、JSON 方案、无线配置、AppLocker 策略和开始菜单 / 任务栏布局的文件读取逻辑，在读取过程中持续检查大小上限。
 - 严格检查 UTF-8 及带 BOM 的 UTF-16 / UTF-32 编码；遇到损坏字节时停止导入并显示中文处理说明，避免静默替换字符。有效文本、换行及已有大小上限保持不变。
 - 脚本另存和主题偏好保存复用方案 / XML / ISO 使用的临时文件替换逻辑，先完整写入并刷新，再替换目标文件；保存失败时保留原文件并尝试清理临时文件。
@@ -177,12 +185,12 @@ UnattendLocal 是基于 [Christoph Schneegans 的 UnattendGenerator](https://git
 
 推荐下载程序 ZIP 并完整解压，保留 EXE 旁的 `Languages` 文件夹，以便单独更新译文。仅运行 EXE 时仍有内置中英文资源回退。详见[语言包说明](docs/Localization.md)。
 
-从仓库的 [**Releases**](https://github.com/tigerJX95/UnattendLocal/releases/latest) 页面下载并直接运行对应的 `UnattendLocal_V1.23_x64_SelfContained.exe` 或 `UnattendLocal_V1.23_x64_FrameworkDependent.exe`：
+从仓库的 [**Releases**](https://github.com/tigerJX95/UnattendLocal/releases/latest) 页面下载并直接运行对应的 `UnattendLocal_V1.24_x64_SelfContained.exe` 或 `UnattendLocal_V1.24_x64_FrameworkDependent.exe`：
 
 | 程序文件 | 运行要求 |
 | --- | --- |
-| `UnattendLocal_V1.23_x64_SelfContained.exe` | 集成 .NET 运行时，无需单独安装；通常选择此版。 |
-| `UnattendLocal_V1.23_x64_FrameworkDependent.exe` | 文件较小，需安装 .NET 10 Desktop Runtime x64。 |
+| `UnattendLocal_V1.24_x64_SelfContained.exe` | 集成 .NET 运行时，无需单独安装；通常选择此版。 |
+| `UnattendLocal_V1.24_x64_FrameworkDependent.exe` | 文件较小，需安装 .NET 10 Desktop Runtime x64。 |
 
 两版功能相同。首次安装测试建议使用虚拟机。
 

@@ -57,7 +57,10 @@ public static class ScriptTemplates
             global::UnattendLocal.Localization.UiText.Source("v123.exe.requirements"), "InstallLocalExe.ps1"),
         new ScriptTemplate("firewall-dropped-log", global::UnattendLocal.Localization.UiText.Source("v123.firewall.name"), "System",
             global::UnattendLocal.Localization.UiText.Source("v123.firewall.purpose"),
-            global::UnattendLocal.Localization.UiText.Source("v123.firewall.requirements"), "FirewallDroppedLog.ps1")
+            global::UnattendLocal.Localization.UiText.Source("v123.firewall.requirements"), "FirewallDroppedLog.ps1"),
+        new ScriptTemplate("pause-setup-updates", global::UnattendLocal.Localization.UiText.Source("v124.pause.name"), "System",
+            global::UnattendLocal.Localization.UiText.Source("v124.pause.purpose"),
+            global::UnattendLocal.Localization.UiText.Source("v124.pause.requirements"), "PauseSetupUpdates.ps1")
     });
 
     public static ScriptEntry Add(InstallPlan plan, string id)

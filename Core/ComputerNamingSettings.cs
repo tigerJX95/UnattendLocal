@@ -6,10 +6,12 @@ namespace UnattendLocal.Core;
 
 public static class ComputerNamingSettings
 {
-    public const string Existing = "Existing", Prompt = "Prompt", Script = "Script";
+    public const string Existing = "Existing", Prompt = "Prompt", Script = "Script", Mac = "Mac";
     public const string Example = "return 'DESKTOP-{0:D3}' -f ( Get-Random -Minimum 0 -Maximum 999 );";
     private static readonly Lazy<string> PromptText = new(() => { using var stream = typeof(ComputerNamingSettings).Assembly.GetManifestResourceStream("UnattendLocal.Core.Resources.ComputerNamePrompt.ps1")!; using var reader = new StreamReader(stream, Encoding.UTF8, true); return reader.ReadToEnd(); });
     public static string PromptScript => PromptText.Value;
+    private static readonly Lazy<string> MacText = new(() => { using var stream = typeof(ComputerNamingSettings).Assembly.GetManifestResourceStream("UnattendLocal.Core.Resources.ComputerNameFromMac.ps1")!; using var reader = new StreamReader(stream, Encoding.UTF8, true); return reader.ReadToEnd(); });
+    public static string MacScript => MacText.Value;
     private const string Root = @"C:\Windows\Setup\Scripts\";
     public static IComputerNameSettings Build(InstallPlan p)
     {
@@ -18,6 +20,7 @@ public static class ComputerNamingSettings
         {
             return new ScriptComputerNameSettings(PromptScript);
         }
+        if (p.ComputerNameMode == Mac) return new ScriptComputerNameSettings(MacScript);
         if (p.ComputerNameMode != Script) throw new ArgumentException(global::UnattendLocal.Localization.UiText.Source("text.117da4559ecf"));
         if (string.IsNullOrWhiteSpace(p.ComputerNameScript) || p.ComputerNameScript.Length > 65536) throw new ArgumentException(global::UnattendLocal.Localization.UiText.Source("text.7ff84f51cb52"));
         return new ScriptComputerNameSettings(p.ComputerNameScript);
@@ -28,6 +31,7 @@ public static class ComputerNamingSettings
         Existing => string.IsNullOrEmpty(p.ComputerName) ? global::UnattendLocal.Localization.UiText.Source("text.209256be6095") : p.ComputerName,
         Prompt => global::UnattendLocal.Localization.UiText.Source("text.eadd98418a65"),
         Script => global::UnattendLocal.Localization.UiText.Source("text.7981adc16f36"),
+        Mac => global::UnattendLocal.Localization.UiText.Source("v124.mac.name"),
         _ => global::UnattendLocal.Localization.UiText.Source("text.6c98d3e90840")
     }) },new bool[]{false,false});
     private static string Normal(string text) => global::UnattendLocal.Localization.UiText.Join('\n', text.Replace("\r\n", "\n").Split('\n').Select(l => l.Trim()).Where(l => l.Length > 0), false);
@@ -57,7 +61,7 @@ public static class ComputerNamingSettings
         var state = Inspect(doc); p.ComputerNameMode = Existing; p.ComputerNameScript = "";
         if (state.Enabled)
         {
-            p.ComputerNameMode = Normal(state.Getter) == Normal(PromptScript) ? Prompt : Script;
+            p.ComputerNameMode = Normal(state.Getter) == Normal(PromptScript) ? Prompt : Normal(state.Getter) == Normal(MacScript) ? Mac : Script;
             if (p.ComputerNameMode == Script) p.ComputerNameScript = state.Getter;
         }
         else if (state.Ambiguous) notes.Add(global::UnattendLocal.Localization.UiText.Source("text.a74e8bff7308"));

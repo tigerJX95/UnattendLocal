@@ -23478,12 +23478,12 @@
     "ProtectedTokens": []
   },
   "text.bf9d3bf450fd": {
-    "Source": "在本地离线编辑、保存和生成 Windows 10 / 11 的 autounattend.xml，方便复用安装方案。本工具用于准备配置，不在当前电脑执行生成的安装脚本。",
+    "Source": "在本地离线编辑、保存和生成 Windows 10 / 11 的 autounattend.xml，方便复用安装方案。\n\n本工具用于准备配置，不在当前电脑执行生成的安装脚本。",
     "Contexts": [
       "Desktop/AboutWindow.xaml:Text"
     ],
     "RawArgs": [],
-    "SourceHash": "bf9d3bf450fd8cbc18dfdf601c928fd80dc3adf1a8c4fc3fc88fd0f73d70ead9",
+    "SourceHash": "acd61d0db0871e1241425617c6a74bb96d6f77559399fd36bcd2abe2df7238f6",
     "ProtectedTokens": []
   },
   "text.ef4b1999984a": {
@@ -23496,12 +23496,12 @@
     "ProtectedTokens": []
   },
   "text.02b056aa5848": {
-    "Source": "生成核心基于 Christoph Schneegans 的 UnattendGenerator。本地中文界面与适配为独立项目，并非原作者的官方桌面发行版。感谢 ChatGPT Codex 提供开发协助。",
+    "Source": "生成核心基于 Christoph Schneegans 的 UnattendGenerator。\n\n本项目的桌面界面与本地适配为独立开发，并非原作者的官方桌面发行版。\n\n感谢 ChatGPT Codex 提供开发协助。",
     "Contexts": [
       "Desktop/AboutWindow.xaml:Text"
     ],
     "RawArgs": [],
-    "SourceHash": "02b056aa5848b81edd29b38903b886a19f60bf799d5e9eb13fa717150d8092d8",
+    "SourceHash": "e27dd14d6dedcc4406eb2c4cd4f74db789d470fb303bf8253dc9c89b30f57514",
     "ProtectedTokens": []
   },
   "text.53389690ec85": {
@@ -23517,21 +23517,21 @@
     ]
   },
   "text.59463068ece0": {
-    "Source": "本项目与原项目的 GitHub 地址，可选择复制",
+    "Source": "本项目 GitHub 链接",
     "Contexts": [
       "Desktop/AboutWindow.xaml:AutomationProperties.Name"
     ],
     "RawArgs": [],
-    "SourceHash": "59463068ece0da5cd9d747f694ae0cb4b54b1e405ab04b81d37424751f5295dd",
+    "SourceHash": "6e8a61d0628145b3bb817b6a73223b727774f9440df55c5324549aa1110c5e38",
     "ProtectedTokens": []
   },
   "text.d5aacdb5bf2c": {
-    "Source": "GitHub 项目地址可选择复制；完整许可请查看“开源许可”。",
+    "Source": "点击项目链接可使用默认浏览器访问；第三方组件的来源及完整许可请查看“开源许可”。",
     "Contexts": [
       "Desktop/AboutWindow.xaml:Text"
     ],
     "RawArgs": [],
-    "SourceHash": "d5aacdb5bf2ccd09e7ff48dfae568547dc413017b9229821a93dde7f1a87d359",
+    "SourceHash": "51de2d2dd67191f805edd011675bbe29a335bda6532548f1e6e63cccd3903ce0",
     "ProtectedTokens": []
   },
   "text.27b806078d8a": {
@@ -35930,12 +35930,12 @@
     "ProtectedTokens": []
   },
   "about.legal": {
-    "Source": "一、用途与授权\n\nUnattendLocal 用于在本地准备 Windows 安装应答文件。请仅对本人设备，或已取得明确授权的设备和数据使用。Windows、软件、密钥与安装介质的使用授权由相应权利人规定；本工具不提供 Windows 激活授权，也不代替软件许可。\n\n二、安装、磁盘与脚本\n\n生成或导出文件本身不操作目标磁盘。将配置用于安装后，分区、格式化、应用移除、策略与脚本会按配置作用于目标系统，可能造成数据丢失或影响系统使用。请先备份重要数据、核对目标磁盘与分区，并在虚拟机验证。自定义脚本的操作范围可能超出界面中的摘要；工具不在当前电脑执行这些脚本。\n\n三、凭据与文件保管\n\n应答 XML、无线配置、保存的方案与自定义脚本可能包含账户密码、Wi-Fi 密码、产品密钥、令牌等敏感内容。Base64 是可还原的编码，不是加密。预览会遮蔽部分已识别凭据，但不代表实际导出文件、原文或自定义脚本已被全面脱敏。分享前请核对完整内容。\n\n“保留安装隐私文件”控制原生成核心对指定文件的清理，不控制自定义脚本内另写的删除命令，也不清理安装介质上的原始文件。当前核心要求预设本地账户时，自动清理搭配首次自动登录；关闭自动登录须手动选择保留，程序不会代为勾选。\n\n四、离线使用与导入配置\n\n编辑、保存、生成配置和查看本说明可离线进行。配置中的联网下载、微软账户登录或其他联网脚本是否访问网络，取决于配置与目标安装环境。导入 XML 中的未知内容会尽量保留；结构检查与配置预览不构成对脚本安全性或目标系统兼容性的完整审核。请仅使用可信来源并核对原文。\n\n五、原项目与第三方许可\n\n生成核心来自 Christoph Schneegans 的 UnattendGenerator；本工具是独立的本地中文界面与适配，并非原作者的官方桌面发行版。相关版权、许可全文和第三方声明可在“开源许可”查看。本项目本地界面与适配代码采用 MIT License，Copyright (c) 2026 tigerJX95，全文见源码 LICENSE 及许可页的本项目条目。各第三方组件按各自许可使用并保留原有署名；本说明不额外授予商标或其他权利。\n\n六、责任与适用法律\n\n使用者应核对操作授权、备份、目标选择与配置内容。实际兼容性和安装结果取决于系统版本、介质、硬件、策略及脚本；本工具不承诺所有环境均可无人干预完成安装。相关责任按适用法律及实际情况认定，本说明不排除或限制依法不得排除或限制的责任，不要求使用者放弃法定权利。\n\n本页用于说明软件用途、操作影响与许可边界，不替代适用于具体情况的法律意见。\n",
+    "Source": "一、用途与授权\n\nUnattendLocal 用于在本地准备 Windows 安装应答文件。\n\n请仅对本人设备，或已取得明确授权的设备和数据使用。\n\nWindows、软件、密钥与安装介质的使用授权由相应权利人规定；本工具不提供 Windows 激活授权，也不代替软件许可。\n\n二、安装、磁盘与脚本\n\n生成或导出文件本身不操作目标磁盘。\n\n将配置用于安装后，分区、格式化、应用移除、策略与脚本会按配置作用于目标系统，可能造成数据丢失或影响系统使用。\n\n请先备份重要数据、核对目标磁盘与分区，并在虚拟机验证。\n\n自定义脚本的操作范围可能超出界面中的摘要；工具不在当前电脑执行这些脚本。\n\n三、凭据与文件保管\n\n应答 XML、无线配置、保存的方案与自定义脚本可能包含账户密码、Wi-Fi 密码、产品密钥、令牌等敏感内容。\n\nBase64 是可还原的编码，不是加密。\n\n预览会遮蔽部分已识别凭据，但不代表实际导出文件、原文或自定义脚本已被全面脱敏。\n\n分享前请核对完整内容。\n\n“保留安装隐私文件”控制原生成核心对指定文件的清理，不控制自定义脚本内另写的删除命令，也不清理安装介质上的原始文件。\n\n当前核心要求预设本地账户时，自动清理搭配首次自动登录；关闭自动登录须手动选择保留，程序不会代为勾选。\n\n四、离线使用与导入配置\n\n编辑、保存、生成配置和查看本说明可离线进行。\n\n配置中的联网下载、微软账户登录或其他联网脚本是否访问网络，取决于配置与目标安装环境。\n\n导入 XML 中的未知内容会尽量保留；结构检查与配置预览不构成对脚本安全性或目标系统兼容性的完整审核。\n\n请仅使用可信来源并核对原文。\n\n五、原项目与第三方许可\n\n生成核心来自 Christoph Schneegans 的 UnattendGenerator；本工具是独立的本地桌面界面与适配，并非原作者的官方桌面发行版。\n\n相关版权、许可全文和第三方声明可在“开源许可”查看。\n\n本项目本地界面与适配代码采用 MIT License，Copyright (c) 2026 tigerJX95，全文见项目根目录下的 LICENSE 及许可页的本项目条目。\n\n各第三方组件按各自许可使用并保留原有署名；本说明不额外授予商标或其他权利。\n\n六、责任与适用法律\n\n使用者应核对操作授权、备份、目标选择与配置内容。\n\n实际兼容性和安装结果取决于系统版本、介质、硬件、策略及脚本；本工具不承诺所有环境均可无人干预完成安装。\n\n相关责任按适用法律及实际情况认定，本说明不排除或限制依法不得排除或限制的责任，不要求使用者放弃法定权利。\n\n本页用于说明软件用途、操作影响与许可边界，不替代适用于具体情况的法律意见。\n",
     "Contexts": [
       "docs/LegalInformation.txt"
     ],
     "RawArgs": [],
-    "SourceHash": "bd330b6642f566f0450104e7e220b64242f4e2daf95b7cb09195d92450755a0a",
+    "SourceHash": "059babc75d6b1b8e418bcd6649f19afcd04239a9a64011a4faa48b0de6d076f8",
     "ProtectedTokens": []
   },
   "language.packRejected": {
@@ -36250,5 +36250,111 @@
     ],
     "RawArgs": [],
     "ProtectedTokens": []
+  },
+  "v124.mac.name": {
+    "Source": "按 MAC 地址生成计算机名",
+    "SourceHash": "d9ca5690fc34fb3238bc91e342526f09b549c099f80b5548f4919d46abf17a91",
+    "Contexts": [
+      "Core/ComputerNamingSettings.cs"
+    ],
+    "RawArgs": [],
+    "ProtectedTokens": []
+  },
+  "v124.mac.help": {
+    "Source": "安装时读取唯一的物理以太网适配器，生成 PC- 加 12 位大写 MAC 的计算机名，例如 PC-001122AABBCC。\n\n按接口类型识别，不依赖网卡的中英文名称；必须已安装驱动。无匹配网卡、多块匹配网卡或无效 MAC 时停止，不任意挑选。更换网卡会改变名称，部署前仍需确认名称在网络中唯一。",
+    "SourceHash": "ef0ee0155111e82f34b219d3f395e01ed70acb70fe3d597e541a3e84d0cba7b4",
+    "Contexts": [
+      "Core/ComputerNamingSettings.cs"
+    ],
+    "RawArgs": [],
+    "ProtectedTokens": []
+  },
+  "v124.pause.name": {
+    "Source": "安装阶段临时暂停更新一小时",
+    "SourceHash": "464c6721dd4bc433549996b3a77c3c4af48a30f9b74041ad9d2562196b54ba3e",
+    "Contexts": [
+      "Core/ScriptTemplates.cs"
+    ],
+    "RawArgs": [],
+    "ProtectedTokens": []
+  },
+  "v124.pause.purpose": {
+    "Source": "参考原作者示例，临时暂停功能更新与质量更新一小时。",
+    "SourceHash": "2b6fb8a2bd6281835d013889405dc500f1f8df9c2fcaa94cc6453952033d635c",
+    "Contexts": [
+      "Core/ScriptTemplates.cs"
+    ],
+    "RawArgs": [],
+    "ProtectedTokens": []
+  },
+  "v124.pause.requirements": {
+    "Source": "在 System 阶段执行，添加后默认停用。以执行时 UTC 时间计算一小时，不关闭服务、不创建持续暂停任务。\n\n保留每组已有更晚的暂停到期时间；已有时间格式无法识别时不写入暂停值并报错。与持续禁用更新设置只选一种，取消模板不会撤销已部署的设置。\n\n用于尝试减少 Windows 11 初始设置期间的常规更新等待，不保证跳过所有 OOBE 更新。微软明确说明，联网后关键 ZDP 更新会自动下载，用户不能选择退出。",
+    "SourceHash": "ba30535dcc0dd1233691438a0b6ce6c14ceb528b944d4a69a171507d7ea08029",
+    "Contexts": [
+      "Core/ScriptTemplates.cs"
+    ],
+    "RawArgs": [],
+    "ProtectedTokens": []
+  },
+  "v124.naming.aliases": {
+    "Source": "计算机名 MAC 网卡 硬件命名 Ethernet computer name MAC address",
+    "SourceHash": "20760c64a2b401227842594cba867f80f3d95213461891a248af884179bb0feb",
+    "Contexts": [
+      "Core/ScriptTemplates.cs"
+    ],
+    "RawArgs": [],
+    "ProtectedTokens": []
+  },
+  "v124.pause.aliases": {
+    "Source": "安装 更新 临时 暂停 一小时 Windows Update OOBE pause setup updates one hour",
+    "SourceHash": "3d41a7de84e25442bfdb6f99c725700203b47e01c439e282a3dc6d0b52c72dbf",
+    "Contexts": [
+      "Core/ScriptTemplates.cs"
+    ],
+    "RawArgs": [],
+    "ProtectedTokens": []
+  },
+  "about.projectLinkLabel": {
+    "Contexts": [
+      "Desktop/AboutWindow.xaml:Run.Text"
+    ],
+    "RawArgs": [],
+    "ProtectedTokens": [],
+    "Source": "本项目 GitHub：",
+    "SourceHash": "7d55b27ba2e7faa57cbf26c56424d73276fe0d4b740ef6b379dcf213cfd80efc"
+  },
+  "about.upstreamLinkLabel": {
+    "Contexts": [
+      "Desktop/AboutWindow.xaml:Run.Text"
+    ],
+    "RawArgs": [],
+    "ProtectedTokens": [],
+    "Source": "原项目 GitHub：",
+    "SourceHash": "f530505c3804fc6c8f4b452ba9f296b76116f8b7eb3294a7a161b06de18fd340"
+  },
+  "about.linkOpenError": {
+    "Contexts": [
+      "Desktop/AboutWindow.xaml.cs"
+    ],
+    "RawArgs": [],
+    "ProtectedTokens": [],
+    "Source": "无法打开浏览器，请手动访问所选链接的网址。",
+    "SourceHash": "75ce3c15bef6f4baeb20b07c2a397c68ee13a388e26f90e35447359a82263b29"
+  },
+  "about.components": {
+    "Contexts": [
+      "Desktop/AboutWindow.xaml.cs:LicenseChanged"
+    ],
+    "RawArgs": [],
+    "ProtectedTokens": [
+      "https://github.com/tigerJX95/UnattendLocal",
+      "https://github.com/cschneegans/unattend-generator",
+      "https://github.com/JamesNK/Newtonsoft.Json",
+      "https://github.com/dotnet/runtime",
+      "https://github.com/dotnet/wpf",
+      "https://github.com/DiscUtils/DiscUtils"
+    ],
+    "Source": "UnattendLocal 项目许可\nCopyright (c) 2026 tigerJX95\n本项目本地界面与适配代码采用 MIT License，许可全文见“UnattendLocal · MIT 项目许可证”与项目根目录 LICENSE。\n项目：https://github.com/tigerJX95/UnattendLocal\n\n第三方组件与授权说明\n\nUnattendGenerator\n作者：Christoph Schneegans\n用途：Windows 无人值守应答文件生成核心\n许可：MIT（完整原文见对应条目）\n项目：https://github.com/cschneegans/unattend-generator\n\nNewtonsoft.Json 13.0.4\n作者：James Newton-King 与贡献者\n用途：生成核心的 JSON 数据处理\n许可：MIT（完整原文见对应条目）\n项目：https://github.com/JamesNK/Newtonsoft.Json\n\n.NET Runtime 与 Windows Desktop / WPF\n作者：.NET Foundation、Microsoft 与项目贡献者\n用途：应用运行时与桌面界面框架\n许可：MIT 及其各自第三方组件声明（原文见对应条目）\n项目：https://github.com/dotnet/runtime\n项目：https://github.com/dotnet/wpf\n\n自包含版集成运行时。\n\n依赖运行时版需另行安装 .NET 10 Desktop Runtime x64。\n\nDiscUtils.Iso9660、DiscUtils.Core、DiscUtils.Streams 0.16.13\n作者：Kenneth Bell、Quamotion 与 DiscUtils 贡献者\n用途：封装应答文件 ISO；不用于导入外部磁盘镜像\n许可：MIT，原文见 DiscUtils 条目\n项目：https://github.com/DiscUtils/DiscUtils\n\n以上第三方许可分别适用于列明组件，其原有版权和许可声明继续保留。\n\n本项目 MIT 许可不移除第三方的署名及许可要求。\n\n本窗口不联网加载许可内容，英文许可证与声明按原文保留。\n",
+    "SourceHash": "117e10ce2465ecf8ff8ec9c99252dde204b7afbe337dbe0f38417a9e7fc5d6bf"
   }
 }

@@ -10,6 +10,8 @@ public static class SettingsSearchCatalog
 {
     private static readonly SettingSearchResult[] Settings =
     [
+        new(global::UnattendLocal.Localization.UiText.Source("v124.mac.name"), global::UnattendLocal.Localization.UiText.Source("text.692873ddd8f4"), 1, "SettingAnchor006", "computer", global::UnattendLocal.Localization.UiText.Source("v124.naming.aliases")),
+        new(global::UnattendLocal.Localization.UiText.Source("v124.pause.name"), global::UnattendLocal.Localization.UiText.Source("text.2f8dd7280e0a"), 13, "ScriptTemplateSelector", "customscripts", global::UnattendLocal.Localization.UiText.Source("v124.pause.aliases")),
         new(global::UnattendLocal.Localization.UiText.Source("text.ac30e70aed0a"), global::UnattendLocal.Localization.UiText.Source("text.97b31b5d63f5"), 5, "WorkgroupCheck", "workgroup", global::UnattendLocal.Localization.UiText.Source("text.7a659b816252")),
         new(global::UnattendLocal.Localization.UiText.Source("text.9ac6c62a1aab"), global::UnattendLocal.Localization.UiText.Source("text.97b31b5d63f5"), 5, "WorkgroupEditor", "workgroup", global::UnattendLocal.Localization.UiText.Source("text.8495cce2e457")),
         new(global::UnattendLocal.Localization.UiText.Source("text.516babf88a8b"), global::UnattendLocal.Localization.UiText.Source("text.32a2f4068ea1"), 3, "PeLogCheck", "pelog", global::UnattendLocal.Localization.UiText.Source("text.c27fcbba59fd")),

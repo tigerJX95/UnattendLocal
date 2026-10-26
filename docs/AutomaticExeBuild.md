@@ -4,11 +4,11 @@
 
 ## 简体中文
 
-从 V1.23 起，`.github/workflows/build.yml` 只监听 Release 的 `published` 事件及手动运行，不再监听分支提交或标签推送。普通提交、仅创建标签、保存 Release 草稿均不自动构建 EXE。
+从 V1.24 起，`.github/workflows/build.yml` 只监听 Release 的 `published` 事件及手动运行，不再监听分支提交或标签推送。普通提交、仅创建标签、保存 Release 草稿均不自动构建 EXE。
 
 发布时先运行只读附件检查。只要已有一个上传完成且非空的 `.exe` 附件（名称大小写不限，自定义文件名也有效），即认为用户选择手动提供程序，跳过整个 Windows 编译、打包和自动上传。即使只上传了一种版本，也不擅自补齐另一种。文件名判断不能验证 EXE 的功能或版本，请自行核对手动附件。
 
-没有 EXE 时，工作流按该 Release 的标签源码构建两种程序，检查版本、main 历史、依赖及回归测试，生成 Actions 产物，并附加到同一条已发布的 Release。源码 ZIP、说明文档等非 EXE 附件不阻止构建。标签须为与项目版本一致的 `v1.23` 形式。
+没有 EXE 时，工作流按该 Release 的标签源码构建两种程序，检查版本、main 历史、依赖及回归测试，生成 Actions 产物，并附加到同一条已发布的 Release。源码 ZIP、说明文档等非 EXE 附件不阻止构建。标签须为与项目版本一致的 `v1.24` 形式。
 
 上传前重新查询附件；若用户在编译期间补传了 EXE，则停止自动上传。上传不覆盖或删除任何已有文件，不修改 Release 标题、更新说明或标签。已上传成功但随后失败的文件保留；若附件仅部分上传，检查并保留已有文件后，可手动补传缺少的程序。API 请求失败、未完成/空 EXE、标签身份不匹配或不可追加附件的不可变 Release 均明确失败，不把“查询失败”当成“没有附件”。
 
@@ -27,11 +27,11 @@ GitHub 启用不可变 Release 后，已发布版本不能追加附件；这种�
 
 ## English
 
-V1.23 listens only to `release: published` and `workflow_dispatch`. Ordinary commits, standalone tag pushes and saved Release drafts do not build EXEs.
+V1.24 listens only to `release: published` and `workflow_dispatch`. Ordinary commits, standalone tag pushes and saved Release drafts do not build EXEs.
 
 A lightweight read-only job queries every asset page. Any completely uploaded, non-empty `.exe` attachment, including a custom filename or one variant alone, skips the entire Windows build and automatic upload. File names do not establish executable correctness or version; verify manual attachments yourself.
 
-With no EXE attachments, build both variants from the release tag, validate the tag/version and main history, audit dependencies, run regression checks, retain Actions outputs and attach the EXEs to the same Release. Non-EXE assets do not prevent a build. The tag must match the project version, for example `v1.23`.
+With no EXE attachments, build both variants from the release tag, validate the tag/version and main history, audit dependencies, run regression checks, retain Actions outputs and attach the EXEs to the same Release. Non-EXE assets do not prevent a build. The tag must match the project version, for example `v1.24`.
 
 Recheck before writing to preserve EXEs uploaded during compilation. Never overwrite/delete assets or edit Release titles, notes or tags. API failures, incomplete EXEs, identity mismatches and immutable Releases stop rather than proceed. If a later upload fails, keep earlier successful uploads and complete the missing assets manually. Manual Actions builds do not modify Releases.
 
