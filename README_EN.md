@@ -1,7 +1,5 @@
 # UnattendLocal — Windows Unattended Setup Configuration Tool
 
-**[Download the latest release](https://github.com/tigerJX95/UnattendLocal/releases/latest)**
-
 [简体中文](README.md) | **English**
 
 UnattendLocal is a Windows desktop tool with Simplified Chinese and English interfaces based on [Christoph Schneegans’ UnattendGenerator](https://github.com/cschneegans/unattend-generator). It lets you edit, check, and generate `autounattend.xml` for Windows 10 / 11 locally.
