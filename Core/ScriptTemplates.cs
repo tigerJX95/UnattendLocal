@@ -40,9 +40,9 @@ public static class ScriptTemplates
         new ScriptTemplate("remote-assistance", global::UnattendLocal.Localization.UiText.Source("text.057957ef54fc"), "System",
             global::UnattendLocal.Localization.UiText.Source("text.0123d2f8ba3d"),
             global::UnattendLocal.Localization.UiText.Source("text.e2fb125bdb64"), "DisableRemoteAssistance.ps1"),
-        new ScriptTemplate("chrome-winget", global::UnattendLocal.Localization.UiText.Source("text.be1e6cb6c137"), "FirstLogon",
-            global::UnattendLocal.Localization.UiText.Source("text.ac1d90411e51"),
-            global::UnattendLocal.Localization.UiText.Source("text.1a5e930cdb10"), "InstallChromeWinGet.ps1"),
+        new ScriptTemplate("winget-install", global::UnattendLocal.Localization.UiText.Source("v123.winget.name"), "FirstLogon",
+            global::UnattendLocal.Localization.UiText.Source("v123.winget.purpose"),
+            global::UnattendLocal.Localization.UiText.Source("v123.winget.requirements"), "InstallWinGet.ps1"),
         new ScriptTemplate("public-shortcuts", global::UnattendLocal.Localization.UiText.Source("text.219b7835f98e"), "System",
             global::UnattendLocal.Localization.UiText.Source("text.4e8d3acf240c"),
             global::UnattendLocal.Localization.UiText.Source("text.adfdb7dcbea3"), "PublicDesktopShortcuts.ps1"),
@@ -51,11 +51,18 @@ public static class ScriptTemplates
             global::UnattendLocal.Localization.UiText.Source("v122.label.requirements"), "SystemVolumeLabel.ps1"),
         new ScriptTemplate("ultimate-performance", global::UnattendLocal.Localization.UiText.Source("v122.power.name"), "System",
             global::UnattendLocal.Localization.UiText.Source("v122.power.purpose"),
-            global::UnattendLocal.Localization.UiText.Source("v122.power.requirements"), "UltimatePerformance.ps1")
+            global::UnattendLocal.Localization.UiText.Source("v122.power.requirements"), "UltimatePerformance.ps1"),
+        new ScriptTemplate("local-exe-install", global::UnattendLocal.Localization.UiText.Source("v123.exe.name"), "System",
+            global::UnattendLocal.Localization.UiText.Source("v123.exe.purpose"),
+            global::UnattendLocal.Localization.UiText.Source("v123.exe.requirements"), "InstallLocalExe.ps1"),
+        new ScriptTemplate("firewall-dropped-log", global::UnattendLocal.Localization.UiText.Source("v123.firewall.name"), "System",
+            global::UnattendLocal.Localization.UiText.Source("v123.firewall.purpose"),
+            global::UnattendLocal.Localization.UiText.Source("v123.firewall.requirements"), "FirewallDroppedLog.ps1")
     });
 
     public static ScriptEntry Add(InstallPlan plan, string id)
     {
+        id = id switch { "chrome-winget" => "winget-install", "7zip-offline" => "local-exe-install", _ => id };
         var template = All.SingleOrDefault(t => t.Id == id) ?? throw new ArgumentException(global::UnattendLocal.Localization.UiText.Source("text.8d54cc82c917"));
         if (plan.Scripts.Count >= 60) throw new ArgumentException(global::UnattendLocal.Localization.UiText.Source("text.bca97a516f08"));
         var content = template.Content;

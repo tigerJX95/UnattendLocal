@@ -36,12 +36,12 @@ function Test-WinGetBrowser([int]$build = 26100, [int]$readyAfter = 0, [int]$exi
         try {
             $options = @{ ReadyTimeoutSeconds = 2 }
             if (-not $UseDefault) { $options.PackageId = $package }
-            & (Join-Path $templateRoot 'InstallChromeWinGet.ps1') @options 3>$null
+            & (Join-Path $templateRoot 'InstallWinGet.ps1') @options 3>$null
         } catch { $failed = $true }
         $invalidPackage = $package -notmatch '^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$'
-        $expectedFailure = $build -lt 26100 -or $readyAfter -gt 2 -or $launchFailure -or $exitCode -notin @(0, -1978335189) -or $invalidPackage
+        $expectedFailure = $UseDefault -or $build -lt 26100 -or $readyAfter -gt 2 -or $launchFailure -or $exitCode -notin @(0, -1978335189) -or $invalidPackage
         Assert-Deployment ($failed -eq $expectedFailure) 'Unexpected WinGet template outcome'
-        if ($build -lt 26100 -or $readyAfter -gt 2 -or $invalidPackage) {
+        if ($UseDefault -or $build -lt 26100 -or $readyAfter -gt 2 -or $invalidPackage) {
             Assert-Deployment ($state.Starts -eq 0) 'Unsupported, timed out or invalid configuration must not run an installer'
         } else {
             Assert-Deployment ($state.Starts -eq 1) 'Installer must run exactly once'

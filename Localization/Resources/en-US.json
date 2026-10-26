@@ -3841,5 +3841,15 @@
   "v122.power.name": "Enable Ultimate Performance",
   "v122.power.purpose": "Create and activate an Ultimate Performance power plan for sustained-performance workloads; energy use and heat may increase.",
   "v122.power.requirements": "Runs during System with a template-specific GUID and name.\n\nReuses its own plan on repeat runs and stops if that GUID belongs to another plan. Support depends on Windows and hardware; unsupported systems report an error without a fallback. This later script overrides a selected Preferred power plan, so choose only one configuration method. Added disabled.",
-  "v122.copyScriptContent": "Copy script contents"
+  "v122.copyScriptContent": "Copy script contents",
+  "v123.firewall.name": "Advanced diagnostics: firewall dropped-packet logging",
+  "v123.firewall.purpose": "Enable local dropped-packet logging for Domain, Private and Public firewall profiles to troubleshoot connectivity.",
+  "v123.firewall.requirements": "Runs during System and configures logging in the local PersistentStore. The default maximum log size is 16384 KiB; edit to a value from 1 to 32767 KiB.\n\nPreserves existing log paths and allowed-connection logging. Does not change firewall state, rules or inbound/outbound defaults. Organization policy may override effective settings. Disabling the template does not undo a previous deployment. Added disabled.",
+  "v123.templates.aliases": "script templates WinGet EXE generic installer silent offline installer SHA256 7-Zip Chrome firewall dropped packet logging advanced diagnostics",
+  "v123.winget.name": "WinGet application installation (generic)",
+  "v123.winget.purpose": "Install an explicitly selected package ID for online deployment; see usage examples for individual applications.",
+  "v123.winget.requirements": "Runs during FirstLogon on Windows 11 24H2 or later with an administrator, network access and App Installer. Set PackageId at the top of the script; an empty value stops execution.\n\nWaits up to 300 seconds for WinGet, uses an exact ID from the winget source and machine-wide silent installation, without forced upgrades or hash bypass. Enabling accepts package and source agreements. The readiness timeout excludes installation duration. The package must support machine-wide silent installation. Added disabled.",
+  "v123.exe.name": "Local EXE silent installation (generic)",
+  "v123.exe.purpose": "Install an explicitly selected local EXE silently for offline deployment or prepared installation media.",
+  "v123.exe.requirements": "Runs during System. Set installerPath, expectedSha256 and silentArguments: an absolute local EXE path accessible on the target Windows system, the trusted installer SHA256 and vendor-documented silent/no-restart arguments. Missing configuration stops execution.\n\nSupports standalone single-file EXE installers only, without adjacent dependencies. Runs only a verified private copy, waits and cleans up. Does not scan, download or detect installer architecture. Arguments and exit codes vary by software; this template accepts 0 and 3010. Select the correct architecture and test in a VM first. Added disabled."
 }

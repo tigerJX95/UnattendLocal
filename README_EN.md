@@ -6,7 +6,7 @@
 
 UnattendLocal is a Windows desktop tool with Simplified Chinese and English interfaces based on [Christoph Schneegans’ UnattendGenerator](https://github.com/cschneegans/unattend-generator). It lets you edit, check, and generate `autounattend.xml` for Windows 10 / 11 locally.
 
-Current version: **V1.22**. Includes static IPv4/IPv6 dual stack, subnet-mask input, settings search, setup driver directories, Dynamic Update, partitioning, OOBE and account settings, and existing XML import/editing.
+Current version: **V1.23**. Includes static IPv4/IPv6 dual stack, subnet-mask input, settings search, setup driver directories, Dynamic Update, partitioning, OOBE and account settings, and existing XML import/editing.
 
 ## 💡 Why this project exists
 
@@ -60,6 +60,21 @@ The displayed product key is a public generic installation key for selecting an 
 - Manage System, DefaultUser, FirstLogon, and UserOnce custom scripts using the original execution-stage design. Duplicate scripts with copies disabled by default for review.
 - Save and restore JSON plans; review summaries, recommended-setting differences, checks, redacted previews, and XML exports.
 - Import existing XML and edit supported settings while preserving unknown content. Export stops with an explanation when changes cannot be merged reliably.
+
+## V1.23 Generic application installation and advanced diagnostics
+
+- Place script actions directly above the script list, after the explanatory text, to reduce scrolling and searching.
+- Size the navigation column to the longest label in the current language, keeping labels on one line and reserving selected-weight space to avoid width changes when switching pages.
+- Organize installation by method: generic WinGet application installation and generic local EXE silent installation, rather than one template per application.
+- Configure a package ID for WinGet, or an installer path, SHA256 and vendor arguments for EXE. Chrome and 7-Zip appear only as documentation examples.
+- Retain optional advanced firewall dropped-packet logging, without changing filtering rules.
+- Templates are added disabled. Existing script bodies in saved plans and XML remain unchanged when templates are reorganized.
+- Retain template-name display and current-script clipboard fixes. Show the latest updates by default and preserve all history in a collapsed section.
+
+Usage: [Practical script templates](docs/ScriptTemplates.md).
+
+<details>
+<summary>Update history (click to expand)</summary>
 
 ## V1.22 System volume label and Ultimate Performance templates
 
@@ -160,11 +175,13 @@ See [Quick presets and advanced XML](docs/AdvancedXml.md). Structural checks do 
 
 For media preparation and explicit invocation, see [XML and ISO export](docs/AnswerFileExport.md).
 
+</details>
+
 ## 📦 Download and usage
 
 Download and fully extract the program ZIP to keep the editable `Languages` folder beside the EXE. The EXE also has embedded Chinese and English fallback resources. See [language packs](docs/Localization.md).
 
-Download and run the matching Windows x64 executable from the repository’s [**Releases**](https://github.com/tigerJX95/UnattendLocal/releases/latest) page: `UnattendLocal_V1.22_x64_SelfContained.exe` or `UnattendLocal_V1.22_x64_FrameworkDependent.exe`. Choose `UnattendLocal_V1.22_x64_SelfContained.exe` for a bundled .NET runtime, or `UnattendLocal_V1.22_x64_FrameworkDependent.exe` if .NET 10 Desktop Runtime x64 is already installed. Both have the same features. Use a virtual machine for initial testing.
+Download and run the matching Windows x64 executable from the repository’s [**Releases**](https://github.com/tigerJX95/UnattendLocal/releases/latest) page: `UnattendLocal_V1.23_x64_SelfContained.exe` or `UnattendLocal_V1.23_x64_FrameworkDependent.exe`. Choose `UnattendLocal_V1.23_x64_SelfContained.exe` for a bundled .NET runtime, or `UnattendLocal_V1.23_x64_FrameworkDependent.exe` if .NET 10 Desktop Runtime x64 is already installed. Both have the same features. Use a virtual machine for initial testing.
 
 1. Choose a recommended scenario or a custom configuration and enter the required account and image settings.
 2. Adjust system, appearance, and application removal options as needed.

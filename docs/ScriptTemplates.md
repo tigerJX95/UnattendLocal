@@ -4,6 +4,56 @@
 
 模板是普通 PowerShell 脚本，可修改、排序、删除、另存文件以及随方案保存。已添加的脚本不会因模板选择变化而改变。启用后，每个阶段最多 15 条，总计最多 60 条；完全相同的模板内容和阶段不能重复添加。
 
+## 通用应用安装与高级诊断 / Generic installation and advanced diagnostics
+
+安装模板按安装方式分类。具体软件是使用示例，不单独增加一个模板。EXE、WinGet 两种入口添加后都默认停用；先配置并在隔离虚拟机验证，再启用。已有方案与 XML 中保存的脚本仍按原文恢复，不会自动替换为新版通用模板。
+
+### 本地 EXE 静默安装（通用）
+
+执行阶段为 System。修改脚本顶部三个值：
+
+| 字段 | 内容 |
+|---|---|
+| `installerPath` | 目标 Windows 能访问的本地 EXE 完整路径，支持空格；不支持相对路径和 UNC 路径 |
+| `expectedSha256` | 可信来源安装包的 64 位 SHA256 十六进制值 |
+| `silentArguments` | 对应厂商提供的静默安装、禁止自动重启等参数 |
+
+缺少配置或找不到文件时停止；只复制明确指定的 EXE，不扫描磁盘、不下载、不自动识别架构。适用于可独立运行的单文件 EXE；依赖同目录 CAB 或其他文件的安装包不属于此模板的支持范围，MSI 不使用此入口。
+
+确认来源后，用 `Get-FileHash -LiteralPath 'D:\Install\Setup.exe' -Algorithm SHA256` 获取哈希值。SHA256 用于确认将运行的文件与准备时信任的文件一致，不能替代对下载来源的核对。
+
+**7-Zip 使用示例**（文件名按实际下载版本修改）：
+
+```powershell
+$installerPath = 'D:\Install\7z2601-x64.exe'
+$expectedSha256 = '这里替换成该可信安装包的完整64位SHA256'
+$silentArguments = '/S'
+```
+
+示例哈希占位文字不能直接运行。实际安装介质盘符可能变化，务必填写目标系统执行阶段可访问的路径；由你选择匹配目标架构的安装包。其他 EXE 可能使用 `/quiet /norestart` 或 `/VERYSILENT /NORESTART` 等完全不同的参数，不能照搬 `/S`。
+
+模板复制到独立临时目录并验证副本后才运行，等待退出并清理。接受返回码 0 和 3010，3010 仅提示稍后重启；其他退出码报错，需要结合厂商文档判断。模板不主动重启，但不能阻止第三方安装程序按自身逻辑重启，需核对参数和实际行为。安装进程本身没有超时限制。重复运行会再次调用安装程序，不保证任意软件的升级、降级或幂等行为。
+
+### 高级诊断：防火墙丢弃日志
+
+这是可选的连接故障排查功能，优先级低于常用部署设置。执行阶段为 System，添加后默认停用。适用于服务正在监听、但其他电脑无法连接，需要确认本机防火墙是否丢弃连接的场景；它不自动诊断或修复问题，也不能直接定位具体应用或规则。
+
+配置本地 `PersistentStore` 的 Domain、Private、Public 日志，将 `LogBlocked` 设为 True，默认上限 `16384` KiB。可修改 `$logMaxSizeKilobytes`，有效范围为 1–32767 KiB。保留原有日志路径及成功连接日志设置，不启停防火墙，不修改规则或默认入站出站策略。执行后核验本地配置，实际生效值可能被组织策略覆盖。
+
+Windows 在丢弃流量时记录日志，不保证启用后立即出现文件。用 `Get-NetFirewallProfile | Select-Object Name, LogBlocked, LogFileName, LogMaxSizeKilobytes` 查看实际配置和路径。在隔离虚拟机中产生一条被现有规则阻止的连接，再检查日志。取消模板不撤销已部署设置。
+
+### English
+
+**Local EXE silent installation (generic)** runs during System and requires an explicit local absolute `installerPath`, trusted `expectedSha256` and vendor-specific `silentArguments`. No scanning, downloading or architecture detection. Only standalone single-file EXE installers are supported, not MSI or installers requiring adjacent files. Paths refer to the target Windows system; select the correct architecture yourself. A private copy is verified before execution. The script waits, accepts exit codes 0/3010 and cleans up. Other codes fail; there is no installation timeout. It does not request a reboot but cannot prevent an installer from rebooting itself. Verify vendor no-restart options and behavior. A hash confirms identity with a trusted file, not publisher authenticity by itself.
+
+7-Zip is an example: set the path to your actual official installer, fill its SHA256 and use `/S`. Other installers require their own documented arguments; do not assume `/S` is universal. Example filenames and hash placeholders are not ready-to-run configuration.
+
+**Advanced diagnostics: firewall dropped-packet logging** is optional troubleshooting for blocked connections. Runs during System and configures local PersistentStore logging for Domain, Private and Public with a default 16384 KiB limit (1–32767 supported). Preserves existing paths, allowed-traffic logging, firewall state and filtering rules. Organization policy may override effective settings. Log entries are written when traffic is dropped; enabling logging does not fix connectivity or directly identify the application or rule. Disabling the template does not undo a deployed change.
+
+Existing script bodies in plans and original XML remain unchanged by template reorganization.
+
+References: [upstream samples](https://schneegans.de/windows/unattend-generator/samples/), [7-Zip silent installation](https://7-zip.org/faq.html), [Get-FileHash](https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.utility/get-filehash), [Set-NetFirewallProfile](https://learn.microsoft.com/en-us/powershell/module/netsecurity/set-netfirewallprofile).
+
 ## 离线安装 .NET Framework 3.5
 
 执行阶段：FirstLogon。需要管理员首次登录，并在安装后仍可访问匹配目标 Windows 版本、语言及架构的安装介质。
@@ -48,15 +98,13 @@ Windows 内部版本 28000 及以上改用独立安装程序，本模板会在�
 
 名称保存在 JSON 方案，以及本工具有效的 XML 配置还原记录中，不拼接进可执行命令、不改变生成的脚本文件名。把 XML 交给其他工具编辑后，还原记录可能失效，名称不保证保留；脚本实际执行内容以 XML 为准。单独另存脚本文件只保存正文，不保存名称、执行阶段或启用状态。
 
-## 通过 WinGet 安装 Google Chrome
+## WinGet 应用安装（通用）
 
-执行阶段：FirstLogon。需要 Windows 11 24H2（内部版本 26100）及以上、管理员首次登录、网络和可用的“应用安装程序”。此模板不会自动启用自动登录或修复、重新注册 WinGet。
+执行阶段为 FirstLogon，需要 Windows 11 24H2（内部版本 26100）及以上、管理员首次登录、网络和可用的应用安装程序。模板顶部 `PackageId` 默认为空，必须填写经过核对的软件包 ID；未填写时停止，不默认安装任何软件。
 
-默认精确包 ID 为 `Google.Chrome`，源固定为 `winget`，作用域为整机。脚本最多等待 300 秒让当前用户的 `winget.exe` 出现；出现后等待安装命令执行结束，安装耗时不计入就绪等待上限。下载源不可达、策略阻止、程序无法启动或安装返回错误时，记录错误供排查。
+**Chrome 使用示例**：把参数默认值改为 `[string]$PackageId = 'Google.Chrome'`。安装其他应用时，先用 `winget search` 和 `winget show --id 包ID --exact --source winget` 核对 ID、来源及整机静默安装支持。具体软件仅作为示例，不需要重复新增模板入口。安装多个应用可以添加多条普通脚本并分别配置 ID；不要在一个 ID 中拼接额外命令参数。
 
-启用模板表示接受软件包协议和 WinGet 源协议。脚本使用静默及禁止交互参数，不使用忽略哈希校验或允许重启的参数；`--no-upgrade` 保留已有安装，不强制更新。返回码 0 视为成功；“没有适用更新”返回码只记录提示，其他非零码报错。它不保证在所有软件包和组织环境中都能完成无人值守安装。
-
-可在脚本顶部把 `PackageId` 改为其他已核对的社区包 ID，例如 `Microsoft.PowerToys`；包必须支持整机静默安装。不要在 ID 中拼接命令参数，脚本会拒绝空格及参数注入形式。`ReadyTimeoutSeconds` 只控制等待 WinGet 出现的时间，不控制安装进程的总耗时。
+保留最多 300 秒的 WinGet 就绪等待、精确 ID 与固定 `winget` 源、整机静默安装、返回码检查及 `--no-upgrade`。不绕过哈希验证，不允许自动重启；启用即接受包和源协议。就绪等待上限不包含安装耗时，不保证每个软件包都支持整机无人值守安装。
 
 ## 创建公共桌面快捷方式
 
@@ -92,7 +140,7 @@ Solicited Remote Assistance sets the local `fAllowToGetHelp` toggle to zero duri
 
 Script names are optional, limited to 80 characters and preserved by plans, duplication and valid local XML restoration records. They do not enter commands or affect generated filenames. Standalone script export contains only the script body; names may be lost when another tool edits the XML.
 
-The Google Chrome template runs at FirstLogon on Windows 11 build 26100 or newer with an administrator, network access and App Installer. It waits up to 300 seconds for the current user's WinGet executable; that limit excludes the installation duration. Enabling it accepts package and source agreements. It installs exact ID `Google.Chrome` from `winget` in machine scope, without bypassing hashes, forcing upgrades or allowing reboots. Other verified package IDs can be edited at the top of the script if they support machine-wide silent installation.
+The generic WinGet template runs at FirstLogon on Windows 11 build 26100 or later with an administrator, network access and App Installer. PackageId starts empty; set a verified ID before enabling. Chrome is a documentation example (`[string]$PackageId = 'Google.Chrome'`), not the default. It waits up to 300 seconds for WinGet, installs an exact ID from the winget source in machine scope, preserves hash checks and avoids forced upgrades or requested reboots. Enabling accepts package/source agreements. The readiness timeout excludes installation time. The selected package must support machine-wide silent installation.
 
 The public desktop template runs at System. Edit the `Shortcuts` list for `.lnk` program links or `.url` HTTP/HTTPS links. Windows resolves the common desktop directory. Definitions are validated before any files are created, existing names are preserved, and temporary files are cleaned after failure. Previously created links are not rolled back if a later item fails. The default links target System Properties and this project's release page; adding the template never executes either target.
 

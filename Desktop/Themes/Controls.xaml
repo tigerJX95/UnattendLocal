@@ -160,7 +160,7 @@
     <Setter Property="Background" Value="{DynamicResource CanvasBrush}"/>
     <Setter Property="ItemsPanel"><Setter.Value><ItemsPanelTemplate><StackPanel/></ItemsPanelTemplate></Setter.Value></Setter>
     <Setter Property="Template"><Setter.Value><ControlTemplate TargetType="TabControl">
-      <Grid><Grid.ColumnDefinitions><ColumnDefinition Width="190"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+      <Grid><Grid.ColumnDefinitions><ColumnDefinition Width="Auto"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
         <Border Background="{DynamicResource NavBrush}" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="0,0,1,0">
           <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" Focusable="False" CanContentScroll="False" Padding="8,12"><ItemsPresenter/></ScrollViewer>
         </Border>
@@ -170,6 +170,14 @@
   </Style>
   <Style TargetType="TabItem">
     <Setter Property="Padding" Value="12,9"/><Setter Property="Margin" Value="0,2"/><Setter Property="Foreground" Value="{DynamicResource ForegroundBrush}"/><Setter Property="Background" Value="Transparent"/><Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+    <Setter Property="HeaderTemplate"><Setter.Value><DataTemplate>
+      <Grid>
+        <!-- Reserve the selected weight so selection never changes the rail width.
+             Both bindings remeasure naturally when the display language changes. -->
+        <TextBlock Text="{loc:Display Value={Binding}}" TextWrapping="NoWrap" FontWeight="SemiBold" Visibility="Hidden"/>
+        <TextBlock Text="{loc:Display Value={Binding}}" TextWrapping="NoWrap"/>
+      </Grid>
+    </DataTemplate></Setter.Value></Setter>
     <Setter Property="Template"><Setter.Value><ControlTemplate TargetType="TabItem">
       <Border x:Name="TabBorder" Background="{TemplateBinding Background}" CornerRadius="6" BorderThickness="1" BorderBrush="Transparent">
         <Grid><Border x:Name="Indicator" Width="3" Height="22" CornerRadius="2" Background="{DynamicResource AccentBrush}" HorizontalAlignment="Left" Visibility="Collapsed"/><ContentPresenter x:Name="HeaderPresenter" ContentSource="Header" Margin="{TemplateBinding Padding}" VerticalAlignment="Center" RecognizesAccessKey="True" TextElement.Foreground="{TemplateBinding Foreground}" TextElement.FontWeight="Normal"/></Grid>

@@ -36160,5 +36160,95 @@
     ],
     "RawArgs": [],
     "ProtectedTokens": []
+  },
+  "v123.firewall.name": {
+    "Source": "高级诊断：防火墙丢弃日志",
+    "SourceHash": "bc3eee54677f614538e3800b8bb9de056b6acbc0d6632a65c4b4220d02051f63",
+    "Contexts": [
+      "Core/ScriptTemplates.cs"
+    ],
+    "RawArgs": [],
+    "ProtectedTokens": []
+  },
+  "v123.firewall.purpose": {
+    "Source": "为域、专用和公用网络开启本地防火墙丢弃日志，用于排查部署后的连接问题。",
+    "SourceHash": "4efa2c6d1aacb1ab3aa3a903961a90e1866a0f076db943eeff13185017db21fa",
+    "Contexts": [
+      "Core/ScriptTemplates.cs"
+    ],
+    "RawArgs": [],
+    "ProtectedTokens": []
+  },
+  "v123.firewall.requirements": {
+    "Source": "在 System 阶段执行，仅设置本地 PersistentStore 的日志选项，默认日志上限为 16384 KiB，可编辑为 1–32767 KiB。\n\n保留各配置文件原有日志路径和成功连接日志设置，不改变防火墙开关、过滤规则或入站出站策略。组织策略仍可能覆盖实际生效值；取消模板不会撤销已经安装系统的更改。添加后默认停用。",
+    "SourceHash": "d46f37cc35e75bdc565b9cfb03db1c1ff001cbf9f531fec9cae54025a120f7ed",
+    "Contexts": [
+      "Core/ScriptTemplates.cs"
+    ],
+    "RawArgs": [],
+    "ProtectedTokens": []
+  },
+  "v123.templates.aliases": {
+    "Source": "脚本模板 WinGet EXE 通用 安装包 静默 离线 SHA256 7-Zip Chrome 防火墙 丢弃 日志 高级诊断 generic installer offline installer firewall dropped packet logging",
+    "SourceHash": "26724048bc42ab54adbae1b00eb64d58238393e2942c2c08a44c06c4f1b392d9",
+    "Contexts": [
+      "Desktop/SettingsSearchCatalog.cs"
+    ],
+    "RawArgs": [],
+    "ProtectedTokens": []
+  },
+  "v123.winget.name": {
+    "Source": "WinGet 应用安装（通用）",
+    "SourceHash": "39bb66af981eb2b54560ee0fb3db0442c493fb7e0d40f5d1f27963b10880ed35",
+    "Contexts": [
+      "Core/ScriptTemplates.cs"
+    ],
+    "RawArgs": [],
+    "ProtectedTokens": []
+  },
+  "v123.winget.purpose": {
+    "Source": "按明确的软件包 ID 安装应用，适用于联网部署；具体软件见使用示例。",
+    "SourceHash": "4005e9f951c8a4bc86050a11b6cd58e313c4462fd4d9bc5cec0e3d941ad534f7",
+    "Contexts": [
+      "Core/ScriptTemplates.cs"
+    ],
+    "RawArgs": [],
+    "ProtectedTokens": []
+  },
+  "v123.winget.requirements": {
+    "Source": "在 FirstLogon 阶段执行，需要 Windows 11 24H2 及以上、管理员登录、网络和可用的应用安装程序。先编辑脚本顶部的 PackageId，未填写时停止。\n\n最多等待 WinGet 就绪 300 秒，通过 winget 源精确匹配、整机静默安装；不强制升级，不绕过哈希验证。启用表示接受包和源协议。安装耗时不属于就绪等待上限，包必须支持整机静默安装；添加后默认停用。",
+    "SourceHash": "e4ffe4aff82f7224e3b59688448e5fe912156fd3e6bcc261551a892b3942c004",
+    "Contexts": [
+      "Core/ScriptTemplates.cs"
+    ],
+    "RawArgs": [],
+    "ProtectedTokens": []
+  },
+  "v123.exe.name": {
+    "Source": "本地 EXE 静默安装（通用）",
+    "SourceHash": "494fa2b177d9a58a6b51acbcb3c0ef1743deec31e8b36d9bd55569312809015b",
+    "Contexts": [
+      "Core/ScriptTemplates.cs"
+    ],
+    "RawArgs": [],
+    "ProtectedTokens": []
+  },
+  "v123.exe.purpose": {
+    "Source": "从指定的本地 EXE 安装包静默安装应用，适用于离线或自备安装介质。",
+    "SourceHash": "6f197cff227ef0ebd7a2a8b57f62a1703683595ea4125388dfcbde84fb8a57f0",
+    "Contexts": [
+      "Core/ScriptTemplates.cs"
+    ],
+    "RawArgs": [],
+    "ProtectedTokens": []
+  },
+  "v123.exe.requirements": {
+    "Source": "在 System 阶段执行。先编辑 installerPath、expectedSha256、silentArguments，填写目标 Windows 可访问的本地 EXE 完整路径、可信安装包 SHA256，以及厂商要求的静默和禁止重启参数。三项未配置时停止。\n\n仅支持可独立运行的单文件 EXE，不支持依赖同目录附属文件的安装包。只运行核验通过的临时副本，等待结束并清理；不扫描、不下载、不自动判断安装包架构。不同软件的静默参数及退出码可能不同，当前接受 0 和 3010；确认适用于目标架构，并先在虚拟机验证。添加后默认停用。",
+    "SourceHash": "3c3e0dd8144edf14db5b61e90b7dc940c052539f8b2e8bc9bffa9975e5ee094f",
+    "Contexts": [
+      "Core/ScriptTemplates.cs"
+    ],
+    "RawArgs": [],
+    "ProtectedTokens": []
   }
 }

@@ -3842,6 +3842,16 @@
     "v122.power.name": "0e632663d2eff51b0c8fe2f799aa0f3a107c4f60a8e5388f9f497f74ecae6dbe",
     "v122.power.purpose": "dc2cdbeb1ed7759b13d57f9a9bf46fd50dc253446de466aa06e9dfe662e6a97c",
     "v122.power.requirements": "2eb43395ebe81ddf36dddd7215731995691d034c0eb5f2ee8106ff4afd29587f",
-    "v122.copyScriptContent": "4fb24b8658bd0506e57daa1bd18218415c9669bdfa402a161ff8ffc5a1ce9608"
+    "v122.copyScriptContent": "4fb24b8658bd0506e57daa1bd18218415c9669bdfa402a161ff8ffc5a1ce9608",
+    "v123.firewall.name": "bc3eee54677f614538e3800b8bb9de056b6acbc0d6632a65c4b4220d02051f63",
+    "v123.firewall.purpose": "4efa2c6d1aacb1ab3aa3a903961a90e1866a0f076db943eeff13185017db21fa",
+    "v123.firewall.requirements": "d46f37cc35e75bdc565b9cfb03db1c1ff001cbf9f531fec9cae54025a120f7ed",
+    "v123.templates.aliases": "26724048bc42ab54adbae1b00eb64d58238393e2942c2c08a44c06c4f1b392d9",
+    "v123.winget.name": "39bb66af981eb2b54560ee0fb3db0442c493fb7e0d40f5d1f27963b10880ed35",
+    "v123.winget.purpose": "4005e9f951c8a4bc86050a11b6cd58e313c4462fd4d9bc5cec0e3d941ad534f7",
+    "v123.winget.requirements": "e4ffe4aff82f7224e3b59688448e5fe912156fd3e6bcc261551a892b3942c004",
+    "v123.exe.name": "494fa2b177d9a58a6b51acbcb3c0ef1743deec31e8b36d9bd55569312809015b",
+    "v123.exe.purpose": "6f197cff227ef0ebd7a2a8b57f62a1703683595ea4125388dfcbde84fb8a57f0",
+    "v123.exe.requirements": "3c3e0dd8144edf14db5b61e90b7dc940c052539f8b2e8bc9bffa9975e5ee094f"
   }
 }

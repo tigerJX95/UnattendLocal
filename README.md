@@ -6,7 +6,7 @@
 
 UnattendLocal 是基于 [Christoph Schneegans 的 UnattendGenerator](https://github.com/cschneegans/unattend-generator) 开发的 Windows 桌面配置工具，支持简体中文与英语界面，用于在本地编辑、检查和生成 Windows 10 / 11 的 `autounattend.xml`。
 
-当前版本：**V1.22**。支持简体中文 / English 即时切换、独立语言包维护、静态 IPv4 / IPv6 双栈、子网掩码输入、设置搜索、安装驱动目录、动态更新、自动分区、OOBE 与账户配置，以及已有 XML 的导入编辑。
+当前版本：**V1.23**。支持简体中文 / English 即时切换、独立语言包维护、静态 IPv4 / IPv6 双栈、子网掩码输入、设置搜索、安装驱动目录、动态更新、自动分区、OOBE 与账户配置，以及已有 XML 的导入编辑。
 
 ## 💡 开发初衷
 
@@ -58,6 +58,21 @@ UnattendLocal 是基于 [Christoph Schneegans 的 UnattendGenerator](https://git
 - 按原设计管理 System、DefaultUser、FirstLogon、UserOnce 自定义脚本；支持复制条目，副本默认停用供核对。
 - 保存和恢复 JSON 方案，提供配置摘要、推荐差异、检查、脱敏预览和 XML 导出。
 - 导入已有 XML 后编辑已支持设置，保留未知内容；遇到无法可靠合并的修改时停止导出并说明原因。
+
+## V1.23 通用应用安装模板与高级诊断 · 2026-10-26
+
+- 脚本操作按钮集中放在脚本列表正上方，说明文字置于工具栏之前，减少滚动和查找。
+- 左侧导航按当前语言最长选项自动统一列宽，名称单行显示，预留选中加粗空间，避免切换页面时宽度跳动。
+- 将应用安装入口按方式整理为“WinGet 应用安装（通用）”和“本地 EXE 静默安装（通用）”，不为每个软件单独增加模板。
+- WinGet 模板需填写包 ID；EXE 模板需填写安装包路径、SHA256 和厂商静默参数。Chrome、7-Zip 仅作为文档使用示例。
+- 保留可选的高级防火墙丢弃日志模板，只调整日志选项，不修改过滤规则。
+- 模板添加后默认停用；已有方案和 XML 中的脚本正文保持原样，不因模板重组而自动替换。
+- 保留模板名称显示、脚本正文复制修复；中英文主页仅展开最新版更新，历史内容完整保留在折叠区。
+
+使用说明：[实用脚本模板](docs/ScriptTemplates.md)。
+
+<details>
+<summary>历史更新（点击展开）</summary>
 
 ## V1.22 系统盘卷标与卓越性能模板 · 2026-10-25
 
@@ -158,16 +173,18 @@ UnattendLocal 是基于 [Christoph Schneegans 的 UnattendGenerator](https://git
 
 导出方法见 [应答文件 XML 与 ISO 导出](docs/AnswerFileExport.md)。
 
+</details>
+
 ## 📦 下载与使用
 
 推荐下载程序 ZIP 并完整解压，保留 EXE 旁的 `Languages` 文件夹，以便单独更新译文。仅运行 EXE 时仍有内置中英文资源回退。详见[语言包说明](docs/Localization.md)。
 
-从仓库的 [**Releases**](https://github.com/tigerJX95/UnattendLocal/releases/latest) 页面下载并直接运行对应的 `UnattendLocal_V1.22_x64_SelfContained.exe` 或 `UnattendLocal_V1.22_x64_FrameworkDependent.exe`：
+从仓库的 [**Releases**](https://github.com/tigerJX95/UnattendLocal/releases/latest) 页面下载并直接运行对应的 `UnattendLocal_V1.23_x64_SelfContained.exe` 或 `UnattendLocal_V1.23_x64_FrameworkDependent.exe`：
 
 | 程序文件 | 运行要求 |
 | --- | --- |
-| `UnattendLocal_V1.22_x64_SelfContained.exe` | 集成 .NET 运行时，无需单独安装；通常选择此版。 |
-| `UnattendLocal_V1.22_x64_FrameworkDependent.exe` | 文件较小，需安装 .NET 10 Desktop Runtime x64。 |
+| `UnattendLocal_V1.23_x64_SelfContained.exe` | 集成 .NET 运行时，无需单独安装；通常选择此版。 |
+| `UnattendLocal_V1.23_x64_FrameworkDependent.exe` | 文件较小，需安装 .NET 10 Desktop Runtime x64。 |
 
 两版功能相同。首次安装测试建议使用虚拟机。
 

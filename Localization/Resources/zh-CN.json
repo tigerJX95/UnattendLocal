@@ -3841,5 +3841,15 @@
   "v122.power.name": "启用卓越性能电源计划",
   "v122.power.purpose": "创建并激活卓越性能电源计划，可用于需要持续性能的设备；可能增加耗电和发热。",
   "v122.power.requirements": "在 System 阶段执行。\n\n使用本模板专用 GUID 和名称，重复运行复用已有计划；同名 GUID 被其他计划占用时停止。是否支持取决于 Windows 版本与硬件，不支持时明确报错，不回退到其他计划。若同时设置“首选电源计划”，后续执行的本模板会覆盖其激活结果；请仅选择一种配置方式。添加后默认停用。",
-  "v122.copyScriptContent": "复制脚本内容"
+  "v122.copyScriptContent": "复制脚本内容",
+  "v123.firewall.name": "高级诊断：防火墙丢弃日志",
+  "v123.firewall.purpose": "为域、专用和公用网络开启本地防火墙丢弃日志，用于排查部署后的连接问题。",
+  "v123.firewall.requirements": "在 System 阶段执行，仅设置本地 PersistentStore 的日志选项，默认日志上限为 16384 KiB，可编辑为 1–32767 KiB。\n\n保留各配置文件原有日志路径和成功连接日志设置，不改变防火墙开关、过滤规则或入站出站策略。组织策略仍可能覆盖实际生效值；取消模板不会撤销已经安装系统的更改。添加后默认停用。",
+  "v123.templates.aliases": "脚本模板 WinGet EXE 通用 安装包 静默 离线 SHA256 7-Zip Chrome 防火墙 丢弃 日志 高级诊断 generic installer offline installer firewall dropped packet logging",
+  "v123.winget.name": "WinGet 应用安装（通用）",
+  "v123.winget.purpose": "按明确的软件包 ID 安装应用，适用于联网部署；具体软件见使用示例。",
+  "v123.winget.requirements": "在 FirstLogon 阶段执行，需要 Windows 11 24H2 及以上、管理员登录、网络和可用的应用安装程序。先编辑脚本顶部的 PackageId，未填写时停止。\n\n最多等待 WinGet 就绪 300 秒，通过 winget 源精确匹配、整机静默安装；不强制升级，不绕过哈希验证。启用表示接受包和源协议。安装耗时不属于就绪等待上限，包必须支持整机静默安装；添加后默认停用。",
+  "v123.exe.name": "本地 EXE 静默安装（通用）",
+  "v123.exe.purpose": "从指定的本地 EXE 安装包静默安装应用，适用于离线或自备安装介质。",
+  "v123.exe.requirements": "在 System 阶段执行。先编辑 installerPath、expectedSha256、silentArguments，填写目标 Windows 可访问的本地 EXE 完整路径、可信安装包 SHA256，以及厂商要求的静默和禁止重启参数。三项未配置时停止。\n\n仅支持可独立运行的单文件 EXE，不支持依赖同目录附属文件的安装包。只运行核验通过的临时副本，等待结束并清理；不扫描、不下载、不自动判断安装包架构。不同软件的静默参数及退出码可能不同，当前接受 0 和 3010；确认适用于目标架构，并先在虚拟机验证。添加后默认停用。"
 }

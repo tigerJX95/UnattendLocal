@@ -45,6 +45,22 @@ static class ScriptTemplateTests
         Reject(() => ScriptTemplates.Add(full, "netfx3"));
         Check(full.Scripts.Count == 60, "capacity rejection is atomic");
         Check(SettingsSearchCatalog.All.Any(s => s.Target == "ScriptTemplateSelector" && s.Aliases.Contains("NetFx3")), "templates discoverable through settings search");
+        foreach (string query in new[] { "7-Zip", "SHA256", "丢弃", "firewall", "offline installer" })
+            Check(SettingsSearchCatalog.Search(query).Any(s => s.Target == "ScriptTemplateSelector"), "V1.23 template discoverability: " + query);
+        Check(ScriptTemplates.All.Count(t => t.Id is "winget-install" or "local-exe-install") == 2 &&
+              !ScriptTemplates.All.Any(t => t.Id is "chrome-winget" or "7zip-offline"), "one entry per generic installation method");
+        foreach (string oldId in new[] { "chrome-winget", "7zip-offline" }) {
+            var plan = InstallPlan.New();
+            var added = ScriptTemplates.Add(plan, oldId);
+            Check(!added.Enabled, "legacy template ID resolves safely: " + oldId);
+        }
+        var previous = QuickPresets.Create(QuickPresets.LocalAccount);
+        previous.Scripts.Add(new ScriptEntry { Name = "通过 WinGet 安装 Google Chrome", Enabled = true, Phase = "FirstLogon", Type = "Ps1", Content = "Write-Host 'saved legacy Chrome script';\n# user edits stay intact" });
+        var oldContent = previous.Scripts[0].Content;
+        var loaded = PlanStore.Deserialize(PlanStore.Serialize(previous, true));
+        Check(loaded.Scripts[0].Content == oldContent, "existing named application script is not migrated on JSON load");
+        var loadedXml = XmlPlanImport.Import(Encoding.UTF8.GetString(generator.Generate(previous)), generator);
+        Check(loadedXml.Scripts[0].Content.Replace("\r\n", "\n").Trim() == oldContent.Trim(), "existing application script survives XML roundtrip unchanged");
         Console.WriteLine($"Script templates: {count} checks passed.");
         return count;
     }
