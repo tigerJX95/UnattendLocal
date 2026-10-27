@@ -212,9 +212,11 @@ public class InstallPlan : Observable {
  private bool _HideTaskViewButton; public bool HideTaskViewButton {get=>_HideTaskViewButton;set=>Set(ref _HideTaskViewButton,value);}
  private bool _ShowAllTrayIcons; public bool ShowAllTrayIcons {get=>_ShowAllTrayIcons;set=>Set(ref _ShowAllTrayIcons,value);}
  private bool _DisableBingResults; public bool DisableBingResults {get=>_DisableBingResults;set=>Set(ref _DisableBingResults,value);}
- private string _ImageSelection=global::UnattendLocal.Localization.UiText.Source("text.cc65b6582544"); public string ImageSelection {get=>_ImageSelection;set=>Set(ref _ImageSelection,value);}
+ private bool _UseGeneratedPe; public bool UseGeneratedPe {get=>_UseGeneratedPe;set{if(_UseGeneratedPe==value)return;ClearDiskConsent();Set(ref _UseGeneratedPe,value);}}
+ private bool _PauseBeforePeReboot; public bool PauseBeforePeReboot {get=>_PauseBeforePeReboot;set{if(_PauseBeforePeReboot==value)return;ClearDiskConsent();Set(ref _PauseBeforePeReboot,value);}}
+ private string _ImageSelection=global::UnattendLocal.Localization.UiText.Source("text.cc65b6582544"); public string ImageSelection {get=>_ImageSelection;set{if(_ImageSelection==value)return;if(UseGeneratedPe)ClearDiskConsent();Set(ref _ImageSelection,value);}}
  private string _ImageName=""; public string ImageName {get=>_ImageName;set=>Set(ref _ImageName,value);}
- private int? _ImageIndex; public int? ImageIndex {get=>_ImageIndex;set=>Set(ref _ImageIndex,value);}
+ private int? _ImageIndex; public int? ImageIndex {get=>_ImageIndex;set{if(_ImageIndex==value)return;if(UseGeneratedPe)ClearDiskConsent();Set(ref _ImageIndex,value);}}
  private string _DiskMode=global::UnattendLocal.Localization.UiText.Source("text.4a9df1058984"); public string DiskMode {get=>_DiskMode;set{if(_DiskMode==value)return;ClearDiskConsent();Set(ref _DiskMode,value);}}
  private int? _TargetDiskId; public int? TargetDiskId {get=>_TargetDiskId;set{if(_TargetDiskId==value)return;ClearDiskConsent();Set(ref _TargetDiskId,value);}}
  private int? _TargetPartitionId; public int? TargetPartitionId {get=>_TargetPartitionId;set{if(_TargetPartitionId==value)return;ClearDiskConsent();Set(ref _TargetPartitionId,value);}}

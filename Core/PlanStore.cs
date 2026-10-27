@@ -57,6 +57,7 @@ public static class PlanStore {
    XmlPlanImport.RefreshRemainder(p);
   }
   p.ClearDiskConsent();
+  GeneratedPeSettings.NormalizeLoaded(p);
   return p;
  }
 }

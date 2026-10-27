@@ -11,6 +11,7 @@ public static class InstallationReview
     private static Target Unspecified => new(global::UnattendLocal.Localization.UiText.Source("text.551f5c31a0e6"), true);
     public static Target FromXml(XmlDocument doc)
     {
+        if(doc.SelectNodes("//*[local-name()='PEScriptCopy']")!.Count>0) return new(global::UnattendLocal.Localization.UiText.Source("v125.pe.review"), true);
         var ns = new XmlNamespaceManager(doc.NameTable); ns.AddNamespace("u", XmlMerge.Namespace);
         var images = doc.SelectNodes("/u:unattend/u:settings[@pass='windowsPE']/u:component[@name='Microsoft-Windows-Setup']/u:ImageInstall/u:OSImage", ns)!.Cast<XmlElement>().ToArray();
         if (images.Length > 1) return new(global::UnattendLocal.Localization.UiText.Source("text.cfd8e60d2e33"), true);

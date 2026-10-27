@@ -5,7 +5,7 @@
 
 UnattendLocal is a Windows desktop tool with Simplified Chinese and English interfaces based on [Christoph Schneegans’ UnattendGenerator](https://github.com/cschneegans/unattend-generator). It lets you edit, check, and generate `autounattend.xml` for Windows 10 / 11 locally.
 
-Current version: **V1.24**. Includes static IPv4/IPv6 dual stack, subnet-mask input, settings search, setup driver directories, Dynamic Update, partitioning, OOBE and account settings, and existing XML import/editing.
+Current version: **V1.25**. Includes static IPv4/IPv6 dual stack, subnet-mask input, settings search, setup driver directories, Dynamic Update, partitioning, OOBE and account settings, and existing XML import/editing.
 
 ## 💡 Why this project exists
 
@@ -23,7 +23,7 @@ See [first-logon options](docs/FirstLogon.md) and [XML import behavior](docs/Xml
 
 ## 📸 Screenshots
 
-These **V1.23 screenshots captured on Windows** show the English light and dark interfaces. Refer to the V1.24 update notes for the newly added features.
+These **V1.23 screenshots captured on Windows** show the English light and dark interfaces. Refer to the V1.25 update notes for the newly added features.
 
 | English · Light theme | English · Dark theme |
 | :---: | :---: |
@@ -56,6 +56,25 @@ The displayed product key is a public generic installation key for selecting an 
 - Save and restore JSON plans; review summaries, recommended-setting differences, checks, redacted previews, and XML exports.
 - Import existing XML and edit supported settings while preserving unknown content. Export stops with an explanation when changes cannot be merged reliably.
 
+## V1.25 Basic PE installation pipeline
+
+- Add an opt-in PE script installation mode, initially supporting x64, UEFI/GPT, wiping one specified target disk and image selection by index.
+- Use consistent, function-focused wording for PE option names, help, configuration summaries and search terms in both languages.
+- Remove first-line-only indentation from multiline descriptions on Image and partitions for consistent left alignment.
+- Left-align option summaries and short prompts across the interface, retain consistent paragraph indentation for Chinese prose, and keep English text left-aligned.
+- Group disk warnings by risk, preparation and responsibility, with consistent paragraph indentation, tighter spacing and matching English content.
+- Stretch IPv4/IPv6 content to align with shared network notes; center only protocol headers and keep selected-tab styling confined to the header.
+- Reuse the pinned generation core for disk selection, partitioning, image application, boot files and restart, retaining image integrity checks.
+- Check x64 PE, UEFI boot, image-index readability and image architecture before partitioning; stop on a mismatch.
+- Support pauses before partitioning and before the final PE restart, erase consent, JSON persistence, editable restoration from original XML, and bilingual search and help.
+- Keep the ordinary Setup path as the default. Reject unsupported combinations with Setup driver directories, Dynamic Update, a PE log directory, Compact OS, hardware-check bypass and extra windowsPE XML.
+- Retain the confirmed third-party-notices baseline, with Project labels and complete copyright and licence texts.
+
+Usage: [PE script installation](docs/GeneratedPe.md).
+
+<details>
+<summary>Update history (click to expand)</summary>
+
 ## V1.24 MAC-based naming, temporary update pause and security fix
 
 - Add MAC-based computer naming using one physical Ethernet adapter, with explicit errors for missing or ambiguous candidates.
@@ -68,9 +87,6 @@ The displayed product key is a public generic installation key for selecting an 
 - Remove the duplicate download link at the top. Keep the Release link in Download and usage, with all history preserved in the collapsed section.
 
 Usage: [Computer naming](docs/ComputerNameAndLanguages.md), [Script templates](docs/ScriptTemplates.md).
-
-<details>
-<summary>Update history (click to expand)</summary>
 
 ## V1.23 Generic application installation and advanced diagnostics
 
@@ -187,7 +203,7 @@ For media preparation and explicit invocation, see [XML and ISO export](docs/Ans
 
 Download and fully extract the program ZIP to keep the editable `Languages` folder beside the EXE. The EXE also has embedded Chinese and English fallback resources. See [language packs](docs/Localization.md).
 
-Download and run the matching Windows x64 executable from the repository’s [**Releases**](https://github.com/tigerJX95/UnattendLocal/releases/latest) page: `UnattendLocal_V1.24_x64_SelfContained.exe` or `UnattendLocal_V1.24_x64_FrameworkDependent.exe`. Choose `UnattendLocal_V1.24_x64_SelfContained.exe` for a bundled .NET runtime, or `UnattendLocal_V1.24_x64_FrameworkDependent.exe` if .NET 10 Desktop Runtime x64 is already installed. Both have the same features. Use a virtual machine for initial testing.
+Download and run the matching Windows x64 executable from the repository’s [**Releases**](https://github.com/tigerJX95/UnattendLocal/releases/latest) page: `UnattendLocal_V1.25_x64_SelfContained.exe` or `UnattendLocal_V1.25_x64_FrameworkDependent.exe`. Choose `UnattendLocal_V1.25_x64_SelfContained.exe` for a bundled .NET runtime, or `UnattendLocal_V1.25_x64_FrameworkDependent.exe` if .NET 10 Desktop Runtime x64 is already installed. Both have the same features. Use a virtual machine for initial testing.
 
 1. Choose a recommended scenario or a custom configuration and enter the required account and image settings.
 2. Adjust system, appearance, and application removal options as needed.

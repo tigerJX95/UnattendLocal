@@ -70,6 +70,15 @@ public static class UiText
     }
     private static string DisplayParagraphs(string text, string code)
     {
+        // Only authored prose opts into Chinese paragraph indentation. Labels,
+        // summaries, opaque examples and raw format arguments keep their layout.
+        bool indent = code == "zh-CN" && text.StartsWith("　　", StringComparison.Ordinal);
+        string display = SplitParagraphs(indent ? text[2..] : text, code);
+        return indent ? string.Join("\n", display.Split('\n').Select(line =>
+            string.IsNullOrWhiteSpace(line) ? line : "　　" + line.TrimStart('　'))) : display;
+    }
+    private static string SplitParagraphs(string text, string code)
+    {
         if (text.Contains('\n')) return text;
         if (code != "zh-CN") return text.Length > 200 ? Regex.Replace(text, @"(?<=[.!?]) +(?=[A-Z])", "\n\n") : text;
         if (text.Length < 110) return text;

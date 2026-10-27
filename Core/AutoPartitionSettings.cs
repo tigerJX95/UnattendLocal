@@ -49,6 +49,7 @@ public static class AutoPartitionSettings {
   return state;
  }
  public static void ValidateImported(InstallPlan p,XmlDocument doc){
+  if(GeneratedPeSettings.OwnsImported(p))return;
   var source=Inspect(doc);if(!source.Mentioned||source.Known)return;
   var before=Inspect(XmlMerge.Read(p.ImportedXml!.BaselineXml));
   if(before is {Known:true,Values:{} baseline}){

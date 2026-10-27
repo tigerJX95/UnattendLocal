@@ -87,6 +87,13 @@ static class LocalizationTests
             Check(namedSummary.Contains("取消") && namedSummary.Contains("默认") && namedSummary.Contains("Owner"), "translated summary preserves raw registered names");
             UiText.SetLanguage("zh-CN");
             Check(UiText.Translate(WorkgroupSettings.Description).Contains("\n\n"), "Chinese long explanations remain paragraphed");
+            string proseSource = UiText.Source("text.3cb88008e742");
+            string prose = UiText.Get("text.3cb88008e742");
+            Check(prose.Split("\n\n").Length > 1 && prose.Split("\n\n").All(p => p.StartsWith("　　")), "Chinese narrative retains indentation on every automatic paragraph");
+            Check(UiText.Get("v125.pe.name").StartsWith("使用 PE") && !UiText.Get("v125.pe.summary").StartsWith("　"), "option labels and summaries remain left aligned");
+            Check(UiText.Source("text.3cb88008e742") == proseSource, "paragraph display does not modify canonical prose");
+            UiText.SetLanguage("en-US");
+            Check(UiText.Get("text.f430459281cd") == "{0}" && !UiText.Get("text.3cb88008e742").StartsWith("　"), "English prose and prose format do not use Chinese indentation");
             UiText.SetLanguage("en-US");
             var preferences = Path.Combine(directory, "preferences.json");
             File.WriteAllText(preferences, "{\"theme\":\"Dark\"}");

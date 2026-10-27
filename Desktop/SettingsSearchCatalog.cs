@@ -10,6 +10,7 @@ public static class SettingsSearchCatalog
 {
     private static readonly SettingSearchResult[] Settings =
     [
+        new(global::UnattendLocal.Localization.UiText.Source("v125.pe.name"), global::UnattendLocal.Localization.UiText.Source("text.32a2f4068ea1"), 3, "GeneratedPeMode", "diskmode", global::UnattendLocal.Localization.UiText.Source("v125.pe.aliases"), global::UnattendLocal.Localization.UiText.Source("v125.pe.help")),
         new(global::UnattendLocal.Localization.UiText.Source("v124.mac.name"), global::UnattendLocal.Localization.UiText.Source("text.692873ddd8f4"), 1, "SettingAnchor006", "computer", global::UnattendLocal.Localization.UiText.Source("v124.naming.aliases")),
         new(global::UnattendLocal.Localization.UiText.Source("v124.pause.name"), global::UnattendLocal.Localization.UiText.Source("text.2f8dd7280e0a"), 13, "ScriptTemplateSelector", "customscripts", global::UnattendLocal.Localization.UiText.Source("v124.pause.aliases")),
         new(global::UnattendLocal.Localization.UiText.Source("text.ac30e70aed0a"), global::UnattendLocal.Localization.UiText.Source("text.97b31b5d63f5"), 5, "WorkgroupCheck", "workgroup", global::UnattendLocal.Localization.UiText.Source("text.7a659b816252")),

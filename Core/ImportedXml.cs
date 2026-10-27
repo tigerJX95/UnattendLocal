@@ -17,6 +17,7 @@ public class ImportedXml {
  public int SetupDriversImportVersion {get;set;}
  public bool SetupDriversReadOnly {get;set;}
  public bool AutoPartitionReadOnly {get;set;}
+ public bool GeneratedPeEditable {get;set;}
  public int StaticIPv4ImportVersion {get;set;}
  public bool StaticIPv4ReadOnly {get;set;}
  public int FirstLogonImportVersion {get;set;}

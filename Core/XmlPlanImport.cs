@@ -77,6 +77,7 @@ public static class XmlPlanImport {
   p.ImportedXml=new ImportedXml{AppRemovalImportVersion=2,AppRemovalReadOnly=appRemovalState.Ambiguous,SourceXml=original.OuterXml,BaselineXml=baseline,Notices=notes.Distinct().ToArray(),Blockers=blockers.Distinct().ToArray(),RequiresDiskReview=disk};
   p.ImportedXml.LegacyUpgradeReadOnly=LegacyUpgradeSettings.Inspect(doc).Ambiguous;
   p.ImportedXml.AutoPartitionReadOnly=partitionState.Mentioned&&!partitionState.Known;
+  GeneratedPeSettings.NormalizeLoaded(p);
   CompactOsSettings.UpdateImportState(p.ImportedXml,compactState);
   StaticIPv4Settings.UpdateImportState(p.ImportedXml,networkState);
   SetupDriverSettings.UpdateImportState(p.ImportedXml,driverState);

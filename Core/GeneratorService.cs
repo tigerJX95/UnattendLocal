@@ -27,6 +27,7 @@ public class GeneratorService {
  // This internal path never writes a user export; public generation always checks deployment.
  internal byte[] GenerateImportBaseline(InstallPlan p)=>GenerateDocument(p,false,false);
  private byte[] GenerateDocument(InstallPlan p,bool includeImport,bool checkDeployment=true) {
+  GeneratedPeSettings.Validate(p);
   NativePreferences.Validate(p);
   AdditionalXmlSettings.Validate(p,checkDeployment);
   if(checkDeployment)StaticIPv4Settings.ValidateDeployment(p);
@@ -99,10 +100,10 @@ public class GeneratorService {
    PasswordExpirationSettings=p.AccountMode!=global::UnattendLocal.Localization.UiText.Source("text.cdaa9a6700f6")?new DefaultPasswordExpirationSettings():p.PasswordExpiration switch {"永不过期"=>new UnlimitedPasswordExpirationSettings(),"Windows 默认"=>new DefaultPasswordExpirationSettings(),"指定天数"=>new CustomPasswordExpirationSettings(p.PasswordDays),_=>throw new ArgumentException(global::UnattendLocal.Localization.UiText.Source("text.ef0cd5829f6b"))},
    ExpressSettings=p.PrivacyMode switch {"安装时手动选择"=>ExpressSettingsMode.Interactive,"关闭快捷隐私设置"=>ExpressSettingsMode.DisableAll,"启用快捷设置"=>ExpressSettingsMode.EnableAll,_=>throw new ArgumentException(global::UnattendLocal.Localization.UiText.Source("text.f46ca367fb9b"))},
    BypassNetworkCheck=p.BypassNetwork,
-   PESettings=new DefaultPESettings(CreateEdition(p),HardwareSettings.AllEnabled(p)),
+   PESettings=GeneratedPeSettings.Build(p,CreateEdition(p)),
    ProcessorArchitectures=ImmutableHashSet.Create(Enum.Parse<ProcessorArchitecture>(p.Architecture))
   };
-  var doc=generator.GenerateXml(config);
+  var doc=GeneratedPeSettings.Generate(generator,config,p);
   var ns=new XmlNamespaceManager(doc.NameTable);ns.AddNamespace("u","urn:schemas-microsoft-com:unattend");
   foreach(XmlElement oobe in doc.SelectNodes("//u:OOBE",ns)!) {
    SetOobe(doc,ns,oobe,"HideEULAPage",p.HideEula);
@@ -110,9 +111,9 @@ public class GeneratorService {
    SetOobe(doc,ns,oobe,"HideWirelessSetupInOOBE",p.WifiMode!=global::UnattendLocal.Localization.UiText.Source("text.fd17c35ec3cc"));
    SetOobe(doc,ns,oobe,"HideOnlineAccountScreens",p.AccountMode==global::UnattendLocal.Localization.UiText.Source("text.5f78e95b6bd9")?false:p.HideOnlineAccount);
   }
-  HardwareSettings.Apply(doc,ns,p);
+  if(!p.UseGeneratedPe)HardwareSettings.Apply(doc,ns,p);
   LegacyUpgradeSettings.Apply(doc,p);
-  InstallationSettings.Apply(doc,ns,p);
+  if(!p.UseGeneratedPe)InstallationSettings.Apply(doc,ns,p);
   CompactOsSettings.Apply(doc,ns,p);
   StaticIPv4Settings.Apply(doc,ns,p);
   SetupDriverSettings.Apply(doc,ns,p);

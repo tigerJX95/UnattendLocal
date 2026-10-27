@@ -1,5 +1,7 @@
 # 自动分区设置 / Automatic partition options
 
+V1.25 另提供可选的[PE 脚本安装模式](GeneratedPe.md)；以下内容说明默认的常规 Setup 路径。
+
 “镜像与分区” → “清空指定磁盘后自动分区”。本轮在原有本地 Windows Setup / DiskPart 路径中接入原作者的系统分区大小、分区前暂停选项，不切换到完整的 GeneratePESettings 安装流程。
 
 | 设置 | 默认与范围 | 作用 |
