@@ -3874,5 +3874,13 @@
   "v125.pe.import": "导入的 PE 安装流程与本工具的原始流程不一致，不能通过此选项覆盖。请保留原文或使用可信的 JSON 方案重新配置。",
   "v125.pe.summary": "PE 脚本安装：x64 · UEFI/GPT；清空磁盘 {0}，安装镜像索引 {1}。",
   "v125.pe.aliases": "PE 安装 脚本 镜像索引 UEFI GPT DISM 引导 generated PE install image index",
-  "v125.pe.review": "安装由 PE 脚本接管；请核对完整脚本中的目标磁盘、镜像和分区操作。"
+  "v125.pe.review": "安装由 PE 脚本接管；请核对完整脚本中的目标磁盘、镜像和分区操作。",
+  "v126.msi.name": "本地 MSI 静默安装（通用）",
+  "v126.msi.purpose": "安装已准备的单文件 MSI，校验 SHA256 后通过 Windows Installer 静默执行。",
+  "v126.msi.requirements": "在 System 阶段执行，添加后默认停用。\n\n填写目标 Windows 可访问的本地 MSI 完整路径与可信 SHA256。模板只复制并校验指定 MSI，适用于资源内嵌的单文件安装包；不支持外部 CAB、MST、MSP、UNC 路径或额外安装参数。\n\n等待安装结束，返回码 3010 仅提示稍后重启；其他非零返回码报错，不自动重试。请核对软件授权、目标架构和静默安装支持，并在临时虚拟机验证。",
+  "v126.msi.aliases": "MSI msiexec Windows Installer 单文件 本地 静默安装 SHA256 norestart",
+  "v126.sandbox.name": "启用 Windows 沙盒",
+  "v126.sandbox.purpose": "启用系统提供的 Windows 沙盒组件及所需依赖，便于使用隔离的临时桌面环境。",
+  "v126.sandbox.requirements": "在首次管理员登录阶段执行，添加后默认停用。\n\n需要支持 Windows 沙盒的系统版本、已开启的硬件虚拟化及可用的本地组件源；虚拟机通常还需要嵌套虚拟化。本模板只配置组件，不检查或修改 BIOS、虚拟机主机设置，也不保证沙盒能成功启动。\n\n已启用时跳过；等待重启时仅提示。禁止自动重启，不从 Windows Update 获取缺失组件；组件不可用、源缺失、状态异常或安装失败时明确报错，不使用非官方启用补丁。可能需要稍后重启，组件依赖可能改变系统虚拟化环境。",
+  "v126.sandbox.aliases": "Windows Sandbox 沙盒 可选功能 虚拟化 Containers-DisposableClientVM"
 }

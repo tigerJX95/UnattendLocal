@@ -5,7 +5,7 @@
 
 UnattendLocal is a Windows desktop tool with Simplified Chinese and English interfaces based on [Christoph Schneegans’ UnattendGenerator](https://github.com/cschneegans/unattend-generator). It lets you edit, check, and generate `autounattend.xml` for Windows 10 / 11 locally.
 
-Current version: **V1.25**. Includes static IPv4/IPv6 dual stack, subnet-mask input, settings search, setup driver directories, Dynamic Update, partitioning, OOBE and account settings, and existing XML import/editing.
+Current version: **V1.26**. Includes static IPv4/IPv6 dual stack, subnet-mask input, settings search, setup driver directories, Dynamic Update, partitioning, OOBE and account settings, and existing XML import/editing.
 
 ## 💡 Why this project exists
 
@@ -56,6 +56,22 @@ The displayed product key is a public generic installation key for selecting an 
 - Save and restore JSON plans; review summaries, recommended-setting differences, checks, redacted previews, and XML exports.
 - Import existing XML and edit supported settings while preserving unknown content. Export stops with an explanation when changes cannot be merged reliably.
 
+## V1.26 MSI installation and Windows Sandbox
+
+- Add a generic local MSI template, running during System and added disabled.
+- Configure a full local MSI path and trusted SHA256. Copy and verify the package before invoking the system Windows Installer, without downloads or package discovery.
+- Request silent installation with no automatic restart and wait for completion. Exit code 3010 warns that a later restart is required; other nonzero codes fail without automatic retry.
+- Initially support single-file MSI packages with embedded resources. External CAB files, MST transforms, MSP patches, UNC paths and extra installer arguments are outside scope.
+- Add a Windows Sandbox template for first administrator logon. Enable the component and dependencies, skip an enabled feature and only warn if enablement is pending.
+- Add the Sandbox template disabled, suppress automatic restart and prevent Windows Update source fallback. Unsupported features, missing sources and unexpected states produce errors.
+- Both templates include bilingual descriptions, settings search, JSON persistence and editable restoration from app-exported XML. Existing saved script bodies remain unchanged.
+- Retain the V1.25 PE installation mode and bilingual layout fixes.
+
+Usage: [Practical script templates](docs/ScriptTemplates.md).
+
+<details>
+<summary>Update history (click to expand)</summary>
+
 ## V1.25 Basic PE installation pipeline
 
 - Add an opt-in PE script installation mode, initially supporting x64, UEFI/GPT, wiping one specified target disk and image selection by index.
@@ -71,9 +87,6 @@ The displayed product key is a public generic installation key for selecting an 
 - Retain the confirmed third-party-notices baseline, with Project labels and complete copyright and licence texts.
 
 Usage: [PE script installation](docs/GeneratedPe.md).
-
-<details>
-<summary>Update history (click to expand)</summary>
 
 ## V1.24 MAC-based naming, temporary update pause and security fix
 

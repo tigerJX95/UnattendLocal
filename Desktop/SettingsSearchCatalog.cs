@@ -10,6 +10,8 @@ public static class SettingsSearchCatalog
 {
     private static readonly SettingSearchResult[] Settings =
     [
+        new(global::UnattendLocal.Localization.UiText.Source("v126.sandbox.name"), global::UnattendLocal.Localization.UiText.Source("text.2f8dd7280e0a"), 13, "ScriptTemplateSelector", "customscripts", global::UnattendLocal.Localization.UiText.Source("v126.sandbox.aliases"), global::UnattendLocal.Localization.UiText.Source("v126.sandbox.requirements")),
+        new(global::UnattendLocal.Localization.UiText.Source("v126.msi.name"), global::UnattendLocal.Localization.UiText.Source("text.2f8dd7280e0a"), 13, "ScriptTemplateSelector", "customscripts", global::UnattendLocal.Localization.UiText.Source("v126.msi.aliases"), global::UnattendLocal.Localization.UiText.Source("v126.msi.requirements")),
         new(global::UnattendLocal.Localization.UiText.Source("v125.pe.name"), global::UnattendLocal.Localization.UiText.Source("text.32a2f4068ea1"), 3, "GeneratedPeMode", "diskmode", global::UnattendLocal.Localization.UiText.Source("v125.pe.aliases"), global::UnattendLocal.Localization.UiText.Source("v125.pe.help")),
         new(global::UnattendLocal.Localization.UiText.Source("v124.mac.name"), global::UnattendLocal.Localization.UiText.Source("text.692873ddd8f4"), 1, "SettingAnchor006", "computer", global::UnattendLocal.Localization.UiText.Source("v124.naming.aliases")),
         new(global::UnattendLocal.Localization.UiText.Source("v124.pause.name"), global::UnattendLocal.Localization.UiText.Source("text.2f8dd7280e0a"), 13, "ScriptTemplateSelector", "customscripts", global::UnattendLocal.Localization.UiText.Source("v124.pause.aliases")),

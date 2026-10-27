@@ -5,7 +5,7 @@
 
 UnattendLocal 是基于 [Christoph Schneegans 的 UnattendGenerator](https://github.com/cschneegans/unattend-generator) 开发的 Windows 桌面配置工具，支持简体中文与英语界面，用于在本地编辑、检查和生成 Windows 10 / 11 的 `autounattend.xml`。
 
-当前版本：**V1.25**。支持简体中文 / English 即时切换、独立语言包维护、静态 IPv4 / IPv6 双栈、子网掩码输入、设置搜索、安装驱动目录、动态更新、自动分区、OOBE 与账户配置，以及已有 XML 的导入编辑。
+当前版本：**V1.26**。支持简体中文 / English 即时切换、独立语言包维护、静态 IPv4 / IPv6 双栈、子网掩码输入、设置搜索、安装驱动目录、动态更新、自动分区、OOBE 与账户配置，以及已有 XML 的导入编辑。
 
 ## 💡 开发初衷
 
@@ -54,6 +54,22 @@ UnattendLocal 是基于 [Christoph Schneegans 的 UnattendGenerator](https://git
 - 保存和恢复 JSON 方案，提供配置摘要、推荐差异、检查、脱敏预览和 XML 导出。
 - 导入已有 XML 后编辑已支持设置，保留未知内容；遇到无法可靠合并的修改时停止导出并说明原因。
 
+## V1.26 MSI 安装与 Windows 沙盒 · 2026-10-27
+
+- 新增“本地 MSI 静默安装（通用）”脚本模板，在 System 阶段执行，添加后默认停用。
+- 支持填写本地 MSI 完整路径和可信 SHA256，复制并校验安装包后调用系统 Windows Installer；不下载或自动扫描安装包。
+- 使用静默安装与禁止重启参数，等待安装结束；返回码 3010 仅提示稍后重启，其他非零返回码明确报错，不自动重试。
+- 首阶段适用于资源内嵌的单文件 MSI，不支持外部 CAB、MST、MSP、UNC 路径及额外安装参数。
+- 新增“启用 Windows 沙盒”模板，在首次管理员登录阶段启用系统组件及依赖；已启用时跳过，待重启时仅提示。
+- 沙盒模板添加后默认停用，禁止自动重启，不从 Windows Update 获取缺失组件；不支持、源缺失或状态异常时明确报错。
+- 两项模板均支持中英文名称、用途与使用条件、设置搜索、方案保存及本程序 XML 恢复编辑；已有脚本内容保持原样。
+- 保留 V1.25 的 PE 基础安装模式及中英文界面排版修复。
+
+使用说明：[实用脚本模板](docs/ScriptTemplates.md)。
+
+<details>
+<summary>历史更新（点击展开）</summary>
+
 ## V1.25 PE 基础安装流程 · 2026-10-27
 
 - 新增默认关闭的 PE 脚本安装模式，首阶段支持 x64、UEFI/GPT、清空指定目标磁盘及按镜像索引安装。
@@ -69,9 +85,6 @@ UnattendLocal 是基于 [Christoph Schneegans 的 UnattendGenerator](https://git
 - 沿用最新版第三方引用与鸣谢文档，网址标签统一为“项目 / Project”，保留完整版权与许可。
 
 使用说明：[PE 脚本安装](docs/GeneratedPe.md)。
-
-<details>
-<summary>历史更新（点击展开）</summary>
 
 ## V1.24 计算机命名、临时更新暂停与安全修复 · 2026-10-26
 

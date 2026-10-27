@@ -36480,5 +36480,77 @@
     ],
     "RawArgs": [],
     "ProtectedTokens": []
+  },
+  "v126.msi.name": {
+    "Source": "本地 MSI 静默安装（通用）",
+    "SourceHash": "c7742088fdf9d0579fa1e656a2a338af9bf2a56fd6211f8d5ca5f0e8762d181d",
+    "Contexts": [
+      "Core/ScriptTemplates.cs"
+    ],
+    "RawArgs": [],
+    "ProtectedTokens": []
+  },
+  "v126.msi.purpose": {
+    "Source": "安装已准备的单文件 MSI，校验 SHA256 后通过 Windows Installer 静默执行。",
+    "SourceHash": "71a104b9f14e684a2bccab7f4ff26d52adb96f4ffb78fd05a95d20c65c290781",
+    "Contexts": [
+      "Core/ScriptTemplates.cs"
+    ],
+    "RawArgs": [],
+    "ProtectedTokens": []
+  },
+  "v126.msi.requirements": {
+    "Source": "在 System 阶段执行，添加后默认停用。\n\n填写目标 Windows 可访问的本地 MSI 完整路径与可信 SHA256。模板只复制并校验指定 MSI，适用于资源内嵌的单文件安装包；不支持外部 CAB、MST、MSP、UNC 路径或额外安装参数。\n\n等待安装结束，返回码 3010 仅提示稍后重启；其他非零返回码报错，不自动重试。请核对软件授权、目标架构和静默安装支持，并在临时虚拟机验证。",
+    "SourceHash": "88b5a554d6c12e3dc49ed518c12fa79ce13260d8363cefabf5d427476eabc500",
+    "Contexts": [
+      "Core/ScriptTemplates.cs"
+    ],
+    "RawArgs": [],
+    "ProtectedTokens": []
+  },
+  "v126.msi.aliases": {
+    "Source": "MSI msiexec Windows Installer 单文件 本地 静默安装 SHA256 norestart",
+    "SourceHash": "ed96a5ddbb51621067b94a182f5bbbb3a083785f63f71e8435a0780c4db02244",
+    "Contexts": [
+      "Desktop/SettingsSearchCatalog.cs"
+    ],
+    "RawArgs": [],
+    "ProtectedTokens": []
+  },
+  "v126.sandbox.name": {
+    "Source": "启用 Windows 沙盒",
+    "SourceHash": "edfa0841ec6f82d8d340e07a05bb9105ff2c885f4287f3283e3128dab440239b",
+    "Contexts": [
+      "Core/ScriptTemplates.cs"
+    ],
+    "RawArgs": [],
+    "ProtectedTokens": []
+  },
+  "v126.sandbox.purpose": {
+    "Source": "启用系统提供的 Windows 沙盒组件及所需依赖，便于使用隔离的临时桌面环境。",
+    "SourceHash": "ab5e5f665b6e5b1435b22d969b059d44bea2619ce29f120810d454e6be9b0774",
+    "Contexts": [
+      "Core/ScriptTemplates.cs"
+    ],
+    "RawArgs": [],
+    "ProtectedTokens": []
+  },
+  "v126.sandbox.requirements": {
+    "Source": "在首次管理员登录阶段执行，添加后默认停用。\n\n需要支持 Windows 沙盒的系统版本、已开启的硬件虚拟化及可用的本地组件源；虚拟机通常还需要嵌套虚拟化。本模板只配置组件，不检查或修改 BIOS、虚拟机主机设置，也不保证沙盒能成功启动。\n\n已启用时跳过；等待重启时仅提示。禁止自动重启，不从 Windows Update 获取缺失组件；组件不可用、源缺失、状态异常或安装失败时明确报错，不使用非官方启用补丁。可能需要稍后重启，组件依赖可能改变系统虚拟化环境。",
+    "SourceHash": "3e00119e91d1f8a375cd75010f26b5b8833ab1c2d49e86f950af4c0ad2824c6e",
+    "Contexts": [
+      "Core/ScriptTemplates.cs"
+    ],
+    "RawArgs": [],
+    "ProtectedTokens": []
+  },
+  "v126.sandbox.aliases": {
+    "Source": "Windows Sandbox 沙盒 可选功能 虚拟化 Containers-DisposableClientVM",
+    "SourceHash": "5be8a292507245855cc0ee00d58ef8990a32e9ed3c4888442e917b8a8a369f26",
+    "Contexts": [
+      "Desktop/SettingsSearchCatalog.cs"
+    ],
+    "RawArgs": [],
+    "ProtectedTokens": []
   }
 }

@@ -4,6 +4,20 @@
 
 模板是普通 PowerShell 脚本，可修改、排序、删除、另存文件以及随方案保存。已添加的脚本不会因模板选择变化而改变。启用后，每个阶段最多 15 条，总计最多 60 条；完全相同的模板内容和阶段不能重复添加。
 
+## 启用 Windows 沙盒 / Enable Windows Sandbox
+
+在首次管理员登录（FirstLogon）阶段，以管理员权限调用 Windows 组件管理命令启用 `Containers-DisposableClientVM` 及依赖。添加后默认停用，不在编辑或导出时修改当前电脑。首次使用前，请核对目标 Windows 的版本、虚拟化支持及本地组件源，并在临时虚拟机验证。
+
+已启用时跳过，处于启用待重启状态时仅提示。只从本地组件源启用，使用 `-All -LimitAccess -NoRestart`；不从 Windows Update 补齐缺失源，也不自动重启。目标系统没有该组件、源已移除、正在停用或状态异常时停止；组件安装后会再次查询状态，未达到已启用或启用待重启状态时报错。组件管理失败可能留下已处理的依赖或待重启状态，不承诺回滚，也不自动重试。
+
+本模板只配置系统组件，不安装非官方补丁、不修改 BIOS 或虚拟机主机设置，也不证明沙盒能成功启动。运行沙盒仍需要已启用的硬件虚拟化及相应系统、内存、处理器和磁盘条件；虚拟机中通常需要主机支持并开启嵌套虚拟化。启用依赖可能影响现有虚拟化软件的运行环境。需要时在部署完成后手动重启，再验证沙盒启动；客户端安装、更新和联网行为遵循目标系统自身机制。
+
+The disabled-by-default FirstLogon template requires an elevated administrator session. It enables `Containers-DisposableClientVM` and dependencies using local Windows component sources with `-All -LimitAccess -NoRestart`. It skips an enabled component and only warns if enablement is pending. Missing features or payloads, unexpected states and servicing failures produce errors without automatic retry or restart. The resulting feature state is checked after enablement; partial servicing changes are not rolled back automatically.
+
+This configures the component only. It does not apply unofficial patches, change BIOS or VM host settings, or guarantee that Sandbox will start. Verify supported Windows, hardware virtualization and resource requirements; VM use generally needs nested virtualization. Dependencies may affect existing virtualization software. Restart manually later when needed and test Sandbox startup. Client installation, updates and network behavior remain governed by the target system.
+
+官方依据 / References: [Install Windows Sandbox](https://learn.microsoft.com/en-us/windows/security/application-security/application-isolation/windows-sandbox/windows-sandbox-install), [Enable-WindowsOptionalFeature](https://learn.microsoft.com/en-us/powershell/module/dism/enable-windowsoptionalfeature).
+
 ## 安装阶段临时暂停更新一小时 / Temporary setup update pause
 
 参考原作者示例，在 System 阶段设置更新暂停时间。添加后默认停用；核对用途后启用。它不禁用更新服务、不创建持续暂停任务。
@@ -20,7 +34,7 @@ Source: [upstream one-hour update-pause example](https://schneegans.de/windows/u
 
 ## 通用应用安装与高级诊断 / Generic installation and advanced diagnostics
 
-安装模板按安装方式分类。具体软件是使用示例，不单独增加一个模板。EXE、WinGet 两种入口添加后都默认停用；先配置并在隔离虚拟机验证，再启用。已有方案与 XML 中保存的脚本仍按原文恢复，不会自动替换为新版通用模板。
+安装模板按安装方式分类。具体软件是使用示例，不单独增加一个模板。EXE、MSI、WinGet 三种入口添加后都默认停用；先配置并在隔离虚拟机验证，再启用。已有方案与 XML 中保存的脚本仍按原文恢复，不会自动替换为新版通用模板。
 
 ### 本地 EXE 静默安装（通用）
 
@@ -47,6 +61,27 @@ $silentArguments = '/S'
 示例哈希占位文字不能直接运行。实际安装介质盘符可能变化，务必填写目标系统执行阶段可访问的路径；由你选择匹配目标架构的安装包。其他 EXE 可能使用 `/quiet /norestart` 或 `/VERYSILENT /NORESTART` 等完全不同的参数，不能照搬 `/S`。
 
 模板复制到独立临时目录并验证副本后才运行，等待退出并清理。接受返回码 0 和 3010，3010 仅提示稍后重启；其他退出码报错，需要结合厂商文档判断。模板不主动重启，但不能阻止第三方安装程序按自身逻辑重启，需核对参数和实际行为。安装进程本身没有超时限制。重复运行会再次调用安装程序，不保证任意软件的升级、降级或幂等行为。
+
+### 本地 MSI 静默安装（通用） / Local MSI silent installation
+
+执行阶段为 System，添加后默认停用。适用于资源内嵌、无需同目录其他文件的单文件 MSI。修改脚本顶部两个值：
+
+| 字段 | 内容 |
+|---|---|
+| `installerPath` | 目标 Windows 可访问的本地 MSI 完整路径，支持空格、中文和方括号；不支持相对路径、UNC 或替代数据流 |
+| `expectedSha256` | 从可信安装包获得的 64 位 SHA256 十六进制值 |
+
+可用 `Get-FileHash -LiteralPath 'D:\Install\Package.msi' -Algorithm SHA256` 核对哈希。模板将指定 MSI 复制到独立临时目录，校验副本后调用系统 `msiexec.exe`，使用 `/i`、`/qn`、`/norestart` 和 `REBOOT=ReallySuppress`，等待退出并清理临时目录。添加或导出模板不会在当前电脑上安装软件；模板本身不下载或自动查找安装包。
+
+返回码 0 表示完成，3010 表示完成但需要稍后重启；其他非零返回码报错，包括 1618（已有安装正在进行），不自动重试。模板不自动重启，但安装包自定义操作可能具有独立行为，须核对厂商文档并实际验证。安装进程没有超时限制，不保证重复执行时的升级、降级或幂等行为。
+
+只校验指定 MSI，不支持外部 CAB、MST 变换、MSP 补丁或额外安装参数，也不会复制其他配套文件。请选用匹配目标架构、支持此阶段及静默安装的完整安装包；需要首次登录环境或额外参数的软件，应另行准备并验证自定义脚本。临时副本会被删除，后续修复、修改或卸载时可能要求再次提供安装源，请保留可信安装介质。
+
+The disabled-by-default System template accepts a full local MSI path and its trusted SHA256. It stages and verifies only that file before invoking the system Windows Installer with `/i`, `/qn`, `/norestart` and `REBOOT=ReallySuppress`, waits for completion and cleans the temporary copy. Exit code 3010 warns about a later restart; other nonzero codes fail without retry, including 1618. No software is installed by adding or exporting the template.
+
+Use a self-contained MSI with embedded resources. External CAB files, MST transforms, MSP patches and additional installer arguments are outside scope. Match the target architecture, verify support for the System stage and silent installation, and test in a disposable VM. Package custom actions may behave independently. There is no process timeout or guarantee of idempotency. Keep trusted installation media available for later repair or maintenance because the temporary source is removed.
+
+依据 / References: [msiexec](https://learn.microsoft.com/en-us/windows-server/administration/windows-commands/msiexec), [REBOOT property](https://learn.microsoft.com/en-us/windows/win32/msi/reboot), [Installer return codes](https://learn.microsoft.com/en-us/windows/win32/msi/error-codes), [Compressed and uncompressed sources](https://learn.microsoft.com/en-us/windows/win32/msi/compressed-and-uncompressed-sources).
 
 ### 高级诊断：防火墙丢弃日志
 

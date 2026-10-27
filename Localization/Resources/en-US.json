@@ -3874,5 +3874,13 @@
   "v125.pe.import": "The imported PE pipeline does not match this tool's original pipeline and cannot be overwritten through this option. Preserve the original or configure a trusted JSON plan.",
   "v125.pe.summary": "PE script installation: x64 · UEFI/GPT; wipe disk {0} and install image index {1}.",
   "v125.pe.aliases": "PE installation script image index UEFI GPT DISM boot generated",
-  "v125.pe.review": "Installation is handled by a PE script. Review the target disk, image and partition operations in the complete script."
+  "v125.pe.review": "Installation is handled by a PE script. Review the target disk, image and partition operations in the complete script.",
+  "v126.msi.name": "Local MSI silent installation (generic)",
+  "v126.msi.purpose": "Install a prepared single-file MSI silently with Windows Installer after verifying its SHA256.",
+  "v126.msi.requirements": "Runs during System and is added disabled.\n\nSet the full local MSI path accessible on the target Windows system and its trusted SHA256. Only the specified MSI is copied and verified; use a self-contained package with embedded resources. External CAB files, MST transforms, MSP patches, UNC paths and extra installer arguments are outside this template’s scope.\n\nWaits for installation to finish. Exit code 3010 only warns that a later restart is required; other nonzero codes fail without automatic retry. Review software licensing, target architecture and silent-install support, and test in a disposable VM.",
+  "v126.msi.aliases": "MSI msiexec Windows Installer single-file local silent installation SHA256 norestart",
+  "v126.sandbox.name": "Enable Windows Sandbox",
+  "v126.sandbox.purpose": "Enable the built-in Windows Sandbox component and required dependencies for an isolated temporary desktop environment.",
+  "v126.sandbox.requirements": "Runs at the first administrator logon and is added disabled.\n\nRequires a Windows edition that supports Sandbox, enabled hardware virtualization and available local component sources. Virtual machines generally also need nested virtualization. This template configures the component only; it does not inspect or change BIOS or VM host settings, or guarantee that Sandbox will start.\n\nSkips an enabled component and only warns if enablement is pending. Suppresses automatic restart and does not fetch missing component payloads from Windows Update. Unsupported features, missing sources, unexpected states or servicing failures produce errors without unofficial patches. A later restart may be needed, and dependencies may affect the system virtualization environment.",
+  "v126.sandbox.aliases": "Windows Sandbox optional feature virtualization Containers-DisposableClientVM"
 }

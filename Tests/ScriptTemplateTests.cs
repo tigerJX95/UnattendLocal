@@ -45,9 +45,9 @@ static class ScriptTemplateTests
         Reject(() => ScriptTemplates.Add(full, "netfx3"));
         Check(full.Scripts.Count == 60, "capacity rejection is atomic");
         Check(SettingsSearchCatalog.All.Any(s => s.Target == "ScriptTemplateSelector" && s.Aliases.Contains("NetFx3")), "templates discoverable through settings search");
-        foreach (string query in new[] { "7-Zip", "SHA256", "丢弃", "firewall", "offline installer" })
+        foreach (string query in new[] { "7-Zip", "SHA256", "丢弃", "firewall", "offline installer", "msiexec", "MSI", "Windows Sandbox", "沙盒" })
             Check(SettingsSearchCatalog.Search(query).Any(s => s.Target == "ScriptTemplateSelector"), "V1.23 template discoverability: " + query);
-        Check(ScriptTemplates.All.Count(t => t.Id is "winget-install" or "local-exe-install") == 2 &&
+        Check(ScriptTemplates.All.Count(t => t.Id is "winget-install" or "local-exe-install" or "local-msi-install") == 3 &&
               !ScriptTemplates.All.Any(t => t.Id is "chrome-winget" or "7zip-offline"), "one entry per generic installation method");
         foreach (string oldId in new[] { "chrome-winget", "7zip-offline" }) {
             var plan = InstallPlan.New();

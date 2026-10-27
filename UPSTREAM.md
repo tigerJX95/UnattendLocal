@@ -48,3 +48,7 @@
 ## V1.25 PE 基础安装接入
 
 2026-10-27：接入固定核心的 GeneratePESettings，再通过 ScriptPESetttings 重发加入前置检查的完整脚本，保持原作者写入 PE 脚本及执行链一致。首阶段限定 x64、UEFI/GPT、指定单个目标磁盘、镜像索引和恢复分区。前置检查采用微软 DISM /English /Get-ImageInfo、Windows PE 启动信息以及目标磁盘查询；原始 vendor 代码不变。旧版 Setup 路径继续默认启用，相关限制、使用与验证见 docs/GeneratedPe.md。
+
+## V1.26 MSI 安装与 Windows 沙盒模板
+
+2026-10-27：依据微软 Windows Installer 文档新增普通 System 阶段 MSI 脚本模板，与既有 WinGet/EXE 安装方式并列；另依据微软文档新增 FirstLogon 阶段 Windows 沙盒组件模板，使用本地组件源且禁止自动重启。不是更新 vendor 生成核心；安装包路径、哈希校验、返回码与限制见 docs/ScriptTemplates.md。

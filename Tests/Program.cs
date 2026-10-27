@@ -2092,4 +2092,4 @@ Console.WriteLine($"V1.23 final total: {count} tests passed.");
 count+=V124SecurityAndNamingTests.Run(g);
 Console.WriteLine($"V1.24 final total: {count} tests passed.");
 
-count+=GeneratedPeTests.Run(g);Console.WriteLine($"V1.25 final total: {count} tests passed.");
+count+=GeneratedPeTests.Run(g);Console.WriteLine($"V1.25 final total: {count} tests passed.");Console.WriteLine($"V1.26 final total: {count} tests passed.");
