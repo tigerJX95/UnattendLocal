@@ -20,6 +20,12 @@ public sealed record ConfigurationErrorLocation(SettingSearchResult Setting, int
         }
         string targetName = field switch {
             nameof(InstallPlan.UseGeneratedPe) => "GeneratedPeMode",
+            nameof(InstallPlan.PeTargetMode) => "PeDiskSelectionMode",
+            nameof(InstallPlan.PeMinDiskGiB) or nameof(InstallPlan.PeMaxDiskGiB) => "PeMinCapacityEditor",
+            nameof(InstallPlan.PeMatchDiskIndex) => "PeMatchIndexEditor",
+            nameof(InstallPlan.PeTargetScript) => "PeTargetScriptEditor",
+            nameof(InstallPlan.TargetDiskId) => "SettingAnchor062",
+            nameof(InstallPlan.DiskLayout) => "SettingAnchor066",
             nameof(InstallPlan.ImageIndex) => "SettingAnchor057",
 
             nameof(InstallPlan.PageFileInitialMiB) => "PageFileInitialEditor",

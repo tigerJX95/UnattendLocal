@@ -5,7 +5,7 @@
 
 UnattendLocal 是基于 [Christoph Schneegans 的 UnattendGenerator](https://github.com/cschneegans/unattend-generator) 开发的 Windows 桌面配置工具，支持简体中文与英语界面，用于在本地编辑、检查和生成 Windows 10 / 11 的 `autounattend.xml`。
 
-当前版本：**V1.26**。支持简体中文 / English 即时切换、独立语言包维护、静态 IPv4 / IPv6 双栈、子网掩码输入、设置搜索、安装驱动目录、动态更新、自动分区、OOBE 与账户配置，以及已有 XML 的导入编辑。
+当前版本：**V1.27**。支持简体中文 / English 即时切换、独立语言包维护、静态 IPv4 / IPv6 双栈、子网掩码输入、设置搜索、安装驱动目录、动态更新、自动分区、OOBE 与账户配置，以及已有 XML 的导入编辑。
 
 ## 💡 开发初衷
 
@@ -54,6 +54,22 @@ UnattendLocal 是基于 [Christoph Schneegans 的 UnattendGenerator](https://git
 - 保存和恢复 JSON 方案，提供配置摘要、推荐差异、检查、脱敏预览和 XML 导出。
 - 导入已有 XML 后编辑已支持设置，保留未知内容；遇到无法可靠合并的修改时停止导出并说明原因。
 
+## V1.27 磁盘部署安全与启动兼容性增强 · 2026-10-27
+
+- PE 脚本安装支持固定编号、按条件唯一匹配、安装时交互及自定义 VBScript 四种选盘方式；旧方案仍默认固定编号，不自动切换安装路径。
+- 支持容量范围、可选匹配编号、无分区、IDE/SCSI 接口及固定介质条件；容量按字节比较，无匹配或多个匹配时停止，不自行选择第一个。
+- 在分区前记录并复核磁盘编号、设备标识、容量和启动方式；复核位于可选暂停之后，查询失败、条件不符或目标变化时拒绝工具生成的破坏性分区调用。
+- 排除能够映射到安装镜像、应答文件或 PE 系统盘的目标，保留清盘确认；修改选盘条件、脚本及相关参数后需重新确认。
+- 支持 x64 PE 的 UEFI/GPT、BIOS/MBR 和跟随启动方式布局；固定布局不匹配时中止，UEFI 专用 bcdedit 仅在 GPT 路径执行。
+- 自定义选盘脚本须在 60 秒内输出一个有效编号，异常退出、错误输出、多个编号或额外文字均拒绝；脚本为可信可执行代码，不属于安全沙盒。
+- 补齐中英文界面、搜索、参数定位、配置摘要、JSON 保存及有效原始 XML 恢复编辑，并处理 PE 命令行长度限制。
+- 附带六项最小虚拟机验收清单及 Windows 选盘脚本模拟测试。
+
+使用说明：[PE 脚本安装](docs/GeneratedPe.md) · [部署验证](docs/PeDeploymentValidation.md)。
+
+<details>
+<summary>历史更新（点击展开）</summary>
+
 ## V1.26 MSI 安装与 Windows 沙盒 · 2026-10-27
 
 - 新增“本地 MSI 静默安装（通用）”脚本模板，在 System 阶段执行，添加后默认停用。
@@ -66,9 +82,6 @@ UnattendLocal 是基于 [Christoph Schneegans 的 UnattendGenerator](https://git
 - 保留 V1.25 的 PE 基础安装模式及中英文界面排版修复。
 
 使用说明：[实用脚本模板](docs/ScriptTemplates.md)。
-
-<details>
-<summary>历史更新（点击展开）</summary>
 
 ## V1.25 PE 基础安装流程 · 2026-10-27
 

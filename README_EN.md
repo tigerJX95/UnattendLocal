@@ -5,7 +5,7 @@
 
 UnattendLocal is a Windows desktop tool with Simplified Chinese and English interfaces based on [Christoph Schneegans’ UnattendGenerator](https://github.com/cschneegans/unattend-generator). It lets you edit, check, and generate `autounattend.xml` for Windows 10 / 11 locally.
 
-Current version: **V1.26**. Includes static IPv4/IPv6 dual stack, subnet-mask input, settings search, setup driver directories, Dynamic Update, partitioning, OOBE and account settings, and existing XML import/editing.
+Current version: **V1.27**. Includes static IPv4/IPv6 dual stack, subnet-mask input, settings search, setup driver directories, Dynamic Update, partitioning, OOBE and account settings, and existing XML import/editing.
 
 ## 💡 Why this project exists
 
@@ -56,6 +56,22 @@ The displayed product key is a public generic installation key for selecting an 
 - Save and restore JSON plans; review summaries, recommended-setting differences, checks, redacted previews, and XML exports.
 - Import existing XML and edit supported settings while preserving unknown content. Export stops with an explanation when changes cannot be merged reliably.
 
+## V1.27 Disk deployment safety and boot compatibility
+
+- Add fixed, unique-match, interactive and custom-VBScript target selectors to PE installation. Older plans retain fixed numbering and their installation path.
+- Support byte-exact capacity bounds, optional matching index, unpartitioned disks, IDE/SCSI interfaces and fixed media. Zero or multiple matches stop rather than selecting the first disk.
+- Record and recheck disk index, device identity, capacity and firmware immediately before the destructive partition call, after any optional pause. Query failures, changed targets and failed conditions stop that call.
+- Exclude disks mapped to identified installation-image, answer-file and PE system volumes. Retain erase consent and clear it when relevant settings change.
+- Support x64 PE with UEFI/GPT, BIOS/MBR or firmware-matched layout. Conflicting fixed layouts stop; firmware-boot-manager bcdedit remains GPT-only.
+- Require one valid index from custom scripts within 60 seconds, with exit code 0 and empty stderr. Extra output and failures stop selection. These scripts are trusted executable code, not sandboxed.
+- Include bilingual UI, search, error locations, condition summaries, JSON persistence and original-XML restoration, with short-fragment export for PE command-length limits.
+- Include the six-case VM checklist and Windows-only selector runtime simulations.
+
+Usage: [PE installation](docs/GeneratedPe.md) · [Deployment validation](docs/PeDeploymentValidation.md).
+
+<details>
+<summary>Update history (click to expand)</summary>
+
 ## V1.26 MSI installation and Windows Sandbox
 
 - Add a generic local MSI template, running during System and added disabled.
@@ -68,9 +84,6 @@ The displayed product key is a public generic installation key for selecting an 
 - Retain the V1.25 PE installation mode and bilingual layout fixes.
 
 Usage: [Practical script templates](docs/ScriptTemplates.md).
-
-<details>
-<summary>Update history (click to expand)</summary>
 
 ## V1.25 Basic PE installation pipeline
 

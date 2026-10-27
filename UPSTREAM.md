@@ -52,3 +52,18 @@
 ## V1.26 MSI 安装与 Windows 沙盒模板
 
 2026-10-27：依据微软 Windows Installer 文档新增普通 System 阶段 MSI 脚本模板，与既有 WinGet/EXE 安装方式并列；另依据微软文档新增 FirstLogon 阶段 Windows 沙盒组件模板，使用本地组件源且禁止自动重启。不是更新 vendor 生成核心；安装包路径、哈希校验、返回码与限制见 docs/ScriptTemplates.md。
+
+## V1.27 磁盘部署安全与启动兼容性
+
+2026-10-27：以 V1.26 两项模板完整项目为基线，重新读取并核对：
+
+- 动态选盘提交 `8a362f03a8b97bc7e583643818be33444636bb43`（2026-09-04）。
+- 移除旧磁盘断言脚本提交 `28c2d0f951f69caa3b0099b5eaab4dc02fee514b`（2026-09-15）。
+- 限制 bcdedit 提交 `22b79226057e6fc522236ee99f133eafee1cf748`（2026-09-18）。
+- 当前主分支读取对应最近提交 `82d4ffdd11ea3266f8f3b29d4fcd80f66bfdbaf6`，`modifier/Disk.cs` blob 为 `75330016ba22ca786d5b9f333fbd7000f5f3b4fa`。
+
+固定核心已经包含四类目标选择模型、旧断言移除及 GPT-only bcdedit。当前 Disk.cs 与本地固定文件的实质差异是后续 UseConfigurationSet 无条件处理，不属于本轮磁盘选择/启动修复范围。因此不直接摘取旧提交，不回填已删除的断言 API，也不整库替换 vendor。
+
+本地增加 `PeDiskSafety` 与 `PeTargetDisk.vbs`，经既有 ScriptTargetDiskSettings/ScriptPESetttings 写入完整 PE 流程：严格输出、唯一匹配、按字节容量判断、安装源排除、目标快照，以及暂停之后/破坏性 DiskPart 调用之前的再次检查。保留既有脚本阶段和常规 Setup 默认路径。
+
+A03 在这里是本地磁盘误操作防护目标，不将其表述为官方确认的漏洞编号或已消除所有数据丢失风险。自定义脚本仍为完全可信代码；设备变化、安装源映射与真实安装的边界见 GeneratedPe.md。六项真实 VM 安装仍待验证，未将自动生成检查或模拟磁盘测试计作真实安装通过。

@@ -1,6 +1,8 @@
 # Works with Windows PowerShell 5.1. Version and names come from Desktop.csproj.
 [CmdletBinding()]
 param([string]$OutputRoot, [switch]$CreateZip)
+$env:DOTNET_CLI_TELEMETRY_OPTOUT = '1'
+$env:POWERSHELL_TELEMETRY_OPTOUT = '1'
 $ErrorActionPreference = 'Stop'
 Set-StrictMode -Version 2.0
 $project = Join-Path $PSScriptRoot 'Desktop/Desktop.csproj'

@@ -35,7 +35,7 @@ static class GeneratedPeTests
         var p = Plan(); var xml = g.Generate(p); string script = Script(xml);
         Check(script.Contains("rem UnattendLocal generated PE v1"), "upstream script mode exported");
         Check(System.Text.RegularExpressions.Regex.IsMatch(script, @"select disk[= ]%TARGET_DISK%", System.Text.RegularExpressions.RegexOptions.IgnoreCase), "selected disk pipeline");
-        Check(script.Contains("expected = 0"), "explicit target index WMI query");
+        Check(script.Contains("Const FixedIndex = 0"), "explicit target index WMI query");
         Check(script.Contains("create partition efi", StringComparison.OrdinalIgnoreCase) && script.Contains("create partition msr", StringComparison.OrdinalIgnoreCase), "GPT boot and MSR partitions");
         Check(script.Contains("/CheckIntegrity /Verify"), "image verification retained");
         Check(script.Contains("bcdboot.exe") && script.Contains("wpeutil.exe reboot"), "boot files and reboot");
@@ -78,7 +78,7 @@ static class GeneratedPeTests
         try { _ = g.Generate(foreign); throw new Exception("PE regression: overwrote unrecognized PE pipeline"); } catch (ArgumentException) { count++; }
         Reject(x => x.Architecture = "arm64", "ARM64 initial mode");
         Reject(x => x.Architecture = "x86", "x86 initial mode");
-        Reject(x => x.DiskLayout = "BIOS / MBR", "MBR");
+
         Reject(x => x.DiskMode = InstallationSettings.Existing, "existing partition");
         Reject(x => x.DiskMode = InstallationSettings.Manual, "interactive disk mode");
         Reject(x => x.ImageSelection = UiText.Source("text.5965e61aee4c"), "image name");
@@ -98,7 +98,7 @@ static class GeneratedPeTests
         {
             var t = Plan(); t.TargetDiskId = disk; t.ImageIndex = image; t.ConfirmWipeDisk = true;
             string value = Script(g.Generate(t));
-            Check(value.Contains("expected = " + disk) && value.Contains("/Index:" + image), "selected disk/image pair " + disk + "/" + image);
+            Check(value.Contains("Const FixedIndex = " + disk) && value.Contains("/Index:" + image), "selected disk/image pair " + disk + "/" + image);
         }
         return count;
     }

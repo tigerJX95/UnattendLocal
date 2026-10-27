@@ -2,6 +2,8 @@
 # Compatible with Windows PowerShell 5.1 and PowerShell 7.
 [CmdletBinding()]
 param()
+$env:DOTNET_CLI_TELEMETRY_OPTOUT = '1'
+$env:POWERSHELL_TELEMETRY_OPTOUT = '1'
 $ErrorActionPreference = 'Stop'
 Set-StrictMode -Version 2.0
 Push-Location $PSScriptRoot
@@ -15,6 +17,7 @@ try {
     & (Join-Path $PSScriptRoot 'Tests/V124Templates.Tests.ps1')
     & (Join-Path $PSScriptRoot 'Tests/V126Msi.Tests.ps1')
     & (Join-Path $PSScriptRoot 'Tests/V126Sandbox.Tests.ps1')
+    & (Join-Path $PSScriptRoot 'Tests/PeSafety.Runtime.Tests.ps1')
     & dotnet build (Join-Path $PSScriptRoot 'UnattendLocal.sln') -c Release -m:1 -nr:false -warnaserror
     if ($LASTEXITCODE -ne 0) { throw 'Build failed (compiler and restore warnings are treated as errors).' }
     $tests = Join-Path $PSScriptRoot 'Tests/bin/Release/net10.0/Tests.dll'

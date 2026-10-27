@@ -36358,8 +36358,8 @@
     "SourceHash": "117e10ce2465ecf8ff8ec9c99252dde204b7afbe337dbe0f38417a9e7fc5d6bf"
   },
   "v125.pe.name": {
-    "Source": "使用 PE 脚本安装（x64 · UEFI/GPT）",
-    "SourceHash": "084afe2115a3170caf074c60dcc0290bb216dd776add5d9515804e1cd9cb68a4",
+    "Source": "使用 PE 脚本安装（x64）",
+    "SourceHash": "3e6871887546ad35db12de817d051b661640c6137ebec7b46654cd745e412d37",
     "Contexts": [
       "Core/GeneratedPeSettings.cs",
       "Desktop/MainWindow.xaml"
@@ -36378,8 +36378,8 @@
     "ProtectedTokens": []
   },
   "v125.pe.help": {
-    "Source": "默认关闭。启用后，由 PE 脚本完成目标磁盘选择、清空分区、释放镜像、写入引导及重启，再进入 Windows 后续安装。配置工具不在当前电脑执行这些操作。\n\n本阶段支持 x64、UEFI/GPT、清空指定磁盘和按镜像索引安装。请填写磁盘编号与镜像索引，核对系统分区、恢复分区大小，并重新确认清空磁盘。PE 会在分区前检查启动模式及镜像索引是否可读取。\n\n安装版别由镜像索引决定；本模式不使用安装程序的密钥流程，安装密钥方式须保留默认值。安装程序的驱动目录、动态更新、PE 日志目录、硬件检查绕过、Compact OS 及 windowsPE 额外 XML 暂不能混用；可在安装介质准备 $WinPEDriver$ 驱动目录。\n\n导入的常规 XML 或不能识别的 PE 脚本不能直接切换为此模式。请使用新方案或 JSON 方案；本工具的原始 PE XML 可恢复编辑。",
-    "SourceHash": "978270ab33391f927201742a35e139583b61f70550496e43ca132517f613f7d0",
+    "Source": "默认关闭。启用后，PE 脚本选择目标磁盘、分区、释放镜像、写入引导并重启，随后继续 Windows 安装；本程序不在当前电脑执行这些操作。\n\n支持 x64、按镜像索引安装，以及固定编号、条件唯一匹配、安装时交互或自定义脚本选盘。分区布局可以指定 UEFI/GPT、BIOS/MBR，或跟随实际启动方式；指定布局与实际启动方式不一致时，在分区前停止。\n\n安装版别由镜像索引决定，安装密钥方式须保留默认值。安装驱动目录、动态更新、PE 日志、硬件检查绕过、Compact OS 与 windowsPE 额外 XML 暂不能混用；驱动可在安装介质准备 $WinPEDriver$ 目录。\n\n请填写并核对目标、容量条件和分区参数后重新确认清盘。旧 JSON 默认固定编号；无有效恢复记录或被修改的 PE XML 保留原文，不通过此选项覆盖。",
+    "SourceHash": "b5574db01ada75b9b8a0fb7d95c701f6bc77ba921e68b405c8f7565069988d94",
     "Contexts": [
       "Core/GeneratedPeSettings.cs",
       "Desktop/MainWindow.xaml"
@@ -36390,8 +36390,8 @@
     ]
   },
   "v125.pe.scope": {
-    "Source": "PE 脚本安装目前仅支持 x64、UEFI/GPT 和“清空指定磁盘后自动分区”。",
-    "SourceHash": "ccde4a9897dc3442c90239b62339b1a3bacf1c817fdb1987b70feb5d06e7f763",
+    "Source": "PE 脚本安装需要 x64、自动清空分区模式，以及 UEFI/GPT、BIOS/MBR 或跟随启动方式布局。",
+    "SourceHash": "85981a5919f46c9d3f30e4a115773e7b4deefe82a0dc56acb7275d71f43b56ec",
     "Contexts": [
       "Core/GeneratedPeSettings.cs",
       "Desktop/MainWindow.xaml"
@@ -36549,6 +36549,222 @@
     "SourceHash": "5be8a292507245855cc0ee00d58ef8990a32e9ed3c4888442e917b8a8a369f26",
     "Contexts": [
       "Desktop/SettingsSearchCatalog.cs"
+    ],
+    "RawArgs": [],
+    "ProtectedTokens": []
+  },
+  "v127.selection": {
+    "Source": "PE 目标磁盘选择方式",
+    "SourceHash": "3e3adbf84b521632fb5cd429cb2f21461a52f1268ea4754eb3bde6a93c76ba91",
+    "Contexts": [
+      "Core/PeDiskSafety.cs",
+      "Desktop/MainWindow.xaml"
+    ],
+    "RawArgs": [],
+    "ProtectedTokens": []
+  },
+  "v127.mode.fixed": {
+    "Source": "固定磁盘编号",
+    "SourceHash": "1f13b333689552eecf8d2cb2b6595fbea877dc6df7c7911995b86fdc95391692",
+    "Contexts": [
+      "Core/PeDiskSafety.cs",
+      "Desktop/MainWindow.xaml"
+    ],
+    "RawArgs": [],
+    "ProtectedTokens": []
+  },
+  "v127.mode.match": {
+    "Source": "按条件唯一匹配",
+    "SourceHash": "f562c0aa71de77c8f498bd3bd6a1b96f573ff7f808e0c5af84250eb1555be448",
+    "Contexts": [
+      "Core/PeDiskSafety.cs",
+      "Desktop/MainWindow.xaml"
+    ],
+    "RawArgs": [],
+    "ProtectedTokens": []
+  },
+  "v127.mode.interactive": {
+    "Source": "安装时交互选择",
+    "SourceHash": "354876059ae150f158da54328809708e3e25d5ef9d830959088d8f10fe3cfbfe",
+    "Contexts": [
+      "Core/PeDiskSafety.cs",
+      "Desktop/MainWindow.xaml"
+    ],
+    "RawArgs": [],
+    "ProtectedTokens": []
+  },
+  "v127.mode.script": {
+    "Source": "自定义 VBScript 选择",
+    "SourceHash": "3129f5444013dd9189c78c54c142540de5b11ab1402fece1838e1636b5caaff8",
+    "Contexts": [
+      "Core/PeDiskSafety.cs",
+      "Desktop/MainWindow.xaml"
+    ],
+    "RawArgs": [],
+    "ProtectedTokens": []
+  },
+  "v127.layout.auto": {
+    "Source": "跟随启动方式（UEFI/GPT 或 BIOS/MBR）",
+    "SourceHash": "e51cec7f4061ce78c1be10e236f6e48d816193f70b39544be1875e20363b39c9",
+    "Contexts": [
+      "Core/PeDiskSafety.cs",
+      "Desktop/MainWindow.xaml"
+    ],
+    "RawArgs": [],
+    "ProtectedTokens": []
+  },
+  "v127.min": {
+    "Source": "最小容量（GiB，可留空）",
+    "SourceHash": "3f6eda7db00bd15f946b6ce506ba973d47a80b04b9016158e341ef01b292de6f",
+    "Contexts": [
+      "Core/PeDiskSafety.cs",
+      "Desktop/MainWindow.xaml"
+    ],
+    "RawArgs": [],
+    "ProtectedTokens": []
+  },
+  "v127.max": {
+    "Source": "最大容量（GiB，可留空）",
+    "SourceHash": "a31c2184e09345eecc8f27991aa0c6666c873ff4d20c7a2176a8fdacb4b178e1",
+    "Contexts": [
+      "Core/PeDiskSafety.cs",
+      "Desktop/MainWindow.xaml"
+    ],
+    "RawArgs": [],
+    "ProtectedTokens": []
+  },
+  "v127.empty": {
+    "Source": "要求目标磁盘没有分区",
+    "SourceHash": "7b52c081db86af246cd363081e4c1d5b114e7c2e069eef44f3181feb010f5f8f",
+    "Contexts": [
+      "Core/PeDiskSafety.cs",
+      "Desktop/MainWindow.xaml"
+    ],
+    "RawArgs": [],
+    "ProtectedTokens": []
+  },
+  "v127.interface": {
+    "Source": "仅接受 IDE/SCSI 接口（WMI 分类）",
+    "SourceHash": "b2d09a194a329c8ab9171c6333f0a7a6bbcaa8c214db9197613166132d400fcb",
+    "Contexts": [
+      "Core/PeDiskSafety.cs",
+      "Desktop/MainWindow.xaml"
+    ],
+    "RawArgs": [],
+    "ProtectedTokens": []
+  },
+  "v127.media": {
+    "Source": "仅接受固定硬盘介质（WMI 分类）",
+    "SourceHash": "79b7f63058a07edff7c7c465f58d77adfe9813dc68d2d05e430ee8461d958088",
+    "Contexts": [
+      "Core/PeDiskSafety.cs",
+      "Desktop/MainWindow.xaml"
+    ],
+    "RawArgs": [],
+    "ProtectedTokens": []
+  },
+  "v127.matchIndex": {
+    "Source": "匹配磁盘编号（可留空，不自动使用下方固定编号）",
+    "SourceHash": "7d28c9e85d36e0584f7864d0ec8d2e1e283d827d1c2bc9c94f2995b10eef355f",
+    "Contexts": [
+      "Core/PeDiskSafety.cs",
+      "Desktop/MainWindow.xaml"
+    ],
+    "RawArgs": [],
+    "ProtectedTokens": []
+  },
+  "v127.script": {
+    "Source": "目标磁盘选择脚本（VBScript）",
+    "SourceHash": "96b2eba8d73270313659e277625e1bc54a69bcfb6a3241e15ed89622c5b2a0f0",
+    "Contexts": [
+      "Core/PeDiskSafety.cs",
+      "Desktop/MainWindow.xaml"
+    ],
+    "RawArgs": [],
+    "ProtectedTokens": []
+  },
+  "v127.scriptHelp": {
+    "Source": "仅使用可信脚本：脚本在目标 PE 中执行，并非安全沙盒，可自行操作磁盘，通用安全检查不能约束脚本自身的行为。\n\n只允许向标准输出写入一个非负磁盘编号；退出码须为 0，标准错误须为空，最长运行 60 秒。多行输出、额外文字、无效编号或脚本异常均停止自动分区。最多 65536 字符、1024 行，每行最多 400 字符。示例：WScript.Echo 0。",
+    "SourceHash": "3c6fa8a97fcd068a861a0ef7d041f27559a32634cbc86727b7483f5ebb5b1d21",
+    "Contexts": [
+      "Core/PeDiskSafety.cs",
+      "Desktop/MainWindow.xaml"
+    ],
+    "RawArgs": [],
+    "ProtectedTokens": []
+  },
+  "v127.help": {
+    "Source": "只影响已启用的 PE 脚本安装。固定编号保持旧方案行为；条件匹配必须且只能选中一块磁盘。容量按字节比较，1 GiB = 1024³ 字节，不将容量四舍五入。留空表示不加相应容量限制，上限为 1048576 GiB。容量及勾选的安全条件适用于所有选择方式。\n\n分区前会重新核对磁盘编号、设备标识、容量、匹配条件与启动方式，目标变化、无匹配、多匹配或查询失败时停止。包含安装镜像、应答文件或 PE 系统盘的磁盘不作为目标。暂停后同样重新检查；这些检查不能替代备份和目标确认。",
+    "SourceHash": "d4d8cffdd0f434142d2d3badae53002bfb16f2bc793f0bd69ef9a854663e91a0",
+    "Contexts": [
+      "Core/PeDiskSafety.cs",
+      "Desktop/MainWindow.xaml"
+    ],
+    "RawArgs": [],
+    "ProtectedTokens": []
+  },
+  "v127.invalid": {
+    "Source": "PE 磁盘选择参数无效。请核对选择方式、固定或匹配编号、容量上下限及脚本限制。",
+    "SourceHash": "aca1fead969c0f11fb24eabcf85bc4c2e116a4253713ef82a209d634333d4421",
+    "Contexts": [
+      "Core/PeDiskSafety.cs",
+      "Desktop/MainWindow.xaml"
+    ],
+    "RawArgs": [],
+    "ProtectedTokens": []
+  },
+  "v127.summary": {
+    "Source": "PE 安装：{0}；固定编号 {1}；布局 {2}；镜像索引 {3}。",
+    "SourceHash": "144f960359f12d1859393a994639a7f42035c719f52c9d63e76b4f51108a98de",
+    "Contexts": [
+      "Core/PeDiskSafety.cs",
+      "Desktop/MainWindow.xaml"
+    ],
+    "RawArgs": [],
+    "ProtectedTokens": []
+  },
+  "v127.aliases": {
+    "Source": "PE 动态磁盘 条件匹配 容量 GiB 交互选择 VBScript 磁盘安全 BIOS MBR UEFI GPT bcdedit CLEAN",
+    "SourceHash": "88334e3ca30e10b70faa523eb2c4df79c5f8fe1213142cef7755bc243b56a088",
+    "Contexts": [
+      "Core/PeDiskSafety.cs",
+      "Desktop/MainWindow.xaml"
+    ],
+    "RawArgs": [],
+    "ProtectedTokens": []
+  },
+  "v127.conditions": {
+    "Source": "容量 GiB：{0}–{1}；匹配编号：{2}；无分区：{3}；IDE/SCSI：{4}；固定介质：{5}。",
+    "SourceHash": "0ab9546258a526150ee4a73d95dd2ffc788390fefa3c397eee375342c7fab089",
+    "Contexts": [
+      "Core/PeDiskSafety.cs"
+    ],
+    "RawArgs": [],
+    "ProtectedTokens": []
+  },
+  "v127.yes": {
+    "Source": "是",
+    "SourceHash": "b5141d3d19e9a04855acdb2dd5218b0924254b73d3cb663557ed0f9f73403750",
+    "Contexts": [
+      "Core/PeDiskSafety.cs"
+    ],
+    "RawArgs": [],
+    "ProtectedTokens": []
+  },
+  "v127.no": {
+    "Source": "否",
+    "SourceHash": "0c70665b6eb65f1aebf3b59f684ce52ed3473b2443ed4b4e0b815e2e9d66b8c2",
+    "Contexts": [
+      "Core/PeDiskSafety.cs"
+    ],
+    "RawArgs": [],
+    "ProtectedTokens": []
+  },
+  "v127.unbounded": {
+    "Source": "未限制",
+    "SourceHash": "67a4d26098f4744987c4a876e4382e521764b84d00c1f094c7a707abbc78d4d3",
+    "Contexts": [
+      "Core/PeDiskSafety.cs"
     ],
     "RawArgs": [],
     "ProtectedTokens": []

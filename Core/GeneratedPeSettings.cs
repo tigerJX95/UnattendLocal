@@ -12,8 +12,9 @@ public static class GeneratedPeSettings
     public static void Validate(InstallPlan p)
     {
         if (!p.UseGeneratedPe) return;
-        if (p.Architecture != "amd64" || p.DiskMode != InstallationSettings.Wipe || p.DiskLayout != "UEFI / GPT")
+        if (p.Architecture != "amd64" || p.DiskMode != InstallationSettings.Wipe || (p.DiskLayout != "UEFI / GPT" && p.DiskLayout != "BIOS / MBR" && p.DiskLayout != PeDiskSafety.AutomaticLayout))
             Fail(nameof(p.UseGeneratedPe), "v125.pe.scope");
+        PeDiskSafety.Validate(p);
         if (p.ImageSelection != UiText.Source("text.9cbbdbe44e5d") || p.ImageIndex is null or < 1)
             Fail(nameof(p.ImageIndex), "v125.pe.image");
         if (p.EditionMode != UiText.Source("text.5056d73b13ec"))
@@ -27,7 +28,7 @@ public static class GeneratedPeSettings
     public static IPESettings Build(InstallPlan p, IEditionSettings edition) => !p.UseGeneratedPe
         ? new DefaultPESettings(edition, HardwareSettings.AllEnabled(p))
         : new GeneratePESettings(
-            new UnattendedPartitionSettings(new GeneratedTargetDiskSettings(minSizeGiB: null, maxSizeGiB: null, index: p.TargetDiskId, assertNoPartitions: false), PartitionLayout.GPT, RecoveryMode.Partition, AutoPartitionSettings.SystemSize(p), p.RecoverySizeMB),
+            new UnattendedPartitionSettings(new ScriptTargetDiskSettings(PeDiskSafety.Selector(p)), PeDiskSafety.Layout(p), RecoveryMode.Partition, AutoPartitionSettings.SystemSize(p), p.RecoverySizeMB),
             new IndexInstallFromSettings(p.ImageIndex!.Value), new AutomaticPagingFileSettings(),
             DisableDefender: false, Disable8Dot3Names: false, PauseBeforeFormatting: p.PauseBeforeFormatting,
             PauseBeforeReboot: p.PauseBeforePeReboot, CompactOs: false, SkipIntegrityCheck: false);
@@ -49,7 +50,9 @@ public static class GeneratedPeSettings
             wpeutil.exe UpdateBootInfo || call :fail "Could not determine the firmware mode."
             set "UL_PE_FIRMWARE="
             for /f "tokens=3" %%t in ('reg.exe query HKLM\System\CurrentControlSet\Control /v PEFirmwareType 2^>nul') do set "UL_PE_FIRMWARE=%%t"
-            if /I not "%UL_PE_FIRMWARE%"=="0x2" call :fail "This PE installation mode requires UEFI. No disk was formatted."
+            if /I not "%UL_PE_FIRMWARE%"=="0x1" if /I not "%UL_PE_FIRMWARE%"=="0x2" call :fail "Cannot identify BIOS or UEFI. No disk was formatted."
+            set "LAYOUT="
+            set "FIRMWARE="
             dism.exe /English /Get-ImageInfo /ImageFile:"%IMAGE_FILE%" /Index:{p.ImageIndex!.Value.ToString(System.Globalization.CultureInfo.InvariantCulture)} >X:\UL-imageinfo.txt
             if errorlevel 1 (
                 type X:\UL-imageinfo.txt
@@ -58,7 +61,7 @@ public static class GeneratedPeSettings
             findstr.exe /r /i /c:"^Architecture *: *x64 *$" X:\UL-imageinfo.txt >nul || call :fail "Selected image is not x64."
 
             """;
-        return engine.GenerateXml(config with { PESettings = new ScriptPESetttings(script.Insert(at, guard + "\r\n")) });
+        return engine.GenerateXml(config with { PESettings = new ScriptPESetttings(PeDiskSafety.Guard(script.Insert(at, guard + "\r\n"), p)) });
     }
     private static string Pipeline(XmlDocument d)
     {
@@ -86,5 +89,5 @@ public static class GeneratedPeSettings
             p.ImportedXml.Notices = p.ImportedXml.Notices.Where(n => n != AutoPartitionSettings.ReadOnlyNotice).ToArray();
         }
     }
-    public static string Summary(InstallPlan p) => UiText.Format("v125.pe.summary", p.TargetDiskId?.ToString() ?? "?", p.ImageIndex?.ToString() ?? "?");
+    public static string Summary(InstallPlan p) => PeDiskSafety.Summary(p);
 }

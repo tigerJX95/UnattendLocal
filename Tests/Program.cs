@@ -1,5 +1,6 @@
 using System.Text;using System.Xml;using UnattendLocal.Core;
 int count=0;var g=new GeneratorService();
+if(args.Contains("--pe-safety-only")){Console.WriteLine($"V1.27 PE safety: {PeSafetyTests.Run(g)} checks passed.");return;}
 if(args.Contains("--generated-pe-only")){Console.WriteLine($"V1.25 PE: {GeneratedPeTests.Run(g)} checks passed.");return;}
 if(args.Contains("--v124-only")){Console.WriteLine($"V1.24 targeted: {V124SecurityAndNamingTests.Run(g)} checks passed.");return;}
 if(args.Contains("--deployment-tuning-only")){Console.WriteLine($"V1.21 deployment tuning: {DeploymentTuningTests.Run(g)} checks passed.");return;}
@@ -2093,3 +2094,5 @@ count+=V124SecurityAndNamingTests.Run(g);
 Console.WriteLine($"V1.24 final total: {count} tests passed.");
 
 count+=GeneratedPeTests.Run(g);Console.WriteLine($"V1.25 final total: {count} tests passed.");Console.WriteLine($"V1.26 final total: {count} tests passed.");
+
+count+=PeSafetyTests.Run(g);Console.WriteLine($"V1.27 final total: {count} tests passed.");

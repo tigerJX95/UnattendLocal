@@ -515,6 +515,32 @@
             <ComboBox x:Name="SettingAnchor061" SelectedValue="{Binding Plan.DiskMode}" SelectedValuePath="Content" ToolTip="{Binding DataContext.HelpTips[diskmode],RelativeSource={RelativeSource AncestorType=Window}}"><ComboBoxItem Content="{loc:Source text.4a9df1058984}"/><ComboBoxItem Content="{loc:Source text.75134d9ce045}"/><ComboBoxItem Content="{loc:Source text.208c78ac056d}"/><ComboBoxItem Content="{loc:Source text.c74c19056e32}"/></ComboBox>
             <CheckBox x:Name="GeneratedPeMode" Content="{loc:Source v125.pe.name}" IsChecked="{Binding Plan.UseGeneratedPe}" IsEnabled="{Binding CanEditPeInstall}" ToolTip="{loc:Text v125.pe.help}" ToolTipService.ShowOnDisabled="True"/>
             <TextBlock Style="{StaticResource ExplanationText}" Text="{loc:Text v125.pe.help}" Visibility="{Binding Plan.UseGeneratedPe,Converter={StaticResource VisibleWhen}}"/>
+            <StackPanel Visibility="{Binding Plan.UseGeneratedPe,Converter={StaticResource VisibleWhen}}" IsEnabled="{Binding CanEditPeInstall}">
+              <TextBlock Text="{loc:Text v127.selection}"/>
+              <ComboBox x:Name="PeDiskSelectionMode" SelectedValue="{Binding Plan.PeTargetMode}" SelectedValuePath="Tag">
+                <ComboBoxItem Tag="fixed" Content="{loc:Source v127.mode.fixed}"/>
+                <ComboBoxItem Tag="match" Content="{loc:Source v127.mode.match}"/>
+                <ComboBoxItem Tag="interactive" Content="{loc:Source v127.mode.interactive}"/>
+                <ComboBoxItem Tag="script" Content="{loc:Source v127.mode.script}"/>
+              </ComboBox>
+              <TextBlock Style="{StaticResource ExplanationText}" Text="{loc:Text v127.help}"/>
+              <TextBlock Text="{loc:Text v127.min}"/>
+              <TextBox x:Name="PeMinCapacityEditor" Text="{Binding Plan.PeMinDiskGiB,UpdateSourceTrigger=PropertyChanged,ValidatesOnExceptions=True}"/>
+              <TextBlock Text="{loc:Text v127.max}"/>
+              <TextBox x:Name="PeMaxCapacityEditor" Text="{Binding Plan.PeMaxDiskGiB,UpdateSourceTrigger=PropertyChanged,ValidatesOnExceptions=True}"/>
+              <CheckBox Content="{loc:Source v127.empty}" IsChecked="{Binding Plan.PeRequireEmptyDisk}"/>
+              <CheckBox Content="{loc:Source v127.interface}" IsChecked="{Binding Plan.PeRequireInterfaceType}"/>
+              <CheckBox Content="{loc:Source v127.media}" IsChecked="{Binding Plan.PeRequireFixedMedia}"/>
+              <StackPanel Visibility="{Binding IsPeMatch,Converter={StaticResource VisibleWhen}}">
+                <TextBlock Text="{loc:Text v127.matchIndex}"/>
+                <TextBox x:Name="PeMatchIndexEditor" Text="{Binding Plan.PeMatchDiskIndex,UpdateSourceTrigger=PropertyChanged,ValidatesOnExceptions=True}"/>
+              </StackPanel>
+              <StackPanel Visibility="{Binding IsPeScript,Converter={StaticResource VisibleWhen}}">
+                <TextBlock Text="{loc:Text v127.script}"/>
+                <TextBlock Style="{StaticResource ExplanationText}" Foreground="{DynamicResource WarningBrush}" Text="{loc:Text v127.scriptHelp}"/>
+                <TextBox x:Name="PeTargetScriptEditor" Text="{Binding Plan.PeTargetScript,UpdateSourceTrigger=PropertyChanged}" AcceptsReturn="True" AcceptsTab="True" Height="180" FontFamily="Consolas" TextWrapping="NoWrap" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto"/>
+              </StackPanel>
+            </StackPanel>
             <CheckBox Content="{loc:Source v125.pe.pause}" IsChecked="{Binding Plan.PauseBeforePeReboot}" Visibility="{Binding Plan.UseGeneratedPe,Converter={StaticResource VisibleWhen}}"/>
             <TextBlock Style="{StaticResource ExplanationText}" Text="{loc:Text text.ae52737d73de}" TextWrapping="Wrap" Foreground="{DynamicResource SecondaryBrush}" />
             <StackPanel IsEnabled="{Binding IsTargetDisk}"><TextBlock Text="{loc:Text text.1d8e5a94144a}"/><TextBox x:Name="SettingAnchor062" Text="{Binding Plan.TargetDiskId,UpdateSourceTrigger=PropertyChanged,ValidatesOnExceptions=True}" ToolTip="{Binding DataContext.HelpTips[disktarget],RelativeSource={RelativeSource AncestorType=Window}}" /></StackPanel>
@@ -539,7 +565,7 @@
             <TextBlock Style="{StaticResource ExplanationText}" Text="{loc:Text text.dc72df6e31fa}" Foreground="{DynamicResource WarningBrush}" Visibility="{Binding HasReadonlyAutoPartition,Converter={StaticResource VisibleWhen}}"/>
             <StackPanel IsEnabled="{Binding CanEditAutoPartition}" Visibility="{Binding IsWipeDisk,Converter={StaticResource VisibleWhen}}">
               <TextBlock Text="{loc:Text text.546d06aec642}"/>
-              <ComboBox x:Name="SettingAnchor066" SelectedValue="{Binding Plan.DiskLayout}" SelectedValuePath="Content" ToolTip="{Binding DataContext.HelpTips[disklayout],RelativeSource={RelativeSource AncestorType=Window}}"><ComboBoxItem Content="UEFI / GPT"/><ComboBoxItem Content="BIOS / MBR"/></ComboBox>
+              <ComboBox x:Name="SettingAnchor066" SelectedValue="{Binding Plan.DiskLayout}" SelectedValuePath="Content" ToolTip="{Binding DataContext.HelpTips[disklayout],RelativeSource={RelativeSource AncestorType=Window}}"><ComboBoxItem Content="UEFI / GPT"/><ComboBoxItem Content="BIOS / MBR"/><ComboBoxItem Content="{loc:Source v127.layout.auto}" IsEnabled="{Binding Plan.UseGeneratedPe}"/></ComboBox>
               <TextBlock Style="{StaticResource ExplanationText}" Text="{loc:Text text.a47f813f3170}" TextWrapping="Wrap" Foreground="{DynamicResource SecondaryBrush}"/>
               <TextBlock Text="{loc:Text text.acec26183ae7}"/>
               <TextBox x:Name="SystemPartitionSizeEditor" Text="{Binding Plan.SystemPartitionSizeMB,UpdateSourceTrigger=PropertyChanged,ValidatesOnExceptions=True}" ToolTip="{Binding DataContext.HelpTips[systempartition],RelativeSource={RelativeSource AncestorType=Window}}"/>
