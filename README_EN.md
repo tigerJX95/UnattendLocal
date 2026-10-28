@@ -5,7 +5,7 @@
 
 UnattendLocal is a Windows desktop tool with Simplified Chinese and English interfaces based on [Christoph Schneegans’ UnattendGenerator](https://github.com/cschneegans/unattend-generator). It lets you edit, check, and generate `autounattend.xml` for Windows 10 / 11 locally.
 
-Current version: **V1.27**. Includes static IPv4/IPv6 dual stack, subnet-mask input, settings search, setup driver directories, Dynamic Update, partitioning, OOBE and account settings, and existing XML import/editing.
+Current version: **V1.28**. Includes static IPv4/IPv6 dual stack, subnet-mask input, settings search, setup driver directories, Dynamic Update, partitioning, OOBE and account settings, and existing XML import/editing.
 
 ## 💡 Why this project exists
 
@@ -56,6 +56,23 @@ The displayed product key is a public generic installation key for selecting an 
 - Save and restore JSON plans; review summaries, recommended-setting differences, checks, redacted previews, and XML exports.
 - Import existing XML and edit supported settings while preserving unknown content. Export stops with an explanation when changes cannot be merged reliably.
 
+## V1.28 Deployment checks and configuration reliability
+
+- Stop PE selection and pre-partition verification when mapped partition counts disagree with the disk report or a mapped volume has an invalid drive identifier.
+- Omit inactive PE selector scripts from XML recovery metadata. Active scripts remain recoverable, and JSON plans retain editable drafts.
+- Validate custom selector line limits consistently for CR, LF and CRLF line endings.
+- Reject duplicate JSON members recursively and validate null string fields before compatibility migration.
+- Reuse the validated JSON document to reduce repeated parsing during plan loading.
+- Add partition validation, configuration recovery and Windows selector simulation cases.
+- Fix untranslated account destinations and tooltips in English export validation dialogs. Use “Go to” for the navigation button, explain its purpose and destination in the tooltip, and prevent clipped button labels.
+- Localize tooltips consistently for search, theme switching, color selection and configuration summaries.
+- Fix untranslated disk summaries, preview notices and redaction placeholders in the English XML preview. Existing previews follow UI language changes while preserving user text, scripts and actual export content.
+
+Usage: [PE installation](docs/GeneratedPe.md).
+
+<details>
+<summary>Update history (click to expand)</summary>
+
 ## V1.27 Disk deployment safety and boot compatibility
 
 - Add fixed, unique-match, interactive and custom-VBScript target selectors to PE installation. Older plans retain fixed numbering and their installation path.
@@ -68,9 +85,6 @@ The displayed product key is a public generic installation key for selecting an 
 - Include the six-case VM checklist and Windows-only selector runtime simulations.
 
 Usage: [PE installation](docs/GeneratedPe.md) · [Deployment validation](docs/PeDeploymentValidation.md).
-
-<details>
-<summary>Update history (click to expand)</summary>
 
 ## V1.26 MSI installation and Windows Sandbox
 

@@ -32,12 +32,12 @@ internal static class ErrorDialog
         layout.Children.Add(scroll);
         var buttons = new StackPanel { Orientation = Orientation.Horizontal, HorizontalAlignment = HorizontalAlignment.Right, Margin = new Thickness(0, 16, 0, 0) };
         if (location != null) {
-            var locate = new Button { Content = actionText, ContentTemplate = null, MinWidth = 100 };
-            locate.ToolTip = new ToolTip { ContentTemplate = null, Content = global::UnattendLocal.Localization.UiText.Concat(new object?[] { global::UnattendLocal.Localization.UiText.Source("text.d8da6d237352"), location },new bool[]{false,false}) };
+            var locate = new Button { Content = global::UnattendLocal.Localization.UiText.Translate(actionText), ContentTemplate = null, Width = double.NaN, Height = double.NaN, Padding = new Thickness(16, 8, 16, 8), MinWidth = 100 };
+            locate.ToolTip = new ToolTip { ContentTemplate = null, Content = new TextBlock { Text = global::UnattendLocal.Localization.UiText.Translate(global::UnattendLocal.Localization.UiText.Concat(new object?[] { global::UnattendLocal.Localization.UiText.Source("text.d8da6d237352"), location },new bool[]{false,false})), TextWrapping = TextWrapping.Wrap, MaxWidth = 420 } };
             locate.Click += (_, _) => { navigate = true; dialog.DialogResult = true; }; buttons.Children.Add(locate);
         }
-        var close = new Button { Content = global::UnattendLocal.Localization.UiText.Source("text.fac2a67ad878"), ContentTemplate = null, IsDefault = true, IsCancel = true, MinWidth = 80 };
-        close.ToolTip = new ToolTip { ContentTemplate = null, Content = global::UnattendLocal.Localization.UiText.Source("text.a21f184fa54a") };
+        var close = new Button { Content = global::UnattendLocal.Localization.UiText.Get("text.fac2a67ad878"), ContentTemplate = null, Width = double.NaN, Height = double.NaN, Padding = new Thickness(16, 8, 16, 8), IsDefault = true, IsCancel = true, MinWidth = 80 };
+        close.ToolTip = new ToolTip { ContentTemplate = null, Content = global::UnattendLocal.Localization.UiText.Get("text.a21f184fa54a") };
         close.Click += (_, _) => dialog.DialogResult = true;
         buttons.Children.Add(close); Grid.SetRow(buttons, 1); layout.Children.Add(buttons);
         dialog.Content = layout;

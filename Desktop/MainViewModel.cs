@@ -78,7 +78,16 @@ public class MainViewModel : Observable {
  }}
  private UserEntry? selected;public UserEntry? SelectedUser {get=>selected;set{Set(ref selected,value);RefreshHelp();}}
  private string preview=global::UnattendLocal.Localization.UiText.Source("text.fae7e313af33"),status=ProductIdentity.ReadyStatus;
- public string Preview {get=>preview;set=>Set(ref preview,value);} public string Status {get=>status;set=>Set(ref status,value);}
+ // XML is already redacted and localized at its authored boundaries. Never translate its body.
+ private string? englishXmlPreview;
+ public string Preview {get=>englishXmlPreview is null?global::UnattendLocal.Localization.UiText.Translate(preview):global::UnattendLocal.Localization.UiText.IsEnglish?englishXmlPreview:preview;set{englishXmlPreview=null;Set(ref preview,value);}}
+ public void ShowXmlPreview(byte[] bytes){
+  var summary=InstallationReview.ExportSummary(bytes);
+  preview=summary+"\n\n"+GeneratorService.Preview(bytes,Plan);
+  englishXmlPreview=global::UnattendLocal.Localization.UiText.EnglishText(summary)+"\n\n"+GeneratorService.Preview(bytes,Plan,english:true);
+  Notify(nameof(Preview));
+ }
+ public void RefreshPreviewLanguage()=>Notify(nameof(Preview)); public string Status {get=>status;set=>Set(ref status,value);}
  public string ExportXmlButtonText=>global::UnattendLocal.Localization.UiText.Concat(new object?[] { global::UnattendLocal.Localization.UiText.Source("text.199c1f379826"), AnswerFileExport.FileName(Plan.ExportNonAutomaticFilename) },new bool[]{false,true});
  public string ExportUsage=>AnswerFileExport.Usage(Plan.ExportNonAutomaticFilename);
  public string ExportIsoDescription=>global::UnattendLocal.Localization.UiText.Source("text.61d6ce2fd717");

@@ -1,4 +1,4 @@
-# V1.27 部署验证 / Deployment validation
+# PE 部署验证 / Deployment validation
 
 版本重点：PE 目标磁盘选择、分区前安全检查与启动兼容性。
 
@@ -8,7 +8,7 @@
 
 `verify.ps1` 运行自动检查。新增 `Tests/PeSafety.Runtime.Tests.ps1` 在 Windows 存在 cscript 时运行实际 VBScript，但用模拟磁盘、启动模式及安装介质，不枚举或修改真实磁盘，不执行 DiskPart。在非 Windows 环境明确报告 NOT RUN，不将它记作实机通过。
 
-自动检查记录：Release 构建零警告、零错误；28,584 项 C# 回归检查通过，含 122 项 V1.27 专项检查。当前执行环境未运行 Windows cscript 模拟测试；真实安装与界面显示仍待 Windows 环境核对。
+各版本的自动检查执行结果及环境限制见 [项目进度](../PROJECT_PROGRESS.md)。
 
 ## 最小实机验收
 

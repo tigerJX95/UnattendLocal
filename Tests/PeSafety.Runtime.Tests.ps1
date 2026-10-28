@@ -18,7 +18,7 @@ Class TestWmi
   End Function
 End Class
 Class TestDisk
-  Public Index, Size, Pnp, Partitions, Media, Interface, HasSource, MissingSize
+  Public Index, Size, Pnp, Partitions, Media, Interface, HasSource, MissingSize, MapCount, VolumeId
   Public Function ReadField(name)
     Select Case name
       Case "Index": ReadField = Index
@@ -32,29 +32,42 @@ Class TestDisk
     End Select
   End Function
   Public Function Associators_(name)
-    Dim part
-    If HasSource Then
-      Set part = New TestPartition
-      Associators_ = Array(part)
-    Else
+    Dim part, parts(), i
+    If MapCount = 0 Then
       Associators_ = Array()
+      Exit Function
     End If
+    ReDim parts(MapCount - 1)
+    For i = 0 To MapCount - 1
+      Set part = New TestPartition
+      part.HasSource = HasSource
+      part.VolumeId = VolumeId
+      Set parts(i) = part
+    Next
+    Associators_ = parts
   End Function
 End Class
 Class TestPartition
+  Public HasSource, VolumeId
   Public Function Associators_(name)
     Dim logical
+    If Not HasSource Then
+      Associators_ = Array()
+      Exit Function
+    End If
     Set logical = New TestLogical
+    logical.VolumeId = VolumeId
     Associators_ = Array(logical)
   End Function
 End Class
 Class TestLogical
+  Public VolumeId
   Public Function ReadField(name)
-    ReadField = "Z:"
+    ReadField = VolumeId
   End Function
 End Class
 '@
-function Invoke-Selector([string]$mode='fixed',[double[]]$sizes=@(137438953472),[string]$layout='GPT',[int]$firmware=2,[string]$inputText='0',[string]$custom='WScript.Echo 0',[bool]$verify=$false,[string]$identity='Disk',[int]$target=0,[bool]$hasSource=$false,[bool]$missingSize=$false,[int]$parts=0,[bool]$empty=$false,[int]$min=64,[int]$max=512) {
+function Invoke-Selector([string]$mode='fixed',[double[]]$sizes=@(137438953472),[string]$layout='GPT',[int]$firmware=2,[string]$inputText='0',[string]$custom='WScript.Echo 0',[bool]$verify=$false,[string]$identity='Disk',[int]$target=0,[bool]$hasSource=$false,[bool]$missingSize=$false,[int]$parts=0,[bool]$empty=$false,[int]$min=64,[int]$max=512,[int]$mapped=0,[string]$volume='Z:') {
     $lines = New-Object 'System.Collections.Generic.List[string]'
     $vars = @()
     for($i=0;$i -lt $sizes.Count;$i++) {
@@ -63,6 +76,7 @@ function Invoke-Selector([string]$mode='fixed',[double[]]$sizes=@(137438953472),
         $lines.Add("Set d$i = New TestDisk")
         $lines.Add("d$i.Index = $i : d$i.Size = $number.0 : d$i.Pnp = `"$identity$i`" : d$i.Partitions = $parts")
         $lines.Add("d$i.Media = `"Fixed hard disk media`" : d$i.Interface = `"SCSI`"")
+        $lines.Add("d$i.MapCount = $mapped : d$i.VolumeId = `"$volume`"")
         $lines.Add("d$i.HasSource = $($hasSource.ToString()) : d$i.MissingSize = $($missingSize.ToString())")
     }
     $prelude = 'Dim TestDrives' + $(if($vars.Count){', ' + ($vars -join ', ')}else{''}) + "`r`n" + ($lines -join "`r`n") + "`r`nTestDrives = Array(" + ($vars -join ', ') + ")`r`n"
@@ -106,10 +120,16 @@ try {
         $s=Invoke-Selector -sizes @($size)
         Assert-Pe ($s.Code -eq 0) 'Inclusive capacity boundaries succeed without rounding'
     }
-    foreach($flags in @(@{hasSource=$true},@{missingSize=$true},@{parts=1;empty=$true},@{layout='GPT';firmware=1},@{layout='MBR';firmware=2},@{firmware=0})) {
+    foreach($flags in @(@{hasSource=$true;parts=1;mapped=1},@{missingSize=$true},@{parts=1;empty=$true},@{layout='GPT';firmware=1},@{layout='MBR';firmware=2},@{firmware=0})) {
         $s=Invoke-Selector @flags
         Assert-Pe ($s.Code -ne 0 -and $s.Out -eq '') 'Source disks, missing properties, partition restrictions and firmware conflicts stop selection'
     }
+    foreach($flags in @(@{parts=2;mapped=1},@{parts=1;mapped=2},@{parts=1;mapped=1;hasSource=$true;volume='invalid'})) {
+        $s=Invoke-Selector @flags
+        Assert-Pe ($s.Code -ne 0 -and $s.Out -eq '') 'Incomplete, excessive or malformed volume mappings stop selection'
+    }
+    $s=Invoke-Selector -parts 2 -mapped 2
+    Assert-Pe ($s.Code -eq 0) 'Complete partition mapping without a source volume remains eligible'
     $s=Invoke-Selector -mode interactive -inputText '0'
     Assert-Pe ($s.Code -eq 0 -and $s.Out -eq '0') 'Interactive valid selection'
     foreach($inputText in @('-1','0 & echo bad','999','')) {
@@ -118,7 +138,7 @@ try {
     }
     $s=Invoke-Selector -mode script
     Assert-Pe ($s.Code -eq 0 -and $s.Out -eq '0') 'Custom script with exactly one valid index'
-    foreach($custom in @('WScript.Quit 1','WScript.Echo "0 & echo bad"',"WScript.Echo 0`r`nWScript.Echo 1",'WScript.Echo -1','WScript.StdErr.WriteLine "warning"')) {
+    foreach($custom in @('WScript.StdOut.Write "0" & vbLf & vbLf','WScript.Quit 1','WScript.Echo "0 & echo bad"',"WScript.Echo 0`r`nWScript.Echo 1",'WScript.Echo -1','WScript.StdErr.WriteLine "warning"')) {
         $s=Invoke-Selector -mode script -custom $custom
         Assert-Pe ($s.Code -ne 0 -and $s.Out -eq '') 'Custom script errors and noncanonical output stop selection'
     }

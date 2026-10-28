@@ -6,7 +6,7 @@
         <DockPanel>
           <StackPanel DockPanel.Dock="Right" Orientation="Horizontal">
           <Button x:Name="LanguagePickerButton" Click="LanguagePickerClick" ContentTemplate="{x:Null}" AutomationProperties.Name="{loc:Text text.3d13868593ae}">
-            <Button.ToolTip><ToolTip ContentTemplate="{x:Null}" Content="{loc:Source text.3d13868593ae}"/></Button.ToolTip>
+            <Button.ToolTip><ToolTip ContentTemplate="{x:Null}" Content="{loc:Text text.3d13868593ae}"/></Button.ToolTip>
             <Grid Width="20" Height="20">
               <Path Data="M10,1 A9,9 0 1 1 9.99,1 Z M1,10 H19 M10,1 C4,5 4,15 10,19 M10,1 C16,5 16,15 10,19 M10,1 V19"
                     Stroke="{DynamicResource AccentTextBrush}" StrokeThickness="1.6" StrokeStartLineCap="Round" StrokeEndLineCap="Round"
@@ -65,16 +65,16 @@
               </ContextMenu>
             </Button.ContextMenu>
           </Button>
-          <Button Click="SettingsSearchClick" AutomationProperties.Name="{loc:Text text.2874151bd36b}" ContentTemplate="{x:Null}"><Button.ToolTip><ToolTip ContentTemplate="{x:Null}" Content="{loc:Source text.3fb1f10f0434}"/></Button.ToolTip><Path Data="M8,1 A7,7 0 1 1 7.99,1 M13,13 L19,19" Width="20" Height="20" Stroke="{DynamicResource AccentTextBrush}" StrokeThickness="1.8" Stretch="Uniform"/></Button>
+          <Button Click="SettingsSearchClick" AutomationProperties.Name="{loc:Text text.2874151bd36b}" ContentTemplate="{x:Null}"><Button.ToolTip><ToolTip ContentTemplate="{x:Null}" Content="{loc:Text text.3fb1f10f0434}"/></Button.ToolTip><Path Data="M8,1 A7,7 0 1 1 7.99,1 M13,13 L19,19" Width="20" Height="20" Stroke="{DynamicResource AccentTextBrush}" StrokeThickness="1.8" Stretch="Uniform"/></Button>
           <Button x:Name="ThemeToggleButton" Click="ThemeToggleClick" ContentTemplate="{x:Null}">
-            <Button.ToolTip><ToolTip x:Name="ThemeToggleTip" ContentTemplate="{x:Null}" Content="{loc:Source text.a3538a688840}"/></Button.ToolTip>
+            <Button.ToolTip><ToolTip x:Name="ThemeToggleTip" ContentTemplate="{x:Null}" Content="{loc:Text text.a3538a688840}"/></Button.ToolTip>
             <Grid Width="20" Height="20">
               <Path x:Name="ThemeMoon" Data="M17,13 A8,8 0 1 1 9,2 A6,6 0 0 0 17,13 Z" Stretch="Uniform" Stroke="{DynamicResource AccentTextBrush}" StrokeThickness="1.6" StrokeLineJoin="Round"/>
               <Path x:Name="ThemeSun" Data="M10,5 A5,5 0 1 1 9.99,5 Z M10,1 V3 M10,17 V19 M1,10 H3 M17,10 H19 M3.6,3.6 L5,5 M15,15 L16.4,16.4 M3.6,16.4 L5,15 M15,5 L16.4,3.6" Stretch="Uniform" Stroke="{DynamicResource AccentTextBrush}" StrokeThickness="1.6" StrokeStartLineCap="Round" StrokeEndLineCap="Round" Visibility="Collapsed"/>
             </Grid>
           </Button>
           <Button x:Name="AboutMenuButton" Click="AboutMenuClick" ContentTemplate="{x:Null}" AutomationProperties.Name="{loc:Text text.4b9659ed544c}">
-            <Button.ToolTip><ToolTip ContentTemplate="{x:Null}" Content="{loc:Source text.bc0ef8423342}"/></Button.ToolTip>
+            <Button.ToolTip><ToolTip ContentTemplate="{x:Null}" Content="{loc:Text text.bc0ef8423342}"/></Button.ToolTip>
             <Path Data="M10,1 A9,9 0 1 1 9.99,1 Z M10,9 V15 M10,5 V6" Width="20" Height="20" Stretch="Uniform" Stroke="{DynamicResource AccentTextBrush}" StrokeThickness="1.7"/>
             <Button.ContextMenu>
               <ContextMenu Background="{DynamicResource SurfaceBrush}" Foreground="{DynamicResource ForegroundBrush}" BorderBrush="{DynamicResource BorderBrush}" FontFamily="Microsoft YaHei UI" FontSize="14">

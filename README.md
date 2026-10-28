@@ -5,7 +5,7 @@
 
 UnattendLocal 是基于 [Christoph Schneegans 的 UnattendGenerator](https://github.com/cschneegans/unattend-generator) 开发的 Windows 桌面配置工具，支持简体中文与英语界面，用于在本地编辑、检查和生成 Windows 10 / 11 的 `autounattend.xml`。
 
-当前版本：**V1.27**。支持简体中文 / English 即时切换、独立语言包维护、静态 IPv4 / IPv6 双栈、子网掩码输入、设置搜索、安装驱动目录、动态更新、自动分区、OOBE 与账户配置，以及已有 XML 的导入编辑。
+当前版本：**V1.28**。支持简体中文 / English 即时切换、独立语言包维护、静态 IPv4 / IPv6 双栈、子网掩码输入、设置搜索、安装驱动目录、动态更新、自动分区、OOBE 与账户配置，以及已有 XML 的导入编辑。
 
 ## 💡 开发初衷
 
@@ -21,7 +21,7 @@ UnattendLocal 是基于 [Christoph Schneegans 的 UnattendGenerator](https://git
 
 ## 📸 运行截图
 
-以下为 **V1.23 Windows 实际运行截图**，分别展示简体中文浅色与深色界面；V1.25 新增功能以本页更新说明为准。
+以下为 **V1.23 Windows 实际运行截图**，分别展示简体中文浅色与深色界面；最新功能以本页更新说明为准。
 
 | 简体中文 · 浅色主题 | 简体中文 · 深色主题 |
 | :---: | :---: |
@@ -54,6 +54,23 @@ UnattendLocal 是基于 [Christoph Schneegans 的 UnattendGenerator](https://git
 - 保存和恢复 JSON 方案，提供配置摘要、推荐差异、检查、脱敏预览和 XML 导出。
 - 导入已有 XML 后编辑已支持设置，保留未知内容；遇到无法可靠合并的修改时停止导出并说明原因。
 
+## V1.28 部署检查与配置可靠性改进 · 2026-10-28
+
+- 收紧 PE 分区映射检查：实际映射分区数与磁盘报告不一致，或已映射卷的盘符无法识别时，停止目标选择及分区前复核。
+- 修复停用的 PE 自定义选盘脚本进入 XML 恢复记录的问题；仅保留实际启用的脚本，JSON 方案继续保存草稿。
+- 统一自定义选盘脚本的 CR、LF 与 CRLF 换行校验，修复仅使用 CR 时可绕过行数限制的问题。
+- JSON 导入递归拒绝重复字段，并在兼容性迁移前拒绝字符串字段的 null 值，避免歧义配置和空引用异常。
+- 复用已验证的 JSON 解析结果，减少方案载入时的重复解析。
+- 补充分区检查、配置恢复与 Windows 选盘脚本模拟用例。
+- 修复英文界面导出检查弹窗的账户位置与悬停提示中文残留；直达按钮显示为“Go to”，悬停提示补全用途和目标位置，并修复文字截断。
+- 统一搜索、主题切换、颜色选择及配置摘要等悬停提示的本地化显示。
+- 修复英文 XML 预览顶部磁盘说明、预览警告和密码等遮蔽占位符的中文残留；已有预览随界面语言切换，用户文本、脚本及实际导出内容保持原样。
+
+使用说明：[PE 脚本安装](docs/GeneratedPe.md)。
+
+<details>
+<summary>历史更新（点击展开）</summary>
+
 ## V1.27 磁盘部署安全与启动兼容性增强 · 2026-10-27
 
 - PE 脚本安装支持固定编号、按条件唯一匹配、安装时交互及自定义 VBScript 四种选盘方式；旧方案仍默认固定编号，不自动切换安装路径。
@@ -66,9 +83,6 @@ UnattendLocal 是基于 [Christoph Schneegans 的 UnattendGenerator](https://git
 - 附带六项最小虚拟机验收清单及 Windows 选盘脚本模拟测试。
 
 使用说明：[PE 脚本安装](docs/GeneratedPe.md) · [部署验证](docs/PeDeploymentValidation.md)。
-
-<details>
-<summary>历史更新（点击展开）</summary>
 
 ## V1.26 MSI 安装与 Windows 沙盒 · 2026-10-27
 

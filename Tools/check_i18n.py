@@ -4,6 +4,7 @@ import hashlib
 import json
 import re
 import sys
+import xml.etree.ElementTree as ET
 from pathlib import Path
 
 base = Path(__file__).resolve().parents[1] / 'Localization' / 'Resources'
@@ -55,6 +56,8 @@ for code in codes:
         if sorted(placeholder.findall(value)) != sorted(placeholder.findall(source)):
             errors.append(f'{code}: placeholders differ: {key}')
         if entry.get('Opaque') and value != entry['Source']: errors.append(f'{code}: opaque resource modified: {key}')
+        if code == 'en-US' and not entry.get('Opaque') and value != '简体中文' and re.search(r'[\u4e00-\u9fff]', value):
+            errors.append(f'{code}: untranslated Chinese text: {key}')
         if any(t not in value for t in (entry.get('ProtectedTokens') or [])):
             errors.append(f'{code}: protected token missing: {key}')
         patterns = entry.get('FilterPatterns')
@@ -75,6 +78,29 @@ for code in codes:
             for key in keys & zh.keys():
                 if review[key]!=hashlib.sha256(zh[key].encode()).hexdigest():
                     errors.append(f'translation-state: stale review source: {key}')
+# Source identities are valid for model choices and icon buttons, but explicit
+# tooltip text must opt into presentation localization rather than display Source.
+wpf = '{http://schemas.microsoft.com/winfx/2006/xaml/presentation}'
+button_count = tooltip_count = 0
+for path in sorted((base.parents[1] / 'Desktop').rglob('*.xaml')):
+    try:
+        elements = ET.parse(path).getroot()
+    except ET.ParseError as exc:
+        errors.append(f'{path.name}: invalid XAML: {exc}')
+        continue
+    for element in elements.iter():
+        if element.tag in (wpf + 'Button', wpf + 'ToggleButton'):
+            button_count += 1
+            if re.search(r'[\u4e00-\u9fff]', element.get('Content', '')):
+                errors.append(f'{path.name}: untranslated button label')
+        if element.tag == wpf + 'ToolTip':
+            tooltip_count += 1
+            for child in element.iter():
+                for attribute in ('Content', 'Text'):
+                    value = child.get(attribute, '')
+                    if value.startswith('{loc:Source ') or re.search(r'[\u4e00-\u9fff]', value):
+                        errors.append(f'{path.name}: tooltip bypasses display localization: {value}')
+print(f'XAML presentation: {button_count} buttons, {tooltip_count} explicit tooltips checked')
 for e in errors[:50]: print('ERROR:',e,file=sys.stderr)
 if len(errors)>50: print(f'...and {len(errors)-50} more',file=sys.stderr)
 print(f'i18n check: {"FAIL" if errors else "PASS"} ({len(errors)} issues)')

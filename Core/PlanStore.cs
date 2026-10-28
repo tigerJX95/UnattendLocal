@@ -25,7 +25,10 @@ public static class PlanStore {
   AppRemovalSettings.Validate(p);
   if(p.ImportedXml is {} imported&&(imported.SourceXml==null||imported.BaselineXml==null||imported.SourceXml.Length>XmlMerge.MaxLength||imported.BaselineXml.Length>XmlMerge.MaxLength||imported.Notices==null||imported.Blockers==null))throw new ArgumentException(global::UnattendLocal.Localization.UiText.Source("text.2f5f18e96a91"));
   if(p.ImportedXml is {} data&&(data.Notices.Any(n=>n==null)||data.Blockers.Any(n=>n==null)))throw new ArgumentException(global::UnattendLocal.Localization.UiText.Source("text.65d971214b02"));
-  using(var document=JsonDocument.Parse(json)){
+  PlanFileImport.ValidateForDisplay(p);
+  // Reuse the already validated parse instead of building another JSON tree.
+  {
+   var document=input;
    CompactOsSettings.NormalizeLoaded(p,document.RootElement.TryGetProperty(nameof(InstallPlan.CompactOsMode),out _));
    CommonSystemSettings.NormalizeLoaded(p,document.RootElement);
    ImageBackgroundSettings.NormalizeLoaded(p,document.RootElement);

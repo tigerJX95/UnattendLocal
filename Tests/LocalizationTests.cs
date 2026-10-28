@@ -81,6 +81,28 @@ static class LocalizationTests
             foreach (var section in summaryView.Sections)
             foreach (var row in section.Rows)
                 Check(!Regex.IsMatch(UiText.Translate(row.Value), "[\\u4e00-\\u9fff]"), "English summary: " + row.SourceLabel + " = " + UiText.Translate(row.Value));
+            // Dynamic destinations must retain translation metadata through every composition.
+            foreach (var property in typeof(InstallPlan).GetProperties())
+            {
+                var location = ConfigurationErrorLocation.FromField(property.Name);
+                if (location is not null)
+                    Check(!Regex.IsMatch(UiText.Translate(location.Path), "[\u4e00-\u9fff]"), "English error destination: " + property.Name);
+            }
+            foreach (var field in new[] { "Users.Name", "Users.Password", nameof(InstallPlan.Users) })
+            foreach (int index in new[] { 0, 1, 12 })
+            {
+                var location = ConfigurationErrorLocation.FromField(field, index)!;
+                string path = UiText.Translate(location.Path);
+                Check(!Regex.IsMatch(path, "[\u4e00-\u9fff]") && path.Contains($"account {index + 1}"), "English indexed account destination: " + field + index);
+                Check(UiText.Translate(location.ActionText) == "Go to", "English compact navigation button");
+                string tip = UiText.Translate(UiText.Concat([UiText.Source("text.d8da6d237352"), location.Path], [false, false]));
+                Check(!Regex.IsMatch(tip, "[\u4e00-\u9fff]") && tip.Contains(path), "English navigation tooltip includes destination");
+            }
+            Check(UiText.Get("text.0871f0abbd53") == "Location: ", "English location label describes a destination");
+            var helpModel = new MainViewModel();
+            foreach (var topic in helpModel.HelpTips.Values)
+            foreach (var section in topic.Sections)
+                Check(!Regex.IsMatch(UiText.Translate(section.Text), "[\u4e00-\u9fff]"), "English dynamic tooltip: " + topic.Id + " = " + UiText.Translate(section.Text));
             var named = InstallPlan.New(); named.UseRegisteredOwner = true; named.RegisteredOwner = "取消";
             named.UseRegisteredOrganization = true; named.RegisteredOrganization = "默认";
             string namedSummary = UiText.Translate(RegisteredInformationSettings.Summary(named));

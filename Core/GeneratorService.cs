@@ -131,22 +131,23 @@ public class GeneratorService {
   if(includeImport)XmlPlanImport.AddSnapshot(doc,p);
   return UnattendGenerator.Serialize(doc);
  }
- public static string Preview(byte[] bytes,InstallPlan? plan=null) {
+ public static string Preview(byte[] bytes,InstallPlan? plan=null,bool english=false) {
+  string Label(string key)=>english?global::UnattendLocal.Localization.UiText.EnglishText(global::UnattendLocal.Localization.UiText.Source(key)):global::UnattendLocal.Localization.UiText.Source(key);
   var doc=new XmlDocument();doc.LoadXml(Encoding.UTF8.GetString(bytes));
-  if(plan!=null)AdditionalXmlSettings.RedactPreview(doc,plan);
+  if(plan!=null)AdditionalXmlSettings.RedactPreview(doc,plan,english);
   foreach(XmlComment comment in doc.SelectNodes("//comment()")!.Cast<XmlComment>().ToArray())comment.ParentNode!.RemoveChild(comment);
   var ns=new XmlNamespaceManager(doc.NameTable);ns.AddNamespace("u","urn:schemas-microsoft-com:unattend");
-  foreach(XmlNode n in doc.SelectNodes("//u:Password/u:Value | //u:AdministratorPassword/u:Value | //u:Credentials/u:Password",ns)!)n.InnerText=global::UnattendLocal.Localization.UiText.Source("text.a87e466de86e");
-  foreach(XmlNode n in doc.SelectNodes("//u:component[@name='Microsoft-Windows-PnpCustomizationsWinPE']//u:Credentials/u:Password",ns)!)n.InnerText=global::UnattendLocal.Localization.UiText.Source("text.ce9d3225eb28");
-  foreach(XmlNode n in doc.SelectNodes("//u:component[@name='Microsoft-Windows-UnattendedJoin']//u:Credentials/u:Password | //u:component[@name='Microsoft-Windows-UnattendedJoin']//u:MachinePassword | //u:component[@name='Microsoft-Windows-UnattendedJoin']//u:Provisioning/u:AccountData",ns)!)n.InnerText=DomainCredentialPlaceholder;
-  foreach(XmlNode n in doc.SelectNodes("//u:ProductKey/u:Key | //u:component[@name='Microsoft-Windows-Shell-Setup']/u:ProductKey",ns)!)n.InnerText=global::UnattendLocal.Localization.UiText.Source("text.abf82a99491a");
+  foreach(XmlNode n in doc.SelectNodes("//u:Password/u:Value | //u:AdministratorPassword/u:Value | //u:Credentials/u:Password",ns)!)n.InnerText=Label("text.a87e466de86e");
+  foreach(XmlNode n in doc.SelectNodes("//u:component[@name='Microsoft-Windows-PnpCustomizationsWinPE']//u:Credentials/u:Password",ns)!)n.InnerText=Label("text.ce9d3225eb28");
+  foreach(XmlNode n in doc.SelectNodes("//u:component[@name='Microsoft-Windows-UnattendedJoin']//u:Credentials/u:Password | //u:component[@name='Microsoft-Windows-UnattendedJoin']//u:MachinePassword | //u:component[@name='Microsoft-Windows-UnattendedJoin']//u:Provisioning/u:AccountData",ns)!)n.InnerText=Label("text.b8de0a664760");
+  foreach(XmlNode n in doc.SelectNodes("//u:ProductKey/u:Key | //u:component[@name='Microsoft-Windows-Shell-Setup']/u:ProductKey",ns)!)n.InnerText=Label("text.abf82a99491a");
   foreach(XmlNode n in doc.SelectNodes("//*[local-name()='File']",ns)!)
    if(n.Attributes?["path"]?.Value.EndsWith("Wifi.xml",StringComparison.OrdinalIgnoreCase)==true)
-    n.InnerText=global::UnattendLocal.Localization.UiText.Source("text.838cc513a5e2");
+    n.InnerText=Label("text.838cc513a5e2");
    else if(n.Attributes?["path"]?.Value.EndsWith("AppLockerPolicy.xml",StringComparison.OrdinalIgnoreCase)==true)
-    n.InnerText=global::UnattendLocal.Localization.UiText.Source("text.c67ed423c4cf");
+    n.InnerText=Label("text.c67ed423c4cf");
   using var sw=new StringWriter();using(var w=XmlWriter.Create(sw,new XmlWriterSettings{Indent=true,OmitXmlDeclaration=true}))doc.Save(w);
-  return global::UnattendLocal.Localization.UiText.Concat(new object?[] { global::UnattendLocal.Localization.UiText.Source("text.991932c052b6"), sw.ToString() },new bool[]{false,false});
+  return Label("text.991932c052b6").TrimEnd() + "\n" + sw.ToString();
  }
  private IEditionSettings CreateEdition(InstallPlan p)=>p.EditionMode switch {
   "安装时输入密钥"=>new InteractiveEditionSettings(),

@@ -24,7 +24,7 @@ public static class PeDiskSafety
             (p.PeMinDiskGiB.HasValue && p.PeMaxDiskGiB.HasValue && p.PeMinDiskGiB > p.PeMaxDiskGiB)) Fail(nameof(p.PeMinDiskGiB));
         if (p.PeMatchDiskIndex is < 0) Fail(nameof(p.PeMatchDiskIndex));
         if (p.PeTargetMode == "script" && (string.IsNullOrWhiteSpace(p.PeTargetScript) || p.PeTargetScript.Length > 65536 ||
-            p.PeTargetScript.Split('\n').Length > 1024 || p.PeTargetScript.Split('\n').Any(l => l.TrimEnd('\r').Length > 400) ||
+            ScriptLines(p.PeTargetScript).Length > 1024 || ScriptLines(p.PeTargetScript).Any(l => l.Length > 400) ||
             p.PeTargetScript.Any(c => char.IsControl(c) && c is not ('\r' or '\n' or '\t')) ||
             p.PeTargetScript.Any(char.IsSurrogate))) Fail(nameof(p.PeTargetScript));
     }
@@ -47,10 +47,11 @@ public static class PeDiskSafety
         // One pass prevents placeholder-looking text inside user scripts from being rewritten.
         return Regex.Replace(source, "@@([A-Z]+)@@", m => values[m.Groups[1].Value]);
     }
+    private static string[] ScriptLines(string script) => script.Replace("\r\n", "\n").Replace('\r', '\n').Split('\n');
     private static string CustomWriter(string script)
     {
         var lines = new List<string>();
-        foreach (string line in script.Replace("\r\n", "\n").Replace('\r', '\n').Split('\n'))
+        foreach (string line in ScriptLines(script))
         {
             // PE command lines are limited to 255 characters after two levels of
             // CMD escaping. Small literal chunks also handle quote-heavy scripts.

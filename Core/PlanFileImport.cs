@@ -23,7 +23,16 @@ public static class PlanFileImport {
   if(root.ValueKind!=JsonValueKind.Object||!root.TryGetProperty(nameof(InstallPlan.SchemaVersion),out var schema)||schema.ValueKind!=JsonValueKind.Number||!schema.TryGetInt32(out var version))
    throw new ArgumentException(global::UnattendLocal.Localization.UiText.Source("text.17bfa4c5a9ff"));
   if(version!=1)throw new ArgumentException(global::UnattendLocal.Localization.UiText.Source("text.b8956bfee619"));
-  if(root.EnumerateObject().GroupBy(p=>p.Name,StringComparer.OrdinalIgnoreCase).Any(g=>g.Count()>1))throw new ArgumentException(global::UnattendLocal.Localization.UiText.Source("text.6dca4c64395d"));
+  ValidateMembers(root);
+ }
+ private static void ValidateMembers(JsonElement value){
+  if(value.ValueKind==JsonValueKind.Object){
+   var names=new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+   foreach(var member in value.EnumerateObject()){
+    if(!names.Add(member.Name))throw new ArgumentException(global::UnattendLocal.Localization.UiText.Source("text.6dca4c64395d"));
+    ValidateMembers(member.Value);
+   }
+  }else if(value.ValueKind==JsonValueKind.Array)foreach(var item in value.EnumerateArray())ValidateMembers(item);
  }
  public static void ValidateForDisplay(InstallPlan plan){
   void Strings(object value){

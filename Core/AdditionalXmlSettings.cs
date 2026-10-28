@@ -104,7 +104,7 @@ public static class AdditionalXmlSettings
         }
     }
 
-    public static void RedactPreview(XmlDocument preview, InstallPlan plan)
+    public static void RedactPreview(XmlDocument preview, InstallPlan plan, bool english = false)
     {
         var ns = new XmlNamespaceManager(preview.NameTable); ns.AddNamespace("u", XmlMerge.Namespace);
         foreach (var row in plan.XmlComponents.Where(row => row.Enabled))
@@ -113,7 +113,7 @@ public static class AdditionalXmlSettings
             foreach (var child in fragment.DocumentElement!.ChildNodes.OfType<XmlElement>())
                 foreach (XmlElement value in preview.SelectNodes("/u:unattend/u:settings[@pass='" + row.Pass + "']/u:component[@name='" + row.Component + "']/u:" + child.LocalName, ns)!)
                 {
-                    value.RemoveAll(); value.InnerText = global::UnattendLocal.Localization.UiText.Source("text.9b148fe92613");
+                    value.RemoveAll(); value.InnerText = english ? global::UnattendLocal.Localization.UiText.EnglishText(global::UnattendLocal.Localization.UiText.Source("text.9b148fe92613")) : global::UnattendLocal.Localization.UiText.Source("text.9b148fe92613");
                 }
         }
     }

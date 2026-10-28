@@ -116,11 +116,15 @@ Sub Fail(message)
   WScript.Quit 1
 End Sub
 Function Matches(pattern, value)
-  Dim expression
+  Dim expression, results
   Set expression = New RegExp
   expression.Pattern = pattern
   expression.MultiLine = False
-  Matches = expression.Test(value)
+  Set results = expression.Execute(value)
+  Matches = False
+  If results.Count = 1 Then
+    Matches = (results(0).FirstIndex = 0 And results(0).Length = Len(value))
+  End If
 End Function
 Function ParseIndex(value)
   If Not Matches("^[0-9]{1,10}$", value) Then Fail "Invalid target disk number."
@@ -171,10 +175,10 @@ Function Eligible(disk)
     seenPartitions = seenPartitions + 1
     For Each logical In partition.Associators_("Win32_LogicalDiskToPartition")
       device = UCase(Field(logical, "DeviceID"))
+      If Not Matches("^[A-Z]:$", device) Then Fail "Cannot identify a mapped source volume."
       If device = imageDrive Or device = xmlDrive Or device = "X:" Then Exit Function
     Next
   Next
-  If partitions > 0 And seenPartitions = 0 Then Fail "Cannot map disk partitions."
-  If partitions = 0 And seenPartitions > 0 Then Fail "Disk partitions changed."
+  If seenPartitions <> partitions Then Fail "Disk partition mapping is incomplete or changed."
   Eligible = True
 End Function

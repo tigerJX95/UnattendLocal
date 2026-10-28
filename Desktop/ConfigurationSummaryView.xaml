@@ -32,7 +32,7 @@
           <ItemsControl ItemsSource="{Binding Rows}"><ItemsControl.ItemTemplate><DataTemplate>
             <Grid Margin="0,0,0,6"><Grid.ColumnDefinitions><ColumnDefinition Width="154"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
               <TextBlock Text="{loc:Display Value={Binding Label}}" FontSize="13" FontWeight="SemiBold" TextWrapping="Wrap" Foreground="{DynamicResource SecondaryBrush}" Margin="0,2,16,0">
-                <TextBlock.ToolTip><ToolTip ContentTemplate="{x:Null}" Content="{Binding SourceLabel}"/></TextBlock.ToolTip>
+                <TextBlock.ToolTip><ToolTip ContentTemplate="{x:Null}" Content="{loc:Display Value={Binding SourceLabel}}"/></TextBlock.ToolTip>
               </TextBlock>
               <TextBlock Grid.Column="1" Text="{loc:Display Value={Binding DisplayValue}}" Style="{StaticResource SummaryValue}"/>
             </Grid>

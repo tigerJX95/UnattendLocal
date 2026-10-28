@@ -32,7 +32,7 @@ public partial class MainWindow : Window {
   UpdateLanguageSelection(code);
   var pack=System.IO.Path.Combine(System.AppContext.BaseDirectory,"Languages",code+".json");bool rejected=System.IO.File.Exists(pack)&&!UnattendLocal.Localization.UiText.LoadExternalPack(code,pack,out _);
   UnattendLocal.Localization.UiText.SetLanguage(code);
-  Language=System.Windows.Markup.XmlLanguage.GetLanguage(code);RefreshThemeIcon();
+  Language=System.Windows.Markup.XmlLanguage.GetLanguage(code);RefreshThemeIcon();vm.RefreshPreviewLanguage();
   if(rejected)vm.Status=UnattendLocal.Localization.UiText.Source("language.packRejected");
   if(!UiPreferences.SaveLanguage(code))vm.Status=UnattendLocal.Localization.UiText.Source("text.971741bbc9ca");
  }
@@ -45,7 +45,7 @@ public partial class MainWindow : Window {
    if(item.Tag is string itemCode&&itemCode==code){item.IsChecked=true;break;}
   }
  }
- private void RefreshThemeIcon(){var dark=UiTheme.Current=="Dark";ThemeMoon.Visibility=dark?Visibility.Collapsed:Visibility.Visible;ThemeSun.Visibility=dark?Visibility.Visible:Visibility.Collapsed;var title=dark?global::UnattendLocal.Localization.UiText.Source("text.a52d332cfafb"):global::UnattendLocal.Localization.UiText.Source("text.a3538a688840");ThemeToggleTip.Content=title;System.Windows.Automation.AutomationProperties.SetName(ThemeToggleButton,UnattendLocal.Localization.UiText.Translate(title));}
+ private void RefreshThemeIcon(){var dark=UiTheme.Current=="Dark";ThemeMoon.Visibility=dark?Visibility.Collapsed:Visibility.Visible;ThemeSun.Visibility=dark?Visibility.Visible:Visibility.Collapsed;var title=dark?global::UnattendLocal.Localization.UiText.Source("text.a52d332cfafb"):global::UnattendLocal.Localization.UiText.Source("text.a3538a688840");ThemeToggleTip.Content=UnattendLocal.Localization.UiText.Translate(title);System.Windows.Automation.AutomationProperties.SetName(ThemeToggleButton,UnattendLocal.Localization.UiText.Translate(title));}
  private void ThemeToggleClick(object s,RoutedEventArgs e){var saved=UiTheme.Apply(UiTheme.Current=="Dark"?"Light":"Dark");RefreshThemeIcon();if(!saved)vm.Status=global::UnattendLocal.Localization.UiText.Source("text.7e775a45f5e6");}
  private void AboutMenuClick(object s,RoutedEventArgs e){var menu=AboutMenuButton.ContextMenu;menu.PlacementTarget=AboutMenuButton;menu.Placement=System.Windows.Controls.Primitives.PlacementMode.Bottom;menu.IsOpen=true;}
  private void AboutSectionClick(object s,RoutedEventArgs e){if(s is MenuItem {Tag:string section}&&int.TryParse(section,out var index))Run(()=>new AboutWindow(index){Owner=this}.ShowDialog());}
@@ -124,7 +124,7 @@ public partial class MainWindow : Window {
   var invalid=SettingsSearchCatalog.All.Select(setting=>FindName(setting.Target)).OfType<FrameworkElement>()
    .FirstOrDefault(field=>field.IsEnabled&&System.Windows.Controls.Validation.GetHasError(field))??Invalid(this);
   if(invalid is not null)throw new ConfigurationValidationException(invalid.Name,global::UnattendLocal.Localization.UiText.Source("text.4f7678afdc63"));return vm.Service.Generate(vm.Plan);}
- private void PreviewClick(object s,RoutedEventArgs e)=>Run(()=>{var bytes=Generate();vm.Preview=InstallationReview.ExportSummary(bytes)+"\n\n"+GeneratorService.Preview(bytes,vm.Plan);vm.Status=global::UnattendLocal.Localization.UiText.Concat(new object?[] { global::UnattendLocal.Localization.UiText.Source("text.66c560c48e92"), InstallationReview.ExportSummary(bytes) },new bool[]{false,false});ExportPage.IsSelected=true;}, locateConfiguration:true);
+ private void PreviewClick(object s,RoutedEventArgs e)=>Run(()=>{var bytes=Generate();vm.ShowXmlPreview(bytes);vm.Status=global::UnattendLocal.Localization.UiText.Concat(new object?[] { global::UnattendLocal.Localization.UiText.Source("text.66c560c48e92"), InstallationReview.ExportSummary(bytes) },new bool[]{false,false});ExportPage.IsSelected=true;}, locateConfiguration:true);
  private void ApplyRecommendationClick(object s,RoutedEventArgs e)=>Run(()=>{
   if(LocalizedMessageBox.Show(this,global::UnattendLocal.Localization.UiText.Source("text.e99546b2272a"),global::UnattendLocal.Localization.UiText.Source("text.a9087ee41397"),MessageBoxButton.YesNo,MessageBoxImage.Question)!=MessageBoxResult.Yes)return;
   Recommendations.Apply(vm.Plan,vm.PendingRecommendation);vm.Preview=global::UnattendLocal.Localization.UiText.Source("text.142f2839b283");vm.Status=global::UnattendLocal.Localization.UiText.Source("text.9c12b69de53e");

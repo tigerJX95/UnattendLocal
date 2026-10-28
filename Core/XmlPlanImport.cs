@@ -15,7 +15,7 @@ public static class XmlPlanImport {
  private static bool IsTrue(string? text)=>text is "true" or "1";
  public static InstallPlan Import(string xml,GeneratorService service){
   var original=XmlMerge.Read(xml);var doc=XmlImportPaths.Inspection(original);var ns=new XmlNamespaceManager(doc.NameTable);ns.AddNamespace("u",XmlMerge.Namespace);
-  if(doc.SelectNodes("//u:component[@name='Microsoft-Windows-UnattendedJoin']//u:Credentials/u:Password | //u:component[@name='Microsoft-Windows-UnattendedJoin']//u:MachinePassword | //u:component[@name='Microsoft-Windows-UnattendedJoin']//u:Provisioning/u:AccountData",ns)!.Cast<XmlElement>().Any(n=>n.InnerText==GeneratorService.DomainCredentialPlaceholder))throw new ArgumentException(global::UnattendLocal.Localization.UiText.Source("text.4fe17c3916ca"));
+  if(doc.SelectNodes("//u:component[@name='Microsoft-Windows-UnattendedJoin']//u:Credentials/u:Password | //u:component[@name='Microsoft-Windows-UnattendedJoin']//u:MachinePassword | //u:component[@name='Microsoft-Windows-UnattendedJoin']//u:Provisioning/u:AccountData",ns)!.Cast<XmlElement>().Any(n=>n.InnerText==GeneratorService.DomainCredentialPlaceholder || n.InnerText==global::UnattendLocal.Localization.UiText.EnglishResources["text.b8de0a664760"] || n.InnerText==global::UnattendLocal.Localization.UiText.EnglishText(GeneratorService.DomainCredentialPlaceholder)))throw new ArgumentException(global::UnattendLocal.Localization.UiText.Source("text.4fe17c3916ca"));
   var arches=doc.SelectNodes("//u:component/@processorArchitecture",ns)!.Cast<XmlAttribute>().Select(a=>a.Value).Distinct().ToArray();
   if(arches.Length>1)throw new ArgumentException(global::UnattendLocal.Localization.UiText.Source("text.3c620e817ae8"));
   if(arches.Length==1&&arches[0] is not ("amd64" or "arm64" or "x86"))throw new ArgumentException(global::UnattendLocal.Localization.UiText.Source("text.d8a4acade665"));
@@ -274,7 +274,9 @@ public static class XmlPlanImport {
  private static string Digest(XmlDocument doc)=>Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(XmlMerge.Canonical(doc.DocumentElement!))));
  public static void AddSnapshot(XmlDocument doc,InstallPlan plan){
   foreach(XmlComment c in doc.SelectNodes("//comment()")!.Cast<XmlComment>().ToArray())if(c.Value?.StartsWith(Marker)==true||c.Value?.TrimStart().StartsWith("https://schneegans.de/windows/unattend-generator/?")==true)c.ParentNode!.RemoveChild(c);
-  var copy=PlanStore.Deserialize(PlanStore.Serialize(plan,true));copy.ImportedXml=null;
+  // Clone the current in-memory model without applying untrusted-file import validation.
+  // Disabled fields are scrubbed below; their unused values may be null.
+  var copy=JsonSerializer.Deserialize<InstallPlan>(PlanStore.Serialize(plan,true))!;copy.ImportedXml=null;
   if(copy.PowerPlanMode!=NativePreferences.Custom)copy.CustomPowerPlanGuid=NativePreferences.Value(copy,NativePreferences.Power)??"";
   copy.ExportNonAutomaticFilename=false; // Output preference belongs to JSON, not installation settings.
   copy.XmlComponents=new(copy.XmlComponents.Where(row=>row.Enabled));
@@ -294,6 +296,8 @@ public static class XmlPlanImport {
   if(copy.StartTilesMode!=ShellSettings.CustomXml)copy.StartTilesXml="";
   if(copy.StartPinsMode!=ShellSettings.CustomJson)copy.StartPinsJson="";
   if(copy.DiskMode!=DiskScriptSettings.Mode)copy.DiskPartScript="";
+  // Inactive PE drafts belong to JSON plans, not deployment recovery metadata.
+  if(!copy.UseGeneratedPe || copy.PeTargetMode!="script")copy.PeTargetScript="";
   if(!WallpaperSettings.IsScript(copy))copy.WallpaperImageScript="";
   if(!ImageBackgroundSettings.IsLockScript(copy))copy.LockScreenImageScript="";
   // Active fragment elements already exist in the export. Retain only those elements

@@ -31,7 +31,7 @@
 
 容量范围按实际字节比较：1 GiB = 1073741824 字节，边界包含在内，不将磁盘容量四舍五入。可留空，输入范围为 1–1048576 GiB。容量和“无分区”“IDE/SCSI 接口”“固定硬盘介质”条件适用于所有方式；可选匹配编号只用于条件匹配。
 
-接口和介质条件采用 WMI 原始分类，不保证按接口名称排除所有 USB 桥接或虚拟磁盘。无法获取必需属性或无法映射已有分区时停止。最低容量检查还为系统、恢复分区及 1 GiB 基本空间保留容量；它不估算镜像展开和安装后的全部空间需求，应自行设置足够的最小容量。
+接口和介质条件采用 WMI 原始分类，不保证按接口名称排除所有 USB 桥接或虚拟磁盘。无法获取必需属性、映射分区数与磁盘报告不一致，或已映射卷盘符无法识别时停止。最低容量检查还为系统、恢复分区及 1 GiB 基本空间保留容量；它不估算镜像展开和安装后的全部空间需求，应自行设置足够的最小容量。
 
 ### 分区前安全检查
 
@@ -49,7 +49,7 @@
 
 ### 保存、恢复与兼容性
 
-JSON 保存选盘方式、容量、安全条件和脚本；旧 JSON 不自动启用 PE，也不改成自动匹配。修改相关参数会取消清盘确认，保存或导入不会恢复确认状态。
+XML 恢复记录仅包含实际启用的自定义选盘脚本，不包含停用草稿。JSON 保存选盘方式、容量、安全条件和脚本；旧 JSON 不自动启用 PE，也不改成自动匹配。修改相关参数会取消清盘确认，保存或导入不会恢复确认状态。
 
 本程序导出的原始 XML，只有有效恢复记录及完整匹配的 PE 流程才可恢复编辑。修改过的、无法识别的流程保留原文。较早版本 PE XML 可能因流程基准变化而无法恢复编辑或安全导出，原始内容仍保留在导入记录中；此时用原 JSON 方案继续编辑。切回常规 Setup 时，需要重新填写常规路径所需的固定目标和布局，不能沿用动态选盘的假定。
 
@@ -69,7 +69,7 @@ Use custom configuration, select an actual image index, choose automatic disk wi
 
 Fixed mode requires the target PE disk number. Matching mode uses its own optional index filter and must find exactly one disk; zero or multiple matches stop. Interactive mode lists disks and accepts one unsigned number. Custom mode executes a trusted VBScript that must return exactly one unsigned index, optionally followed by one newline, with exit code 0 and empty stderr within 60 seconds.
 
-Capacity bounds are inclusive, compared directly in bytes using 1 GiB = 1073741824 bytes, without rounding. Blank means no corresponding bound; accepted input is 1–1048576 GiB. Capacity, unpartitioned, IDE/SCSI-interface and fixed-media conditions apply to all modes. Interface/media names are WMI classifications, not a guarantee of excluding all USB bridges or virtual disks. Required properties and existing partition mappings must be readable. A basic space floor reserves the system/recovery partitions plus 1 GiB, not the full expanded-image and operating-system requirement; configure a suitable minimum yourself.
+Capacity bounds are inclusive, compared directly in bytes using 1 GiB = 1073741824 bytes, without rounding. Blank means no corresponding bound; accepted input is 1–1048576 GiB. Capacity, unpartitioned, IDE/SCSI-interface and fixed-media conditions apply to all modes. Interface/media names are WMI classifications, not a guarantee of excluding all USB bridges or virtual disks. Required properties and existing partition mappings must be readable. Mapping counts must agree with the disk report, and mapped volume identifiers must be valid drive letters. A basic space floor reserves the system/recovery partitions plus 1 GiB, not the full expanded-image and operating-system requirement; configure a suitable minimum yourself.
 
 ### Safety and trust boundaries
 
@@ -81,7 +81,7 @@ Custom scripts are executable trusted code, not sandboxed. They can run disk com
 
 ### Persistence and validation
 
-JSON retains selector settings without restoring erasure consent. Older plans do not automatically switch installation paths or enable matching. Original app-exported XML is editable only with valid restoration metadata and a matching complete PE pipeline. Modified or unrecognized flows remain preserved. Older PE XML may no longer be editable or safely exportable when its pipeline no longer matches; its source remains retained in the import record. Use its original JSON plan. Switching to ordinary Setup requires a valid fixed target and supported ordinary layout.
+XML recovery metadata omits inactive selector scripts. JSON retains selector settings and drafts without restoring erasure consent. Older plans do not automatically switch installation paths or enable matching. Original app-exported XML is editable only with valid restoration metadata and a matching complete PE pipeline. Modified or unrecognized flows remain preserved. Older PE XML may no longer be editable or safely exportable when its pipeline no longer matches; its source remains retained in the import record. Use its original JSON plan. Switching to ordinary Setup requires a valid fixed target and supported ordinary layout.
 
 Setup driver directories, Dynamic Update, PE log paths, hardware bypass, Compact OS and extra windowsPE XML remain incompatible. The target PE needs CMD, DISM, DiskPart, WMI, cscript and VBScript. Prepare PE drivers through `$WinPEDriver$` when appropriate. Test in a snapshot VM first; see [Deployment validation](PeDeploymentValidation.md).
 

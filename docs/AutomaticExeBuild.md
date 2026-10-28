@@ -31,7 +31,7 @@ V1.24 listens only to `release: published` and `workflow_dispatch`. Ordinary com
 
 A lightweight read-only job queries every asset page. Any completely uploaded, non-empty `.exe` attachment, including a custom filename or one variant alone, skips the entire Windows build and automatic upload. File names do not establish executable correctness or version; verify manual attachments yourself.
 
-With no EXE attachments, build both variants from the release tag, validate the tag/version and main history, audit dependencies, run regression checks, retain Actions outputs and attach the EXEs to the same Release. Non-EXE assets do not prevent a build. The tag must match the project version, for example `v1.24`.
+With no EXE attachments, build both variants from the release tag, validate the tag/version and main history, run regression checks, retain Actions outputs and attach the EXEs to the same Release. Non-EXE assets do not prevent a build. The tag must match the project version, for example `v1.24`.
 
 Recheck before writing to preserve EXEs uploaded during compilation. Never overwrite/delete assets or edit Release titles, notes or tags. API failures, incomplete EXEs, identity mismatches and immutable Releases stop rather than proceed. If a later upload fails, keep earlier successful uploads and complete the missing assets manually. Manual Actions builds do not modify Releases.
 
