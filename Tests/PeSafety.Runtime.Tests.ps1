@@ -106,7 +106,13 @@ function Invoke-Selector([string]$mode='fixed',[double[]]$sizes=@(137438953472),
 }
 try {
     $s=Invoke-Selector -verify $true
-    Assert-Pe ($s.Code -ne 0 -and $s.Out -eq '') 'A missing target snapshot fails the pre-partition recheck'
+    # OpenTextFile on a missing snapshot raises a host runtime error. cscript
+    # can write that diagnostic to stdout and return a negative HRESULT.
+    # The production recheck gates on an exact zero status, not empty stdout.
+    $details = 'ExitCode={0}; stdout=[{1}]; stderr=[{2}]' -f $s.Code,$s.Out,$s.Error
+    Assert-Pe ($s.Code -ne 0) ('A missing target snapshot fails the pre-partition recheck. ' + $details)
+    Assert-Pe ($s.Out -notmatch '(?m)^[0-9]+\r?$') ('A missing snapshot must not emit a target disk number. ' + $details)
+    Assert-Pe (-not [string]::IsNullOrWhiteSpace($s.Out + $s.Error)) ('A missing snapshot reports a diagnostic. ' + $details)
     $s=Invoke-Selector -mode script -missingHost $true
     Assert-Pe ($s.Code -ne 0 -and $s.Out -eq '') 'A missing nested script host stops selection'
     foreach($layout in @('GPT','MBR','Automatic')) {
