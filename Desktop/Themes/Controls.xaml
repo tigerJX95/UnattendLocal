@@ -1,5 +1,6 @@
 <ResourceDictionary xmlns:loc="clr-namespace:UnattendLocal.Desktop" xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:local="clr-namespace:UnattendLocal.Desktop">
   <BooleanToVisibilityConverter x:Key="VisibleWhen"/>
+  <local:OptionalIntegerConverter x:Key="OptionalInteger"/>
   <local:DiagnosticErrorConverter x:Key="DiagnosticError"/>
   <local:ActionIconConverter x:Key="ActionIcon"/>
   <local:ActionHelpConverter x:Key="ActionHelp"/>

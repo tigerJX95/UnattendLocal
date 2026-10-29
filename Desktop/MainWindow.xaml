@@ -135,7 +135,7 @@
             <TextBlock Text="{loc:Display Value={Binding XmlImportErrors}}" Style="{StaticResource ExplanationText}" Foreground="{DynamicResource ErrorBrush}" Visibility="{Binding HasXmlImportErrors,Converter={StaticResource VisibleWhen}}"/>
             <StackPanel Visibility="{Binding HasImportedXmlRisk,Converter={StaticResource VisibleWhen}}">
               <TextBlock Style="{StaticResource ExplanationText}" Text="{loc:Text text.5c1738334ad0}" Foreground="{DynamicResource WarningBrush}"/>
-              <CheckBox Content="{loc:Source text.7b890b5e4e75}" IsChecked="{Binding Plan.ConfirmImportedXmlRisk}"><CheckBox.ToolTip><ToolTip ContentTemplate="{x:Null}"><TextBlock Text="{loc:Text text.3aa05e14a1ff}" TextWrapping="Wrap"/></ToolTip></CheckBox.ToolTip></CheckBox>
+              <CheckBox x:Name="ConfirmImportedXmlRiskCheck" Content="{loc:Source text.7b890b5e4e75}" IsChecked="{Binding Plan.ConfirmImportedXmlRisk}"><CheckBox.ToolTip><ToolTip ContentTemplate="{x:Null}"><TextBlock Text="{loc:Text text.3aa05e14a1ff}" TextWrapping="Wrap"/></ToolTip></CheckBox.ToolTip></CheckBox>
             </StackPanel>
             <TextBlock Style="{StaticResource ExplanationText}" Text="{loc:Text text.2df83c8a5236}" Foreground="{DynamicResource SecondaryBrush}"/>
           </StackPanel></Border>
@@ -313,7 +313,7 @@
             <Border Style="{StaticResource Card}">
               <StackPanel>
                 <TextBlock x:Name="SettingAnchor041" Text="{loc:Text text.7b3104ec33d1}" FontSize="20" FontWeight="SemiBold" Margin="0,0,0,16" />
-                <TextBlock Style="{StaticResource ExplanationText}" Text="{loc:Text text.7f25b84adfed}" TextWrapping="Wrap" Foreground="{DynamicResource SecondaryBrush}" />
+                <TextBlock Style="{StaticResource ExplanationText}" Text="{loc:Display Value={Binding EditionInstallationDescription}}" TextWrapping="Wrap" Foreground="{DynamicResource SecondaryBrush}" />
                 <TextBlock Text="{loc:Text text.325719053614}" Foreground="{DynamicResource SecondaryBrush}" ToolTip="{Binding DataContext.HelpTips[edition],RelativeSource={RelativeSource AncestorType=Window}}" />
                 <ComboBox x:Name="SettingAnchor042" SelectedValue="{Binding Plan.EditionMode}" SelectedValuePath="Content" ToolTip="{Binding DataContext.HelpTips[edition],RelativeSource={RelativeSource AncestorType=Window}}">
                   <ComboBoxItem Content="{loc:Source text.cc706914a2ad}">
@@ -426,7 +426,7 @@
                     </Style>
                   </TextBlock.Style>
                 </TextBlock>
-                <TextBlock Style="{StaticResource ExplanationText}" Text="{loc:Text text.e60a63390690}" TextWrapping="Wrap" Foreground="{DynamicResource SecondaryBrush}" />
+                <TextBlock Style="{StaticResource ExplanationText}" Text="{loc:Display Value={Binding ActivationKeyDescription}}" TextWrapping="Wrap" Foreground="{DynamicResource SecondaryBrush}" />
               </StackPanel>
             </Border>
             <Border Style="{StaticResource Card}"><StackPanel>
@@ -525,9 +525,9 @@
               </ComboBox>
               <TextBlock Style="{StaticResource ExplanationText}" Text="{loc:Text v127.help}"/>
               <TextBlock Text="{loc:Text v127.min}"/>
-              <TextBox x:Name="PeMinCapacityEditor" Text="{Binding Plan.PeMinDiskGiB,UpdateSourceTrigger=PropertyChanged,ValidatesOnExceptions=True}"/>
+              <TextBox x:Name="PeMinCapacityEditor" Text="{Binding Plan.PeMinDiskGiB,Converter={StaticResource OptionalInteger},UpdateSourceTrigger=PropertyChanged,ValidatesOnExceptions=True}"/>
               <TextBlock Text="{loc:Text v127.max}"/>
-              <TextBox x:Name="PeMaxCapacityEditor" Text="{Binding Plan.PeMaxDiskGiB,UpdateSourceTrigger=PropertyChanged,ValidatesOnExceptions=True}"/>
+              <TextBox x:Name="PeMaxCapacityEditor" Text="{Binding Plan.PeMaxDiskGiB,Converter={StaticResource OptionalInteger},UpdateSourceTrigger=PropertyChanged,ValidatesOnExceptions=True}"/>
               <CheckBox Content="{loc:Source v127.empty}" IsChecked="{Binding Plan.PeRequireEmptyDisk}"/>
               <CheckBox Content="{loc:Source v127.interface}" IsChecked="{Binding Plan.PeRequireInterfaceType}"/>
               <CheckBox Content="{loc:Source v127.media}" IsChecked="{Binding Plan.PeRequireFixedMedia}"/>
@@ -548,7 +548,7 @@
             <StackPanel IsEnabled="{Binding IsExistingDisk}" Visibility="{Binding IsExistingDisk,Converter={StaticResource VisibleWhen}}">
               <TextBlock Style="{StaticResource ExplanationText}" Text="{loc:Text text.6f3daf393c69}" TextWrapping="Wrap" Foreground="{DynamicResource WarningBrush}"/>
               <CheckBox x:Name="SettingAnchor064" Content="{loc:Source text.e5576d5075be}" IsChecked="{Binding Plan.FormatExistingPartition}" ToolTip="{Binding DataContext.HelpTips[diskformat],RelativeSource={RelativeSource AncestorType=Window}}" />
-              <CheckBox Content="{loc:Source text.7b794619cfb4}" IsChecked="{Binding Plan.ConfirmFormatPartition}" Foreground="{DynamicResource DangerBrush}" FontWeight="SemiBold" Visibility="{Binding IsFormatDisk,Converter={StaticResource VisibleWhen}}" ToolTip="{Binding DataContext.HelpTips[diskconfirm],RelativeSource={RelativeSource AncestorType=Window}}" />
+              <CheckBox x:Name="ConfirmFormatPartitionCheck" Content="{loc:Source text.7b794619cfb4}" IsChecked="{Binding Plan.ConfirmFormatPartition}" Foreground="{DynamicResource DangerBrush}" FontWeight="SemiBold" Visibility="{Binding IsFormatDisk,Converter={StaticResource VisibleWhen}}" ToolTip="{Binding DataContext.HelpTips[diskconfirm],RelativeSource={RelativeSource AncestorType=Window}}" />
             </StackPanel>
             <StackPanel IsEnabled="{Binding IsScriptDisk}" Visibility="{Binding IsScriptDisk,Converter={StaticResource VisibleWhen}}">
               <TextBlock Text="{loc:Text text.30644afb05e9}" FontSize="16" Margin="0,12,0,6"/>
@@ -560,7 +560,7 @@
               </DockPanel>
               <TextBox x:Name="DiskPartExampleEditor" Text="{Binding Plan.DiskPartScript,UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource ExampleEditor}" local:ExampleText.Value="{x:Static core:DiskScriptSettings.Example}" AcceptsReturn="True" AcceptsTab="True" TextWrapping="NoWrap" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto" Height="340" FontFamily="Consolas" FontSize="13" SpellCheck.IsEnabled="False" ToolTip="{Binding DataContext.HelpTips[diskscript],RelativeSource={RelativeSource AncestorType=Window}}"/>
               <TextBlock Style="{StaticResource ExplanationText}" Text="{loc:Text text.9f82cc82249d}" TextWrapping="Wrap" Foreground="{DynamicResource SecondaryBrush}"/>
-              <CheckBox Content="{loc:Source text.430d8c70cc23}" IsChecked="{Binding Plan.ConfirmDiskScript}" Foreground="{DynamicResource DangerBrush}" FontWeight="SemiBold" ToolTip="{Binding DataContext.HelpTips[diskconfirm],RelativeSource={RelativeSource AncestorType=Window}}"/>
+              <CheckBox x:Name="ConfirmDiskScriptCheck" Content="{loc:Source text.430d8c70cc23}" IsChecked="{Binding Plan.ConfirmDiskScript}" Foreground="{DynamicResource DangerBrush}" FontWeight="SemiBold" ToolTip="{Binding DataContext.HelpTips[diskconfirm],RelativeSource={RelativeSource AncestorType=Window}}"/>
             </StackPanel>
             <TextBlock Style="{StaticResource ExplanationText}" Text="{loc:Text text.dc72df6e31fa}" Foreground="{DynamicResource WarningBrush}" Visibility="{Binding HasReadonlyAutoPartition,Converter={StaticResource VisibleWhen}}"/>
             <StackPanel IsEnabled="{Binding CanEditAutoPartition}" Visibility="{Binding IsWipeDisk,Converter={StaticResource VisibleWhen}}">
@@ -573,7 +573,7 @@
               <TextBlock Style="{StaticResource ExplanationText}" Text="{loc:Display Value={Binding AutoPartitionSummary}}"/>
               <TextBlock Style="{StaticResource ExplanationText}" Text="{loc:Text text.f5fc729aed55}" Foreground="{DynamicResource SecondaryBrush}"/>
               <TextBlock Text="{loc:Text text.ef1ac524438a}"/><TextBox x:Name="SettingAnchor067" Text="{Binding Plan.RecoverySizeMB,UpdateSourceTrigger=PropertyChanged,ValidatesOnExceptions=True}" ToolTip="{Binding DataContext.HelpTips[disklayout],RelativeSource={RelativeSource AncestorType=Window}}"/>
-              <CheckBox Content="{loc:Source text.65c045dc5940}" IsChecked="{Binding Plan.ConfirmWipeDisk}" Foreground="{DynamicResource DangerBrush}" FontWeight="SemiBold" ToolTip="{Binding DataContext.HelpTips[diskconfirm],RelativeSource={RelativeSource AncestorType=Window}}" />
+              <CheckBox x:Name="ConfirmWipeDiskCheck" Content="{loc:Source text.65c045dc5940}" IsChecked="{Binding Plan.ConfirmWipeDisk}" Foreground="{DynamicResource DangerBrush}" FontWeight="SemiBold" ToolTip="{Binding DataContext.HelpTips[diskconfirm],RelativeSource={RelativeSource AncestorType=Window}}" />
             </StackPanel>
           </StackPanel></Border>
           <Border Background="{DynamicResource DangerTintBrush}" BorderBrush="{DynamicResource DangerBrush}" BorderThickness="2" CornerRadius="8" Padding="20" Margin="0,0,0,16" Visibility="{Binding IsDestructiveDisk,Converter={StaticResource VisibleWhen}}"><StackPanel>

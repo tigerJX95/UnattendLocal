@@ -28,12 +28,16 @@ public static class PeDiskSafety
             p.PeTargetScript.Any(c => char.IsControl(c) && c is not ('\r' or '\n' or '\t')) ||
             p.PeTargetScript.Any(char.IsSurrogate))) Fail(nameof(p.PeTargetScript));
     }
-    public static string Selector(InstallPlan p)
+    public static string Selector(InstallPlan p) => Selector(p, false);
+    internal static string Selector(InstallPlan p, bool legacyTargetChain)
     {
         Validate(p);
         using var stream = typeof(PeDiskSafety).Assembly.GetManifestResourceStream("UnattendLocal.Core.Resources.PeTargetDisk.vbs")!;
         using var reader = new StreamReader(stream);
         string source = reader.ReadToEnd();
+        if (legacyTargetChain)
+            source = source.ReplaceLineEndings("\n").Replace("  If Not fso.FileExists(WScript.FullName) Then Fail \"The current script host is unavailable.\"\n", "", StringComparison.Ordinal)
+                .Replace("command = quote & WScript.FullName", "command = quote & shell.ExpandEnvironmentStrings(\"%SystemRoot%\\System32\\cscript.exe\")", StringComparison.Ordinal);
         string Number(int? value) => (value ?? -1).ToString(CultureInfo.InvariantCulture);
         var values = new Dictionary<string, string>
         {
@@ -61,15 +65,44 @@ public static class PeDiskSafety
         }
         return string.Join("\r\n", lines);
     }
-    public static string Guard(string script, InstallPlan p)
+    public static string Guard(string script, InstallPlan p) => Guard(script, p, false);
+    internal static string Guard(string script, InstallPlan p, bool legacyTargetChain)
     {
+        // cscript runtime errors may return negative HRESULTs. CMD's || and
+        // `if errorlevel 1` do not reliably cover those: require exactly zero.
+        const string oldSelection = "(cscript.exe //E:vbscript \"X:\\target.vbs\" //Nologo >X:\\target.out) || (type X:\\target.out & call :fail \"Could not determine target disk. Windows Setup will halt to avoid potential data loss.\")\r\nfor /f %%t in (X:\\target.out) do set \"TARGET_DISK=%%t\"";
+        if (script.Split(oldSelection).Length != 2) throw new InvalidOperationException("Unexpected PE target selection chain.");
+        string selection = """
+            rem UnattendLocal selection gate v1
+            set "TARGET_DISK="
+            set "ERRORLEVEL="
+            cscript.exe //E:vbscript "X:\target.vbs" //Nologo >X:\target.out
+            set "UL_TARGET_EXIT=%errorlevel%"
+            if not "%UL_TARGET_EXIT%"=="0" (
+                type X:\target.out
+                call :fail "Target disk selection failed. No disk was formatted."
+            )
+            for /f %%t in (X:\target.out) do set "TARGET_DISK=%%t"
+            if not defined TARGET_DISK call :fail "No target disk was selected. No disk was formatted."
+            rem UnattendLocal selection gate end
+            """;
+        if (!legacyTargetChain) script = script.Replace(oldSelection, selection.ReplaceLineEndings("\r\n"), StringComparison.Ordinal);
         var calls = Regex.Matches(script, @"(?m)^diskpart\.exe /s ");
         if (calls.Count != 1) throw new InvalidOperationException("Unexpected PE DiskPart execution chain.");
         // Gate only an executable command line, never matching user script text
         // echoed into the selector. The optional pause precedes this insertion.
-        return script.Insert(calls[0].Index,
+        if (legacyTargetChain) return script.Insert(calls[0].Index,
             "rem UnattendLocal destructive gate v2\r\n" +
             "cscript.exe //E:vbscript X:\\target.vbs //Nologo --verify >X:\\UL-verify.out || call :fail \"Disk safety recheck failed. No disk was formatted.\"\r\n");
+        return script.Insert(calls[0].Index,
+            "rem UnattendLocal destructive gate v2\r\n" +
+            "set \"ERRORLEVEL=\"\r\n" +
+            "cscript.exe //E:vbscript X:\\target.vbs //Nologo --verify >X:\\UL-verify.out 2>&1\r\n" +
+            "set \"UL_VERIFY_EXIT=%errorlevel%\"\r\n" +
+            "if not \"%UL_VERIFY_EXIT%\"==\"0\" (\r\n" +
+            "    type X:\\UL-verify.out\r\n" +
+            "    call :fail \"Disk safety recheck failed. No disk was formatted.\"\r\n" +
+            ")\r\n");
     }
 
     public static string Summary(InstallPlan p)

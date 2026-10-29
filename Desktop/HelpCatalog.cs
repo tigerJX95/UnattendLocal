@@ -334,6 +334,10 @@ public static class HelpCatalog
             : string.IsNullOrEmpty(state) ? [] : [state];
         var sections = states.Select(value => new HelpSection(network ? HelpText.Paragraphs(value) : value, DiagnosticText.IsErrorSummary(value)))
             .Append(new HelpSection(topic.Body)).ToArray();
+        if(plan.UseGeneratedPe && (topic.Id is "edition" or "sku" or "installkey"))
+            sections=[new HelpSection(global::UnattendLocal.Localization.UiText.Source("v129.pe.editionDescription")),new HelpSection(global::UnattendLocal.Localization.UiText.Source(plan.EditionMode==global::UnattendLocal.Localization.UiText.Source("text.5056d73b13ec")?"v129.pe.ready":"v125.pe.edition")),..sections];
+        if(plan.UseGeneratedPe && topic.Id=="activation")
+            sections=[new HelpSection(global::UnattendLocal.Localization.UiText.Source("v129.pe.activation")),..sections];
         return topic with { Body = global::UnattendLocal.Localization.UiText.Join("\n\n", sections.Select(section => section.Text), false), Parts = sections };
     }
 }

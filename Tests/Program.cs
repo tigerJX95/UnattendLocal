@@ -1,5 +1,10 @@
 using System.Text;using System.Xml;using UnattendLocal.Core;
 int count=0;var g=new GeneratorService();
+if(args.Contains("--pe-import-compatibility-only")){Console.WriteLine($"PE import compatibility: {PeImportCompatibilityTests.Run(g)} checks passed.");return;}
+if(args.Length==2 && args[0]=="--export-pe-chain-fixtures"){PeSafetyTests.ExportChainFixtures(g,args[1]);return;}
+if(args.Contains("--key-mode-compatibility-only")){Console.WriteLine($"Key mode compatibility: {KeyModeCompatibilityTests.Run(g)} checks passed.");return;}
+if(args.Contains("--pe-preflight-only")){Console.WriteLine($"PE preflight: {PePreflightTests.Run(g)} checks passed.");return;}
+if(args.Contains("--v129-guidance-only")){Console.WriteLine($"V1.29 guidance: {V129GuidanceTests.Run(g)} checks passed.");return;}
 if(args.Contains("--preview-localization-only")){Console.WriteLine($"Preview localization: {PreviewLocalizationTests.Run(g)} checks passed.");return;}
 if(args.Contains("--v128-security-only")){Console.WriteLine($"V1.28 security: {V128SecurityTests.Run(g)} checks passed.");return;}
 if(args.Contains("--pe-safety-only")){Console.WriteLine($"V1.27 PE safety: {PeSafetyTests.Run(g)} checks passed.");return;}
@@ -2098,3 +2103,5 @@ Console.WriteLine($"V1.24 final total: {count} tests passed.");
 count+=GeneratedPeTests.Run(g);Console.WriteLine($"V1.25 final total: {count} tests passed.");Console.WriteLine($"V1.26 final total: {count} tests passed.");
 
 count+=PeSafetyTests.Run(g);count+=V128SecurityTests.Run(g);count+=PreviewLocalizationTests.Run(g);Console.WriteLine($"V1.28 final total: {count} tests passed.");
+
+count+=V129GuidanceTests.Run(g);count+=PePreflightTests.Run(g);count+=KeyModeCompatibilityTests.Run(g);count+=PeImportCompatibilityTests.Run(g);Console.WriteLine($"V1.29 final total: {count} tests passed.");

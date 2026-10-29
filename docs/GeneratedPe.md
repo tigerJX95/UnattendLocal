@@ -4,6 +4,8 @@
 
 在“镜像与分区”页启用“使用 PE 脚本安装”。默认关闭；已有方案保持原有安装方式，新字段缺省为固定磁盘编号。本程序只生成应答文件，不扫描、分区或格式化当前电脑。
 
+已知旧版 PE XML 的完整生成流程与有效恢复记录一致时，可恢复选盘、容量及分区设置的编辑；再次导出使用当前修复后的脚本。恢复编辑不会授予清盘确认。未识别或被外部修改的流程继续保留原文并限制覆盖。
+
 ### 使用范围
 
 支持 x64 PE 和 x64 Windows 镜像，按镜像索引安装，清空一个已确认的目标磁盘，并创建系统、Windows 和独立恢复分区。可指定 UEFI/GPT、BIOS/MBR，或跟随实际启动方式。BIOS/MBR 主要用于兼容的 Windows 10 环境，不代表绕过 Windows 11 的平台要求。
@@ -14,8 +16,8 @@
 
 1. 使用自定义配置，选择“按镜像索引”并填写介质中实际存在的索引。
 2. 选择“清空指定磁盘后自动分区”，启用 PE 脚本安装，选择目标磁盘方式和布局，核对系统与恢复分区大小。自动布局留空系统分区大小时使用 500 MiB，适用于两种布局。
-3. 固定编号使用下方目标编号；条件匹配使用独立的可选匹配编号，留空不会自动套用固定编号。按需填写容量范围和勾选安全条件。
-4. 安装密钥方式保留默认“安装时输入”；镜像索引决定安装版别，独立激活密钥可另行配置。
+3. 固定编号使用下方目标编号；条件匹配使用独立的可选匹配编号，留空不会自动套用固定编号。按需填写容量范围和勾选安全条件。所有选盘方式（包括自定义 VBScript 和安装时交互选择）的最小、最大容量均可独立留空；留空表示不限制对应方向，填写后仍对最终选中的磁盘进行检查。
+4. PE 模式由实际镜像索引决定安装版本，不通过 SKU 或安装密钥选择版本。“版本与密钥方式”需选择“在 Windows 安装程序中手动输入”，这是当前 PE 路径的兼容选项，不会因此增加 PE 脚本的密钥输入步骤。原有选择与草稿保留，不自动修改。独立激活密钥仍可配置，但须与目标版本匹配，不用于选择镜像索引。
 5. 首次验证建议启用分区前暂停和重启前暂停。核对清盘风险并确认后，导出 XML 或应答文件 ISO。
 
 `autounattend.xml` 可放在目标 PE 可访问介质根目录；应答文件 ISO 可作为第二张虚拟光盘挂载，它本身不能启动。
@@ -34,6 +36,12 @@
 接口和介质条件采用 WMI 原始分类，不保证按接口名称排除所有 USB 桥接或虚拟磁盘。无法获取必需属性、映射分区数与磁盘报告不一致，或已映射卷盘符无法识别时停止。最低容量检查还为系统、恢复分区及 1 GiB 基本空间保留容量；它不估算镜像展开和安装后的全部空间需求，应自行设置足够的最小容量。
 
 ### 分区前安全检查
+
+分区前从 DISM 实际输出读取 Edition ID（SKU），并确认报告索引与所选索引一致；输出写入 `X:\UL-imagecheck.out`。版本标识仅用于展示，缺失、重复或格式异常时提示无法识别，但不据此阻止安装，不根据镜像名称或固定索引猜测，也不尝试解析手动密钥所属 SKU。
+
+镜像检查通过现有 cscript/VBScript 解析 DISM 英文输出，不依赖 findstr.exe。DISM 读取失败、架构字段缺失或重复、未知架构均停止；明确非 x64 时单独提示不兼容。日志保存在 `X:\UL-imageinfo.txt` 与 `X:\UL-imagecheck.out`。
+
+PE 键盘命令仅接受普通键盘布局标识，输入法 GUID 配置保留当前 PE 布局；普通布局设置失败时给出警告，不修改目标 Windows 的输入配置。
 
 先检查 x64 PE、镜像索引及镜像架构，识别 BIOS/UEFI。固定布局与启动方式不一致时停止；自动布局将 BIOS 对应到 MBR、UEFI 对应到 GPT。涉及 `{fwbootmgr}` 的 `bcdedit` 仅在 GPT 路径执行。
 
@@ -65,13 +73,17 @@ Enable **Install using a PE script** on Image and partitions. It is off by defau
 
 Supports x64 PE, x64 images selected by index, one explicitly confirmed target and separate system, Windows and recovery partitions. Choose UEFI/GPT, BIOS/MBR or follow firmware. BIOS/MBR primarily targets compatible Windows 10 installations and does not bypass Windows 11 platform requirements. The ordinary Setup path is unchanged; the dynamic selectors and gates described here apply only to PE script installation.
 
-Use custom configuration, select an actual image index, choose automatic disk wiping, enable PE installation and review the selector, layout and partition sizes. Automatic layout defaults to a 500 MiB system partition when unspecified. Keep installation-key mode at its interactive default. Enable both pauses for initial testing, review erasure consent, then export XML or an answer-file ISO. The answer-file ISO is not bootable.
+Use custom configuration, select an actual image index, choose automatic disk wiping, enable PE installation and review the selector, layout and partition sizes. Automatic layout defaults to a 500 MiB system partition when unspecified. The actual image index selects the edition; SKU and installation-key selection are not supported by this PE path. Keep the mode at Enter manually in Windows Setup, a compatibility setting that does not add a key prompt to the PE script. Existing inputs are preserved. A separate activation key must match the target edition and does not select the image index. Enable both pauses for initial testing, review erasure consent, then export XML or an answer-file ISO. The answer-file ISO is not bootable.
 
 Fixed mode requires the target PE disk number. Matching mode uses its own optional index filter and must find exactly one disk; zero or multiple matches stop. Interactive mode lists disks and accepts one unsigned number. Custom mode executes a trusted VBScript that must return exactly one unsigned index, optionally followed by one newline, with exit code 0 and empty stderr within 60 seconds.
 
-Capacity bounds are inclusive, compared directly in bytes using 1 GiB = 1073741824 bytes, without rounding. Blank means no corresponding bound; accepted input is 1–1048576 GiB. Capacity, unpartitioned, IDE/SCSI-interface and fixed-media conditions apply to all modes. Interface/media names are WMI classifications, not a guarantee of excluding all USB bridges or virtual disks. Required properties and existing partition mappings must be readable. Mapping counts must agree with the disk report, and mapped volume identifiers must be valid drive letters. A basic space floor reserves the system/recovery partitions plus 1 GiB, not the full expanded-image and operating-system requirement; configure a suitable minimum yourself.
+Capacity bounds are inclusive, compared directly in bytes using 1 GiB = 1073741824 bytes, without rounding. Either field may remain blank in every selection mode, including custom VBScript and interactive selection. Blank means no corresponding bound; accepted input is 1–1048576 GiB. Capacity, unpartitioned, IDE/SCSI-interface and fixed-media conditions apply to all modes. Interface/media names are WMI classifications, not a guarantee of excluding all USB bridges or virtual disks. Required properties and existing partition mappings must be readable. Mapping counts must agree with the disk report, and mapped volume identifiers must be valid drive letters. A basic space floor reserves the system/recovery partitions plus 1 GiB, not the full expanded-image and operating-system requirement; configure a suitable minimum yourself.
 
 ### Safety and trust boundaries
+
+Before partitioning, read the actual Edition ID (SKU) from DISM and confirm the reported index matches the selected index. Report both in X:\UL-imagecheck.out. Edition identifiers are informational only; missing, duplicate or malformed values are reported as unavailable and do not block deployment. Do not infer the edition from the image name or a fixed index mapping, and do not infer an arbitrary key's SKU.
+
+Image validation parses English DISM output using cscript/VBScript, without findstr.exe. Missing, duplicated or unknown architecture fields fail closed; known non-x64 architectures have a separate incompatibility error. Keep X:\UL-imageinfo.txt and X:\UL-imagecheck.out for diagnosis. IME GUID profiles retain the current PE keyboard layout; ordinary layout failures produce a warning without changing the target Windows input configuration.
 
 Check PE architecture, image readability and image architecture before selection. Determine BIOS or UEFI; reject a conflicting fixed layout or map automatic layout to MBR/GPT. Firmware-boot-manager `bcdedit` commands remain GPT-only.
 
@@ -91,3 +103,5 @@ Setup driver directories, Dynamic Update, PE log paths, hardware bypass, Compact
 - [Removal of old assertions, 28c2d0f](https://github.com/cschneegans/unattend-generator/commit/28c2d0f951f69caa3b0099b5eaab4dc02fee514b)
 - [GPT-only bcdedit, 22b7922](https://github.com/cschneegans/unattend-generator/commit/22b79226057e6fc522236ee99f133eafee1cf748)
 - [Reviewed current Disk.cs](https://github.com/cschneegans/unattend-generator/blob/82d4ffdd11ea3266f8f3b29d4fcd80f66bfdbaf6/modifier/Disk.cs)
+
+Recognized older PE XML remains editable when its complete generated pipeline matches its valid recovery metadata. Re-export upgrades it to the current scripts without granting erase consent. Unknown or externally modified pipelines remain protected.

@@ -77,6 +77,7 @@ public static class XmlPlanImport {
   p.ImportedXml=new ImportedXml{AppRemovalImportVersion=2,AppRemovalReadOnly=appRemovalState.Ambiguous,SourceXml=original.OuterXml,BaselineXml=baseline,Notices=notes.Distinct().ToArray(),Blockers=blockers.Distinct().ToArray(),RequiresDiskReview=disk};
   p.ImportedXml.LegacyUpgradeReadOnly=LegacyUpgradeSettings.Inspect(doc).Ambiguous;
   p.ImportedXml.AutoPartitionReadOnly=partitionState.Mentioned&&!partitionState.Known;
+  if(snapshot&&baseline.Length>0)GeneratedPeSettings.RestoreLegacyImport(p,clone,service);
   GeneratedPeSettings.NormalizeLoaded(p);
   CompactOsSettings.UpdateImportState(p.ImportedXml,compactState);
   StaticIPv4Settings.UpdateImportState(p.ImportedXml,networkState);
@@ -341,7 +342,7 @@ public static class XmlPlanImport {
   AppControlSettings.ValidateImported(p,source);
   ConfigurationSetSettings.ValidateImported(p,source);
   if(HasRemovedScript(source))throw new ArgumentException(global::UnattendLocal.Localization.UiText.Source("text.9e36e67732d8"));
-  if((data.RequiresDiskReview||NeedsDiskReview(source))&&!p.ConfirmImportedXmlRisk)throw new ArgumentException(global::UnattendLocal.Localization.UiText.Source("text.abbc406ea006"));
+  if((data.RequiresDiskReview||NeedsDiskReview(source))&&!p.ConfirmImportedXmlRisk)throw new ConfigurationValidationException(nameof(p.ConfirmImportedXmlRisk),global::UnattendLocal.Localization.UiText.Source("text.abbc406ea006"));
  }
  private static bool NeedsDiskReview(XmlDocument doc){
   var ns=NamespaceManager(doc);

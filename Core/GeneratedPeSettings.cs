@@ -25,19 +25,22 @@ public static class GeneratedPeSettings
             Fail(nameof(p.UseGeneratedPe), "v125.pe.conflict");
         if (p.ImportedXml != null && !OwnsImported(p)) Fail(nameof(p.UseGeneratedPe), "v125.pe.import");
     }
-    public static IPESettings Build(InstallPlan p, IEditionSettings edition) => !p.UseGeneratedPe
+    public static IPESettings Build(InstallPlan p, IEditionSettings edition) => Build(p, edition, false);
+    internal static IPESettings Build(InstallPlan p, IEditionSettings edition, bool legacyTargetChain) => !p.UseGeneratedPe
         ? new DefaultPESettings(edition, HardwareSettings.AllEnabled(p))
         : new GeneratePESettings(
-            new UnattendedPartitionSettings(new ScriptTargetDiskSettings(PeDiskSafety.Selector(p)), PeDiskSafety.Layout(p), RecoveryMode.Partition, AutoPartitionSettings.SystemSize(p), p.RecoverySizeMB),
+            new UnattendedPartitionSettings(new ScriptTargetDiskSettings(PeDiskSafety.Selector(p, legacyTargetChain)), PeDiskSafety.Layout(p), RecoveryMode.Partition, AutoPartitionSettings.SystemSize(p), p.RecoverySizeMB),
             new IndexInstallFromSettings(p.ImageIndex!.Value), new AutomaticPagingFileSettings(),
             DisableDefender: false, Disable8Dot3Names: false, PauseBeforeFormatting: p.PauseBeforeFormatting,
             PauseBeforeReboot: p.PauseBeforePeReboot, CompactOs: false, SkipIntegrityCheck: false);
 
-    public static XmlDocument Generate(Schneegans.Unattend.UnattendGenerator engine, Configuration config, InstallPlan p)
+    public static XmlDocument Generate(Schneegans.Unattend.UnattendGenerator engine, Configuration config, InstallPlan p) => Generate(engine, config, p, false);
+    internal static XmlDocument Generate(Schneegans.Unattend.UnattendGenerator engine, Configuration config, InstallPlan p, bool legacyTargetChain)
     {
         var doc = engine.GenerateXml(config);
         if (!p.UseGeneratedPe) return doc;
         var script = doc.SelectSingleNode("//*[local-name()='PEScriptCopy']")?.InnerText ?? throw new InvalidOperationException("Missing PE installation script.");
+        script = PePreflight.Keyboard(script);
         const string anchor = "set \"OS_VERSION=11\"";
         int at = script.IndexOf(anchor, StringComparison.Ordinal);
         if (at < 0 || script.IndexOf(anchor, at + anchor.Length, StringComparison.Ordinal) >= 0) throw new InvalidOperationException("Unexpected PE installation script.");
@@ -53,20 +56,46 @@ public static class GeneratedPeSettings
             if /I not "%UL_PE_FIRMWARE%"=="0x1" if /I not "%UL_PE_FIRMWARE%"=="0x2" call :fail "Cannot identify BIOS or UEFI. No disk was formatted."
             set "LAYOUT="
             set "FIRMWARE="
-            dism.exe /English /Get-ImageInfo /ImageFile:"%IMAGE_FILE%" /Index:{p.ImageIndex!.Value.ToString(System.Globalization.CultureInfo.InvariantCulture)} >X:\UL-imageinfo.txt
+            dism.exe /English /Get-ImageInfo /ImageFile:"%IMAGE_FILE%" /Index:{p.ImageIndex!.Value.ToString(System.Globalization.CultureInfo.InvariantCulture)} >X:\UL-imageinfo.txt 2>&1
             if errorlevel 1 (
                 type X:\UL-imageinfo.txt
                 call :fail "Cannot read selected image. No disk was formatted."
             )
-            findstr.exe /r /i /c:"^Architecture *: *x64 *$" X:\UL-imageinfo.txt >nul || call :fail "Selected image is not x64."
+            {PePreflight.ImageCheckerWriter()}
+            set "ERRORLEVEL="
+            cscript.exe //E:vbscript //Nologo X:\UL-imagecheck.vbs X:\UL-imageinfo.txt {p.ImageIndex.Value.ToString(System.Globalization.CultureInfo.InvariantCulture)} >X:\UL-imagecheck.out 2>&1
+            set "UL_IMAGE_CHECK_EXIT=%errorlevel%"
+            type X:\UL-imagecheck.out
+            if "%UL_IMAGE_CHECK_EXIT%"=="42" call :fail "Selected image is not x64. No disk was formatted."
+            if not "%UL_IMAGE_CHECK_EXIT%"=="0" call :fail "Cannot verify selected image information. No disk was formatted."
 
             """;
-        return engine.GenerateXml(config with { PESettings = new ScriptPESetttings(PeDiskSafety.Guard(script.Insert(at, guard + "\r\n"), p)) });
+        return engine.GenerateXml(config with { PESettings = new ScriptPESetttings(PeDiskSafety.Guard(script.Insert(at, guard + "\r\n"), p, legacyTargetChain)) });
     }
     private static string Pipeline(XmlDocument d)
     {
         var parts = d.SelectNodes("/*[local-name()='unattend']/*[local-name()='settings'][@pass='windowsPE'] | //*[local-name()='PEScriptCopy']")!.Cast<XmlElement>();
         return string.Join("\n", parts.Select(e => XmlMerge.Canonical(e)));
+    }
+    // A valid recovery note alone is insufficient: compare every PE command and
+    // PEScriptCopy against an exact, known predecessor generated from that plan.
+    // Retaining that predecessor as the baseline lets the ordinary three-way
+    // merge upgrade it on export without discarding unrelated source content.
+    internal static void RestoreLegacyImport(InstallPlan p, InstallPlan baselinePlan, GeneratorService service)
+    {
+        if (!p.UseGeneratedPe || OwnsImported(p) || p.ImportedXml is not { OriginalOmitted: false, Blockers.Length: 0 } data) return;
+        string candidate = System.Text.Encoding.UTF8.GetString(service.GenerateLegacyPeBaseline(baselinePlan));
+        var predecessor = XmlMerge.Read(candidate);
+        if (Pipeline(XmlMerge.Read(data.SourceXml)) != Pipeline(predecessor)) return;
+        // Keep all non-PE baseline adjustments made by the other import readers.
+        var baseline = XmlMerge.Read(data.BaselineXml);
+        const string paths = "/*[local-name()='unattend']/*[local-name()='settings'][@pass='windowsPE'] | //*[local-name()='PEScriptCopy']";
+        var currentParts = baseline.SelectNodes(paths)!.Cast<XmlElement>().ToArray();
+        var oldParts = predecessor.SelectNodes(paths)!.Cast<XmlElement>().ToArray();
+        if (currentParts.Length != oldParts.Length) return;
+        for (int i = 0; i < currentParts.Length; i++)
+            currentParts[i].ParentNode!.ReplaceChild(baseline.ImportNode(oldParts[i], true), currentParts[i]);
+        data.BaselineXml = baseline.OuterXml;
     }
     public static bool OwnsImported(InstallPlan p)
     {

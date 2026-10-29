@@ -53,7 +53,8 @@ ElseIf Mode = "script" Then
 @@CUSTOM@@
   custom.Close
   quote = Chr(34)
-  command = quote & shell.ExpandEnvironmentStrings("%SystemRoot%\System32\cscript.exe")
+  If Not fso.FileExists(WScript.FullName) Then Fail "The current script host is unavailable."
+  command = quote & WScript.FullName
   command = command & quote & " //Nologo //E:vbscript "
   command = command & quote & "X:\UL-user-target.vbs" & quote
   Set process = shell.Exec(command)

@@ -18,9 +18,20 @@ try {
     & (Join-Path $PSScriptRoot 'Tests/V126Msi.Tests.ps1')
     & (Join-Path $PSScriptRoot 'Tests/V126Sandbox.Tests.ps1')
     & (Join-Path $PSScriptRoot 'Tests/PeSafety.Runtime.Tests.ps1')
+    & (Join-Path $PSScriptRoot 'Tests/PeImageCheck.Runtime.Tests.ps1')
     & dotnet build (Join-Path $PSScriptRoot 'UnattendLocal.sln') -c Release -m:1 -nr:false -warnaserror
     if ($LASTEXITCODE -ne 0) { throw 'Build failed (compiler and restore warnings are treated as errors).' }
+    $bindingProject = Join-Path $PSScriptRoot 'Tests/WpfBindings/WpfBindings.csproj'
+    & dotnet build $bindingProject -c Release -m:1 -nr:false -warnaserror
+    if ($LASTEXITCODE -ne 0) { throw 'WPF binding regression build failed.' }
+    if ([Environment]::OSVersion.Platform -eq [PlatformID]::Win32NT) {
+        & dotnet (Join-Path $PSScriptRoot 'Tests/WpfBindings/bin/Release/net10.0-windows/WpfBindings.dll') (Join-Path $PSScriptRoot 'Desktop/MainWindow.xaml')
+        if ($LASTEXITCODE -ne 0) { throw 'WPF binding regression checks failed.' }
+    } else {
+        Write-Host 'NOT RUN: WPF binding runtime checks require Windows.'
+    }
     $tests = Join-Path $PSScriptRoot 'Tests/bin/Release/net10.0/Tests.dll'
+    & (Join-Path $PSScriptRoot 'Tests/PeCommandChain.Runtime.Tests.ps1') -TestsDll $tests
     # Tests is a console regression runner, not a dotnet test project.
     & dotnet $tests
     if ($LASTEXITCODE -ne 0) { throw 'Regression checks failed.' }

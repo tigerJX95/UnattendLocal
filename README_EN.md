@@ -5,7 +5,7 @@
 
 UnattendLocal is a Windows desktop tool with Simplified Chinese and English interfaces based on [Christoph Schneegans’ UnattendGenerator](https://github.com/cschneegans/unattend-generator). It lets you edit, check, and generate `autounattend.xml` for Windows 10 / 11 locally.
 
-Current version: **V1.28**. Includes static IPv4/IPv6 dual stack, subnet-mask input, settings search, setup driver directories, Dynamic Update, partitioning, OOBE and account settings, and existing XML import/editing.
+Current version: **V1.29**. Includes static IPv4/IPv6 dual stack, subnet-mask input, settings search, setup driver directories, Dynamic Update, partitioning, OOBE and account settings, and existing XML import/editing.
 
 ## 💡 Why this project exists
 
@@ -56,6 +56,33 @@ The displayed product key is a public generic installation key for selecting an 
 - Save and restore JSON plans; review summaries, recommended-setting differences, checks, redacted previews, and XML exports.
 - Import existing XML and edit supported settings while preserving unknown content. Export stops with an explanation when changes cannot be merged reliably.
 
+## V1.29 PE compatibility and configuration guidance · 2026-10-29
+
+- Missing imported XML risk consent now offers Go to confirmation and scrolls to, focuses and highlights the exact checkbox without selecting it.
+- Restore editing of disk selection, capacity limits and automatic partitioning when importing the recognized older PE XML format. Validate the complete old pipeline before unlocking, upgrade scripts on export and preserve protection for externally modified content.
+- Require an exact zero exit status for PE disk selection and the immediate pre-partition recheck, including negative runtime errors. Stop with diagnostics on failure, clear stale target indices and reject empty results.
+- Run custom disk-selection VBScript with the actual current script-host path instead of constructing it from SystemRoot. Keep interactive selection prompts visible.
+- Left-align explanatory text, preservation notices and risk warnings in the imported XML panel for consistent reading and wrapping.
+- Fix blank PE disk-capacity fields being treated as required. Leave either bound blank in VBScript, interactive and other selection modes; supplied bounds still enforce capacity conditions and ranges.
+- Rename the key option to Enter manually in Windows Setup while preserving the persisted selection identity and ordinary Setup key behavior.
+- Clarify that direct PE + DISM deployment does not use the Windows Setup key-entry step, including page guidance, tooltips and conflict messages.
+- Deploy the explicitly selected image index and validate its index and architecture. Edition ID (SKU) is informational only: missing, duplicate or unrecognized edition metadata does not block installation. Do not match SKUs dynamically or change the selected index.
+- Remove the findstr dependency from PE image validation, fixing false non-x64 errors in minimal PE environments. Parse English DISM image information with the existing cscript/VBScript dependency.
+- Keep the x64 gate and distinguish DISM failures, unverifiable architecture and known incompatible architectures. Unverifiable images still stop installation.
+- Avoid passing IME GUID profiles to the PE keyboard command. Retain the current PE layout for those profiles and report failures for basic layouts without changing the target Windows input settings.
+- Clarify that PE installation selects the Windows edition by the actual image index, not by SKU or installation key.
+- Explain the compatibility role of Enter a product key during setup and the key restrictions in the PE path. Preserve existing SKU, key and draft values when switching installation paths.
+- Clarify that a separate activation key must match the target edition; it does not select an image index or change the applied edition.
+- Navigate to and highlight missing disk-wipe, format and custom-partition-script risk confirmations. Users must still review and confirm them manually.
+- Add setting destinations for image names and indices, target disks and partitions, partition layouts and sizes.
+- Reuse the existing error-navigation and settings-search paths without relaxing validation or destructive-operation consent.
+- Update Chinese and English page guidance, dynamic tooltips, export errors and regression coverage.
+
+Usage: [PE installation](docs/GeneratedPe.md).
+
+<details>
+<summary>Update history (click to expand)</summary>
+
 ## V1.28 Deployment checks and configuration reliability
 
 - Stop PE selection and pre-partition verification when mapped partition counts disagree with the disk report or a mapped volume has an invalid drive identifier.
@@ -69,9 +96,6 @@ The displayed product key is a public generic installation key for selecting an 
 - Fix untranslated disk summaries, preview notices and redaction placeholders in the English XML preview. Existing previews follow UI language changes while preserving user text, scripts and actual export content.
 
 Usage: [PE installation](docs/GeneratedPe.md).
-
-<details>
-<summary>Update history (click to expand)</summary>
 
 ## V1.27 Disk deployment safety and boot compatibility
 

@@ -18085,12 +18085,12 @@
     "ProtectedTokens": []
   },
   "text.b13e38fa5bef": {
-    "Source": "EditionMode Edition Mode 按 SKU 使用通用安装密钥 指定自己的产品密钥 安装时输入密钥 使用 BIOS/UEFI 固件密钥 ",
+    "Source": "EditionMode Edition Mode 按 SKU 使用通用安装密钥 指定自己的产品密钥 安装时输入密钥 使用 BIOS/UEFI 固件密钥  在 Windows 安装程序中手动输入",
     "Contexts": [
       "Desktop/SettingsSearchCatalog.cs:73"
     ],
     "RawArgs": [],
-    "SourceHash": "b13e38fa5bef7bcdc93dc01b697f1012d61fcc21760893493b6225fe15854691",
+    "SourceHash": "a734220ec11e67216e2561686626e15d2f1ef462e804026fd2ca4a746fc32da0",
     "ProtectedTokens": []
   },
   "text.5b98358e5e23": {
@@ -36378,8 +36378,8 @@
     "ProtectedTokens": []
   },
   "v125.pe.help": {
-    "Source": "默认关闭。启用后，PE 脚本选择目标磁盘、分区、释放镜像、写入引导并重启，随后继续 Windows 安装；本程序不在当前电脑执行这些操作。\n\n支持 x64、按镜像索引安装，以及固定编号、条件唯一匹配、安装时交互或自定义脚本选盘。分区布局可以指定 UEFI/GPT、BIOS/MBR，或跟随实际启动方式；指定布局与实际启动方式不一致时，在分区前停止。\n\n安装版别由镜像索引决定，安装密钥方式须保留默认值。安装驱动目录、动态更新、PE 日志、硬件检查绕过、Compact OS 与 windowsPE 额外 XML 暂不能混用；驱动可在安装介质准备 $WinPEDriver$ 目录。\n\n请填写并核对目标、容量条件和分区参数后重新确认清盘。旧 JSON 默认固定编号；无有效恢复记录或被修改的 PE XML 保留原文，不通过此选项覆盖。",
-    "SourceHash": "b5574db01ada75b9b8a0fb7d95c701f6bc77ba921e68b405c8f7565069988d94",
+    "Source": "默认关闭。启用后，PE 脚本选择目标磁盘、分区、释放镜像、写入引导并重启，随后继续 Windows 安装；本程序不在当前电脑执行这些操作。\n\n支持 x64、按镜像索引安装，以及固定编号、条件唯一匹配、安装时交互或自定义脚本选盘。分区布局可以指定 UEFI/GPT、BIOS/MBR，或跟随实际启动方式；指定布局与实际启动方式不一致时，在分区前停止。\n\n安装版本由镜像索引决定，安装密钥方式须保留默认值。安装驱动目录、动态更新、PE 日志、硬件检查绕过、Compact OS 与 windowsPE 额外 XML 暂不能混用；驱动可在安装介质准备 $WinPEDriver$ 目录。\n\n请填写并核对目标、容量条件和分区参数后重新确认清盘。旧 JSON 默认固定编号；无有效恢复记录或被修改的 PE XML 保留原文，不通过此选项覆盖。",
+    "SourceHash": "378f167a1dc2d5193de73bb5d6a1026cc863bc82bc61b817ac1ce0ebe12a862a",
     "Contexts": [
       "Core/GeneratedPeSettings.cs",
       "Desktop/MainWindow.xaml"
@@ -36410,8 +36410,8 @@
     "ProtectedTokens": []
   },
   "v125.pe.edition": {
-    "Source": "PE 脚本安装由镜像索引决定安装版别，产品密钥方式须保留为“安装时输入”；独立激活密钥仍可使用。",
-    "SourceHash": "943849ce8749ce20a824e4f8f1cd3f09e6ee3ae6176e96f9c15e5daeaadb1d20",
+    "Source": "PE 脚本安装由镜像索引决定安装版本，产品密钥方式须保留为“安装时输入”；独立激活密钥仍可使用。",
+    "SourceHash": "6c13cddaa4da0802cff6ddf8f1ebe58d71486b97319d0670f0246ff59c8283f7",
     "Contexts": [
       "Core/GeneratedPeSettings.cs",
       "Desktop/MainWindow.xaml"
@@ -36765,6 +36765,54 @@
     "SourceHash": "67a4d26098f4744987c4a876e4382e521764b84d00c1f094c7a707abbc78d4d3",
     "Contexts": [
       "Core/PeDiskSafety.cs"
+    ],
+    "RawArgs": [],
+    "ProtectedTokens": []
+  },
+  "v129.pe.editionDescription": {
+    "Source": "PE 模式由镜像索引决定安装版本，不通过 SKU 或安装密钥选择版本。请在“镜像与分区”页填写实际安装镜像对应的索引。",
+    "Contexts": [
+      "Desktop/MainViewModel.cs",
+      "Desktop/HelpCatalog.cs"
+    ],
+    "RawArgs": [],
+    "SourceHash": "dbeb9f8cdcc0fb88222d3a314ca429501bf0bd8ecdc0c68f90690af5fbd93691",
+    "ProtectedTokens": []
+  },
+  "v129.pe.ready": {
+    "Source": "当前“安装时输入密钥”仅是 PE 安装路径所需的兼容选项，PE 脚本不会因此增加密钥输入步骤。安装版本仍由镜像索引决定。",
+    "Contexts": [
+      "Desktop/MainViewModel.cs",
+      "Desktop/HelpCatalog.cs"
+    ],
+    "RawArgs": [],
+    "SourceHash": "351dcd2b9d9eeca92fb5687f3bb39d071fae2c86a4c6c9874dc6092dcf9d98e4",
+    "ProtectedTokens": []
+  },
+  "v129.pe.activation": {
+    "Source": "独立激活密钥须与目标 Windows 版本匹配，不用于选择镜像索引，也不会切换已释放的系统版本。本程序不验证任意手动密钥与目标镜像版本是否匹配。",
+    "Contexts": [
+      "Desktop/MainViewModel.cs",
+      "Desktop/HelpCatalog.cs"
+    ],
+    "RawArgs": [],
+    "SourceHash": "8a337e9a255409c635aec9c8a282b52687959413228143ab364b230d3fe03798",
+    "ProtectedTokens": []
+  },
+  "v129.importRisk.action": {
+    "Source": "前往确认",
+    "SourceHash": "1fa7230e444ab9fa3d49f10eb79c76b567ebcae0b9e598fe413f6ace1f82ae7d",
+    "Contexts": [
+      "Desktop/ConfigurationErrorLocation.cs"
+    ],
+    "RawArgs": [],
+    "ProtectedTokens": []
+  },
+  "v129.importRisk.title": {
+    "Source": "导入 XML 风险确认",
+    "SourceHash": "ed97bcc93eda8d523d844095a9c9de10d749569e88ddc5ae8237f1b183e5123f",
+    "Contexts": [
+      "Desktop/ConfigurationErrorLocation.cs"
     ],
     "RawArgs": [],
     "ProtectedTokens": []

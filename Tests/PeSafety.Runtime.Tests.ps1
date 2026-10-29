@@ -67,7 +67,7 @@ Class TestLogical
   End Function
 End Class
 '@
-function Invoke-Selector([string]$mode='fixed',[double[]]$sizes=@(137438953472),[string]$layout='GPT',[int]$firmware=2,[string]$inputText='0',[string]$custom='WScript.Echo 0',[bool]$verify=$false,[string]$identity='Disk',[int]$target=0,[bool]$hasSource=$false,[bool]$missingSize=$false,[int]$parts=0,[bool]$empty=$false,[int]$min=64,[int]$max=512,[int]$mapped=0,[string]$volume='Z:') {
+function Invoke-Selector([string]$mode='fixed',[double[]]$sizes=@(137438953472),[string]$layout='GPT',[int]$firmware=2,[string]$inputText='0',[string]$custom='WScript.Echo 0',[bool]$verify=$false,[string]$identity='Disk',[int]$target=0,[bool]$hasSource=$false,[bool]$missingSize=$false,[int]$parts=0,[bool]$empty=$false,[int]$min=64,[int]$max=512,[int]$mapped=0,[string]$volume='Z:',[bool]$missingHost=$false) {
     $lines = New-Object 'System.Collections.Generic.List[string]'
     $vars = @()
     for($i=0;$i -lt $sizes.Count;$i++) {
@@ -87,6 +87,7 @@ function Invoke-Selector([string]$mode='fixed',[double[]]$sizes=@(137438953472),
     foreach($key in $values.Keys) { $text=$text.Replace("@@$key@@",$values[$key]) }
     $customLines = ($custom -split "`r?`n" | ForEach-Object { 'custom.WriteLine "' + $_.Replace('"','""') + '"' }) -join "`r`n"
     $text=$text.Replace('@@CUSTOM@@',$customLines).Replace('X:\UL-target.snapshot',(Join-Path $root 'snapshot.txt')).Replace('X:\UL-user-target.vbs',(Join-Path $root 'user.vbs'))
+    if ($missingHost) { $text = $text.Replace('WScript.FullName', ('"' + (Join-Path $root 'missing-host.exe') + '"')) }
     Assert-Pe (-not $text.Contains('@@')) 'No unresolved template tokens'
     Assert-Pe (-not $text.Contains('GetObject("winmgmts:') -and -not $text.Contains('shell.RegRead(')) 'Real WMI and registry reads are replaced by test I/O'
     Assert-Pe (-not $text.Contains('disk.Properties_.Item(name).Value')) 'Disk properties come only from the mock' 
@@ -104,6 +105,10 @@ function Invoke-Selector([string]$mode='fixed',[double[]]$sizes=@(137438953472),
     return @{Code=$code;Out=$stdout.Trim();Error=$stderr}
 }
 try {
+    $s=Invoke-Selector -verify $true
+    Assert-Pe ($s.Code -ne 0 -and $s.Out -eq '') 'A missing target snapshot fails the pre-partition recheck'
+    $s=Invoke-Selector -mode script -missingHost $true
+    Assert-Pe ($s.Code -ne 0 -and $s.Out -eq '') 'A missing nested script host stops selection'
     foreach($layout in @('GPT','MBR','Automatic')) {
         $fw=if($layout -eq 'MBR'){1}else{2};$s=Invoke-Selector -layout $layout -firmware $fw
         Assert-Pe ($s.Code -eq 0 -and $s.Out -eq '0') 'Fixed disk selection succeeds for valid firmware/layout'
@@ -138,7 +143,7 @@ try {
     }
     $s=Invoke-Selector -mode script
     Assert-Pe ($s.Code -eq 0 -and $s.Out -eq '0') 'Custom script with exactly one valid index'
-    foreach($custom in @('WScript.StdOut.Write "0" & vbLf & vbLf','WScript.Quit 1','WScript.Echo "0 & echo bad"',"WScript.Echo 0`r`nWScript.Echo 1",'WScript.Echo -1','WScript.StdErr.WriteLine "warning"')) {
+    foreach($custom in @('WScript.Echo 99','WScript.Echo "0abc"','Err.Raise 53','WScript.StdOut.Write "0" & vbLf & vbLf','WScript.Quit 1','WScript.Echo "0 & echo bad"',"WScript.Echo 0`r`nWScript.Echo 1",'WScript.Echo -1','WScript.StdErr.WriteLine "warning"')) {
         $s=Invoke-Selector -mode script -custom $custom
         Assert-Pe ($s.Code -ne 0 -and $s.Out -eq '') 'Custom script errors and noncanonical output stop selection'
     }

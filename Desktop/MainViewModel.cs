@@ -167,11 +167,14 @@ public class MainViewModel : Observable {
  public bool IsGenericEdition {get=>isGenericEdition;private set=>Set(ref isGenericEdition,value);}
  public bool IsCustomEdition {get=>isCustomEdition;private set=>Set(ref isCustomEdition,value);}
  public string SelectedEditionKey {get=>selectedEditionKey;private set=>Set(ref selectedEditionKey,value);}
+ public string EditionInstallationDescription=>global::UnattendLocal.Localization.UiText.Source(Plan.UseGeneratedPe?"v129.pe.editionDescription":"text.7f25b84adfed");
+ public string ActivationKeyDescription=>global::UnattendLocal.Localization.UiText.Source(Plan.UseGeneratedPe?"v129.pe.activation":"text.e60a63390690");
  public string EditionHint {get=>editionHint;private set=>Set(ref editionHint,value);}
  private void RefreshEdition(){
+  Notify(nameof(EditionInstallationDescription));Notify(nameof(ActivationKeyDescription));
   IsGenericEdition=Plan.EditionMode==global::UnattendLocal.Localization.UiText.Source("text.cc706914a2ad");IsCustomEdition=Plan.EditionMode==global::UnattendLocal.Localization.UiText.Source("text.2a5194b6a242");
   SelectedEditionKey=Service.GenericInstallationKey(Plan.EditionId);
-  EditionHint=Plan.EditionMode switch {
+  EditionHint=Plan.UseGeneratedPe?global::UnattendLocal.Localization.UiText.Source(Plan.EditionMode==global::UnattendLocal.Localization.UiText.Source("text.5056d73b13ec")?"v129.pe.ready":"v125.pe.edition"):Plan.EditionMode switch {
    "按 SKU 使用通用安装密钥"=>global::UnattendLocal.Localization.UiText.Source("text.786c6aba30d6"),
    "指定自己的产品密钥"=>global::UnattendLocal.Localization.UiText.Source("text.dcf1c7cef18c"),
    "使用 BIOS/UEFI 固件密钥"=>global::UnattendLocal.Localization.UiText.Source("text.35eb6aee2ff7"),

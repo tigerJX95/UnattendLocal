@@ -39,9 +39,9 @@ static class GeneratedPeTests
         Check(script.Contains("create partition efi", StringComparison.OrdinalIgnoreCase) && script.Contains("create partition msr", StringComparison.OrdinalIgnoreCase), "GPT boot and MSR partitions");
         Check(script.Contains("/CheckIntegrity /Verify"), "image verification retained");
         Check(script.Contains("bcdboot.exe") && script.Contains("wpeutil.exe reboot"), "boot files and reboot");
-        foreach (string check in new[] { "%PROCESSOR_ARCHITECTURE%", "UL_PE_FIRMWARE", "/Get-ImageInfo", "findstr.exe /r /i" })
+        foreach (string check in new[] { "%PROCESSOR_ARCHITECTURE%", "UL_PE_FIRMWARE", "/Get-ImageInfo", "UL_IMAGE_CHECK_EXIT" })
             Check(script.IndexOf(check, StringComparison.Ordinal) >= 0 && script.IndexOf(check, StringComparison.Ordinal) < script.IndexOf("diskpart.exe /s", StringComparison.Ordinal), "preflight before DiskPart: " + check);
-        Check(script.Contains("/Index:1") && script.Contains("/c:\"^Architecture *: *x64 *$\""), "index and image architecture preflight");
+        Check(script.Contains("/Index:1") && script.Contains("Architecture field is missing or duplicated."), "index and image architecture preflight");
         Check(!Encoding.UTF8.GetString(xml).Contains("<ImageInstall>"), "no competing Setup installation path");
         Check(!p.UseSetupDrivers && !p.UsePeLogPath, "unsupported switches unchanged");
         Check(InstallationSettings.DiskSummary(p).Contains("PE"), "PE pipeline appears in summary");

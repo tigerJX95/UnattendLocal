@@ -26,7 +26,9 @@ public class GeneratorService {
  // Import baselines must retain editable source values, including a /0 awaiting correction.
  // This internal path never writes a user export; public generation always checks deployment.
  internal byte[] GenerateImportBaseline(InstallPlan p)=>GenerateDocument(p,false,false);
- private byte[] GenerateDocument(InstallPlan p,bool includeImport,bool checkDeployment=true) {
+ // Recognition only: never exposed through the user export entry points.
+ internal byte[] GenerateLegacyPeBaseline(InstallPlan p)=>GenerateDocument(p,false,false,true);
+ private byte[] GenerateDocument(InstallPlan p,bool includeImport,bool checkDeployment=true,bool legacyTargetChain=false) {
   GeneratedPeSettings.Validate(p);
   NativePreferences.Validate(p);
   AdditionalXmlSettings.Validate(p,checkDeployment);
@@ -100,10 +102,10 @@ public class GeneratorService {
    PasswordExpirationSettings=p.AccountMode!=global::UnattendLocal.Localization.UiText.Source("text.cdaa9a6700f6")?new DefaultPasswordExpirationSettings():p.PasswordExpiration switch {"永不过期"=>new UnlimitedPasswordExpirationSettings(),"Windows 默认"=>new DefaultPasswordExpirationSettings(),"指定天数"=>new CustomPasswordExpirationSettings(p.PasswordDays),_=>throw new ArgumentException(global::UnattendLocal.Localization.UiText.Source("text.ef0cd5829f6b"))},
    ExpressSettings=p.PrivacyMode switch {"安装时手动选择"=>ExpressSettingsMode.Interactive,"关闭快捷隐私设置"=>ExpressSettingsMode.DisableAll,"启用快捷设置"=>ExpressSettingsMode.EnableAll,_=>throw new ArgumentException(global::UnattendLocal.Localization.UiText.Source("text.f46ca367fb9b"))},
    BypassNetworkCheck=p.BypassNetwork,
-   PESettings=GeneratedPeSettings.Build(p,CreateEdition(p)),
+   PESettings=GeneratedPeSettings.Build(p,CreateEdition(p),legacyTargetChain),
    ProcessorArchitectures=ImmutableHashSet.Create(Enum.Parse<ProcessorArchitecture>(p.Architecture))
   };
-  var doc=GeneratedPeSettings.Generate(generator,config,p);
+  var doc=GeneratedPeSettings.Generate(generator,config,p,legacyTargetChain);
   var ns=new XmlNamespaceManager(doc.NameTable);ns.AddNamespace("u","urn:schemas-microsoft-com:unattend");
   foreach(XmlElement oobe in doc.SelectNodes("//u:OOBE",ns)!) {
    SetOobe(doc,ns,oobe,"HideEULAPage",p.HideEula);

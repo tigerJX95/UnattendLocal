@@ -12,7 +12,7 @@ public static class AutoPartitionSettings {
  public static void Validate(InstallPlan p){
   if(p.DiskMode!=InstallationSettings.Wipe)return;
   int minimum=p.DiskLayout=="BIOS / MBR"?100:300;
-  if(SystemSize(p)<minimum||SystemSize(p)>8192)throw new ArgumentException(global::UnattendLocal.Localization.UiText.Format("message.870221ca764f", new string[] { global::UnattendLocal.Localization.UiText.Arg((minimum), 0, null) }));
+  if(SystemSize(p)<minimum||SystemSize(p)>8192)throw new ConfigurationValidationException(nameof(p.SystemPartitionSizeMB),global::UnattendLocal.Localization.UiText.Format("message.870221ca764f", new string[] { global::UnattendLocal.Localization.UiText.Arg((minimum), 0, null) }));
  }
  public static string Summary(InstallPlan p)=>p.ImportedXml?.AutoPartitionReadOnly==true?global::UnattendLocal.Localization.UiText.Source("text.3bb1b856b181"):p.DiskMode!=InstallationSettings.Wipe?global::UnattendLocal.Localization.UiText.Source("text.334f133990e7"):global::UnattendLocal.Localization.UiText.Format("message.f77a47535855", new string[] { global::UnattendLocal.Localization.UiText.Arg((SystemSize(p)), 0, null), global::UnattendLocal.Localization.UiText.Arg(((p.SystemPartitionSizeMB.HasValue?global::UnattendLocal.Localization.UiText.Source("text.2ed4b0396e9b"):global::UnattendLocal.Localization.UiText.Source("text.edcae49ae0bc"))), 0, null), global::UnattendLocal.Localization.UiText.Arg((p.RecoverySizeMB), 0, null), global::UnattendLocal.Localization.UiText.Arg(((p.PauseBeforeFormatting?global::UnattendLocal.Localization.UiText.Source("text.7a872af9a86d"):global::UnattendLocal.Localization.UiText.Source("text.38dacff801fa"))), 0, null) });
  public static string Command(InstallPlan p){

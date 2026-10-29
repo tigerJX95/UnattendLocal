@@ -5,7 +5,7 @@ namespace UnattendLocal.Desktop;
 public sealed record ConfigurationErrorLocation(SettingSearchResult Setting, int? UserIndex = null)
 {
     public string Path => global::UnattendLocal.Localization.UiText.Concat([Setting.Page, " → ", Setting.Title], [false, false, false]);
-    public string ActionText => Setting.Target == "SettingAnchor000" ? global::UnattendLocal.Localization.UiText.Source("text.555ac7a39a71") : global::UnattendLocal.Localization.UiText.Source("text.90e01acb5c9e");
+    public string ActionText => Setting.Target == "ConfirmImportedXmlRiskCheck" ? global::UnattendLocal.Localization.UiText.Source("v129.importRisk.action") : Setting.Target == "SettingAnchor000" ? global::UnattendLocal.Localization.UiText.Source("text.555ac7a39a71") : global::UnattendLocal.Localization.UiText.Source("text.90e01acb5c9e");
 
     public static ConfigurationErrorLocation? FromException(Exception error) => error is ConfigurationValidationException known
         ? FromField(known.Field, known.UserIndex) : null;
@@ -24,6 +24,16 @@ public sealed record ConfigurationErrorLocation(SettingSearchResult Setting, int
             nameof(InstallPlan.PeMinDiskGiB) or nameof(InstallPlan.PeMaxDiskGiB) => "PeMinCapacityEditor",
             nameof(InstallPlan.PeMatchDiskIndex) => "PeMatchIndexEditor",
             nameof(InstallPlan.PeTargetScript) => "PeTargetScriptEditor",
+            nameof(InstallPlan.ConfirmWipeDisk) => "ConfirmWipeDiskCheck",
+            nameof(InstallPlan.ConfirmFormatPartition) => "ConfirmFormatPartitionCheck",
+            nameof(InstallPlan.ConfirmDiskScript) => "ConfirmDiskScriptCheck",
+            nameof(InstallPlan.ImageSelection) => "SettingAnchor055",
+            nameof(InstallPlan.ImageName) => "SettingAnchor056",
+            nameof(InstallPlan.DiskMode) => "SettingAnchor061",
+            nameof(InstallPlan.TargetPartitionId) => "SettingAnchor063",
+            nameof(InstallPlan.SystemPartitionSizeMB) => "SystemPartitionSizeEditor",
+            nameof(InstallPlan.RecoverySizeMB) => "SettingAnchor067",
+            nameof(InstallPlan.DiskPartScript) => "DiskPartExampleEditor",
             nameof(InstallPlan.TargetDiskId) => "SettingAnchor062",
             nameof(InstallPlan.DiskLayout) => "SettingAnchor066",
             nameof(InstallPlan.ImageIndex) => "SettingAnchor057",
@@ -45,6 +55,7 @@ public sealed record ConfigurationErrorLocation(SettingSearchResult Setting, int
             nameof(InstallPlan.StaticIPv6Dns) => "StaticIPv6DnsEditor",
             nameof(InstallPlan.SetupDriverPaths) => "SetupDriverPathsEditor",
             nameof(InstallPlan.ImportedXml) => "SettingAnchor000",
+            nameof(InstallPlan.ConfirmImportedXmlRisk) => "ConfirmImportedXmlRiskCheck",
             nameof(InstallPlan.AccountMode) => "SettingAnchor070",
             nameof(InstallPlan.BuiltinAdministratorPassword) => "BuiltinAdministratorPassword",
             nameof(InstallPlan.ComputerName) => "SettingAnchor007",
