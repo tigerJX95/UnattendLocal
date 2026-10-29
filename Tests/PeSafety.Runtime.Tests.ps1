@@ -67,7 +67,7 @@ Class TestLogical
   End Function
 End Class
 '@
-function Invoke-Selector([string]$mode='fixed',[double[]]$sizes=@(137438953472),[string]$layout='GPT',[int]$firmware=2,[string]$inputText='0',[string]$custom='WScript.Echo 0',[bool]$verify=$false,[string]$identity='Disk',[int]$target=0,[bool]$hasSource=$false,[bool]$missingSize=$false,[int]$parts=0,[bool]$empty=$false,[int]$min=64,[int]$max=512,[int]$mapped=0,[string]$volume='Z:',[bool]$missingHost=$false) {
+function Invoke-Selector([string]$mode='fixed',[double[]]$sizes=@(137438953472),[string]$layout='GPT',[int]$firmware=2,[string]$inputText='0',[string]$custom='WScript.Echo 0',[bool]$verify=$false,[string]$identity='Disk',[int]$target=0,[bool]$hasSource=$false,[bool]$missingSize=$false,[int]$parts=0,[bool]$empty=$false,[int]$min=64,[int]$max=512,[int]$mapped=0,[string]$volume='Z:',[bool]$missingHost=$false,[bool]$runtimeFailure=$false) {
     $lines = New-Object 'System.Collections.Generic.List[string]'
     $vars = @()
     for($i=0;$i -lt $sizes.Count;$i++) {
@@ -87,6 +87,7 @@ function Invoke-Selector([string]$mode='fixed',[double[]]$sizes=@(137438953472),
     foreach($key in $values.Keys) { $text=$text.Replace("@@$key@@",$values[$key]) }
     $customLines = ($custom -split "`r?`n" | ForEach-Object { 'custom.WriteLine "' + $_.Replace('"','""') + '"' }) -join "`r`n"
     $text=$text.Replace('@@CUSTOM@@',$customLines).Replace('X:\UL-target.snapshot',(Join-Path $root 'snapshot.txt')).Replace('X:\UL-user-target.vbs',(Join-Path $root 'user.vbs'))
+    if ($runtimeFailure) { $text = $text.Replace('Sub RunSelector()', "Sub RunSelector()`r`nErr.Raise 53") }
     if ($missingHost) { $text = $text.Replace('WScript.FullName', ('"' + (Join-Path $root 'missing-host.exe') + '"')) }
     Assert-Pe (-not $text.Contains('@@')) 'No unresolved template tokens'
     Assert-Pe (-not $text.Contains('GetObject("winmgmts:') -and -not $text.Contains('shell.RegRead(')) 'Real WMI and registry reads are replaced by test I/O'
@@ -106,13 +107,15 @@ function Invoke-Selector([string]$mode='fixed',[double[]]$sizes=@(137438953472),
 }
 try {
     $s=Invoke-Selector -verify $true
-    # OpenTextFile on a missing snapshot raises a host runtime error. cscript
-    # can write that diagnostic to stdout and return a negative HRESULT.
-    # The production recheck gates on an exact zero status, not empty stdout.
+    # The entry boundary must convert host runtime failures into an explicit
+    # failure status; diagnostics alone are not evidence of nonzero exit.
     $details = 'ExitCode={0}; stdout=[{1}]; stderr=[{2}]' -f $s.Code,$s.Out,$s.Error
-    Assert-Pe ($s.Code -ne 0) ('A missing target snapshot fails the pre-partition recheck. ' + $details)
-    Assert-Pe ($s.Out -notmatch '(?m)^[0-9]+\r?$') ('A missing snapshot must not emit a target disk number. ' + $details)
-    Assert-Pe (-not [string]::IsNullOrWhiteSpace($s.Out + $s.Error)) ('A missing snapshot reports a diagnostic. ' + $details)
+    Assert-Pe ($s.Code -eq 1 -and $s.Out -eq '' -and $s.Error.Contains('Target disk safety check failed (')) ('A missing target snapshot fails the pre-partition recheck. ' + $details)
+    foreach ($verifyRuntime in @($false,$true)) {
+        $s=Invoke-Selector -verify $verifyRuntime -runtimeFailure $true
+        $details = 'ExitCode={0}; stdout=[{1}]; stderr=[{2}]' -f $s.Code,$s.Out,$s.Error
+        Assert-Pe ($s.Code -eq 1 -and $s.Out -eq '' -and $s.Error.Contains('Target disk safety check failed (')) ('An unhandled selector runtime error explicitly fails selection and verification. ' + $details)
+    }
     $s=Invoke-Selector -mode script -missingHost $true
     Assert-Pe ($s.Code -ne 0 -and $s.Out -eq '') 'A missing nested script host stops selection'
     foreach($layout in @('GPT','MBR','Automatic')) {

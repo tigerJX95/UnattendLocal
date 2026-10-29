@@ -29,12 +29,24 @@ public static class PeDiskSafety
             p.PeTargetScript.Any(char.IsSurrogate))) Fail(nameof(p.PeTargetScript));
     }
     public static string Selector(InstallPlan p) => Selector(p, false);
-    internal static string Selector(InstallPlan p, bool legacyTargetChain)
+    internal static string Selector(InstallPlan p, bool legacyTargetChain, bool unguardedSelector = false)
     {
         Validate(p);
         using var stream = typeof(PeDiskSafety).Assembly.GetManifestResourceStream("UnattendLocal.Core.Resources.PeTargetDisk.vbs")!;
         using var reader = new StreamReader(stream);
         string source = reader.ReadToEnd();
+        // Recognition only: reconstruct each exact shipped predecessor.
+        // Public exports always retain the explicit runtime failure boundary.
+        if (legacyTargetChain || unguardedSelector)
+        {
+            source = source.ReplaceLineEndings("\n");
+            const string start = "' UnattendLocal runtime boundary start\n";
+            const string end = "' UnattendLocal runtime boundary end\n";
+            int begin = source.IndexOf(start, StringComparison.Ordinal);
+            int finish = source.IndexOf(end, begin, StringComparison.Ordinal) + end.Length;
+            source = source.Remove(begin, finish - begin)
+                .Replace("End Sub ' UnattendLocal selector entry\n", "", StringComparison.Ordinal);
+        }
         if (legacyTargetChain)
             source = source.ReplaceLineEndings("\n").Replace("  If Not fso.FileExists(WScript.FullName) Then Fail \"The current script host is unavailable.\"\n", "", StringComparison.Ordinal)
                 .Replace("command = quote & WScript.FullName", "command = quote & shell.ExpandEnvironmentStrings(\"%SystemRoot%\\System32\\cscript.exe\")", StringComparison.Ordinal);

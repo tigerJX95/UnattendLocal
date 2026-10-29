@@ -26,10 +26,10 @@ public static class GeneratedPeSettings
         if (p.ImportedXml != null && !OwnsImported(p)) Fail(nameof(p.UseGeneratedPe), "v125.pe.import");
     }
     public static IPESettings Build(InstallPlan p, IEditionSettings edition) => Build(p, edition, false);
-    internal static IPESettings Build(InstallPlan p, IEditionSettings edition, bool legacyTargetChain) => !p.UseGeneratedPe
+    internal static IPESettings Build(InstallPlan p, IEditionSettings edition, bool legacyTargetChain, bool unguardedSelector = false) => !p.UseGeneratedPe
         ? new DefaultPESettings(edition, HardwareSettings.AllEnabled(p))
         : new GeneratePESettings(
-            new UnattendedPartitionSettings(new ScriptTargetDiskSettings(PeDiskSafety.Selector(p, legacyTargetChain)), PeDiskSafety.Layout(p), RecoveryMode.Partition, AutoPartitionSettings.SystemSize(p), p.RecoverySizeMB),
+            new UnattendedPartitionSettings(new ScriptTargetDiskSettings(PeDiskSafety.Selector(p, legacyTargetChain, unguardedSelector)), PeDiskSafety.Layout(p), RecoveryMode.Partition, AutoPartitionSettings.SystemSize(p), p.RecoverySizeMB),
             new IndexInstallFromSettings(p.ImageIndex!.Value), new AutomaticPagingFileSettings(),
             DisableDefender: false, Disable8Dot3Names: false, PauseBeforeFormatting: p.PauseBeforeFormatting,
             PauseBeforeReboot: p.PauseBeforePeReboot, CompactOs: false, SkipIntegrityCheck: false);
@@ -84,9 +84,16 @@ public static class GeneratedPeSettings
     internal static void RestoreLegacyImport(InstallPlan p, InstallPlan baselinePlan, GeneratorService service)
     {
         if (!p.UseGeneratedPe || OwnsImported(p) || p.ImportedXml is not { OriginalOmitted: false, Blockers.Length: 0 } data) return;
-        string candidate = System.Text.Encoding.UTF8.GetString(service.GenerateLegacyPeBaseline(baselinePlan));
-        var predecessor = XmlMerge.Read(candidate);
-        if (Pipeline(XmlMerge.Read(data.SourceXml)) != Pipeline(predecessor)) return;
+        var sourcePipeline = Pipeline(XmlMerge.Read(data.SourceXml));
+        XmlDocument? predecessor = null;
+        foreach (bool oldChain in new[] { false, true })
+        {
+            var candidate = XmlMerge.Read(System.Text.Encoding.UTF8.GetString(oldChain
+                ? service.GenerateLegacyPeBaseline(baselinePlan)
+                : service.GeneratePreviousPeBaseline(baselinePlan)));
+            if (sourcePipeline == Pipeline(candidate)) { predecessor = candidate; break; }
+        }
+        if (predecessor == null) return;
         // Keep all non-PE baseline adjustments made by the other import readers.
         var baseline = XmlMerge.Read(data.BaselineXml);
         const string paths = "/*[local-name()='unattend']/*[local-name()='settings'][@pass='windowsPE'] | //*[local-name()='PEScriptCopy']";

@@ -11,6 +11,18 @@ Const RequiredBytes = @@BYTES@@
 Const RequestedLayout = "@@LAYOUT@@"
 Const Snapshot = "X:\UL-target.snapshot"
 Dim shell, fso, wmi, drives, accepted, drive, selected, index, verify, saved, file, firmware, layout, imageDrive, xmlDrive
+' UnattendLocal runtime boundary start
+Dim runtimeError, runtimeDescription
+On Error Resume Next
+RunSelector
+runtimeError = Err.Number
+runtimeDescription = Err.Description
+On Error GoTo 0
+If runtimeError <> 0 Then Fail "Target disk safety check failed (" & CStr(runtimeError) & "): " & runtimeDescription
+Fail "Target disk safety check did not complete."
+
+Sub RunSelector()
+' UnattendLocal runtime boundary end
 Set shell = CreateObject("WScript.Shell")
 Set fso = CreateObject("Scripting.FileSystemObject")
 Set wmi = GetObject("winmgmts:\\.\root\cimv2")
@@ -111,6 +123,7 @@ Else
 End If
 WScript.Echo CStr(index)
 WScript.Quit 0
+End Sub ' UnattendLocal selector entry
 
 Sub Fail(message)
   WScript.StdErr.WriteLine message

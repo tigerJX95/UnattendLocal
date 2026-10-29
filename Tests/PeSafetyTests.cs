@@ -51,6 +51,7 @@ static class PeSafetyTests
             if (mode != "fixed") p.TargetDiskId = null;
             p.ConfirmWipeDisk = true;
             string selector = PeDiskSafety.Selector(p);
+            Check(selector.ReplaceLineEndings("\n").Contains("On Error Resume Next\nRunSelector") && selector.Contains("runtimeError = Err.Number") && selector.Contains("If runtimeError <> 0 Then Fail") && selector.Contains("End Sub ' UnattendLocal selector entry"), "runtime errors are caught at the entry boundary and explicitly fail");
             Check(!selector.Contains("@@") && selector.Contains("Const Mode = \"" + mode + "\""), "mode expands without unresolved placeholders");
             Check(selector.Contains("CDbl(MinGiB) * 1073741824") && !selector.Contains("CInt("), "capacity comparison does not round GiB");
             Check(selector.Contains("accepted.Count <> 1") && selector.Contains("PNPDeviceID") && selector.Contains("saved(1) <> identity"), "unique selection and identity recheck are present");

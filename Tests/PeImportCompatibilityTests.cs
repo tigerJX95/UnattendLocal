@@ -19,9 +19,9 @@ static class PeImportCompatibilityTests
         p.PeTargetScript = "WScript.Echo 0"; p.PauseBeforeFormatting = true; p.ConfirmWipeDisk = true;
         return p;
     }
-    private static XmlDocument Legacy(GeneratorService service, InstallPlan p)
+    private static XmlDocument Legacy(GeneratorService service, InstallPlan p, bool previous)
     {
-        var method = typeof(GeneratorService).GetMethod("GenerateLegacyPeBaseline", BindingFlags.Instance | BindingFlags.NonPublic)!;
+        var method = typeof(GeneratorService).GetMethod(previous ? "GeneratePreviousPeBaseline" : "GenerateLegacyPeBaseline", BindingFlags.Instance | BindingFlags.NonPublic)!;
         var bytes = (byte[])method.Invoke(service, [p])!;
         var doc = XmlMerge.Read(Encoding.UTF8.GetString(bytes));
         XmlPlanImport.AddSnapshot(doc, p);
@@ -31,12 +31,13 @@ static class PeImportCompatibilityTests
     {
         int count = 0;
         void Check(bool ok, string message) { if (!ok) throw new Exception("PE import compatibility: " + message); count++; }
+        foreach (bool previous in new[] { false, true })
         foreach (string mode in new[] { "fixed", "match", "interactive", "script" })
         foreach (string layout in new[] { "UEFI / GPT", "BIOS / MBR", PeDiskSafety.AutomaticLayout })
         {
-            var original = Plan(mode, layout); var legacy = Legacy(service, original);
+            var original = Plan(mode, layout); var legacy = Legacy(service, original, previous);
             string before = legacy.SelectSingleNode("//*[local-name()='PEScriptCopy']")!.InnerText;
-            Check(!before.Contains("UL_TARGET_EXIT") && before.Contains("UL-verify.out ||"), "fixture reproduces the shipped predecessor");
+            Check(!before.Contains("Sub RunSelector()") && (previous ? before.Contains("UL_TARGET_EXIT") && before.Contains("UL_VERIFY_EXIT") : !before.Contains("UL_TARGET_EXIT") && before.Contains("UL-verify.out ||")), "fixture reproduces each shipped predecessor");
             var imported = XmlPlanImport.Import(legacy.OuterXml, service);
             var view = new MainViewModel { Plan = imported };
             Check(view.CanEditPeInstall && view.CanEditAutoPartition && !view.HasReadonlyAutoPartition, "known old pipeline remains editable");
@@ -48,14 +49,15 @@ static class PeImportCompatibilityTests
             saved.PeTargetMode = "fixed"; saved.TargetDiskId = 1; saved.ConfirmWipeDisk = true; saved.ConfirmImportedXmlRisk = true;
             var updated = service.Generate(saved); var doc = XmlMerge.Read(Encoding.UTF8.GetString(updated));
             string script = doc.SelectSingleNode("//*[local-name()='PEScriptCopy']")!.InnerText;
-            Check(script.Contains("UL_TARGET_EXIT") && script.Contains("UL_VERIFY_EXIT") && script.Contains("WScript.FullName"), "re-export upgrades every old target gate and host path");
+            Check(script.Contains("UL_TARGET_EXIT") && script.Contains("UL_VERIFY_EXIT") && script.Contains("WScript.FullName") && script.Contains("Sub RunSelector()"), "re-export upgrades every old target gate, host path and runtime boundary");
             Check(script.Contains("Const FixedIndex = 1") && script.Contains("Const MaxGiB = 80") && script.Contains("/Index:2"), "edits reach the actual deployment script");
             var reimported = XmlPlanImport.Import(Encoding.UTF8.GetString(updated), service);
             Check(new MainViewModel { Plan = reimported }.CanEditPeInstall && reimported.PeTargetMode == "fixed" && reimported.ImageIndex == 2, "updated XML reimports without relocking");
         }
+        foreach (bool previous in new[] { false, true })
         foreach (string change in new[] { "script", "command", "missing-note" })
         {
-            var original = Plan("match", "UEFI / GPT"); var doc = Legacy(service, original);
+            var original = Plan("match", "UEFI / GPT"); var doc = Legacy(service, original, previous);
             if (change == "script") doc.SelectSingleNode("//*[local-name()='PEScriptCopy']")!.InnerText += "\necho modified\n";
             if (change == "command") doc.SelectSingleNode("//*[local-name()='RunSynchronousCommand']/*[local-name()='Path']")!.InnerText += " & echo modified";
             // Rehash a modified document to prove a recovery comment alone never unlocks it.
