@@ -6,6 +6,8 @@
 
 六项真实虚拟机基础验收：**6/6 用户反馈通过**；补充四项 VBScript 异常返回值验证也通过，合计 **10/10**（非数字 INVALID、不存在的编号 99、空输出、非零退出码）。缺失快照等扩展场景未据此计为实机通过。本轮为选盘和复核新增显式运行错误处理，尚未在 Windows 实际运行；上述 10/10 为此前构建的验收记录。Windows 自动质量门禁仍待修正后的 Actions 复核。自动生成、JSON/XML 往返和参数边界检查不代表已经成功安装 Windows。
 
+Windows WPF 容量绑定专项覆盖两种语言、四种选盘方式和两个容量字段。测试先处理 Dispatcher 队列并确认绑定连接到目标方案，再验证合法输入、清空、空白、非法输入拦截、恢复及修改后撤销清盘确认；失败日志包含具体组合、绑定状态、文本、方案值和校验错误。其运行结果与 PE 部署及虚拟机验收分别记录。
+
 `verify.ps1` 运行自动检查。新增 `Tests/PeSafety.Runtime.Tests.ps1` 在 Windows 存在 cscript 时运行实际 VBScript，但用模拟磁盘、启动模式及安装介质，不枚举或修改真实磁盘，不执行 DiskPart。在非 Windows 环境明确报告 NOT RUN，不将它记作实机通过。
 
 `Tests/PeCommandChain.Runtime.Tests.ps1` 在 Windows 上执行实际生成的 CMD 检查段，以无磁盘操作的宿主替身验证正值、负值返回码、空结果和旧编号残留。此检查不运行 DiskPart，也不替代虚拟机验收。
@@ -36,6 +38,8 @@
 ## English
 
 The user reports **6/6 basic VM cases plus 4/4 VBScript cases passed (10/10)**. The additional cases cover INVALID, nonexistent index 99, empty output and a nonzero exit code. Missing-snapshot and other extended cases are not counted as VM passes. The 10/10 result applies to the preceding build; the new explicit runtime error boundary has not yet run on Windows. The corrected Windows quality gate still requires an Actions run. Automated generation and persistence checks do not prove installation success. The Windows-only runtime test executes the production selector with mocked disk/firmware I/O, without DiskPart or real disk enumeration. Non-Windows runs explicitly report NOT RUN.
+
+The Windows WPF capacity check drains Dispatcher work and verifies the resolved plan/property before testing both languages, all four selector modes and both capacity fields. It checks source-to-editor updates, valid edits, null/whitespace, blocked invalid edits, recovery and consent revocation. Failures include the case, binding status, text, plan value and validation details. Compilation alone does not count as a WPF runtime pass.
 
 Use disposable snapshot VMs only. Cover UEFI/GPT Windows 11 success, compatible BIOS/MBR Windows 10 success, a unique match among multiple disks, ambiguous matches, no match, and invalid interactive/custom-script output. Verify that nontarget disks, partitions and checksum files remain intact. Check image application, boot files, restart, recovery and OOBE on successful installations. Also test firmware conflicts, exact capacity boundaries, installation-source exclusion, unreadable WMI properties and target changes during a pause. Record environment, selected disk, stop location and before/after integrity checks; preserve and redact PE logs before restarting.
 

@@ -37,7 +37,7 @@ static class PeImportCompatibilityTests
         {
             var original = Plan(mode, layout); var legacy = Legacy(service, original, previous);
             string before = legacy.SelectSingleNode("//*[local-name()='PEScriptCopy']")!.InnerText;
-            Check(!before.Contains("Sub RunSelector()") && (previous ? before.Contains("UL_TARGET_EXIT") && before.Contains("UL_VERIFY_EXIT") : !before.Contains("UL_TARGET_EXIT") && before.Contains("UL-verify.out ||")), "fixture reproduces each shipped predecessor");
+            Check(!before.Contains("runtimeError = Err.Number") && (previous ? before.Contains("UL_TARGET_EXIT") && before.Contains("UL_VERIFY_EXIT") : !before.Contains("UL_TARGET_EXIT") && before.Contains("UL-verify.out ||")), "fixture reproduces each shipped predecessor");
             var imported = XmlPlanImport.Import(legacy.OuterXml, service);
             var view = new MainViewModel { Plan = imported };
             Check(view.CanEditPeInstall && view.CanEditAutoPartition && !view.HasReadonlyAutoPartition, "known old pipeline remains editable");
@@ -49,7 +49,7 @@ static class PeImportCompatibilityTests
             saved.PeTargetMode = "fixed"; saved.TargetDiskId = 1; saved.ConfirmWipeDisk = true; saved.ConfirmImportedXmlRisk = true;
             var updated = service.Generate(saved); var doc = XmlMerge.Read(Encoding.UTF8.GetString(updated));
             string script = doc.SelectSingleNode("//*[local-name()='PEScriptCopy']")!.InnerText;
-            Check(script.Contains("UL_TARGET_EXIT") && script.Contains("UL_VERIFY_EXIT") && script.Contains("WScript.FullName") && script.Contains("Sub RunSelector()"), "re-export upgrades every old target gate, host path and runtime boundary");
+            Check(script.Contains("UL_TARGET_EXIT") && script.Contains("UL_VERIFY_EXIT") && script.Contains("WScript.FullName") && script.Contains("runtimeError = Err.Number") && script.Contains("On Error Resume Next"), "re-export upgrades every old target gate, host path and runtime boundary");
             Check(script.Contains("Const FixedIndex = 1") && script.Contains("Const MaxGiB = 80") && script.Contains("/Index:2"), "edits reach the actual deployment script");
             var reimported = XmlPlanImport.Import(Encoding.UTF8.GetString(updated), service);
             Check(new MainViewModel { Plan = reimported }.CanEditPeInstall && reimported.PeTargetMode == "fixed" && reimported.ImageIndex == 2, "updated XML reimports without relocking");
