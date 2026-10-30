@@ -10,15 +10,18 @@ public static class CompactOsSettings {
   if(p.CompactOsMode is not (Default or Enabled or Disabled))throw new ArgumentException(global::UnattendLocal.Localization.UiText.Source("text.ccd3d2099025"));
   if(p.CompactOsMode!=Default&&p.Scripts?.Any(s=>s.Enabled&&Regex.IsMatch(s.Content,@"\bcompact(?:\.exe)?\s+/CompactOS\s*:\s*(always|never)\b",RegexOptions.IgnoreCase,TimeSpan.FromSeconds(1)))==true)throw new ArgumentException(global::UnattendLocal.Localization.UiText.Source("text.36e368573827"));
  }
- public static bool CanEdit(InstallPlan p)=>p.ImportedXml?.CompactOsScriptControlled!=true;
+ // Only an exact, owned PE pipeline may be regenerated. External scripts stay read-only.
+ public static bool CanEdit(InstallPlan p)=>p.ImportedXml?.CompactOsScriptControlled!=true||
+  (p.UseGeneratedPe&&p.ImportedXml.CompactOsSourceKnown&&GeneratedPeSettings.OwnsImported(p));
  public static string ModeSummary(InstallPlan p){
-  if(p.ImportedXml is {CompactOsScriptControlled:true} data)return data.CompactOsSourceKnown?(data.CompactOsSourceMode==Enabled?global::UnattendLocal.Localization.UiText.Source("text.8072410d481b"):global::UnattendLocal.Localization.UiText.Source("text.aeed9b0d0e0e")):global::UnattendLocal.Localization.UiText.Source("text.b37c0d8efaf5");
+  if(!CanEdit(p)&&p.ImportedXml is {CompactOsScriptControlled:true} data)return data.CompactOsSourceKnown?(data.CompactOsSourceMode==Enabled?global::UnattendLocal.Localization.UiText.Source("text.8072410d481b"):global::UnattendLocal.Localization.UiText.Source("text.aeed9b0d0e0e")):global::UnattendLocal.Localization.UiText.Source("text.b37c0d8efaf5");
+  if(p.UseGeneratedPe)return global::UnattendLocal.Localization.UiText.Source(p.CompactOsMode switch {Enabled=>"v131.compact.enabled",Disabled=>"v131.compact.disabled",_=>"v131.compact.default"});
   return p.CompactOsMode switch {Default=>p.ImportedXml==null?global::UnattendLocal.Localization.UiText.Source("text.e8dbcfc17a43"):global::UnattendLocal.Localization.UiText.Source("text.32e8cdb88dd3"),Enabled=>global::UnattendLocal.Localization.UiText.Source("text.3e26eb1f1503"),Disabled=>global::UnattendLocal.Localization.UiText.Source("text.32e8e71f5354"),_=>global::UnattendLocal.Localization.UiText.Source("text.70f5443b76d7")};
  }
  public static string Summary(InstallPlan p)=>"CompactOS："+ModeSummary(p);
  // The documented Windows Setup setting is independent of disk selection and destructive operations.
  public static void Apply(XmlDocument doc,XmlNamespaceManager ns,InstallPlan p){
-  Validate(p);if(p.CompactOsMode==Default)return;
+  Validate(p);if(p.CompactOsMode==Default||p.UseGeneratedPe)return;
   var setups=doc.SelectNodes("//u:settings[@pass='windowsPE']/u:component[@name='Microsoft-Windows-Setup']",ns)!;
   if(setups.Count==0)throw new ArgumentException(global::UnattendLocal.Localization.UiText.Source("text.ec84055b605a"));
   foreach(XmlElement setup in setups){
@@ -46,14 +49,18 @@ public static class CompactOsSettings {
   return new(Default,true,false);
  }
  public static SourceState ReadIntoPlan(XmlDocument doc,InstallPlan p,List<string> notes){
-  var state=Inspect(doc);p.CompactOsMode=state.Mode;
+  var state=Inspect(doc);
+  // No /Compact represents both Default and Disabled in the PE engine. Retain
+  // that explicit choice from a reversible plan; ownership is checked separately.
+  if(p.UseGeneratedPe&&state.Known&&state.Mode==Default&&p.CompactOsMode==Disabled)state=state with {Mode=Disabled};
+  p.CompactOsMode=state.Mode;
   if(state.ScriptControlled)notes.Add(global::UnattendLocal.Localization.UiText.Source("text.f2017b8b6b55"));
   return state;
  }
  public static void UpdateImportState(ImportedXml data,SourceState state){data.CompactOsScriptControlled=state.ScriptControlled;data.CompactOsSourceMode=state.Mode;data.CompactOsSourceKnown=state.Known;}
  public static void ValidateImported(InstallPlan p,XmlDocument source){
   Validate(p);var state=Inspect(source);
-  if(state.ScriptControlled&&p.CompactOsMode!=state.Mode)throw new ArgumentException(global::UnattendLocal.Localization.UiText.Source("text.3d06300483e9"));
+  if(state.ScriptControlled&&!CanEdit(p)&&p.CompactOsMode!=state.Mode)throw new ArgumentException(global::UnattendLocal.Localization.UiText.Source("text.3d06300483e9"));
  }
  public static void NormalizeLoaded(InstallPlan p,bool fieldWasPresent){
   if(p.ImportedXml is not {} data||data.SourceXml.Length==0||data.OriginalOmitted)return;

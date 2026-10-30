@@ -40,3 +40,9 @@ Get-CimInstance Win32_PageFileSetting | Select-Object Name, InitialSize, Maximum
 For a disposable snapshot VM, enable custom paging in a PE plan with 2048 / 4096 MiB. After deployment and restart, run the read-only command above in the target Windows and verify its C: entry. Generation tests do not prove that the target system applied the setting.
 
 依据 / Reference: [Win32_PageFileSetting](https://learn.microsoft.com/en-us/windows/win32/cimwin32prov/win32-pagefilesetting).
+
+## V1.31 分页文件入口 / Paging file settings
+
+分页文件仍在 OOBE 的“系统性能与存储”中编辑。“镜像与分区”的 PE 区域显示状态并提供“前往设置”，只定位和高亮，不改变配置；不勾选表示保留目标镜像的分页文件设置。
+
+Edit the paging file under System performance and storage in OOBE. The PE area in Image and partition shows status and links to the same editor without changing values. Unchecked retains the target image paging file settings.

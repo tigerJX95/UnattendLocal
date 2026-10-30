@@ -127,8 +127,8 @@
               </StackPanel>
             </DockPanel>
           </StackPanel></Border>
-          <Border Style="{StaticResource Card}" Visibility="{Binding HasImportedXml,Converter={StaticResource VisibleWhen}}"><StackPanel>
-            <TextBlock x:Name="SettingAnchor000" Text="{loc:Text text.64b5adb43bcf}" FontSize="20" FontWeight="SemiBold" Margin="0,0,0,16"/>
+          <Border Style="{StaticResource Card}" Visibility="{Binding HasImportedXml,Converter={StaticResource VisibleWhen}}"><StackPanel x:Name="SettingAnchor000">
+            <TextBlock Text="{loc:Text text.64b5adb43bcf}" FontSize="20" FontWeight="SemiBold" Margin="0,0,0,16"/>
             <TextBlock Text="{loc:Display Value={Binding XmlImportSummary}}" FontWeight="SemiBold" TextWrapping="Wrap"><TextBlock.Style><Style TargetType="TextBlock"><Setter Property="Foreground" Value="{DynamicResource ForegroundBrush}"/><Style.Triggers><DataTrigger Binding="{Binding HasXmlImportErrors}" Value="True"><Setter Property="Foreground" Value="{DynamicResource ErrorBrush}"/></DataTrigger></Style.Triggers></Style></TextBlock.Style></TextBlock>
             <TextBlock Style="{StaticResource ExplanationText}" Text="{loc:Text text.e7b6f6103127}" Foreground="{DynamicResource SecondaryBrush}"/>
             <TextBlock Style="{StaticResource ExplanationText}" Text="{loc:Display Value={Binding XmlImportNotices}}" Foreground="{DynamicResource WarningBrush}"/>
@@ -156,8 +156,8 @@
             <TextBlock Text="{loc:Display Value={Binding RecommendationState}}" TextWrapping="Wrap" FontWeight="SemiBold" Margin="0,12,0,0" />
             <TextBlock Style="{StaticResource ExplanationText}" Visibility="{Binding IsRecommended,Converter={StaticResource VisibleWhen}}" Text="{loc:Text text.80bb00db444b}" TextWrapping="Wrap" Foreground="{DynamicResource SecondaryBrush}" />
           </StackPanel></Border>
-          <Border Style="{StaticResource Card}" Visibility="{Binding IsRecommended,Converter={StaticResource VisibleWhen}}"><StackPanel>
-            <TextBlock x:Name="SettingAnchor003" Text="{loc:Text text.c4c093619b6d}" FontSize="18" FontWeight="SemiBold" />
+          <Border Style="{StaticResource Card}" Visibility="{Binding IsRecommended,Converter={StaticResource VisibleWhen}}"><StackPanel x:Name="SettingAnchor003">
+            <TextBlock Text="{loc:Text text.c4c093619b6d}" FontSize="18" FontWeight="SemiBold" />
             <TextBlock Style="{StaticResource ExplanationText}" Text="{loc:Display Value={Binding DifferenceHint}}" TextWrapping="Wrap" Foreground="{DynamicResource SecondaryBrush}" />
             <ItemsControl ItemsSource="{Binding RecommendationDifferences}"><ItemsControl.ItemTemplate><DataTemplate>
               <Border BorderBrush="{DynamicResource BorderBrush}" BorderThickness="0,0,0,1" Padding="0,8"><DockPanel>
@@ -166,7 +166,7 @@
               </DockPanel></Border>
             </DataTemplate></ItemsControl.ItemTemplate></ItemsControl>
           </StackPanel></Border>
-          <Border Style="{StaticResource Card}"><StackPanel><TextBlock x:Name="SettingAnchor004" Text="{loc:Text text.2e368e5af5da}" FontSize="18" FontWeight="SemiBold"/><local:ConfigurationSummaryView Summary="{Binding ConfigurationSummary}" IsDestructiveDisk="{Binding IsDestructiveDisk}" Margin="0,16,0,0"/></StackPanel></Border>
+          <Border Style="{StaticResource Card}"><StackPanel x:Name="SettingAnchor004"><TextBlock Text="{loc:Text text.2e368e5af5da}" FontSize="18" FontWeight="SemiBold"/><local:ConfigurationSummaryView Summary="{Binding ConfigurationSummary}" IsDestructiveDisk="{Binding IsDestructiveDisk}" Margin="0,16,0,0"/></StackPanel></Border>
         </StackPanel></ScrollViewer>
       </TabItem>
       <TabItem Header="{loc:Source text.692873ddd8f4}" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch">
@@ -175,8 +175,8 @@
 
 
             <Border Style="{StaticResource Card}">
-              <StackPanel>
-                <TextBlock x:Name="SettingAnchor005" Text="{loc:Text text.692873ddd8f4}" FontSize="20" FontWeight="SemiBold" Margin="0,0,0,16" />
+              <StackPanel x:Name="SettingAnchor005">
+                <TextBlock Text="{loc:Text text.692873ddd8f4}" FontSize="20" FontWeight="SemiBold" Margin="0,0,0,16" />
                 <TextBlock Text="{loc:Text text.18e562471f23}" Foreground="{DynamicResource SecondaryBrush}" ToolTip="{Binding DataContext.HelpTips[computer],RelativeSource={RelativeSource AncestorType=Window}}" />
                 <ComboBox x:Name="SettingAnchor006" SelectedValue="{Binding Plan.ComputerNameMode}" SelectedValuePath="Tag" ToolTip="{Binding DataContext.HelpTips[computer],RelativeSource={RelativeSource AncestorType=Window}}"><ComboBoxItem Content="{loc:Source text.d6fa19be5a88}" Tag="Existing"/><ComboBoxItem Content="{loc:Source text.8399a2652cbe}" Tag="Prompt"/><ComboBoxItem Content="{loc:Source v124.mac.name}" Tag="Mac"/><ComboBoxItem Content="{loc:Source text.202f70c9a8af}" Tag="Script"/></ComboBox>
                 <TextBox x:Name="SettingAnchor007" IsEnabled="{Binding IsFixedComputerName}" Text="{Binding Plan.ComputerName,UpdateSourceTrigger=PropertyChanged}" ToolTip="{Binding DataContext.HelpTips[computer],RelativeSource={RelativeSource AncestorType=Window}}" />
@@ -429,8 +429,8 @@
                 <TextBlock Style="{StaticResource ExplanationText}" Text="{loc:Display Value={Binding ActivationKeyDescription}}" TextWrapping="Wrap" Foreground="{DynamicResource SecondaryBrush}" />
               </StackPanel>
             </Border>
-            <Border Style="{StaticResource Card}"><StackPanel>
-              <TextBlock x:Name="SettingAnchor048" Text="{loc:Text text.98bee575873a}" FontSize="20" FontWeight="SemiBold" Margin="0,0,0,16" ToolTip="{Binding DataContext.HelpTips[hardware],RelativeSource={RelativeSource AncestorType=Window}}" />
+            <Border Style="{StaticResource Card}"><StackPanel x:Name="SettingAnchor048">
+              <TextBlock Text="{loc:Text text.98bee575873a}" FontSize="20" FontWeight="SemiBold" Margin="0,0,0,16" ToolTip="{Binding DataContext.HelpTips[hardware],RelativeSource={RelativeSource AncestorType=Window}}" />
               <TextBlock Style="{StaticResource ExplanationText}" Text="{loc:Text text.ab0a3d853f00}" TextWrapping="Wrap" Foreground="{DynamicResource SecondaryBrush}" />
               <CheckBox x:Name="SettingAnchor049" Content="{loc:Source text.03d4d9f03919}" IsChecked="{Binding Plan.BypassTPMCheck}" ToolTip="{Binding DataContext.HelpTips[hardwaretpm],RelativeSource={RelativeSource AncestorType=Window}}" />
               <CheckBox x:Name="SettingAnchor050" Content="{loc:Source text.443cc44b8f86}" IsChecked="{Binding Plan.BypassSecureBootCheck}" ToolTip="{Binding DataContext.HelpTips[hardwareboot],RelativeSource={RelativeSource AncestorType=Window}}" />
@@ -499,6 +499,7 @@
           <Border Style="{StaticResource Card}"><StackPanel>
             <TextBlock x:Name="SettingAnchor058" Text="{loc:Text text.a019e8f52463}" FontSize="20" FontWeight="SemiBold" Margin="0,0,0,16" ToolTip="{Binding DataContext.HelpTips[compactos],RelativeSource={RelativeSource AncestorType=Window}}"/>
             <ComboBox x:Name="SettingAnchor059" SelectedValue="{Binding Plan.CompactOsMode}" SelectedValuePath="Content" IsEnabled="{Binding CanEditCompactOs}" ToolTip="{Binding DataContext.HelpTips[compactos],RelativeSource={RelativeSource AncestorType=Window}}"><ComboBoxItem Content="{loc:Source text.54a8207458f7}"/><ComboBoxItem Content="{loc:Source text.cdfe457406eb}"/><ComboBoxItem Content="{loc:Source text.3e0e190a761d}"/></ComboBox>
+            <TextBlock Style="{StaticResource ExplanationText}" Text="{loc:Text v131.compact.shared}" Foreground="{DynamicResource SecondaryBrush}"/>
             <TextBlock Style="{StaticResource ExplanationText}" Text="{loc:Display Value={Binding CompactOsSummary}}" Foreground="{DynamicResource SecondaryBrush}"/>
             <TextBlock Style="{StaticResource ExplanationText}" Text="{loc:Text text.14f015b65dc9}" Foreground="{DynamicResource SecondaryBrush}"/>
             <TextBlock Style="{StaticResource ExplanationText}" Text="{loc:Text text.4fc93538f479}" Foreground="{DynamicResource SecondaryBrush}"/>
@@ -514,6 +515,14 @@
             </StackPanel></Border>
             <ComboBox x:Name="SettingAnchor061" SelectedValue="{Binding Plan.DiskMode}" SelectedValuePath="Content" ToolTip="{Binding DataContext.HelpTips[diskmode],RelativeSource={RelativeSource AncestorType=Window}}"><ComboBoxItem Content="{loc:Source text.4a9df1058984}"/><ComboBoxItem Content="{loc:Source text.75134d9ce045}"/><ComboBoxItem Content="{loc:Source text.208c78ac056d}"/><ComboBoxItem Content="{loc:Source text.c74c19056e32}"/></ComboBox>
             <CheckBox x:Name="GeneratedPeMode" Content="{loc:Source v125.pe.name}" IsChecked="{Binding Plan.UseGeneratedPe}" IsEnabled="{Binding CanEditPeInstall}" ToolTip="{loc:Text v125.pe.help}" ToolTipService.ShowOnDisabled="True"/>
+            <WrapPanel Margin="0,8,0,12" Visibility="{Binding Plan.UseGeneratedPe,Converter={StaticResource VisibleWhen}}">
+              <TextBlock x:Name="PePageFileStatus" VerticalAlignment="Center" Margin="0,0,12,0" Style="{StaticResource DiagnosticSummary}" Text="{loc:Display Value={Binding PageFileStatus}}"/>
+              <Button Content="{loc:Text v131.pagefile.goto}" Click="PageFileSettingsClick" HorizontalAlignment="Left" ToolTip="{loc:Text v131.pagefile.gotoHelp}"/>
+            </WrapPanel>
+            <WrapPanel Margin="0,0,0,12" Visibility="{Binding Plan.UseGeneratedPe,Converter={StaticResource VisibleWhen}}">
+              <TextBlock x:Name="PeCompactOsStatusText" VerticalAlignment="Center" Margin="0,0,12,0" Style="{StaticResource DiagnosticSummary}" Text="{loc:Display Value={Binding PeCompactOsStatus}}"/>
+              <Button Content="{loc:Text v131.compact.goto}" Click="CompactOsSettingsClick" HorizontalAlignment="Left" ToolTip="{loc:Text v131.compact.gotoHelp}"/>
+            </WrapPanel>
             <TextBlock Style="{StaticResource ExplanationText}" Text="{loc:Text v125.pe.help}" Visibility="{Binding Plan.UseGeneratedPe,Converter={StaticResource VisibleWhen}}"/>
             <StackPanel Visibility="{Binding Plan.UseGeneratedPe,Converter={StaticResource VisibleWhen}}" IsEnabled="{Binding CanEditPeInstall}">
               <TextBlock Text="{loc:Text v127.selection}"/>
@@ -668,8 +677,8 @@
               </StackPanel>
             </Border>
             <Border Style="{StaticResource Card}">
-              <StackPanel>
-                <TextBlock x:Name="SettingAnchor072" Text="{loc:Text text.cc31a810221f}" FontSize="20" FontWeight="SemiBold" Margin="0,0,0,16" />
+              <StackPanel x:Name="SettingAnchor072">
+                <TextBlock Text="{loc:Text text.cc31a810221f}" FontSize="20" FontWeight="SemiBold" Margin="0,0,0,16" />
                 <TextBlock Text="{loc:Text text.e7e34d265eb4}" Foreground="{DynamicResource SecondaryBrush}"/>
                 <ComboBox x:Name="SettingAnchor073" ItemsSource="{Binding FirstLogonModes}" SelectedItem="{Binding SelectedFirstLogon}" IsEnabled="{Binding CanEditFirstLogon}" ToolTip="{Binding DataContext.HelpTips[logon],RelativeSource={RelativeSource AncestorType=Window}}"/>
                 <TextBlock Text="{loc:Text text.45459d02dbbd}" TextWrapping="Wrap" Foreground="{DynamicResource WarningBrush}" Visibility="{Binding HasReadonlyFirstLogon,Converter={StaticResource VisibleWhen}}"/>
@@ -902,8 +911,8 @@
         <ScrollViewer VerticalScrollBarVisibility="Auto">
           <StackPanel Margin="24">
             <Border Style="{StaticResource Card}">
-              <StackPanel>
-                <TextBlock x:Name="SettingAnchor090" Text="{loc:Text text.dccf16fd6dd2}" FontSize="20" FontWeight="SemiBold" Margin="0,0,0,16" />
+              <StackPanel x:Name="SettingAnchor090">
+                <TextBlock Text="{loc:Text text.dccf16fd6dd2}" FontSize="20" FontWeight="SemiBold" Margin="0,0,0,16" />
                 <TextBlock Text="{loc:Text text.7ee415979a64}" Foreground="{DynamicResource SecondaryBrush}" ToolTip="{Binding DataContext.HelpTips[privacy],RelativeSource={RelativeSource AncestorType=Window}}" />
                 <ComboBox x:Name="SettingAnchor091" SelectedValue="{Binding Plan.PrivacyMode}" SelectedValuePath="Tag" ToolTip="{Binding DataContext.HelpTips[privacy],RelativeSource={RelativeSource AncestorType=Window}}">
                   <ComboBoxItem Content="{loc:Source text.cf0b5e3ca189}" Tag="关闭快捷隐私设置">
@@ -950,8 +959,8 @@
                 <TextBlock Style="{StaticResource ExplanationText}" Text="{loc:Text text.82daf36fc22e}" TextWrapping="Wrap" Foreground="{DynamicResource SecondaryBrush}" />
               </StackPanel>
             </Border>
-            <Border Style="{StaticResource Card}"><StackPanel>
-              <TextBlock x:Name="SettingAnchor097" Text="{loc:Text text.3c137fc13c85}" FontSize="20" FontWeight="SemiBold" Margin="0,0,0,16"/>
+            <Border Style="{StaticResource Card}"><StackPanel x:Name="SettingAnchor097">
+              <TextBlock Text="{loc:Text text.3c137fc13c85}" FontSize="20" FontWeight="SemiBold" Margin="0,0,0,16"/>
               <TextBlock Style="{StaticResource ExplanationText}" Text="{loc:Text text.1857555e9c30}" Foreground="{DynamicResource SecondaryBrush}"/>
               <CheckBox x:Name="SettingAnchor098" Content="{loc:Source text.02a33ac3ee81}" IsChecked="{Binding Plan.VMwareTools}" Margin="0,10,0,0" ToolTip="{Binding DataContext.HelpTips[vmwaretools],RelativeSource={RelativeSource AncestorType=Window}}"/>
               <TextBlock Style="{StaticResource ExplanationText}" Text="{loc:Text text.827477e76236}" Foreground="{DynamicResource SecondaryBrush}"/>
@@ -963,8 +972,8 @@
               <TextBlock Style="{StaticResource ExplanationText}" Text="{loc:Text text.c27205665e1a}" Foreground="{DynamicResource SecondaryBrush}"/>
               <TextBlock Style="{StaticResource ExplanationText}" Text="{loc:Text text.8b56eb9558d9}" Foreground="{DynamicResource SecondaryBrush}"/>
             </StackPanel></Border>
-            <Border Style="{StaticResource Card}"><StackPanel>
-              <TextBlock x:Name="SettingAnchor102" Text="{loc:Text text.a2621a15ccaa}" FontSize="20" FontWeight="SemiBold" Margin="0,0,0,16"/>
+            <Border Style="{StaticResource Card}"><StackPanel x:Name="SettingAnchor102">
+              <TextBlock Text="{loc:Text text.a2621a15ccaa}" FontSize="20" FontWeight="SemiBold" Margin="0,0,0,16"/>
               <CheckBox x:Name="SettingAnchor103" Content="{loc:Source text.8b7255e34e81}" IsChecked="{Binding Plan.DisableUac}" ToolTip="{Binding DataContext.HelpTips[uac],RelativeSource={RelativeSource AncestorType=Window}}"/>
               <TextBlock Style="{StaticResource ExplanationText}" Text="{loc:Text text.6a5e5b8a4f1e}" Foreground="{DynamicResource SecondaryBrush}"/>
               <TextBlock Style="{StaticResource ExplanationText}" Text="{loc:Text text.6e1e2c144725}" Foreground="{DynamicResource WarningBrush}" Visibility="{Binding Plan.DisableUac,Converter={StaticResource VisibleWhen}}"/>
@@ -1001,8 +1010,8 @@
               <TextBlock Style="{StaticResource ExplanationText}" Text="{loc:Text text.520275aa6a13}" Foreground="{DynamicResource SecondaryBrush}" />
               <TextBlock Style="{StaticResource DiagnosticSummary}" Text="{loc:Display Value={Binding ErrorReportingSummary}}" />
             </StackPanel></Border>
-            <Border Style="{StaticResource Card}"><StackPanel>
-              <TextBlock x:Name="SettingAnchor108" Text="{loc:Text text.64cd81cc938d}" FontSize="20" FontWeight="SemiBold" Margin="0,0,0,16"/>
+            <Border Style="{StaticResource Card}"><StackPanel x:Name="SettingAnchor108">
+              <TextBlock Text="{loc:Text text.64cd81cc938d}" FontSize="20" FontWeight="SemiBold" Margin="0,0,0,16"/>
               <TextBlock Style="{StaticResource ExplanationText}" Text="{loc:Text text.09af0a7da545}" Foreground="{DynamicResource SecondaryBrush}"/>
               <CheckBox x:Name="SettingAnchor109" Content="{loc:Source text.bc695532793b}" IsChecked="{Binding Plan.DisableSac}" Margin="0,14,0,0" ToolTip="{Binding DataContext.HelpTips[sac],RelativeSource={RelativeSource AncestorType=Window}}"/>
               <TextBlock Style="{StaticResource ExplanationText}" Text="{loc:Text text.b852eac92960}" Foreground="{DynamicResource SecondaryBrush}"/>
@@ -1043,16 +1052,19 @@
               <TextBlock Style="{StaticResource ExplanationText}" Text="{loc:Text text.780f3c694871}" Foreground="{DynamicResource WarningBrush}"/>
               <CheckBox x:Name="SettingAnchor122" Content="{loc:Source text.2da1f5027c64}" IsChecked="{Binding Plan.EnableLongPaths}" Margin="0,14,0,0" ToolTip="{Binding DataContext.HelpTips[longpaths],RelativeSource={RelativeSource AncestorType=Window}}"/>
               <TextBlock Style="{StaticResource ExplanationText}" Text="{loc:Text text.fbefd0c34d18}" TextWrapping="Wrap" Foreground="{DynamicResource SecondaryBrush}"/>
-              <CheckBox x:Name="NtfsShortNamesEditor" Content="{loc:Source v121.ntfs}" IsChecked="{Binding Plan.DisableNewNtfsShortNames}" Margin="0,14,0,0"/>
-              <TextBlock Style="{StaticResource ExplanationText}" Text="{loc:Text v121.ntfs.help}" Foreground="{DynamicResource SecondaryBrush}" TextWrapping="Wrap"/>
-              <CheckBox x:Name="CustomPageFileEditor" Content="{loc:Source v121.pagefile}" IsChecked="{Binding Plan.UseCustomPageFile}" Margin="0,14,0,0"/>
-              <TextBlock Style="{StaticResource ExplanationText}" Text="{loc:Text v130.pagefile.pe}" Foreground="{DynamicResource SecondaryBrush}"/>
-              <TextBlock Style="{StaticResource ExplanationText}" Text="{loc:Text v121.pagefile.help}" Foreground="{DynamicResource SecondaryBrush}" TextWrapping="Wrap"/>
-              <StackPanel Orientation="Horizontal" Margin="0,8,0,0" IsEnabled="{Binding Plan.UseCustomPageFile}">
-                <TextBlock Text="{loc:Text v121.pagefile.initial}" VerticalAlignment="Center"/>
-                <TextBox Width="85" Margin="8,0,12,0" x:Name="PageFileInitialEditor" Text="{Binding Plan.PageFileInitialMiB, UpdateSourceTrigger=PropertyChanged, ValidatesOnExceptions=True}"/>
-                <TextBlock Text="{loc:Text v121.pagefile.maximum}" VerticalAlignment="Center"/>
-                <TextBox Width="85" Margin="8,0,0,0" x:Name="PageFileMaximumEditor" Text="{Binding Plan.PageFileMaximumMiB, UpdateSourceTrigger=PropertyChanged, ValidatesOnExceptions=True}"/>
+              <StackPanel Margin="0,14,0,0">
+                <TextBlock Text="{loc:Text v131.systemStorage}" FontSize="16" FontWeight="SemiBold"/>
+                <CheckBox x:Name="NtfsShortNamesEditor" Content="{loc:Source v121.ntfs}" IsChecked="{Binding Plan.DisableNewNtfsShortNames}" Margin="0,14,0,0"/>
+                <TextBlock Style="{StaticResource ExplanationText}" Text="{loc:Text v121.ntfs.help}" Foreground="{DynamicResource SecondaryBrush}" TextWrapping="Wrap"/>
+                <CheckBox x:Name="CustomPageFileEditor" Content="{loc:Source v121.pagefile}" IsChecked="{Binding Plan.UseCustomPageFile}" Margin="0,14,0,0"/>
+                <TextBlock Style="{StaticResource ExplanationText}" Text="{loc:Text v131.pagefile.scope}" Foreground="{DynamicResource SecondaryBrush}"/>
+                <TextBlock Style="{StaticResource ExplanationText}" Text="{loc:Text v121.pagefile.help}" Foreground="{DynamicResource SecondaryBrush}" TextWrapping="Wrap"/>
+                <StackPanel Orientation="Horizontal" Margin="0,8,0,0" IsEnabled="{Binding Plan.UseCustomPageFile}">
+                  <TextBlock Text="{loc:Text v121.pagefile.initial}" VerticalAlignment="Center"/>
+                  <TextBox Width="85" Margin="8,0,12,0" x:Name="PageFileInitialEditor" Text="{Binding Plan.PageFileInitialMiB, UpdateSourceTrigger=PropertyChanged, ValidatesOnExceptions=True}"/>
+                  <TextBlock Text="{loc:Text v121.pagefile.maximum}" VerticalAlignment="Center"/>
+                  <TextBox Width="85" Margin="8,0,0,0" x:Name="PageFileMaximumEditor" Text="{Binding Plan.PageFileMaximumMiB, UpdateSourceTrigger=PropertyChanged, ValidatesOnExceptions=True}"/>
+                </StackPanel>
               </StackPanel>
               <CheckBox x:Name="SettingAnchor123" Content="{loc:Source text.c079556169d5}" IsChecked="{Binding Plan.TurnOffSystemSounds}" Margin="0,14,0,0" ToolTip="{Binding DataContext.HelpTips[systemsounds],RelativeSource={RelativeSource AncestorType=Window}}"/>
               <TextBlock Style="{StaticResource ExplanationText}" Text="{loc:Text text.9144eb929aa7}" TextWrapping="Wrap" Foreground="{DynamicResource SecondaryBrush}"/>
@@ -1067,8 +1079,8 @@
               <TextBlock Style="{StaticResource ExplanationText}" Text="{loc:Text text.9bcbce3b9170}" Foreground="{DynamicResource SecondaryBrush}"/>
               <TextBlock Style="{StaticResource ExplanationText}" Text="{loc:Text text.10a8be93192f}" Foreground="{DynamicResource WarningBrush}" Visibility="{Binding Plan.DisableAppSuggestions,Converter={StaticResource VisibleWhen}}"/>
             </StackPanel></Border>
-            <Border Style="{StaticResource Card}"><StackPanel>
-              <TextBlock x:Name="SettingAnchor128" Text="{loc:Text text.712f842cb7dd}" FontSize="20" FontWeight="SemiBold" Margin="0,0,0,16"/>
+            <Border Style="{StaticResource Card}"><StackPanel x:Name="SettingAnchor128">
+              <TextBlock Text="{loc:Text text.712f842cb7dd}" FontSize="20" FontWeight="SemiBold" Margin="0,0,0,16"/>
               <CheckBox x:Name="SettingAnchor129" Content="{loc:Source text.5c0d4ac1e048}" IsChecked="{Binding Plan.PreventAutomaticReboot}" ToolTip="{Binding DataContext.HelpTips[updaterestart],RelativeSource={RelativeSource AncestorType=Window}}"/>
               <TextBlock Style="{StaticResource ExplanationText}" Text="{loc:Text text.9a6a4fcf5e3f}" Foreground="{DynamicResource SecondaryBrush}"/>
               <TextBlock Style="{StaticResource ExplanationText}" Text="{loc:Text text.d8b39ba48aad}" Foreground="{DynamicResource WarningBrush}" Visibility="{Binding Plan.PreventAutomaticReboot,Converter={StaticResource VisibleWhen}}"/>
@@ -1078,8 +1090,8 @@
               <TextBlock Style="{StaticResource ExplanationText}" Text="{loc:Text text.dc39bda19013}" Foreground="{DynamicResource WarningBrush}" Visibility="{Binding Plan.DisableWindowsUpdate,Converter={StaticResource VisibleWhen}}"/>
               <TextBlock Style="{StaticResource ExplanationText}" Text="{loc:Text text.edac0a84cba3}" Foreground="{DynamicResource SecondaryBrush}"/>
             </StackPanel></Border>
-            <Border Style="{StaticResource Card}"><StackPanel>
-              <TextBlock x:Name="SettingAnchor131" Text="Microsoft Edge" FontSize="20" FontWeight="SemiBold" Margin="0,0,0,16"/>
+            <Border Style="{StaticResource Card}"><StackPanel x:Name="SettingAnchor131">
+              <TextBlock Text="Microsoft Edge" FontSize="20" FontWeight="SemiBold" Margin="0,0,0,16"/>
               <CheckBox x:Name="SettingAnchor132" Content="{loc:Source text.b056a04e2c72}" IsChecked="{Binding Plan.HideEdgeFre}" ToolTip="{Binding DataContext.HelpTips[edgefre],RelativeSource={RelativeSource AncestorType=Window}}"/>
               <TextBlock Style="{StaticResource ExplanationText}" Text="{loc:Text text.e15d817d2643}" TextWrapping="Wrap" Foreground="{DynamicResource SecondaryBrush}"/>
               <CheckBox x:Name="SettingAnchor133" Content="{loc:Source text.dadba0a9d42d}" IsChecked="{Binding Plan.MakeEdgeUninstallable}" ToolTip="{Binding DataContext.HelpTips[edgeuninstall],RelativeSource={RelativeSource AncestorType=Window}}"/>
@@ -1087,8 +1099,8 @@
               <CheckBox x:Name="SettingAnchor134" Content="{loc:Source text.ba38fe793667}" IsChecked="{Binding Plan.DisableEdgeStartupBoost}" Margin="0,14,0,0" ToolTip="{Binding DataContext.HelpTips[edgebackground],RelativeSource={RelativeSource AncestorType=Window}}"/>
               <TextBlock Style="{StaticResource ExplanationText}" Text="{loc:Text text.f068bbbc4c2e}" TextWrapping="Wrap" Foreground="{DynamicResource SecondaryBrush}"/>
             </StackPanel></Border>
-            <Border Style="{StaticResource Card}"><StackPanel>
-              <TextBlock x:Name="SettingAnchor135" Text="{loc:Text text.59fc2de39b16}" FontSize="20" FontWeight="SemiBold" Margin="0,0,0,16"/>
+            <Border Style="{StaticResource Card}"><StackPanel x:Name="SettingAnchor135">
+              <TextBlock Text="{loc:Text text.59fc2de39b16}" FontSize="20" FontWeight="SemiBold" Margin="0,0,0,16"/>
               <CheckBox x:Name="SettingAnchor136" Content="{loc:Source text.49bf17eec2e3}" IsChecked="{Binding Plan.UseNarrator}" ToolTip="{Binding DataContext.HelpTips[narrator],RelativeSource={RelativeSource AncestorType=Window}}"/>
               <TextBlock Style="{StaticResource ExplanationText}" Text="{loc:Text text.b7ab951be425}" Foreground="{DynamicResource SecondaryBrush}"/>
               <Separator Margin="0,12"/>
@@ -1098,8 +1110,8 @@
               <TextBlock Style="{StaticResource ExplanationText}" Text="{loc:Text text.e5a143615e34}" Foreground="{DynamicResource SecondaryBrush}"/>
             </StackPanel></Border>
             <Border x:Name="InstallationOptions" Style="{StaticResource Card}">
-              <StackPanel>
-                <TextBlock x:Name="SettingAnchor138" Text="{loc:Text text.6fa95bb023ab}" FontSize="20" FontWeight="SemiBold" Margin="0,0,0,16" />
+              <StackPanel x:Name="SettingAnchor138">
+                <TextBlock Text="{loc:Text text.6fa95bb023ab}" FontSize="20" FontWeight="SemiBold" Margin="0,0,0,16" />
                 <CheckBox x:Name="SettingAnchor139" Content="{loc:Source text.d2e4fd04f26a}" IsChecked="{Binding Plan.HidePowerShellWindows}" ToolTip="{Binding DataContext.HelpTips[powershell],RelativeSource={RelativeSource AncestorType=Window}}" />
                 <TextBlock Style="{StaticResource ExplanationText}" Text="{loc:Text text.1f46244dad2a}" Foreground="{DynamicResource SecondaryBrush}" TextWrapping="Wrap" />
                 <CheckBox x:Name="SettingAnchor140" Content="{loc:Source text.735aa74a3c8e}" IsChecked="{Binding Plan.KeepSensitiveFiles}" ToolTip="{Binding DataContext.HelpTips[sensitivefiles],RelativeSource={RelativeSource AncestorType=Window}}" />
@@ -1113,8 +1125,8 @@
       </TabItem>
       <TabItem Header="{loc:Source text.91ebd1a7c347}" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch">
         <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
-          <StackPanel Margin="20">
-            <TextBlock x:Name="SettingAnchor141" Text="{loc:Text text.533f850b5e85}" FontSize="20" FontWeight="SemiBold" Margin="0,0,0,12"/>
+          <StackPanel x:Name="SettingAnchor141" Margin="20">
+            <TextBlock Text="{loc:Text text.533f850b5e85}" FontSize="20" FontWeight="SemiBold" Margin="0,0,0,12"/>
             <TextBlock Text="{loc:Text text.2ab2cfdcc806}" TextWrapping="Wrap" Margin="0,0,0,12" ToolTip="{Binding HelpTips[appremoval]}"/>
             <TextBlock Text="{loc:Text text.8349aca8c894}" TextWrapping="Wrap" Foreground="{DynamicResource WarningBrush}" Margin="0,0,0,12"><TextBlock.Style><Style TargetType="TextBlock" BasedOn="{StaticResource {x:Type TextBlock}}"><Setter Property="Visibility" Value="Collapsed"/><Style.Triggers><DataTrigger Binding="{Binding CanEditAppRemoval}" Value="False"><Setter Property="Visibility" Value="Visible"/></DataTrigger></Style.Triggers></Style></TextBlock.Style></TextBlock>
             <TextBlock Text="{loc:Display Value={Binding AppRemovalSummary}}" TextWrapping="Wrap" FontWeight="SemiBold" Margin="0,0,0,16"/>
@@ -1150,8 +1162,8 @@
             <TextBlock Style="{StaticResource ExplanationText}" Text="{loc:Text text.778d56de8a0e}" TextWrapping="Wrap" Foreground="{DynamicResource SecondaryBrush}" />
             <TextBlock Style="{StaticResource ExplanationText}" Text="{loc:Text text.c5b5bf4be597}" TextWrapping="Wrap" Foreground="{DynamicResource SecondaryBrush}" />
           </StackPanel></Border>
-          <Border Style="{StaticResource Card}"><StackPanel>
-            <TextBlock x:Name="SettingAnchor145" Text="{loc:Text text.c225e7736925}" FontSize="18" FontWeight="SemiBold" Margin="0,0,0,8" />
+          <Border Style="{StaticResource Card}"><StackPanel x:Name="SettingAnchor145">
+            <TextBlock Text="{loc:Text text.c225e7736925}" FontSize="18" FontWeight="SemiBold" Margin="0,0,0,8" />
             <CheckBox x:Name="SettingAnchor146" Content="{loc:Source text.16d9cb19db96}" IsChecked="{Binding Plan.ClassicContextMenu}" ToolTip="{Binding DataContext.HelpTips[explorercontext],RelativeSource={RelativeSource AncestorType=Window}}" />
             <TextBlock Style="{StaticResource ExplanationText}" Text="{loc:Text text.69259114354e}" TextWrapping="Wrap" Foreground="{DynamicResource SecondaryBrush}" />
             <CheckBox x:Name="SettingAnchor147" Content="{loc:Source text.61f23ba07fe9}" IsChecked="{Binding Plan.HideInfoTip}" ToolTip="{Binding DataContext.HelpTips[explorertips],RelativeSource={RelativeSource AncestorType=Window}}" />
@@ -1195,8 +1207,8 @@
             </StackPanel>
             <TextBlock Style="{StaticResource ExplanationText}" Text="{loc:Text text.188c5b241923}" TextWrapping="Wrap" Foreground="{DynamicResource SecondaryBrush}" FontSize="12" />
           </StackPanel></Border>
-          <Border Style="{StaticResource Card}"><StackPanel>
-            <TextBlock x:Name="SettingAnchor156" Text="{loc:Text text.1896be1419ee}" FontSize="18" FontWeight="SemiBold" Margin="0,0,0,8" />
+          <Border Style="{StaticResource Card}"><StackPanel x:Name="SettingAnchor156">
+            <TextBlock Text="{loc:Text text.1896be1419ee}" FontSize="18" FontWeight="SemiBold" Margin="0,0,0,8" />
             <CheckBox x:Name="SettingAnchor157" Content="{loc:Source text.201fc83d25f4}" IsChecked="{Binding Plan.DisableWidgets}" ToolTip="{Binding DataContext.HelpTips[widgets],RelativeSource={RelativeSource AncestorType=Window}}" />
             <CheckBox x:Name="SettingAnchor158" Content="{loc:Source text.7ab2a5e448a6}" IsChecked="{Binding Plan.LeftTaskbar}" ToolTip="{Binding DataContext.HelpTips[taskbaralignment],RelativeSource={RelativeSource AncestorType=Window}}" />
             <CheckBox x:Name="SettingAnchor159" Content="{loc:Source text.22f7bf9d8880}" IsChecked="{Binding Plan.HideTaskViewButton}" ToolTip="{Binding DataContext.HelpTips[taskview],RelativeSource={RelativeSource AncestorType=Window}}" />
@@ -1302,8 +1314,8 @@
             <TextBlock Text="{loc:Display Value={Binding VisualEffectsSummary}}" TextWrapping="Wrap" Margin="0,8,0,0" Foreground="{DynamicResource ForegroundBrush}" ToolTip="{Binding DataContext.HelpTips[visualeffects],RelativeSource={RelativeSource AncestorType=Window}}" />
             <TextBlock Style="{StaticResource ExplanationText}" Text="{loc:Text text.830c2c848d23}" TextWrapping="Wrap" Foreground="{DynamicResource SecondaryBrush}" />
           </StackPanel></Border>
-          <Border Style="{StaticResource Card}" Visibility="{Binding IsCustomVisualEffects,Converter={StaticResource VisibleWhen}}"><StackPanel>
-            <TextBlock x:Name="SettingAnchor198" Text="{loc:Text text.9a71571acfd5}" FontSize="18" FontWeight="SemiBold" />
+          <Border Style="{StaticResource Card}" Visibility="{Binding IsCustomVisualEffects,Converter={StaticResource VisibleWhen}}"><StackPanel x:Name="SettingAnchor198">
+            <TextBlock Text="{loc:Text text.9a71571acfd5}" FontSize="18" FontWeight="SemiBold" />
             <TextBlock Style="{StaticResource ExplanationText}" Text="{loc:Text text.43db74e948e0}" TextWrapping="Wrap" Foreground="{DynamicResource SecondaryBrush}" />
             <StackPanel Orientation="Horizontal">
               <Button Content="{loc:Source text.3a5040b68abf}" Tag="all" Click="SelectVisualEffectsClick" IsEnabled="{Binding IsCustomVisualEffects}" />
@@ -1342,8 +1354,8 @@
             <TextBlock Text="{loc:Display Value={Binding WindowsColorsSummary}}" TextWrapping="Wrap" Margin="0,8,0,0"/>
             <TextBlock Style="{StaticResource ExplanationText}" Text="{loc:Text text.d817a5bb7c6f}" TextWrapping="Wrap" Foreground="{DynamicResource SecondaryBrush}"/>
           </StackPanel></Border>
-          <Border Style="{StaticResource Card}" Visibility="{Binding IsCustomColors,Converter={StaticResource VisibleWhen}}"><StackPanel>
-            <TextBlock x:Name="SettingAnchor218" Text="{loc:Text text.91415af8fea3}" FontSize="18" FontWeight="SemiBold" Margin="0,0,0,12"/>
+          <Border Style="{StaticResource Card}" Visibility="{Binding IsCustomColors,Converter={StaticResource VisibleWhen}}"><StackPanel x:Name="SettingAnchor218">
+            <TextBlock Text="{loc:Text text.91415af8fea3}" FontSize="18" FontWeight="SemiBold" Margin="0,0,0,12"/>
             <Grid><Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
               <StackPanel Margin="0,0,12,0"><TextBlock Text="{loc:Text text.dcad2ea5b9bb}" TextWrapping="Wrap"/>
                 <ComboBox x:Name="SettingAnchor219" SelectedValue="{Binding Plan.WindowsColorTheme}" SelectedValuePath="Content" ToolTip="{Binding DataContext.HelpTips[systemcolortheme],RelativeSource={RelativeSource AncestorType=Window}}"><ComboBoxItem Content="{loc:Source text.aa0819dfc4d8}"/><ComboBoxItem Content="{loc:Source text.a6b75d068032}"/></ComboBox>
@@ -1425,8 +1437,8 @@
       </TabItem>
       <TabItem Header="{loc:Source text.2f8dd7280e0a}" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch">
         <ScrollViewer VerticalScrollBarVisibility="Auto"><StackPanel Margin="24">
-          <Border Style="{StaticResource Card}"><StackPanel>
-            <TextBlock x:Name="SettingAnchor231" Text="{loc:Text text.79f6bbb2a4b8}" FontSize="20" FontWeight="SemiBold"/>
+          <Border Style="{StaticResource Card}"><StackPanel x:Name="SettingAnchor231">
+            <TextBlock Text="{loc:Text text.79f6bbb2a4b8}" FontSize="20" FontWeight="SemiBold"/>
             <TextBlock Style="{StaticResource ExplanationText}" Text="{loc:Text text.1ba85c10e797}" TextWrapping="Wrap"/>
             <TextBlock Style="{StaticResource ExplanationText}" Text="{loc:Text text.237b782d9b21}" TextWrapping="Wrap" Foreground="{DynamicResource WarningBrush}"/>
             <Border BorderBrush="{DynamicResource SecondaryBrush}" BorderThickness="1" CornerRadius="6" Padding="14" Margin="0,12,0,12"><StackPanel>
@@ -1470,8 +1482,8 @@
             <WrapPanel><Button Content="{loc:Source text.ea75a2df9f71}" Tag="directory" Click="CustomScriptExampleClick"/><Button Content="{loc:Source text.fafc01bcbd67}" Tag="network" Click="CustomScriptExampleClick"/></WrapPanel>
             <TextBlock Style="{StaticResource ExplanationText}" Text="{loc:Text text.3cb88008e742}" TextWrapping="Wrap" Foreground="{DynamicResource WarningBrush}"/>
           </StackPanel></Border>
-          <Border Style="{StaticResource Card}"><StackPanel>
-            <TextBlock x:Name="AdditionalXmlSection" Text="{loc:Text text.840a1dcb9822}" FontSize="20" FontWeight="SemiBold" Margin="0,0,0,12" />
+          <Border Style="{StaticResource Card}"><StackPanel x:Name="AdditionalXmlSection">
+            <TextBlock Text="{loc:Text text.840a1dcb9822}" FontSize="20" FontWeight="SemiBold" Margin="0,0,0,12" />
             <TextBlock Style="{StaticResource ExplanationText}" Text="{loc:Text text.23edec2dc265}" Foreground="{DynamicResource SecondaryBrush}" />
             <TextBlock Style="{StaticResource ExplanationText}" Text="{loc:Text text.cb6e76cf1f7c}" Foreground="{DynamicResource SecondaryBrush}" />
             <WrapPanel>
@@ -1499,8 +1511,8 @@
         <ScrollViewer VerticalScrollBarVisibility="Auto">
           <StackPanel Margin="24">
             <Border Style="{StaticResource Card}">
-              <StackPanel>
-                <TextBlock x:Name="SettingAnchor233" Text="{loc:Text text.3228ab6ef3f1}" FontSize="20" FontWeight="SemiBold" Margin="0,0,0,16" />
+              <StackPanel x:Name="SettingAnchor233">
+                <TextBlock Text="{loc:Text text.3228ab6ef3f1}" FontSize="20" FontWeight="SemiBold" Margin="0,0,0,16" />
                 <TextBlock Style="{StaticResource ExplanationText}" Text="{loc:Text text.6bce12e6bad2}" TextWrapping="Wrap" />
                 <TextBlock Text="{loc:Display Value={Binding XmlImportSummary}}" Visibility="{Binding HasImportedXml,Converter={StaticResource VisibleWhen}}"><TextBlock.Style><Style TargetType="TextBlock" BasedOn="{StaticResource ExplanationText}"><Setter Property="Foreground" Value="{DynamicResource WarningBrush}"/><Style.Triggers><DataTrigger Binding="{Binding HasXmlImportErrors}" Value="True"><Setter Property="Foreground" Value="{DynamicResource ErrorBrush}"/></DataTrigger></Style.Triggers></Style></TextBlock.Style></TextBlock>
                 <TextBlock Style="{StaticResource ExplanationText}" Text="{loc:Text text.bc764c87e85b}" Visibility="{Binding HasImportedXmlRisk,Converter={StaticResource VisibleWhen}}" Foreground="{DynamicResource WarningBrush}"/>

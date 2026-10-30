@@ -87,7 +87,6 @@ static class GeneratedPeTests
         Reject(x => x.TargetDiskId = null, "missing target");
         Reject(x => x.ConfirmWipeDisk = false, "missing erase consent");
         Reject(x => x.BypassTPMCheck = true, "Setup hardware bypass");
-        Reject(x => x.CompactOsMode = CompactOsSettings.Enabled, "Compact OS");
         Reject(x => x.EditionMode = UiText.Source("text.42a0cbd1b22f"), "firmware installation key");
         Reject(x => x.UseSetupDrivers = true, "Setup driver path");
         Reject(x => x.UsePeLogPath = true, "Setup logging path");

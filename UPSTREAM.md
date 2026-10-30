@@ -74,3 +74,9 @@ A03 在这里是本地磁盘误操作防护目标，不将其表述为官方确�
 2026-10-30：通过官方 GitHub 核对提交 `82d4ffdd11ea3266f8f3b29d4fcd80f66bfdbaf6` 的 `modifier/Disk.cs`，其分页文件模型及处理与本地固定核心一致。本地此前将 PE `PagingFileSettings` 固定为 Automatic；本轮把现有自定义 C 盘分页文件容量映射到 `CustomPagingFileSettings`，沿用映像释放后的离线注册表处理。常规安装仍使用既有 System 配置，不叠加两套实现，不新增脚本执行阶段，也不修改 vendor。`NoPagingFileSettings` 仍未接入界面。
 
 官方依据：[分页文件模型](https://github.com/cschneegans/unattend-generator/blob/82d4ffdd11ea3266f8f3b29d4fcd80f66bfdbaf6/modifier/Disk.cs#L116-L125)。
+
+## V1.31 PE CompactOS 接入
+
+核对 `cschneegans/unattend-generator` 固定文件 `modifier/Disk.cs`（blob `75330016ba22ca786d5b9f333fbd7000f5f3b4fa`）：`GeneratePESettings.CompactOs` 决定 DISM Apply-Image 是否带 `/Compact`。复用现有 CompactOsMode，普通 Setup 原生 Compact 设置不变，不修改 vendor 核心。默认和禁用均不传 /Compact，不对镜像内已有压缩文件执行解压。
+
+来源：https://github.com/cschneegans/unattend-generator/blob/82d4ffdd11ea3266f8f3b29d4fcd80f66bfdbaf6/modifier/Disk.cs#L634-L637

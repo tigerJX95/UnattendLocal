@@ -20,6 +20,10 @@ public partial class MainWindow
         Pages.SelectionChanged += (_, e) => { if (ReferenceEquals(e.Source, Pages)) { searchNavigationGeneration++; ClearSearchHighlight(); } };
         Closed += (_, _) => { searchNavigationGeneration++; ClearSearchHighlight(); };
     }
+    private void CompactOsSettingsClick(object sender, RoutedEventArgs e) => NavigateToSetting(
+        SettingsSearchCatalog.All.Single(item => item.Target == "SettingAnchor059"), focusEditor: true);
+    private void PageFileSettingsClick(object sender, RoutedEventArgs e) => NavigateToSetting(
+        SettingsSearchCatalog.All.Single(item => item.Target == "CustomPageFileEditor"), focusEditor: true);
     private void SettingsSearchClick(object sender, RoutedEventArgs e) => OpenSettingsSearch();
     private void OpenSettingsSearch()
     {

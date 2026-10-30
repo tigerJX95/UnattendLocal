@@ -14,7 +14,7 @@ Windows WPF 容量绑定专项覆盖两种语言、四种选盘方式和两个�
 
 扩展验证时，除检查原系统和校验文件保持完整外，还必须确认选盘失败后没有进入 DiskPart。仅看到清盘失败或原系统仍可启动，不能证明提前停止有效。分别验证 `WScript.Echo 99`（确保不存在磁盘 99）、`WScript.Echo "0abc"`、两行输出 `0` 与 `1`、`WScript.Quit 1`、`Err.Raise 53`。另用有效编号完成一次选择，在分区前暂停期间删除 `X:\UL-target.snapshot`；继续后应由复核停止，不进入 DiskPart。
 
-各版本的自动检查执行结果及环境限制见 [项目进度](../PROJECT_PROGRESS.md)。
+V1.31 已完成 Release 构建、中英文检查及 31,049 项 C# 回归；Windows WPF 界面操作和本版 PE 实际部署效果仍需在 Windows／快照虚拟机中验证。
 
 ## 最小实机验收
 

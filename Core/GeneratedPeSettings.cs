@@ -21,7 +21,7 @@ public static class GeneratedPeSettings
             Fail(nameof(p.EditionMode), "v125.pe.edition");
         if (HardwareSettings.Items.Any(i => HardwareSettings.Enabled(p, i)))
             Fail(nameof(p.UseGeneratedPe), "v125.pe.hardware");
-        if (p.UseSetupDrivers || p.UsePeLogPath || p.SetupDynamicUpdateMode != SetupDynamicUpdateSettings.Default || p.SetupDynamicUpdateUi != SetupDynamicUpdateSettings.UiDefault || p.CompactOsMode != CompactOsSettings.Default || p.XmlComponents.Any(e => e.Enabled && e.Pass == "windowsPE"))
+        if (p.UseSetupDrivers || p.UsePeLogPath || p.SetupDynamicUpdateMode != SetupDynamicUpdateSettings.Default || p.SetupDynamicUpdateUi != SetupDynamicUpdateSettings.UiDefault || p.XmlComponents.Any(e => e.Enabled && e.Pass == "windowsPE"))
             Fail(nameof(p.UseGeneratedPe), "v125.pe.conflict");
         if (p.ImportedXml != null && !OwnsImported(p)) Fail(nameof(p.UseGeneratedPe), "v125.pe.import");
     }
@@ -35,7 +35,7 @@ public static class GeneratedPeSettings
                 ? new CustomPagingFileSettings(p.PageFileInitialMiB, p.PageFileMaximumMiB)
                 : new AutomaticPagingFileSettings(),
             DisableDefender: false, Disable8Dot3Names: false, PauseBeforeFormatting: p.PauseBeforeFormatting,
-            PauseBeforeReboot: p.PauseBeforePeReboot, CompactOs: false, SkipIntegrityCheck: false);
+            PauseBeforeReboot: p.PauseBeforePeReboot, CompactOs: p.CompactOsMode == CompactOsSettings.Enabled, SkipIntegrityCheck: false);
 
     public static XmlDocument Generate(Schneegans.Unattend.UnattendGenerator engine, Configuration config, InstallPlan p) => Generate(engine, config, p, false);
     internal static XmlDocument Generate(Schneegans.Unattend.UnattendGenerator engine, Configuration config, InstallPlan p, bool legacyTargetChain)
@@ -139,7 +139,8 @@ public static class GeneratedPeSettings
         if (owned)
         {
             p.ImportedXml!.AutoPartitionReadOnly = false;
-            p.ImportedXml.Notices = p.ImportedXml.Notices.Where(n => n != AutoPartitionSettings.ReadOnlyNotice).ToArray();
+            p.ImportedXml.Notices = p.ImportedXml.Notices.Where(n => n != AutoPartitionSettings.ReadOnlyNotice &&
+                !(p.ImportedXml.CompactOsSourceKnown && n.StartsWith(UiText.Source("text.ffca52313ae7"), StringComparison.Ordinal))).ToArray();
         }
     }
     public static string Summary(InstallPlan p) => PeDiskSafety.Summary(p);

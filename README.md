@@ -5,7 +5,7 @@
 
 UnattendLocal 是基于 [Christoph Schneegans 的 UnattendGenerator](https://github.com/cschneegans/unattend-generator) 开发的 Windows 桌面配置工具，支持简体中文与英语界面，用于在本地编辑、检查和生成 Windows 10 / 11 的 `autounattend.xml`。
 
-当前版本：**V1.30**。支持简体中文 / English 即时切换、独立语言包维护、静态 IPv4 / IPv6 双栈、子网掩码输入、设置搜索、安装驱动目录、动态更新、自动分区、OOBE 与账户配置，以及已有 XML 的导入编辑。
+当前版本：**V1.31**。支持简体中文 / English 即时切换、独立语言包维护、静态 IPv4 / IPv6 双栈、子网掩码输入、设置搜索、安装驱动目录、动态更新、自动分区、OOBE 与账户配置，以及已有 XML 的导入编辑。
 
 ## 💡 开发初衷
 
@@ -54,6 +54,20 @@ UnattendLocal 是基于 [Christoph Schneegans 的 UnattendGenerator](https://git
 - 保存和恢复 JSON 方案，提供配置摘要、推荐差异、检查、脱敏预览和 XML 导出。
 - 导入已有 XML 后编辑已支持设置，保留未知内容；遇到无法可靠合并的修改时停止导出并说明原因。
 
+## V1.31 部署设置关联与 PE CompactOS · 2026-10-30
+
+- 清理设置搜索中标题与控件的重复结果：单项设置直接定位控件，独立分组与摘要定位整个内容区，并保留原有搜索关键词。
+- PE 区域补充 CompactOS 当前状态和“前往 CompactOS 设置”，跳转至本页共用的压缩方式下拉框，不自动改变选择。
+- PE 安装区域显示分页文件当前状态及“前往设置”入口，切换到 OOBE 并定位、高亮原设置；不自动勾选或改写容量。
+- OOBE 的分页文件选项归入“系统性能与存储”，明确配置的是安装后 Windows 的虚拟内存，常规安装与 PE 安装共用同一处设置。
+- PE 脚本安装支持现有 CompactOS 选项，启用时在释放镜像阶段应用系统文件压缩；默认或禁用时不添加压缩参数，不主动解压镜像中已有的压缩文件。
+- 本程序生成且完整匹配的 PE XML 可导入编辑 CompactOS；外部或被修改的安装脚本继续保护，常规安装保留原有处理方式。
+
+使用说明：[部署设置](docs/DeploymentTuning.md) · [PE 脚本安装](docs/GeneratedPe.md)。
+
+<details>
+<summary>历史更新（点击展开）</summary>
+
 ## V1.30 PE 分页文件配置接入 · 2026-10-30
 
 - PE 脚本安装接入现有“自定义 C 盘分页文件”设置，按初始与最大容量生成映像释放后的离线配置。
@@ -62,9 +76,6 @@ UnattendLocal 是基于 [Christoph Schneegans 的 UnattendGenerator](https://git
 - 补充两种安装路径的作用范围说明：PE 路径将分页文件列表设为指定 C 盘文件，不保留镜像原有的其他分页文件条目。
 
 使用说明：[部署设置](docs/DeploymentTuning.md) · [PE 脚本安装](docs/GeneratedPe.md)。
-
-<details>
-<summary>历史更新（点击展开）</summary>
 
 ## V1.29 PE 部署兼容性与配置体验改进 · 2026-10-29
 

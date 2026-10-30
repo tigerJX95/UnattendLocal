@@ -63,7 +63,7 @@ XML 恢复记录仅包含实际启用的自定义选盘脚本，不包含停用�
 
 本程序导出的原始 XML，只有有效恢复记录及完整匹配的 PE 流程才可恢复编辑。修改过的、无法识别的流程保留原文。较早版本 PE XML 可能因流程基准变化而无法恢复编辑或安全导出，原始内容仍保留在导入记录中；此时用原 JSON 方案继续编辑。切回常规 Setup 时，需要重新填写常规路径所需的固定目标和布局，不能沿用动态选盘的假定。
 
-安装驱动目录、动态更新、PE 日志目录、硬件检查绕过、Compact OS 和 windowsPE 额外 XML 仍不能混用；导出时明确报错。PE 驱动可按介质要求放入 `$WinPEDriver$`。目标 PE 必须包含 CMD、DISM、DiskPart、WMI、cscript 与 VBScript 所需组件。
+安装驱动目录、动态更新、PE 日志目录、硬件检查绕过和 windowsPE 额外 XML 仍不能混用；导出时明确报错。PE 驱动可按介质要求放入 `$WinPEDriver$`。目标 PE 必须包含 CMD、DISM、DiskPart、WMI、cscript 与 VBScript 所需组件。
 
 初次部署先使用带快照的临时虚拟机。六项最小实机验收及当前状态见 [部署验证](PeDeploymentValidation.md)。
 
@@ -97,7 +97,7 @@ Custom scripts are executable trusted code, not sandboxed. They can run disk com
 
 XML recovery metadata omits inactive selector scripts. JSON retains selector settings and drafts without restoring erasure consent. Older plans do not automatically switch installation paths or enable matching. Original app-exported XML is editable only with valid restoration metadata and a matching complete PE pipeline. Modified or unrecognized flows remain preserved. Older PE XML may no longer be editable or safely exportable when its pipeline no longer matches; its source remains retained in the import record. Use its original JSON plan. Switching to ordinary Setup requires a valid fixed target and supported ordinary layout.
 
-Setup driver directories, Dynamic Update, PE log paths, hardware bypass, Compact OS and extra windowsPE XML remain incompatible. The target PE needs CMD, DISM, DiskPart, WMI, cscript and VBScript. Prepare PE drivers through `$WinPEDriver$` when appropriate. Test in a snapshot VM first; see [Deployment validation](PeDeploymentValidation.md).
+Setup driver directories, Dynamic Update, PE log paths, hardware bypass and extra windowsPE XML remain incompatible. The target PE needs CMD, DISM, DiskPart, WMI, cscript and VBScript. Prepare PE drivers through `$WinPEDriver$` when appropriate. Test in a snapshot VM first; see [Deployment validation](PeDeploymentValidation.md).
 
 ## 来源 / Sources
 
@@ -107,3 +107,21 @@ Setup driver directories, Dynamic Update, PE log paths, hardware bypass, Compact
 - [Reviewed current Disk.cs](https://github.com/cschneegans/unattend-generator/blob/82d4ffdd11ea3266f8f3b29d4fcd80f66bfdbaf6/modifier/Disk.cs)
 
 Recognized older PE XML remains editable when its complete generated pipeline matches its valid recovery metadata. Re-export upgrades it to the current scripts without granting erase consent. Unknown or externally modified pipelines remain protected.
+
+## V1.31：分页文件定位与 CompactOS
+
+“镜像与分区”的 PE 区域显示分页文件状态；点击“前往设置”会切换到 OOBE 的“系统性能与存储”，聚焦并高亮原来的复选框。跳转不会改变开关或容量。分页文件配置的是目标 Windows 的虚拟内存，常规安装与 PE 安装使用同一处设置。
+
+PE 区域也显示 CompactOS 当前状态，点击“前往 CompactOS 设置”会定位并高亮本页的压缩方式下拉框，不改变当前选择。CompactOS 继续使用“镜像与分区”中的现有选项。PE 模式启用时，DISM 释放镜像使用 `/Compact`；默认和禁用均不添加该参数，不会主动解压镜像中已有的压缩文件。常规安装仍使用 Windows Setup 的 `Compact` 设置。
+
+本程序生成且完整匹配已知流程的 PE XML 可导入并修改压缩方式。外部、自定义或被修改的安装脚本保持保护，不根据恢复注释单独解锁。
+
+最小验收：在快照虚拟机中启用 PE 与 CompactOS 后部署，进入目标 Windows，以管理员运行 `compact.exe /CompactOS:query` 核对实际状态。另在程序中修改分页文件容量，确认 PE 状态实时更新；点击跳转，确认开关和容量不变。此验收尚需 Windows 环境执行，代码构建和生成回归不替代实际部署验证。
+
+## V1.31: Paging file navigation and CompactOS
+
+The PE area in Image and partition shows paging file status. Go to settings opens System performance and storage in OOBE and focuses/highlights the existing checkbox without changing it or its sizes. Both installation paths share this target-Windows virtual-memory setting.
+
+The PE area also shows CompactOS status. Go to CompactOS settings focuses and highlights the shared selector on the same page without changing it. Use the existing CompactOS selector. PE installation adds `/Compact` to DISM image application when enabled. Default and disabled omit it without decompressing files already compressed in the image. Regular installation retains the Windows Setup `Compact` setting. Imported PE XML is editable only when it exactly matches this application's known generated pipeline; external or modified scripts remain protected.
+
+Minimum acceptance: deploy with PE and CompactOS enabled in a snapshot VM, then run `compact.exe /CompactOS:query` as administrator in the target Windows system. Also verify live paging file status and navigation without value changes. These Windows checks remain pending; build and generation tests do not establish deployment success.

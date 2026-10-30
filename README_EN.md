@@ -5,7 +5,7 @@
 
 UnattendLocal is a Windows desktop tool with Simplified Chinese and English interfaces based on [Christoph Schneegans’ UnattendGenerator](https://github.com/cschneegans/unattend-generator). It lets you edit, check, and generate `autounattend.xml` for Windows 10 / 11 locally.
 
-Current version: **V1.30**. Includes static IPv4/IPv6 dual stack, subnet-mask input, settings search, setup driver directories, Dynamic Update, partitioning, OOBE and account settings, and existing XML import/editing.
+Current version: **V1.31**. Includes static IPv4/IPv6 dual stack, subnet-mask input, settings search, setup driver directories, Dynamic Update, partitioning, OOBE and account settings, and existing XML import/editing.
 
 ## 💡 Why this project exists
 
@@ -56,6 +56,20 @@ The displayed product key is a public generic installation key for selecting an 
 - Save and restore JSON plans; review summaries, recommended-setting differences, checks, redacted previews, and XML exports.
 - Import existing XML and edit supported settings while preserving unknown content. Export stops with an explanation when changes cannot be merged reliably.
 
+## V1.31 Linked deployment settings and PE CompactOS · 2026-10-30
+
+- Remove duplicate heading/editor search results. Individual settings navigate to their controls, while independent groups and summaries navigate to their full content areas; existing search keywords remain available.
+- Show CompactOS status and Go to CompactOS settings in the PE area, linking to the shared selector on the same page without changing its selection.
+- Show the current paging file status in the PE installation area, with Go to settings to open OOBE and focus/highlight the existing option without enabling it or changing sizes.
+- Group the OOBE paging file option under System performance and storage. It configures virtual memory in the installed Windows system and is shared by regular and PE installation.
+- Support the existing CompactOS option during PE image application. Enabled requests system-file compression; default and disabled omit the compression parameter and do not decompress files already compressed in the image.
+- Allow CompactOS editing for imported PE XML that exactly matches this application's generated pipeline. External or modified scripts remain protected; regular installation keeps its existing behavior.
+
+Usage: [Deployment settings](docs/DeploymentTuning.md) · [PE installation](docs/GeneratedPe.md).
+
+<details>
+<summary>Update history (click to expand)</summary>
+
 ## V1.30 PE paging file configuration · 2026-10-30
 
 - Apply the existing custom C: paging file sizes through the PE generator after image application.
@@ -64,9 +78,6 @@ The displayed product key is a public generic installation key for selecting an 
 - Clarify the scope difference: PE replaces the paging file list with the specified C: file rather than preserving other entries from the image.
 
 Usage: [Deployment settings](docs/DeploymentTuning.md) · [PE installation](docs/GeneratedPe.md).
-
-<details>
-<summary>Update history (click to expand)</summary>
 
 ## V1.29 PE compatibility and configuration guidance · 2026-10-29
 

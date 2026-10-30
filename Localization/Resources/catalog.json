@@ -10442,12 +10442,12 @@
     "ProtectedTokens": []
   },
   "text.f2017b8b6b55": {
-    "Source": "CompactOS 由原 XML 的自定义安装/压缩脚本控制，参数保留。本版仅编辑 Windows Setup 原生设置，暂不能在界面修改该脚本的压缩参数。",
+    "Source": "CompactOS 由导入 XML 的安装/压缩脚本控制。仅完整匹配本程序生成流程的 PE XML 支持编辑；其他脚本保留原参数。",
     "Contexts": [
       "Core/CompactOsSettings.cs:50"
     ],
     "RawArgs": [],
-    "SourceHash": "f2017b8b6b55fd7323c914e5f7ef8bd51d964d381bb4acf5c1d48e54cea99328",
+    "SourceHash": "006e9f630b2a32fbc7030c872a2a4c0108b1d2eca355665230935350a5832570",
     "ProtectedTokens": []
   },
   "text.3d06300483e9": {
@@ -13354,12 +13354,12 @@
     "ProtectedTokens": []
   },
   "text.66679d954ec9": {
-    "Source": "默认模式不写入压缩覆盖，由 Windows 安装程序决定；启用或禁用分别写入安装阶段的 Compact=true 或 false。CompactOS 通过压缩 Windows 系统文件减少磁盘占用，不压缩整个磁盘，不调整分区或镜像来源。压缩节省的空间和读取时的解压开销受系统版本、镜像内容、处理器及存储性能影响，不保证固定节省量或性能提升。设置作用于即将安装的 Windows，不修改当前电脑，也不依赖首次自动登录。默认只影响新生成的配置，不自动解压已安装系统。导入的自定义镜像应用/Compact 脚本由原脚本控制，当前只能识别并保留，不能在界面修改其压缩参数。",
+    "Source": "CompactOS 通过压缩 Windows 系统文件减少磁盘占用，不压缩整个磁盘，不调整分区或镜像来源。常规安装的启用或禁用分别写入 Compact=true 或 false；默认不写入覆盖。PE 安装启用时在 DISM 释放镜像命令中添加 /Compact，默认或禁用均不添加该参数；不自动解压镜像中已有的压缩文件。压缩节省的空间和读取时的解压开销受系统版本、镜像内容、处理器及存储性能影响，不保证固定节省量或性能提升。设置作用于即将安装的 Windows，不修改当前电脑，也不依赖首次自动登录，不自动解压已安装系统。仅完整匹配本程序生成流程的 PE XML 支持编辑；外部或被修改的安装/压缩脚本继续保留原参数，不能在界面覆盖。",
     "Contexts": [
       "Desktop/HelpCatalog.cs:137"
     ],
     "RawArgs": [],
-    "SourceHash": "66679d954ec92636c24bfc98f5e8e70ef281eff2446c9fcabd1174310ea3a2f5",
+    "SourceHash": "d6eaeb3d5c9e7192c2b6e1013c762a58a05bf54b56ed955cd838d58db98c4098",
     "ProtectedTokens": []
   },
   "text.e0458a35f06e": {
@@ -21298,12 +21298,12 @@
     "ProtectedTokens": []
   },
   "text.14f015b65dc9": {
-    "Source": "CompactOS 压缩 Windows 系统文件以减少磁盘占用，不压缩整个磁盘，也不改变分区配置。默认由安装程序决定；此项不依赖首次自动登录。",
+    "Source": "CompactOS 压缩 Windows 系统文件以减少磁盘占用，不压缩整个磁盘，也不改变分区配置。常规安装使用 Windows Setup 设置；PE 安装在释放镜像时应用。此项不依赖首次自动登录。",
     "Contexts": [
       "Desktop/MainWindow.xaml:Text"
     ],
     "RawArgs": [],
-    "SourceHash": "7ddc32242ca46b5732338391bd68ef8bc707c3efe41997e3b1a04b7094991561",
+    "SourceHash": "dad70ee0f450d2d0ffb92f56a1721ece4b127c2c7b011e115b115592d7e4c399",
     "ProtectedTokens": []
   },
   "text.4fc93538f479": {
@@ -36378,8 +36378,8 @@
     "ProtectedTokens": []
   },
   "v125.pe.help": {
-    "Source": "默认关闭。启用后，PE 脚本选择目标磁盘、分区、释放镜像、写入引导并重启，随后继续 Windows 安装；本程序不在当前电脑执行这些操作。\n\n支持 x64、按镜像索引安装，以及固定编号、条件唯一匹配、安装时交互或自定义脚本选盘。分区布局可以指定 UEFI/GPT、BIOS/MBR，或跟随实际启动方式；指定布局与实际启动方式不一致时，在分区前停止。\n\n安装版本由镜像索引决定，安装密钥方式须保留默认值。安装驱动目录、动态更新、PE 日志、硬件检查绕过、Compact OS 与 windowsPE 额外 XML 暂不能混用；驱动可在安装介质准备 $WinPEDriver$ 目录。\n\n请填写并核对目标、容量条件和分区参数后重新确认清盘。旧 JSON 默认固定编号；无有效恢复记录或被修改的 PE XML 保留原文，不通过此选项覆盖。",
-    "SourceHash": "378f167a1dc2d5193de73bb5d6a1026cc863bc82bc61b817ac1ce0ebe12a862a",
+    "Source": "默认关闭。启用后，PE 脚本选择目标磁盘、分区、释放镜像、写入引导并重启，随后继续 Windows 安装；本程序不在当前电脑执行这些操作。\n\n支持 x64、按镜像索引安装，以及固定编号、条件唯一匹配、安装时交互或自定义脚本选盘。分区布局可以指定 UEFI/GPT、BIOS/MBR，或跟随实际启动方式；指定布局与实际启动方式不一致时，在分区前停止。\n\n安装版本由镜像索引决定，密钥选项须保留“在 Windows 安装程序中手动输入”作为当前 PE 路径的兼容选择，PE 脚本不会因此要求输入密钥。分区前核对实际镜像索引，并读取和显示 Edition ID（SKU），不自动匹配密钥或切换版本。安装驱动目录、动态更新、PE 日志、硬件检查绕过 与 windowsPE 额外 XML 暂不能混用；驱动可在安装介质准备 $WinPEDriver$ 目录。\n\n请填写并核对目标、容量条件和分区参数后重新确认清盘。旧 JSON 默认固定编号；无有效恢复记录或被修改的 PE XML 保留原文，不通过此选项覆盖。",
+    "SourceHash": "32942772877bd2e5543fcc93fd8fc36c2a2f059f99a35faa06c9fcf03f650e95",
     "Contexts": [
       "Core/GeneratedPeSettings.cs",
       "Desktop/MainWindow.xaml"
@@ -36430,8 +36430,8 @@
     "ProtectedTokens": []
   },
   "v125.pe.conflict": {
-    "Source": "PE 脚本安装暂不能与安装驱动目录、动态更新、PE 日志目录、Compact OS 或 windowsPE 额外 XML 同时使用。",
-    "SourceHash": "9be2ea1f7b4dd26a5644ea036144757233b6e2ba4aa6bca12bd89f575bb00be9",
+    "Source": "PE 脚本安装暂不能与安装驱动目录、动态更新、PE 日志目录或 windowsPE 额外 XML 同时使用。",
+    "SourceHash": "2f5a88a28bb92d54093f5a8e80bd531052ab6ab02ff3c4e601a0bbf90c8cb833",
     "Contexts": [
       "Core/GeneratedPeSettings.cs",
       "Desktop/MainWindow.xaml"
@@ -36824,6 +36824,151 @@
     ],
     "RawArgs": [],
     "SourceHash": "6f00d8e91d6a94279cd79357e9f1eda41fc5923640037ddb8701e376e444d832",
+    "ProtectedTokens": []
+  },
+  "v131.systemStorage": {
+    "Source": "系统性能与存储",
+    "Contexts": [
+      "Desktop/MainWindow.xaml",
+      "Desktop/MainViewModel.cs"
+    ],
+    "RawArgs": [],
+    "SourceHash": "375df3c6f8e4edce9c2d2962b6ca70fedda8fd5d71cd596b2eb2f9f0bb349c3e",
+    "ProtectedTokens": []
+  },
+  "v131.pagefile.scope": {
+    "Source": "配置安装后 Windows 的虚拟内存，适用于常规安装和 PE 脚本安装。",
+    "Contexts": [
+      "Desktop/MainWindow.xaml",
+      "Desktop/MainViewModel.cs"
+    ],
+    "RawArgs": [],
+    "SourceHash": "6b0c964bb9cfbc26744f958e6a40b11e18f4bb16854470ec53abfd730f4d8474",
+    "ProtectedTokens": []
+  },
+  "v131.pagefile.default": {
+    "Source": "分页文件：沿用镜像设置",
+    "Contexts": [
+      "Desktop/MainWindow.xaml",
+      "Desktop/MainViewModel.cs"
+    ],
+    "RawArgs": [],
+    "SourceHash": "e506f179625285a59e035acfd5dcb079cabbc0c0ae93ba5d0d5de9c6df4a5015",
+    "ProtectedTokens": []
+  },
+  "v131.pagefile.invalid": {
+    "Source": "分页文件：自定义容量待修正",
+    "Contexts": [
+      "Desktop/MainWindow.xaml",
+      "Desktop/MainViewModel.cs"
+    ],
+    "RawArgs": [],
+    "SourceHash": "3ea322e8d5b75200e2327eb9c8d54816eef03066888afda78795d10e70649339",
+    "ProtectedTokens": []
+  },
+  "v131.pagefile.custom": {
+    "Source": "分页文件：C 盘 {0}～{1} MiB",
+    "Contexts": [
+      "Desktop/MainWindow.xaml",
+      "Desktop/MainViewModel.cs"
+    ],
+    "RawArgs": [
+      false,
+      false
+    ],
+    "SourceHash": "5ea826ebaa62fad202a1c9e57c55fd8fb5e9e575186646a0c612e875fdf3242d",
+    "ProtectedTokens": []
+  },
+  "v131.pagefile.goto": {
+    "Source": "前往设置",
+    "Contexts": [
+      "Desktop/MainWindow.xaml",
+      "Desktop/MainViewModel.cs"
+    ],
+    "RawArgs": [],
+    "SourceHash": "d774eb83849011ef1375ac527590cd78ca7ec6ece5f117b06f71e554c9ca7f60",
+    "ProtectedTokens": []
+  },
+  "v131.pagefile.gotoHelp": {
+    "Source": "前往 OOBE 的“系统性能与存储”，定位并高亮分页文件选项，不改变当前配置。",
+    "Contexts": [
+      "Desktop/MainWindow.xaml",
+      "Desktop/MainViewModel.cs"
+    ],
+    "RawArgs": [],
+    "SourceHash": "d9ce5f94e540fb881b39edc49d7f9d6edd933c49bfc478bc79b1954d1ef3af4f",
+    "ProtectedTokens": []
+  },
+  "v131.compact.enabled": {
+    "Source": "安装时压缩 Windows 系统文件（PE 释放镜像时使用 /Compact）",
+    "Contexts": [
+      "Desktop/MainWindow.xaml",
+      "Desktop/MainViewModel.cs"
+    ],
+    "RawArgs": [],
+    "SourceHash": "c1adfb48de869dcd1bdab9627f1e75caf17ed6deda5468c02346d63f1012027e",
+    "ProtectedTokens": []
+  },
+  "v131.compact.disabled": {
+    "Source": "PE 释放镜像时不请求 CompactOS 压缩；不会解压镜像中已有的压缩文件",
+    "Contexts": [
+      "Desktop/MainWindow.xaml",
+      "Desktop/MainViewModel.cs"
+    ],
+    "RawArgs": [],
+    "SourceHash": "33797903c816f783878db719a181fc250918df3739553bdd0d620b1a1f0e8b16",
+    "ProtectedTokens": []
+  },
+  "v131.compact.default": {
+    "Source": "PE 释放镜像时不添加 /Compact，沿用镜像的默认行为",
+    "Contexts": [
+      "Desktop/MainWindow.xaml",
+      "Desktop/MainViewModel.cs"
+    ],
+    "RawArgs": [],
+    "SourceHash": "62a97649c9896707e7d96d48430789e2ba3117f1b87d7bbcd14c92c2b084f6be",
+    "ProtectedTokens": []
+  },
+  "v131.compact.shared": {
+    "Source": "此处为常规安装与 PE 脚本安装共用的压缩设置，无需另写脚本。",
+    "Contexts": [
+      "Desktop/MainWindow.xaml",
+      "Desktop/MainViewModel.cs"
+    ],
+    "RawArgs": [],
+    "SourceHash": "2c043fa4b5d9587d8a7beb8b3e55dbc34c049b4aad5f754a0f37d553b55d04d3",
+    "ProtectedTokens": []
+  },
+  "v131.compact.peStatus": {
+    "Source": "CompactOS：{0}",
+    "Contexts": [
+      "Desktop/MainWindow.xaml",
+      "Desktop/MainViewModel.cs"
+    ],
+    "RawArgs": [
+      false
+    ],
+    "SourceHash": "00674dbbb6cca410a6f01c82b8ace247879f7493cef7e179578aa2a7e0a2d7cb",
+    "ProtectedTokens": []
+  },
+  "v131.compact.goto": {
+    "Source": "前往 CompactOS 设置",
+    "Contexts": [
+      "Desktop/MainWindow.xaml",
+      "Desktop/MainViewModel.cs"
+    ],
+    "RawArgs": [],
+    "SourceHash": "c75045fc537e2a1142f30ef4472882bfe656b103a5e44536befc293eb2b5d6cc",
+    "ProtectedTokens": []
+  },
+  "v131.compact.gotoHelp": {
+    "Source": "定位并高亮本页上方的 CompactOS 压缩方式下拉框，不改变当前选择。常规安装与 PE 脚本安装共用该设置。",
+    "Contexts": [
+      "Desktop/MainWindow.xaml",
+      "Desktop/MainViewModel.cs"
+    ],
+    "RawArgs": [],
+    "SourceHash": "5f0df6a2a6f4c9a5a037e611da106c53c344ddeb18f279246635517f9a43c5f9",
     "ProtectedTokens": []
   }
 }
