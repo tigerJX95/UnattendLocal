@@ -3829,7 +3829,7 @@
   "v121.ntfs": "Disable creation of new NTFS 8.3 short names",
   "v121.ntfs.help": "No change by default. Sets the system-wide 8.3 name creation policy; does not remove existing names. Reboot may be required; legacy software might depend on short names.",
   "v121.pagefile": "Custom C: page file (advanced)",
-  "v121.pagefile.help": "Leaves page-file settings unchanged by default. When enabled, configures initial and maximum sizes of C:\\pagefile.sys in MiB during system setup, preserving page files on other drives.\n\nDoes not disable paging. A reboot may be required; choose sizes according to disk space, workload and crash-dump requirements.",
+  "v121.pagefile.help": "Leave paging file settings unchanged by default. When selected, configure the initial and maximum size of C:\\pagefile.sys in MiB. Regular installation applies the change in the System phase and preserves paging files on other drives. PE script installation changes the offline configuration after applying the image, replacing the target paging file list with this C: file rather than preserving other entries from the image.\n\nDisabling the paging file is not offered. A restart may be required. Choose sizes for available disk space, workload and crash-dump requirements.",
   "v121.pagefile.initial": "Initial (MiB)",
   "v121.pagefile.maximum": "Maximum (MiB)",
   "v121.pagefile.invalid": "Invalid page-file size: initial size must be at least 16 MiB; maximum must be at least the initial size and no more than 1048576 MiB.",
@@ -3909,5 +3909,6 @@
   "v129.pe.ready": "Enter manually in Windows Setup applies to the key-entry step in ordinary Windows Setup. Direct PE + DISM deployment does not invoke that step; keep this compatibility selection. The image index determines the installed edition.",
   "v129.pe.activation": "The separate activation key must match the target Windows edition. It does not select an image index or change the applied edition. The application does not verify whether an arbitrary manually entered key matches the target image.",
   "v129.importRisk.action": "Go to confirmation",
-  "v129.importRisk.title": "Imported XML risk confirmation"
+  "v129.importRisk.title": "Imported XML risk confirmation",
+  "v130.pagefile.pe": "PE script installation configures the offline paging file after applying the image; regular installation uses the System phase. Both paths use the sizes below, without duplicate execution."
 }

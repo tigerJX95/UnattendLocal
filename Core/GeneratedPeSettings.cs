@@ -26,11 +26,14 @@ public static class GeneratedPeSettings
         if (p.ImportedXml != null && !OwnsImported(p)) Fail(nameof(p.UseGeneratedPe), "v125.pe.import");
     }
     public static IPESettings Build(InstallPlan p, IEditionSettings edition) => Build(p, edition, false);
-    internal static IPESettings Build(InstallPlan p, IEditionSettings edition, bool legacyTargetChain, bool unguardedSelector = false) => !p.UseGeneratedPe
+    internal static IPESettings Build(InstallPlan p, IEditionSettings edition, bool legacyTargetChain, bool unguardedSelector = false, bool legacyPePaging = false) => !p.UseGeneratedPe
         ? new DefaultPESettings(edition, HardwareSettings.AllEnabled(p))
         : new GeneratePESettings(
             new UnattendedPartitionSettings(new ScriptTargetDiskSettings(PeDiskSafety.Selector(p, legacyTargetChain, unguardedSelector)), PeDiskSafety.Layout(p), RecoveryMode.Partition, AutoPartitionSettings.SystemSize(p), p.RecoverySizeMB),
-            new IndexInstallFromSettings(p.ImageIndex!.Value), new AutomaticPagingFileSettings(),
+            new IndexInstallFromSettings(p.ImageIndex!.Value),
+            p.UseCustomPageFile && !legacyTargetChain && !unguardedSelector && !legacyPePaging
+                ? new CustomPagingFileSettings(p.PageFileInitialMiB, p.PageFileMaximumMiB)
+                : new AutomaticPagingFileSettings(),
             DisableDefender: false, Disable8Dot3Names: false, PauseBeforeFormatting: p.PauseBeforeFormatting,
             PauseBeforeReboot: p.PauseBeforePeReboot, CompactOs: false, SkipIntegrityCheck: false);
 
@@ -84,14 +87,28 @@ public static class GeneratedPeSettings
     internal static void RestoreLegacyImport(InstallPlan p, InstallPlan baselinePlan, GeneratorService service)
     {
         if (!p.UseGeneratedPe || OwnsImported(p) || p.ImportedXml is not { OriginalOmitted: false, Blockers.Length: 0 } data) return;
-        var sourcePipeline = Pipeline(XmlMerge.Read(data.SourceXml));
+        var source = XmlMerge.Read(data.SourceXml);
+        var sourcePipeline = Pipeline(source);
         XmlDocument? predecessor = null;
-        foreach (bool oldChain in new[] { false, true })
+        foreach (int revision in new[] { 0, 1, 2 })
         {
-            var candidate = XmlMerge.Read(System.Text.Encoding.UTF8.GetString(oldChain
-                ? service.GenerateLegacyPeBaseline(baselinePlan)
-                : service.GeneratePreviousPeBaseline(baselinePlan)));
-            if (sourcePipeline == Pipeline(candidate)) { predecessor = candidate; break; }
+            var candidate = XmlMerge.Read(System.Text.Encoding.UTF8.GetString(revision switch
+            {
+                0 => service.GeneratePrePagingPeBaseline(baselinePlan),
+                1 => service.GeneratePreviousPeBaseline(baselinePlan),
+                _ => service.GenerateLegacyPeBaseline(baselinePlan)
+            }));
+            if (p.UseCustomPageFile)
+            {
+                // Migration also removes the old System-phase paging payload.
+                // Require the whole known document before replacing that baseline.
+                if (XmlMerge.Equal(source.DocumentElement, candidate.DocumentElement))
+                {
+                    data.BaselineXml = candidate.OuterXml;
+                    return;
+                }
+            }
+            else if (sourcePipeline == Pipeline(candidate)) { predecessor = candidate; break; }
         }
         if (predecessor == null) return;
         // Keep all non-PE baseline adjustments made by the other import readers.

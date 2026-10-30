@@ -5,7 +5,7 @@
 
 UnattendLocal is a Windows desktop tool with Simplified Chinese and English interfaces based on [Christoph Schneegans’ UnattendGenerator](https://github.com/cschneegans/unattend-generator). It lets you edit, check, and generate `autounattend.xml` for Windows 10 / 11 locally.
 
-Current version: **V1.29**. Includes static IPv4/IPv6 dual stack, subnet-mask input, settings search, setup driver directories, Dynamic Update, partitioning, OOBE and account settings, and existing XML import/editing.
+Current version: **V1.30**. Includes static IPv4/IPv6 dual stack, subnet-mask input, settings search, setup driver directories, Dynamic Update, partitioning, OOBE and account settings, and existing XML import/editing.
 
 ## 💡 Why this project exists
 
@@ -56,6 +56,18 @@ The displayed product key is a public generic installation key for selecting an 
 - Save and restore JSON plans; review summaries, recommended-setting differences, checks, redacted previews, and XML exports.
 - Import existing XML and edit supported settings while preserving unknown content. Export stops with an explanation when changes cannot be merged reliably.
 
+## V1.30 PE paging file configuration · 2026-10-30
+
+- Apply the existing custom C: paging file sizes through the PE generator after image application.
+- Reuse existing controls, size validation and plan persistence. Regular installation retains System-phase configuration; PE installation omits the duplicate System paging script.
+- Upgrade exact recognized older PE XML documents while preserving user scripts. Unknown or modified content remains protected.
+- Clarify the scope difference: PE replaces the paging file list with the specified C: file rather than preserving other entries from the image.
+
+Usage: [Deployment settings](docs/DeploymentTuning.md) · [PE installation](docs/GeneratedPe.md).
+
+<details>
+<summary>Update history (click to expand)</summary>
+
 ## V1.29 PE compatibility and configuration guidance · 2026-10-29
 
 - Missing imported XML risk consent now offers Go to confirmation and scrolls to, focuses and highlights the exact checkbox without selecting it.
@@ -80,8 +92,6 @@ The displayed product key is a public generic installation key for selecting an 
 
 Usage: [PE installation](docs/GeneratedPe.md).
 
-<details>
-<summary>Update history (click to expand)</summary>
 
 ## V1.28 Deployment checks and configuration reliability
 

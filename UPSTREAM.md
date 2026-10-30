@@ -67,3 +67,10 @@
 本地增加 `PeDiskSafety` 与 `PeTargetDisk.vbs`，经既有 ScriptTargetDiskSettings/ScriptPESetttings 写入完整 PE 流程：严格输出、唯一匹配、按字节容量判断、安装源排除、目标快照，以及暂停之后/破坏性 DiskPart 调用之前的再次检查。保留既有脚本阶段和常规 Setup 默认路径。
 
 A03 在这里是本地磁盘误操作防护目标，不将其表述为官方确认的漏洞编号或已消除所有数据丢失风险。自定义脚本仍为完全可信代码；设备变化、安装源映射与真实安装的边界见 GeneratedPe.md。六项真实 VM 安装仍待验证，未将自动生成检查或模拟磁盘测试计作真实安装通过。
+
+
+## V1.30 PE 分页文件接入
+
+2026-10-30：通过官方 GitHub 核对提交 `82d4ffdd11ea3266f8f3b29d4fcd80f66bfdbaf6` 的 `modifier/Disk.cs`，其分页文件模型及处理与本地固定核心一致。本地此前将 PE `PagingFileSettings` 固定为 Automatic；本轮把现有自定义 C 盘分页文件容量映射到 `CustomPagingFileSettings`，沿用映像释放后的离线注册表处理。常规安装仍使用既有 System 配置，不叠加两套实现，不新增脚本执行阶段，也不修改 vendor。`NoPagingFileSettings` 仍未接入界面。
+
+官方依据：[分页文件模型](https://github.com/cschneegans/unattend-generator/blob/82d4ffdd11ea3266f8f3b29d4fcd80f66bfdbaf6/modifier/Disk.cs#L116-L125)。

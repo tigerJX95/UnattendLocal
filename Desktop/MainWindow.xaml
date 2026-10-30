@@ -1046,6 +1046,7 @@
               <CheckBox x:Name="NtfsShortNamesEditor" Content="{loc:Source v121.ntfs}" IsChecked="{Binding Plan.DisableNewNtfsShortNames}" Margin="0,14,0,0"/>
               <TextBlock Style="{StaticResource ExplanationText}" Text="{loc:Text v121.ntfs.help}" Foreground="{DynamicResource SecondaryBrush}" TextWrapping="Wrap"/>
               <CheckBox x:Name="CustomPageFileEditor" Content="{loc:Source v121.pagefile}" IsChecked="{Binding Plan.UseCustomPageFile}" Margin="0,14,0,0"/>
+              <TextBlock Style="{StaticResource ExplanationText}" Text="{loc:Text v130.pagefile.pe}" Foreground="{DynamicResource SecondaryBrush}"/>
               <TextBlock Style="{StaticResource ExplanationText}" Text="{loc:Text v121.pagefile.help}" Foreground="{DynamicResource SecondaryBrush}" TextWrapping="Wrap"/>
               <StackPanel Orientation="Horizontal" Margin="0,8,0,0" IsEnabled="{Binding Plan.UseCustomPageFile}">
                 <TextBlock Text="{loc:Text v121.pagefile.initial}" VerticalAlignment="Center"/>

@@ -22,7 +22,7 @@ public static class DeploymentTuningSettings
             plan.UseCustomPageFile ? $"{plan.PageFileInitialMiB} / {plan.PageFileMaximumMiB} MiB" : global::UnattendLocal.Localization.UiText.Source("v121.unchanged")
         }, new bool[] {false,true,false,true,false,true,plan.UseCustomPageFile});
 
-    public static ScriptSettings Build(InstallPlan plan)
+    public static ScriptSettings Build(InstallPlan plan, bool legacyPePaging = false)
     {
         Validate(plan);
         var existing = CustomScripts.Build(plan);
@@ -32,7 +32,7 @@ public static class DeploymentTuningSettings
             // Global 8dot3 creation policy only. Does NOT strip any existing short names.
             additions.Add(new Script(@"$ErrorActionPreference = 'Stop'; New-ItemProperty -Path 'HKLM:\SYSTEM\CurrentControlSet\Control\FileSystem' -Name 'NtfsDisable8dot3NameCreation' -Value 1 -PropertyType DWord -Force | Out-Null;", ScriptPhase.System, ScriptType.Ps1));
         }
-        if (plan.UseCustomPageFile)
+        if (plan.UseCustomPageFile && (!plan.UseGeneratedPe || legacyPePaging))
         {
             // Apply to installed OS during setup, not to the running configuration editor.
             // Changes normally require a reboot. Do not offer a 'disable page file' shortcut.

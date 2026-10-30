@@ -36040,8 +36040,8 @@
     "ProtectedTokens": []
   },
   "v121.pagefile.help": {
-    "Source": "默认不修改分页文件设置。勾选后，在系统安装阶段设置 C:\\pagefile.sys 的初始与最大容量（MiB），保留其他盘符的现有分页文件。\n\n不提供禁用分页文件选项。更改可能需要重启；请根据磁盘空间、工作负载和故障转储需求选择容量。",
-    "SourceHash": "231d2f27e1f6bcc6a0862d09f447dad9bd3513d194c8b0b7186fdcc0dc3349bb",
+    "Source": "默认不修改分页文件设置。勾选后配置 C:\\pagefile.sys 的初始与最大容量（MiB）。常规安装在 System 阶段设置，并保留其他盘符的现有分页文件；PE 脚本安装在映像释放后修改离线配置，将目标系统的分页文件列表设为该 C 盘文件，不保留镜像中原有的其他分页文件条目。\n\n不提供禁用分页文件选项。更改可能需要重启；请根据磁盘空间、工作负载和故障转储需求选择容量。",
+    "SourceHash": "364dbd58ed8e40feea49f5b311c42a8526529d0240c78ef6f21cecc65b20b29e",
     "Contexts": [
       "Core/DeploymentTuningSettings.cs",
       "Desktop/MainWindow.xaml"
@@ -36815,6 +36815,15 @@
       "Desktop/ConfigurationErrorLocation.cs"
     ],
     "RawArgs": [],
+    "ProtectedTokens": []
+  },
+  "v130.pagefile.pe": {
+    "Source": "PE 脚本安装使用映像释放后的离线分页文件设置；常规安装仍在 System 阶段配置。两种路径共用下方容量，不重复执行。",
+    "Contexts": [
+      "Desktop/MainWindow.xaml"
+    ],
+    "RawArgs": [],
+    "SourceHash": "6f00d8e91d6a94279cd79357e9f1eda41fc5923640037ddb8701e376e444d832",
     "ProtectedTokens": []
   }
 }

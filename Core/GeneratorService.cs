@@ -29,7 +29,8 @@ public class GeneratorService {
  // Recognition only: never exposed through the user export entry points.
  internal byte[] GenerateLegacyPeBaseline(InstallPlan p)=>GenerateDocument(p,false,false,true);
  internal byte[] GeneratePreviousPeBaseline(InstallPlan p)=>GenerateDocument(p,false,false,false,true);
- private byte[] GenerateDocument(InstallPlan p,bool includeImport,bool checkDeployment=true,bool legacyTargetChain=false,bool unguardedSelector=false) {
+ internal byte[] GeneratePrePagingPeBaseline(InstallPlan p)=>GenerateDocument(p,false,false,false,false,true);
+ private byte[] GenerateDocument(InstallPlan p,bool includeImport,bool checkDeployment=true,bool legacyTargetChain=false,bool unguardedSelector=false,bool legacyPePaging=false) {
   GeneratedPeSettings.Validate(p);
   NativePreferences.Validate(p);
   AdditionalXmlSettings.Validate(p,checkDeployment);
@@ -88,7 +89,7 @@ public class GeneratorService {
    StickyKeysSettings=StickyKeySettings.Build(p),
    DisablePointerPrecision=p.DisablePointerPrecision,
    LockoutSettings=AccountLockoutPolicy.Build(p),
-   ScriptSettings=DeploymentTuningSettings.Build(p),
+   ScriptSettings=DeploymentTuningSettings.Build(p,legacyPePaging||legacyTargetChain||unguardedSelector),
    TaskbarSearch=ShellSettings.Search(p.TaskbarSearch),
    TaskbarIcons=ShellSettings.Taskbar(p),StartTilesSettings=ShellSettings.Tiles(p),StartPinsSettings=ShellSettings.Pins(p),
    DisableWidgets=p.DisableWidgets,LeftTaskbar=p.LeftTaskbar,HideTaskViewButton=p.HideTaskViewButton,
@@ -103,7 +104,7 @@ public class GeneratorService {
    PasswordExpirationSettings=p.AccountMode!=global::UnattendLocal.Localization.UiText.Source("text.cdaa9a6700f6")?new DefaultPasswordExpirationSettings():p.PasswordExpiration switch {"永不过期"=>new UnlimitedPasswordExpirationSettings(),"Windows 默认"=>new DefaultPasswordExpirationSettings(),"指定天数"=>new CustomPasswordExpirationSettings(p.PasswordDays),_=>throw new ArgumentException(global::UnattendLocal.Localization.UiText.Source("text.ef0cd5829f6b"))},
    ExpressSettings=p.PrivacyMode switch {"安装时手动选择"=>ExpressSettingsMode.Interactive,"关闭快捷隐私设置"=>ExpressSettingsMode.DisableAll,"启用快捷设置"=>ExpressSettingsMode.EnableAll,_=>throw new ArgumentException(global::UnattendLocal.Localization.UiText.Source("text.f46ca367fb9b"))},
    BypassNetworkCheck=p.BypassNetwork,
-   PESettings=GeneratedPeSettings.Build(p,CreateEdition(p),legacyTargetChain,unguardedSelector),
+   PESettings=GeneratedPeSettings.Build(p,CreateEdition(p),legacyTargetChain,unguardedSelector,legacyPePaging),
    ProcessorArchitectures=ImmutableHashSet.Create(Enum.Parse<ProcessorArchitecture>(p.Architecture))
   };
   var doc=GeneratedPeSettings.Generate(generator,config,p,legacyTargetChain);

@@ -1,5 +1,6 @@
 using System.Text;using System.Xml;using UnattendLocal.Core;
 int count=0;var g=new GeneratorService();
+if(args.Contains("--pe-paging-only")){Console.WriteLine($"PE paging: {PePagingTests.Run(g)} checks passed.");return;}
 if(args.Contains("--pe-import-compatibility-only")){Console.WriteLine($"PE import compatibility: {PeImportCompatibilityTests.Run(g)} checks passed.");return;}
 if(args.Length==2 && args[0]=="--export-pe-chain-fixtures"){PeSafetyTests.ExportChainFixtures(g,args[1]);return;}
 if(args.Contains("--key-mode-compatibility-only")){Console.WriteLine($"Key mode compatibility: {KeyModeCompatibilityTests.Run(g)} checks passed.");return;}
@@ -2105,3 +2106,5 @@ count+=GeneratedPeTests.Run(g);Console.WriteLine($"V1.25 final total: {count} te
 count+=PeSafetyTests.Run(g);count+=V128SecurityTests.Run(g);count+=PreviewLocalizationTests.Run(g);Console.WriteLine($"V1.28 final total: {count} tests passed.");
 
 count+=V129GuidanceTests.Run(g);count+=PePreflightTests.Run(g);count+=KeyModeCompatibilityTests.Run(g);count+=PeImportCompatibilityTests.Run(g);Console.WriteLine($"V1.29 final total: {count} tests passed.");
+
+count+=PePagingTests.Run(g);Console.WriteLine($"V1.30 final total: {count} tests passed.");
