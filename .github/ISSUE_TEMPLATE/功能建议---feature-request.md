@@ -1,7 +1,7 @@
 ---
 name: 功能建议 / Feature Request
 about: 提出新功能或改进建议 / Suggest a new feature or improvement
-title: ''
+title: "[Feature]"
 labels: enhancement
 assignees: tigerJX95
 type: Feature
