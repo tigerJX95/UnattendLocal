@@ -1,5 +1,6 @@
 using System.Text;using System.Xml;using UnattendLocal.Core;
 int count=0;var g=new GeneratorService();
+if(args.Contains("--pe-integrity-only")){Console.WriteLine($"PE image integrity: {PeImageIntegrityTests.Run(g)} checks passed.");return;}
 if(args.Contains("--settings-search-only")){Console.WriteLine($"Settings search: {SettingsSearchTests.Run()} checks passed.");return;}
 if(args.Contains("--v131-search-only")){Console.WriteLine($"V1.31 search navigation: {V131SearchNavigationTests.Run()} checks passed.");return;}
 if(args.Contains("--v131-only")){Console.WriteLine($"V1.31 deployment: {V131DeploymentTests.Run(g)} checks passed.");return;}
@@ -2111,3 +2112,5 @@ count+=PeSafetyTests.Run(g);count+=V128SecurityTests.Run(g);count+=PreviewLocali
 count+=V129GuidanceTests.Run(g);count+=PePreflightTests.Run(g);count+=KeyModeCompatibilityTests.Run(g);count+=PeImportCompatibilityTests.Run(g);Console.WriteLine($"V1.29 final total: {count} tests passed.");
 
 count+=PePagingTests.Run(g);count+=V131DeploymentTests.Run(g);count+=V131SearchNavigationTests.Run();Console.WriteLine($"V1.31 final total: {count} tests passed.");
+
+count+=PeImageIntegrityTests.Run(g);Console.WriteLine($"V1.32 final total: {count} tests passed.");

@@ -35,7 +35,7 @@ public static class GeneratedPeSettings
                 ? new CustomPagingFileSettings(p.PageFileInitialMiB, p.PageFileMaximumMiB)
                 : new AutomaticPagingFileSettings(),
             DisableDefender: false, Disable8Dot3Names: false, PauseBeforeFormatting: p.PauseBeforeFormatting,
-            PauseBeforeReboot: p.PauseBeforePeReboot, CompactOs: p.CompactOsMode == CompactOsSettings.Enabled, SkipIntegrityCheck: false);
+            PauseBeforeReboot: p.PauseBeforePeReboot, CompactOs: p.CompactOsMode == CompactOsSettings.Enabled, SkipIntegrityCheck: !p.PeCheckImageIntegrity);
 
     public static XmlDocument Generate(Schneegans.Unattend.UnattendGenerator engine, Configuration config, InstallPlan p) => Generate(engine, config, p, false);
     internal static XmlDocument Generate(Schneegans.Unattend.UnattendGenerator engine, Configuration config, InstallPlan p, bool legacyTargetChain)

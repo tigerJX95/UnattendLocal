@@ -3925,6 +3925,12 @@
     "v131.compact.shared": "2c043fa4b5d9587d8a7beb8b3e55dbc34c049b4aad5f754a0f37d553b55d04d3",
     "v131.compact.peStatus": "00674dbbb6cca410a6f01c82b8ace247879f7493cef7e179578aa2a7e0a2d7cb",
     "v131.compact.goto": "c75045fc537e2a1142f30ef4472882bfe656b103a5e44536befc293eb2b5d6cc",
-    "v131.compact.gotoHelp": "5f0df6a2a6f4c9a5a037e611da106c53c344ddeb18f279246635517f9a43c5f9"
+    "v131.compact.gotoHelp": "5f0df6a2a6f4c9a5a037e611da106c53c344ddeb18f279246635517f9a43c5f9",
+    "v132.integrity.name": "b65e9d8421839f6ada1640fa0f0e8e8ac70b1294005d39f7665aff182a67c111",
+    "v132.integrity.help": "ac4d793c5e8deee7e561c1a1fad2f2b6aa39d9b1523aee2a1cf5e9129dd569d1",
+    "v132.integrity.warning": "154e31afca5f2b6a2578120c616c40c24c42e87cf9180b7009533e3f1786031d",
+    "v132.integrity.on": "bad7da336426740275371c60f7c32764b4f43bf39c73b215aac2cbeccc539421",
+    "v132.integrity.off": "360e99073cbb5ddd5ad438ad718354df395a92021f756310532e88a8f23f9430",
+    "v132.integrity.aliases": "3e8212524afb56be40305f2d2ae03fdf04f3a1da7b861e5f8ae54c8f687fcddb"
   }
 }

@@ -125,3 +125,19 @@ The PE area in Image and partition shows paging file status. Go to settings open
 The PE area also shows CompactOS status. Go to CompactOS settings focuses and highlights the shared selector on the same page without changing it. Use the existing CompactOS selector. PE installation adds `/Compact` to DISM image application when enabled. Default and disabled omit it without decompressing files already compressed in the image. Regular installation retains the Windows Setup `Compact` setting. Imported PE XML is editable only when it exactly matches this application's known generated pipeline; external or modified scripts remain protected.
 
 Minimum acceptance: deploy with PE and CompactOS enabled in a snapshot VM, then run `compact.exe /CompactOS:query` as administrator in the target Windows system. Also verify live paging file status and navigation without value changes. These Windows checks remain pending; build and generation tests do not establish deployment success.
+
+## V1.32：镜像完整性校验
+
+在“镜像与分区”中启用“使用 PE 脚本安装”，可看到“校验安装镜像完整性（PE，推荐）”。默认勾选，保留 DISM Apply-Image 的 `/CheckIntegrity /Verify`；旧 JSON 和本程序已知旧 XML 缺少新字段时也保持开启。
+
+取消只省略释放镜像命令中的两个参数，可能减少校验开销，但成功释放不代表镜像内容完整。仅用于来源可信且已自行核验的镜像；不替代安装介质或镜像文件的独立核验。DISM 读取映像信息、索引存在性、x64 架构、目标磁盘选择和分区前复核仍然执行。常规 Setup 不受此开关影响。变更开关会撤销部署确认，不会自动勾选风险确认。
+
+最小验证：先生成保持默认勾选的 XML，在 PEScriptCopy 的 `dism.exe /Apply-Image` 行确认存在 `/CheckIntegrity /Verify`；再取消、重新核对并确认部署，生成另一份 XML，确认只省略这两个参数，索引／架构和分区前复核仍在。选择在快照虚拟机部署时，使用已经独立核验的安装镜像；配置生成测试不证明损坏镜像可以安全部署。
+
+## V1.32: Image integrity verification
+
+Enable PE script installation in Image and partition to find Check installation image integrity (PE, recommended). It defaults to enabled and retains DISM Apply-Image `/CheckIntegrity /Verify`, including for older plans missing the new field.
+
+Unchecking omits only those two apply-stage options. It may reduce verification overhead but successful application does not establish image integrity. Use only trusted, independently verified images. Image metadata, index, x64 architecture, target selection and pre-partition checks remain enabled; regular Setup is unaffected. Changes revoke deployment consent without granting it automatically.
+
+Minimum check: compare the Apply-Image line in two generated PEScriptCopy blocks, with verification enabled and disabled. Confirm that the two options are omitted only when disabled and that other deployment checks remain. Use an independently verified image for any snapshot VM deployment; generation tests do not establish safe use of corrupt images.

@@ -128,6 +128,6 @@ public static class PeDiskSafety
         var conditions = UiText.Format("v127.conditions", Number(p.PeMinDiskGiB), Number(p.PeMaxDiskGiB),
             p.PeTargetMode == "match" ? Number(p.PeMatchDiskIndex) : "—", Flag(p.PeRequireEmptyDisk),
             Flag(p.PeRequireInterfaceType), Flag(p.PeRequireFixedMedia));
-        return UiText.Concat([main, "\n", conditions], [false, false, false]);
+        return UiText.Concat([main, "\n", conditions, "\n", UiText.Source(p.PeCheckImageIntegrity ? "v132.integrity.on" : "v132.integrity.off")], [false, false, false, false, false]);
     }
 }

@@ -5,7 +5,7 @@
 
 UnattendLocal is a Windows desktop tool with Simplified Chinese and English interfaces based on [Christoph Schneegans’ UnattendGenerator](https://github.com/cschneegans/unattend-generator). It lets you edit, check, and generate `autounattend.xml` for Windows 10 / 11 locally.
 
-Current version: **V1.31**. Includes static IPv4/IPv6 dual stack, subnet-mask input, settings search, setup driver directories, Dynamic Update, partitioning, OOBE and account settings, and existing XML import/editing.
+Current version: **V1.32**. Includes static IPv4/IPv6 dual stack, subnet-mask input, settings search, setup driver directories, Dynamic Update, partitioning, OOBE and account settings, and existing XML import/editing.
 
 ## 💡 Why this project exists
 
@@ -56,6 +56,18 @@ The displayed product key is a public generic installation key for selecting an 
 - Save and restore JSON plans; review summaries, recommended-setting differences, checks, redacted previews, and XML exports.
 - Import existing XML and edit supported settings while preserving unknown content. Export stops with an explanation when changes cannot be merged reliably.
 
+## V1.32 PE image integrity verification option · 2026-11-01
+
+- Add Check installation image integrity (PE, recommended) to the PE installation area. It defaults to enabled, including for older plans.
+- Enabled retains DISM `/CheckIntegrity /Verify` during image application. Disabled omits only those two options and displays guidance.
+- Image-index, architecture, target-disk and pre-partition checks remain enabled. Regular installation is unaffected. Changes require renewed disk-erasure confirmation.
+- Update deployment summaries, search navigation and JSON/XML persistence while retaining paging file and CompactOS settings.
+
+Usage: [PE installation](docs/GeneratedPe.md). Consider disabling apply-stage checks only for a trusted image that you have independently verified.
+
+<details>
+<summary>Update history (click to expand)</summary>
+
 ## V1.31 Linked deployment settings and PE CompactOS · 2026-10-30
 
 - Remove duplicate heading/editor search results. Individual settings navigate to their controls, while independent groups and summaries navigate to their full content areas; existing search keywords remain available.
@@ -66,9 +78,6 @@ The displayed product key is a public generic installation key for selecting an 
 - Allow CompactOS editing for imported PE XML that exactly matches this application's generated pipeline. External or modified scripts remain protected; regular installation keeps its existing behavior.
 
 Usage: [Deployment settings](docs/DeploymentTuning.md) · [PE installation](docs/GeneratedPe.md).
-
-<details>
-<summary>Update history (click to expand)</summary>
 
 ## V1.30 PE paging file configuration · 2026-10-30
 

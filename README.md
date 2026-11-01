@@ -5,7 +5,7 @@
 
 UnattendLocal 是基于 [Christoph Schneegans 的 UnattendGenerator](https://github.com/cschneegans/unattend-generator) 开发的 Windows 桌面配置工具，支持简体中文与英语界面，用于在本地编辑、检查和生成 Windows 10 / 11 的 `autounattend.xml`。
 
-当前版本：**V1.31**。支持简体中文 / English 即时切换、独立语言包维护、静态 IPv4 / IPv6 双栈、子网掩码输入、设置搜索、安装驱动目录、动态更新、自动分区、OOBE 与账户配置，以及已有 XML 的导入编辑。
+当前版本：**V1.32**。支持简体中文 / English 即时切换、独立语言包维护、静态 IPv4 / IPv6 双栈、子网掩码输入、设置搜索、安装驱动目录、动态更新、自动分区、OOBE 与账户配置，以及已有 XML 的导入编辑。
 
 ## 💡 开发初衷
 
@@ -54,6 +54,18 @@ UnattendLocal 是基于 [Christoph Schneegans 的 UnattendGenerator](https://git
 - 保存和恢复 JSON 方案，提供配置摘要、推荐差异、检查、脱敏预览和 XML 导出。
 - 导入已有 XML 后编辑已支持设置，保留未知内容；遇到无法可靠合并的修改时停止导出并说明原因。
 
+## V1.32 PE 镜像完整性校验选项 · 2026-11-01
+
+- PE 安装区域新增“校验安装镜像完整性（PE，推荐）”，默认开启，旧方案保持原有校验行为。
+- 开启时，DISM 释放镜像保留 `/CheckIntegrity /Verify`；关闭时仅省略这两个参数，并显示用途说明与提醒。
+- 关闭不跳过镜像索引、架构、选盘和分区前复核；常规安装不受此开关影响。变更后须重新确认清盘。
+- 完善状态摘要、搜索定位及 JSON／XML 保存导入；保留现有分页文件和 CompactOS 配置。
+
+使用说明：[PE 脚本安装](docs/GeneratedPe.md)。仅在镜像来源可信且已自行核验时考虑关闭释放阶段校验。
+
+<details>
+<summary>历史更新（点击展开）</summary>
+
 ## V1.31 部署设置关联与 PE CompactOS · 2026-10-30
 
 - 清理设置搜索中标题与控件的重复结果：单项设置直接定位控件，独立分组与摘要定位整个内容区，并保留原有搜索关键词。
@@ -64,9 +76,6 @@ UnattendLocal 是基于 [Christoph Schneegans 的 UnattendGenerator](https://git
 - 本程序生成且完整匹配的 PE XML 可导入编辑 CompactOS；外部或被修改的安装脚本继续保护，常规安装保留原有处理方式。
 
 使用说明：[部署设置](docs/DeploymentTuning.md) · [PE 脚本安装](docs/GeneratedPe.md)。
-
-<details>
-<summary>历史更新（点击展开）</summary>
 
 ## V1.30 PE 分页文件配置接入 · 2026-10-30
 

@@ -3924,5 +3924,11 @@
   "v131.compact.shared": "This compression setting is shared by regular and PE script installation. No custom script is needed.",
   "v131.compact.peStatus": "CompactOS: {0}",
   "v131.compact.goto": "Go to CompactOS settings",
-  "v131.compact.gotoHelp": "Focus and highlight the CompactOS selector above on this page without changing its selection. Regular and PE script installation share this setting."
+  "v131.compact.gotoHelp": "Focus and highlight the CompactOS selector above on this page without changing its selection. Regular and PE script installation share this setting.",
+  "v132.integrity.name": "Check installation image integrity (PE, recommended)",
+  "v132.integrity.help": "Enabled by default. PE image application retains DISM /CheckIntegrity /Verify. Unchecking omits only these two options and may reduce verification overhead; image-index, architecture and pre-partition disk checks still run. Regular installation is unaffected.",
+  "v132.integrity.warning": "Apply-stage integrity verification is disabled. Use only an image from a trusted source that you have independently verified; successful image application does not establish content integrity. Confirm disk erasure again after changing this setting.",
+  "v132.integrity.on": "Image integrity verification: enabled (/CheckIntegrity /Verify)",
+  "v132.integrity.off": "Image integrity verification: disabled (index, architecture and disk checks remain)",
+  "v132.integrity.aliases": "PeCheckImageIntegrity SkipIntegrityCheck CheckIntegrity Verify DISM PE image integrity verification skip check"
 }

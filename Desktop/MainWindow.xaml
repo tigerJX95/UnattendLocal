@@ -525,6 +525,9 @@
             </WrapPanel>
             <TextBlock Style="{StaticResource ExplanationText}" Text="{loc:Text v125.pe.help}" Visibility="{Binding Plan.UseGeneratedPe,Converter={StaticResource VisibleWhen}}"/>
             <StackPanel Visibility="{Binding Plan.UseGeneratedPe,Converter={StaticResource VisibleWhen}}" IsEnabled="{Binding CanEditPeInstall}">
+              <CheckBox x:Name="PeImageIntegrityCheck" Content="{loc:Source v132.integrity.name}" IsChecked="{Binding Plan.PeCheckImageIntegrity}" ToolTip="{loc:Text v132.integrity.help}"/>
+              <TextBlock Style="{StaticResource ExplanationText}" Text="{loc:Text v132.integrity.warning}" Foreground="{DynamicResource WarningBrush}" Visibility="{Binding IsPeIntegrityCheckDisabled,Converter={StaticResource VisibleWhen}}"/>
+
               <TextBlock Text="{loc:Text v127.selection}"/>
               <ComboBox x:Name="PeDiskSelectionMode" SelectedValue="{Binding Plan.PeTargetMode}" SelectedValuePath="Tag">
                 <ComboBoxItem Tag="fixed" Content="{loc:Source v127.mode.fixed}"/>

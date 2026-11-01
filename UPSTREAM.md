@@ -80,3 +80,12 @@ A03 在这里是本地磁盘误操作防护目标，不将其表述为官方确�
 核对 `cschneegans/unattend-generator` 固定文件 `modifier/Disk.cs`（blob `75330016ba22ca786d5b9f333fbd7000f5f3b4fa`）：`GeneratePESettings.CompactOs` 决定 DISM Apply-Image 是否带 `/Compact`。复用现有 CompactOsMode，普通 Setup 原生 Compact 设置不变，不修改 vendor 核心。默认和禁用均不传 /Compact，不对镜像内已有压缩文件执行解压。
 
 来源：https://github.com/cschneegans/unattend-generator/blob/82d4ffdd11ea3266f8f3b29d4fcd80f66bfdbaf6/modifier/Disk.cs#L634-L637
+
+## V1.32 官网能力核对与 PE 完整性校验
+
+2026-11-01 核对官网 https://schneegans.de/windows/unattend-generator/，PE 区域提供 Skip integrity check when applying image。对应固定核心 GeneratePESettings.SkipIntegrityCheck，本地原先固定 false，本版映射为 PeCheckImageIntegrity 的反值，默认 true。仅影响 Apply-Image /CheckIntegrity /Verify，其他安全检查保持不变，vendor 不改动。
+
+官网当前显示提交 82d4ffd；modifier/Disk.cs 的 blob 为 75330016ba22ca786d5b9f333fbd7000f5f3b4fa。
+https://github.com/cschneegans/unattend-generator/blob/82d4ffdd11ea3266f8f3b29d4fcd80f66bfdbaf6/modifier/Disk.cs#L634-L637
+
+代码基线为用户仓库正式 V1.31，提交 a6a28b6248c0a2c8d0766845941e926b509a9dca。完整保留该提交的两个 Issue 模板、config.yml 与 .gitattributes；新增 WPF 临时项目排除规则。

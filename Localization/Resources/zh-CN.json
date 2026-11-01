@@ -3924,5 +3924,11 @@
   "v131.compact.shared": "此处为常规安装与 PE 脚本安装共用的压缩设置，无需另写脚本。",
   "v131.compact.peStatus": "CompactOS：{0}",
   "v131.compact.goto": "前往 CompactOS 设置",
-  "v131.compact.gotoHelp": "定位并高亮本页上方的 CompactOS 压缩方式下拉框，不改变当前选择。常规安装与 PE 脚本安装共用该设置。"
+  "v131.compact.gotoHelp": "定位并高亮本页上方的 CompactOS 压缩方式下拉框，不改变当前选择。常规安装与 PE 脚本安装共用该设置。",
+  "v132.integrity.name": "校验安装镜像完整性（PE，推荐）",
+  "v132.integrity.help": "默认开启，PE 释放镜像时保留 DISM 的 /CheckIntegrity /Verify。取消后只省略这两个参数，可能减少校验开销；镜像索引、架构及分区前磁盘安全检查仍然执行。常规安装不受此开关影响。",
+  "v132.integrity.warning": "已关闭释放阶段的完整性校验。仅用于来源可信且已自行核验的镜像；成功释放不代表镜像内容完整。修改后须重新确认清盘。",
+  "v132.integrity.on": "镜像完整性校验：开启（/CheckIntegrity /Verify）",
+  "v132.integrity.off": "镜像完整性校验：关闭（仍核对索引、架构与磁盘）",
+  "v132.integrity.aliases": "PeCheckImageIntegrity SkipIntegrityCheck CheckIntegrity Verify DISM PE 镜像 映像 完整性校验 跳过校验"
 }

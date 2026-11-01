@@ -44,3 +44,7 @@ The Windows WPF capacity check drains Dispatcher work and verifies the resolved 
 Use disposable snapshot VMs only. Cover UEFI/GPT Windows 11 success, compatible BIOS/MBR Windows 10 success, a unique match among multiple disks, ambiguous matches, no match, and invalid interactive/custom-script output. Verify that nontarget disks, partitions and checksum files remain intact. Check image application, boot files, restart, recovery and OOBE on successful installations. Also test firmware conflicts, exact capacity boundaries, installation-source exclusion, unreadable WMI properties and target changes during a pause. Record environment, selected disk, stop location and before/after integrity checks; preserve and redact PE logs before restarting.
 
 For extended checks, an intact old OS alone is insufficient: confirm that no DiskPart invocation follows selection failure. Test a nonexistent index, malformed or multiline output, a positive exit code and an unhandled VBScript runtime error. Also delete the target snapshot during the pre-partition pause after a valid selection; the recheck must stop before DiskPart.
+
+## V1.32 校验状态
+
+本版以正式 V1.31 为基线，解决方案、最终桌面与 WPF 专项项目构建通过；全量 C# 回归 31,131 项，其中镜像完整性选项专项 55 项。中英文资源 3932/3932，工具测试 12 项通过。生成测试不替代实际 Windows PE 部署验收，新开关的最小验证见 [PE 脚本安装](GeneratedPe.md)。
