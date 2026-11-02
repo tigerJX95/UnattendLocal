@@ -150,7 +150,7 @@ Minimum check: compare the Apply-Image line in two generated PEScriptCopy blocks
 
 关闭时容量输入隐藏，但保留原值；重新开启后恢复输入并继续校验 1024–65536 MB 范围。修改此项会撤销清盘和导入风险确认。常规安装不使用该选项，仍创建恢复分区并校验容量。
 
-旧 JSON 和完整匹配的已知 XML 缺少字段时默认为开启。已知 XML 可以切换后重新导出；外部或被修改的 PE 执行流程继续只读保护。搜索 `PeCreateRecoveryPartition` 或“不创建恢复分区”可定位实际复选框；当前模式隐藏此项时沿用所属区域提示，不自动开启 PE。
+旧 JSON 和完整匹配的已知 XML 缺少字段时默认为开启。已知 XML 可以切换后重新导出；外部或被修改的 PE 执行流程继续只读保护。搜索 `PeCreateRecoveryPartition` 或“不创建恢复分区”可定位实际复选框；当前模式隐藏此项时，PE 未启用则定位 PE 开关；PE 已启用但未选择自动清盘则定位分区方式下拉框。条件满足时定位实际复选框，不自动开启 PE 或切换清盘方式。
 
 最小验证：同一配置分别勾选和取消勾选，比较脱敏预览中的 `PEScriptCopy`。关闭后应没有恢复分区的 `SHRINK MINIMUM`、`LABEL="Recovery"`，并包含删除 `winre.wim` 的命令。实际部署须在可清空的虚拟磁盘上验证分区表、启动结果和 `reagentc /info`；本版自动检查不等于真实 PE 安装验收。
 
@@ -162,6 +162,6 @@ Enabled by default. Unchecking it omits recovery-space reservation and recovery-
 
 The inactive size editor is hidden while its value is retained. Reenabling validates the retained 1024–65536 MB size. Changing this option revokes disk-erasure and imported-XML consent. Regular Setup still creates its recovery partition and validates its size.
 
-Old JSON and fully matched known XML default to enabled when the field is absent. Known PE XML remains editable; external or modified pipelines remain protected. Search targets the checkbox and never enables PE automatically.
+Old JSON and fully matched known XML default to enabled when the field is absent. Known PE XML remains editable; external or modified pipelines remain protected. Search targets the checkbox when visible. If PE is off, it locates the PE toggle; if automatic erasure/partitioning is not selected, it locates the disk-mode selector. It never enables PE or disk erasure automatically.
 
 For generated-output verification, compare `PEScriptCopy` with the option on and off: disabled output omits recovery `SHRINK MINIMUM` and `LABEL="Recovery"`, and includes deletion of `winre.wim`. Actual deployment validation requires a disposable VM disk, partition-table and boot checks, and `reagentc /info`. Automated generation checks do not establish a successful PE installation.

@@ -3937,5 +3937,8 @@
   "v133.recovery.on": "Windows RE: create a separate recovery partition",
   "v133.recovery.off": "Windows RE: no recovery partition; remove the recovery environment",
   "v133.recovery.summary": "System partition {0} MB; no recovery partition, remove Windows RE; {1}",
-  "v133.recovery.aliases": "PeCreateRecoveryPartition RecoveryMode Windows RE WinRE recovery partition remove recovery environment"
+  "v133.recovery.aliases": "PeCreateRecoveryPartition RecoveryMode Windows RE WinRE recovery partition remove recovery environment",
+  "v133.search.enablePe": "; located the PE script installation switch. Enable it before locating this setting again.",
+  "v133.search.diskMode": "; located the partitioning mode. This setting requires automatic disk erasure and partitioning. Verify the target disk, select the mode, then locate this setting again.",
+  "v133.search.enableRecovery": "; located the recovery partition switch. Enable it to edit the recovery partition size."
 }

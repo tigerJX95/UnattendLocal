@@ -1,5 +1,6 @@
 using System.Text;using System.Xml;using UnattendLocal.Core;
 int count=0;var g=new GeneratorService();
+if(args.Contains("--search-prerequisites-only")){Console.WriteLine($"Search prerequisites: {SearchPrerequisiteTests.Run()} checks passed.");return;}
 if(args.Contains("--pe-recovery-only")){Console.WriteLine($"PE recovery: {PeRecoveryTests.Run(g)} checks passed.");return;}
 if(args.Contains("--pe-integrity-only")){Console.WriteLine($"PE image integrity: {PeImageIntegrityTests.Run(g)} checks passed.");return;}
 if(args.Contains("--settings-search-only")){Console.WriteLine($"Settings search: {SettingsSearchTests.Run()} checks passed.");return;}
@@ -2117,3 +2118,5 @@ count+=PePagingTests.Run(g);count+=V131DeploymentTests.Run(g);count+=V131SearchN
 count+=PeImageIntegrityTests.Run(g);Console.WriteLine($"V1.32 final total: {count} tests passed.");
 
 count+=PeRecoveryTests.Run(g);Console.WriteLine($"V1.33 final total: {count} tests passed.");
+
+count+=SearchPrerequisiteTests.Run();Console.WriteLine($"V1.33 navigation fix total: {count} tests passed.");

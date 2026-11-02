@@ -19,3 +19,15 @@ Search does not enable settings. Editors hidden by the current mode lead to a vi
 搜索只使用内置标签与说明，不检索账户密码、Wi-Fi 密码、策略原文或脚本内容；关键词和分类不写入 JSON 方案或 XML。
 
 Search uses built-in labels and descriptions, not account passwords, Wi-Fi secrets, policy text or script contents. The query and category are not written to JSON plans or XML.
+
+### PE 恢复分区定位
+
+| 当前状态 | 搜索目标 | 定位位置 |
+| --- | --- | --- |
+| PE 未启用 | 创建恢复分区 | PE 脚本安装开关 |
+| PE 已启用，未选自动清盘分区 | 创建恢复分区 | 分区方式下拉框 |
+| PE 已启用，已选自动清盘分区 | 创建恢复分区 | 恢复分区复选框 |
+| PE 自动分区，恢复分区已关闭 | 恢复分区容量 | 恢复分区复选框 |
+| 自动分区且恢复容量可见 | 恢复分区容量 | 容量输入框 |
+
+这些目标不使用相邻控件回退；明确目标不可用时报告定位失败。定位不改变配置、不勾选复选框、不授予或撤销清盘确认。

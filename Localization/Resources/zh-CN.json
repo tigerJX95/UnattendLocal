@@ -3937,5 +3937,8 @@
   "v133.recovery.on": "Windows RE：创建独立恢复分区",
   "v133.recovery.off": "Windows RE：不创建恢复分区，移除恢复环境",
   "v133.recovery.summary": "系统分区 {0} MB；不创建恢复分区，移除 Windows RE；{1}",
-  "v133.recovery.aliases": "PeCreateRecoveryPartition RecoveryMode Windows RE WinRE 恢复环境 恢复分区 不创建恢复分区 移除恢复环境"
+  "v133.recovery.aliases": "PeCreateRecoveryPartition RecoveryMode Windows RE WinRE 恢复环境 恢复分区 不创建恢复分区 移除恢复环境",
+  "v133.search.enablePe": "；已定位到 PE 脚本安装开关，请先启用后再定位此项。",
+  "v133.search.diskMode": "；已定位到分区方式。此项需要自动清盘分区，请核对目标磁盘后自行选择，再定位此项。",
+  "v133.search.enableRecovery": "；已定位到创建恢复分区开关，启用后可设置恢复分区容量。"
 }

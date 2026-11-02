@@ -37114,5 +37114,32 @@
     "RawArgs": [],
     "SourceHash": "bec5d41ed1be60e3df154a01d5ed2a43401935392fb200caadd8b33549f97f11",
     "ProtectedTokens": []
+  },
+  "v133.search.enablePe": {
+    "Source": "；已定位到 PE 脚本安装开关，请先启用后再定位此项。",
+    "Contexts": [
+      "Desktop/SettingsSearchPrerequisites.cs"
+    ],
+    "RawArgs": [],
+    "SourceHash": "f35ab5dbabfc4ec995d51e91d8688ac716523851a2ac8ef7453f057c75cb72af",
+    "ProtectedTokens": []
+  },
+  "v133.search.diskMode": {
+    "Source": "；已定位到分区方式。此项需要自动清盘分区，请核对目标磁盘后自行选择，再定位此项。",
+    "Contexts": [
+      "Desktop/SettingsSearchPrerequisites.cs"
+    ],
+    "RawArgs": [],
+    "SourceHash": "ad979f55c5db27189636459cc0d305514f0ed5990fee6cc91ce41d49839cfe45",
+    "ProtectedTokens": []
+  },
+  "v133.search.enableRecovery": {
+    "Source": "；已定位到创建恢复分区开关，启用后可设置恢复分区容量。",
+    "Contexts": [
+      "Desktop/SettingsSearchPrerequisites.cs"
+    ],
+    "RawArgs": [],
+    "SourceHash": "cb222d3af12f1c2a5a9b30965fed34470ef95b53472c46e4e16d1f9b9dba32ee",
+    "ProtectedTokens": []
   }
 }

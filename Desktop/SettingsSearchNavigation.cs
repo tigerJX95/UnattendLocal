@@ -53,10 +53,20 @@ public partial class MainWindow
             if (result.Target.StartsWith("StaticIPv6",StringComparison.Ordinal)) IPProtocolTabs.SelectedItem=IPv6ProtocolTab;
             else if(result.Target.StartsWith("StaticIPv4",StringComparison.Ordinal)&&result.Target!="StaticIPv4MacEditor"&&result.Target!="StaticIPv4Section")IPProtocolTabs.SelectedItem=IPv4ProtocolTab;
             UpdateLayout();
-            bool hidden = target?.IsVisible == false;
-            // This PE-only option sits beside the shared partition-size editor.
-            // When PE is off, locate its prerequisite rather than the preceding pause option.
-            if (hidden && result.Target == "PeRecoveryPartitionCheck" && !vm.Plan.UseGeneratedPe) target = GeneratedPeMode;
+            // Resolve from configuration before visibility fallback: a collapsed parent
+            // must not redirect a deployment option to an unrelated nearby control.
+            bool explicitTarget = SettingsSearchPrerequisites.HasExplicitTarget(result.Target);
+            string resolved = SettingsSearchPrerequisites.Resolve(result.Target, vm.Plan);
+            string? prerequisiteHint = SettingsSearchPrerequisites.HintKey(result.Target, resolved);
+            bool hidden = resolved != result.Target || target?.IsVisible == false;
+            if (explicitTarget) target = FindName(resolved) as FrameworkElement;
+            // A missing/unavailable explicit destination is a failed navigation, never
+            // permission to highlight another setting or alter the installation plan.
+            if (explicitTarget && (target == null || !target.IsVisible))
+            {
+                vm.Status = global::UnattendLocal.Localization.UiText.Source("text.324b12466f2a");
+                return;
+            }
             // Locate the visible containing section when a mode hides a conditional editor.
             FrameworkElement? hiddenBranch = null;
             while (target != null && !target.IsVisible) { hiddenBranch = target; target = target.Parent as FrameworkElement ?? VisualTreeHelper.GetParent(target) as FrameworkElement; }
@@ -72,7 +82,7 @@ public partial class MainWindow
                 target.Focus(); Keyboard.Focus(target);
                 if (target is TextBox editor) editor.SelectAll();
             }
-            vm.Status = global::UnattendLocal.Localization.UiText.Concat(new object?[] { global::UnattendLocal.Localization.UiText.Format("message.0b48e5b9a48d", new string[] { global::UnattendLocal.Localization.UiText.Arg((result.Page), 0, null), global::UnattendLocal.Localization.UiText.Arg((result.Title), 0, null) }), (hidden ? global::UnattendLocal.Localization.UiText.Source("text.04014bdbee98") : !target.IsEnabled ? global::UnattendLocal.Localization.UiText.Source("text.bbaca395d5c1") : "") },new bool[]{false,false});
+            vm.Status = global::UnattendLocal.Localization.UiText.Concat(new object?[] { global::UnattendLocal.Localization.UiText.Format("message.0b48e5b9a48d", new string[] { global::UnattendLocal.Localization.UiText.Arg((result.Page), 0, null), global::UnattendLocal.Localization.UiText.Arg((result.Title), 0, null) }), (prerequisiteHint != null ? global::UnattendLocal.Localization.UiText.Source(prerequisiteHint) : hidden ? global::UnattendLocal.Localization.UiText.Source("text.04014bdbee98") : !target.IsEnabled ? global::UnattendLocal.Localization.UiText.Source("text.bbaca395d5c1") : "") },new bool[]{false,false});
             var anchor = target;
             Dispatcher.BeginInvoke(DispatcherPriority.ContextIdle, new Action(() => { if (ticket == searchNavigationGeneration && Pages.SelectedIndex == result.PageIndex && anchor.IsVisible) HighlightSearchTarget(anchor); }));
         }));

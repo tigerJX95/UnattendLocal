@@ -3938,6 +3938,9 @@
     "v133.recovery.on": "e7d7674bcdd6f958aaf190f9a86ebb073db9537bc572d477ed1b718247f00da8",
     "v133.recovery.off": "8bc468783915f91037185f82bd1b6c0320c51027503c3c0ed1813ad44fbdf903",
     "v133.recovery.summary": "3e906c0d92362f27cd4e15004e89e428979e63110f734d9476102aea3401b5bd",
-    "v133.recovery.aliases": "bec5d41ed1be60e3df154a01d5ed2a43401935392fb200caadd8b33549f97f11"
+    "v133.recovery.aliases": "bec5d41ed1be60e3df154a01d5ed2a43401935392fb200caadd8b33549f97f11",
+    "v133.search.enablePe": "f35ab5dbabfc4ec995d51e91d8688ac716523851a2ac8ef7453f057c75cb72af",
+    "v133.search.diskMode": "ad979f55c5db27189636459cc0d305514f0ed5990fee6cc91ce41d49839cfe45",
+    "v133.search.enableRecovery": "cb222d3af12f1c2a5a9b30965fed34470ef95b53472c46e4e16d1f9b9dba32ee"
   }
 }

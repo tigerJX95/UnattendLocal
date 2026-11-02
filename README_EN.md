@@ -64,6 +64,8 @@ The displayed product key is a public generic installation key for selecting an 
 - Older JSON and known XML without the new field retain the recovery partition. Support persistence, import and direct checkbox search navigation; unknown or modified PE XML remains protected.
 - Regular Windows Setup retains its existing behavior. PE image verification, CompactOS, paging and disk rechecks remain in effect.
 - Preserve dedicated search-result descriptions instead of replacing them with generic guidance.
+- Fix recovery-option navigation when PE is enabled but automatic erasure/partitioning is not selected: locate the disk-mode selector instead of the reboot-pause checkbox. Locate the PE toggle when PE is off, and the actual editor when its prerequisites are met. A hidden recovery-size editor resolves to its recovery toggle. Navigation never changes configuration.
+- Resolve recovery-related search destinations from configuration before checking visibility, without falling back to adjacent controls. Status messages identify the required PE switch, partitioning mode, or recovery switch. An unavailable explicit destination reports a navigation failure.
 
 See [PE script installation](docs/GeneratedPe.md).
 

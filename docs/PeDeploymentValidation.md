@@ -56,3 +56,9 @@ For extended checks, an intact old OS alone is insufficient: confirm that no Dis
 本版未执行真实 Windows PE 安装，也未在 Windows 上运行 WPF 专项程序。建议在可清空的虚拟磁盘上，重点验证关闭恢复分区后的分区表、系统启动与 `reagentc /info`；开启时应保留指定容量的恢复分区。自动生成与编译检查不替代这些运行验收。
 
 Based on formal V1.32. Release solution and WPF test-project compilation passed with zero warnings or errors. All 31,247 C# regression checks passed, including 85 recovery-option checks; 979 search-navigation checks and 12 Python tool tests passed. Both languages contain 3939 validated keys. The pinned vendor is unchanged. Actual Windows PE installation and Windows WPF execution were not performed for this release.
+
+### V1.33 搜索定位修正
+
+修正隐藏的恢复分区和自动分区设置的前置条件定位。新增 105 项组合检查通过，覆盖 PE 开关、手动／自动／已有分区／自定义脚本方式、恢复开关及容量输入框；按实际 XAML 可见性条件核对目的控件，确认定位不改变方案或风险确认。原有搜索导航 979 项、恢复分区 85 项、Python 工具 12 项及 i18n 检查再次通过，Release 解决方案构建零警告、零错误。此前全量 31,247 项结果保留，本次按修改范围运行上述专项，未重新进行全量回归或 Windows 界面实测。
+
+Navigation correction: 105 new prerequisite-state checks, 979 existing search-navigation checks, 85 recovery checks, 12 Python tests and i18n validation passed. Release solution compilation passed with zero warnings or errors. The previous full 31,247-check result remains historical; this correction used the targeted checks above, without rerunning the full suite or Windows UI execution.
