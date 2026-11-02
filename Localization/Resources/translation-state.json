@@ -3931,6 +3931,13 @@
     "v132.integrity.warning": "154e31afca5f2b6a2578120c616c40c24c42e87cf9180b7009533e3f1786031d",
     "v132.integrity.on": "bad7da336426740275371c60f7c32764b4f43bf39c73b215aac2cbeccc539421",
     "v132.integrity.off": "360e99073cbb5ddd5ad438ad718354df395a92021f756310532e88a8f23f9430",
-    "v132.integrity.aliases": "3e8212524afb56be40305f2d2ae03fdf04f3a1da7b861e5f8ae54c8f687fcddb"
+    "v132.integrity.aliases": "3e8212524afb56be40305f2d2ae03fdf04f3a1da7b861e5f8ae54c8f687fcddb",
+    "v133.recovery.name": "15d6729dcf6a48f8571b8d7eb9b7382ba2ad1d5666d7b92a1fa5819f8acfef4a",
+    "v133.recovery.help": "bafc4dac8ce3fa7484330e90cfaab9823d94dbf9bbd188d82f54dea9925b97d8",
+    "v133.recovery.warning": "4ec469c455c11f1a317a8cccf38e313e84d3cad1c626382770baea5b93e3f2d3",
+    "v133.recovery.on": "e7d7674bcdd6f958aaf190f9a86ebb073db9537bc572d477ed1b718247f00da8",
+    "v133.recovery.off": "8bc468783915f91037185f82bd1b6c0320c51027503c3c0ed1813ad44fbdf903",
+    "v133.recovery.summary": "3e906c0d92362f27cd4e15004e89e428979e63110f734d9476102aea3401b5bd",
+    "v133.recovery.aliases": "bec5d41ed1be60e3df154a01d5ed2a43401935392fb200caadd8b33549f97f11"
   }
 }

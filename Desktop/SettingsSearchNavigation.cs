@@ -54,6 +54,9 @@ public partial class MainWindow
             else if(result.Target.StartsWith("StaticIPv4",StringComparison.Ordinal)&&result.Target!="StaticIPv4MacEditor"&&result.Target!="StaticIPv4Section")IPProtocolTabs.SelectedItem=IPv4ProtocolTab;
             UpdateLayout();
             bool hidden = target?.IsVisible == false;
+            // This PE-only option sits beside the shared partition-size editor.
+            // When PE is off, locate its prerequisite rather than the preceding pause option.
+            if (hidden && result.Target == "PeRecoveryPartitionCheck" && !vm.Plan.UseGeneratedPe) target = GeneratedPeMode;
             // Locate the visible containing section when a mode hides a conditional editor.
             FrameworkElement? hiddenBranch = null;
             while (target != null && !target.IsVisible) { hiddenBranch = target; target = target.Parent as FrameworkElement ?? VisualTreeHelper.GetParent(target) as FrameworkElement; }

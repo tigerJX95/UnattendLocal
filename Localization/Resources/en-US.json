@@ -3930,5 +3930,12 @@
   "v132.integrity.warning": "Apply-stage integrity verification is disabled. Use only an image from a trusted source that you have independently verified; successful image application does not establish content integrity. Confirm disk erasure again after changing this setting.",
   "v132.integrity.on": "Image integrity verification: enabled (/CheckIntegrity /Verify)",
   "v132.integrity.off": "Image integrity verification: disabled (index, architecture and disk checks remain)",
-  "v132.integrity.aliases": "PeCheckImageIntegrity SkipIntegrityCheck CheckIntegrity Verify DISM PE image integrity verification skip check"
+  "v132.integrity.aliases": "PeCheckImageIntegrity SkipIntegrityCheck CheckIntegrity Verify DISM PE image integrity verification skip check",
+  "v133.recovery.name": "Create a recovery partition and retain Windows RE (PE, recommended)",
+  "v133.recovery.help": "Enabled by default. PE automatic partitioning reserves a recovery partition of the specified size for Windows RE.\n\nWhen unchecked, no recovery partition is created and winre.wim is removed from the applied Windows image. Windows RE will be unavailable after installation. Prepare external installation or recovery media for repair or reinstallation.\n\nApplies only to PE script installation. Regular installation is unaffected. Recheck and confirm disk erasure after changing this option. The previously entered recovery partition size is retained.",
+  "v133.recovery.warning": "No recovery partition will be created, and Windows RE will be removed from the target system. Prepare external installation or recovery media.",
+  "v133.recovery.on": "Windows RE: create a separate recovery partition",
+  "v133.recovery.off": "Windows RE: no recovery partition; remove the recovery environment",
+  "v133.recovery.summary": "System partition {0} MB; no recovery partition, remove Windows RE; {1}",
+  "v133.recovery.aliases": "PeCreateRecoveryPartition RecoveryMode Windows RE WinRE recovery partition remove recovery environment"
 }

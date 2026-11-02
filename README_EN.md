@@ -5,7 +5,7 @@
 
 UnattendLocal is a Windows desktop tool with Simplified Chinese and English interfaces based on [Christoph Schneegans’ UnattendGenerator](https://github.com/cschneegans/unattend-generator). It lets you edit, check, and generate `autounattend.xml` for Windows 10 / 11 locally.
 
-Current version: **V1.32**. Includes static IPv4/IPv6 dual stack, subnet-mask input, settings search, setup driver directories, Dynamic Update, partitioning, OOBE and account settings, and existing XML import/editing.
+Current version: **V1.33**. Includes static IPv4/IPv6 dual stack, subnet-mask input, settings search, setup driver directories, Dynamic Update, partitioning, OOBE and account settings, and existing XML import/editing.
 
 ## 💡 Why this project exists
 
@@ -56,6 +56,20 @@ The displayed product key is a public generic installation key for selecting an 
 - Save and restore JSON plans; review summaries, recommended-setting differences, checks, redacted previews, and XML exports.
 - Import existing XML and edit supported settings while preserving unknown content. Export stops with an explanation when changes cannot be merged reliably.
 
+## V1.33 PE recovery partition option · 2026-11-02
+
+- Add Create a recovery partition and retain Windows RE (PE, recommended) to automatic partitioning under Image & partitions. It appears when PE script installation is enabled and defaults to checked.
+- When unchecked, no recovery space is reserved and no recovery partition is created. The applied image's winre.wim is removed, making Windows RE unavailable after installation. Prepare external installation or recovery media.
+- Hide the inactive recovery-size editor while retaining its value. Partition summaries, warnings and the basic capacity floor follow the actual layout. Changing this option requires renewed disk-erasure confirmation.
+- Older JSON and known XML without the new field retain the recovery partition. Support persistence, import and direct checkbox search navigation; unknown or modified PE XML remains protected.
+- Regular Windows Setup retains its existing behavior. PE image verification, CompactOS, paging and disk rechecks remain in effect.
+- Preserve dedicated search-result descriptions instead of replacing them with generic guidance.
+
+See [PE script installation](docs/GeneratedPe.md).
+
+<details>
+<summary>Update history (click to expand)</summary>
+
 ## V1.32 PE image integrity verification option · 2026-11-01
 
 - Add Check installation image integrity (PE, recommended) to the PE installation area. It defaults to enabled, including for older plans.
@@ -65,8 +79,6 @@ The displayed product key is a public generic installation key for selecting an 
 
 Usage: [PE installation](docs/GeneratedPe.md). Consider disabling apply-stage checks only for a trusted image that you have independently verified.
 
-<details>
-<summary>Update history (click to expand)</summary>
 
 ## V1.31 Linked deployment settings and PE CompactOS · 2026-10-30
 

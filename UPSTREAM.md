@@ -89,3 +89,5 @@ A03 在这里是本地磁盘误操作防护目标，不将其表述为官方确�
 https://github.com/cschneegans/unattend-generator/blob/82d4ffdd11ea3266f8f3b29d4fcd80f66bfdbaf6/modifier/Disk.cs#L634-L637
 
 代码基线为用户仓库正式 V1.31，提交 a6a28b6248c0a2c8d0766845941e926b509a9dca。完整保留该提交的两个 Issue 模板、config.yml 与 .gitattributes；新增 WPF 临时项目排除规则。
+
+2026-11-02：V1.33 以正式 V1.32 提交 6ed7e8909c7ceee7a06edbeb4d9d61d4ca681c0f 为基线。官网仍标注 82d4ffd，提供 Remove Windows RE。核对固定 vendor 的 RecoveryMode.None：不创建恢复分区，并删除目标镜像 winre.wim；本版仅接入此配置，保留默认 Partition 与现有检查。vendor 未修改。

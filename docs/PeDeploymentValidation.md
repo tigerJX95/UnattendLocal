@@ -48,3 +48,11 @@ For extended checks, an intact old OS alone is insufficient: confirm that no Dis
 ## V1.32 校验状态
 
 本版以正式 V1.31 为基线，解决方案、最终桌面与 WPF 专项项目构建通过；全量 C# 回归 31,131 项，其中镜像完整性选项专项 55 项。中英文资源 3932/3932，工具测试 12 项通过。生成测试不替代实际 Windows PE 部署验收，新开关的最小验证见 [PE 脚本安装](GeneratedPe.md)。
+
+## V1.33 校验状态
+
+以正式 V1.32 为基线，解决方案与 WPF 专项项目编译通过，零警告、零错误。全量 C# 回归 31,247 项通过，其中恢复分区专项 85 项；搜索导航专项 979 项通过。中英文资源各 3939 项，i18n 检查无问题，Python 工具测试 12 项通过。固定 vendor 未修改。
+
+本版未执行真实 Windows PE 安装，也未在 Windows 上运行 WPF 专项程序。建议在可清空的虚拟磁盘上，重点验证关闭恢复分区后的分区表、系统启动与 `reagentc /info`；开启时应保留指定容量的恢复分区。自动生成与编译检查不替代这些运行验收。
+
+Based on formal V1.32. Release solution and WPF test-project compilation passed with zero warnings or errors. All 31,247 C# regression checks passed, including 85 recovery-option checks; 979 search-navigation checks and 12 Python tool tests passed. Both languages contain 3939 validated keys. The pinned vendor is unchanged. Actual Windows PE installation and Windows WPF execution were not performed for this release.

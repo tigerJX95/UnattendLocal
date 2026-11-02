@@ -29,7 +29,7 @@ public static class GeneratedPeSettings
     internal static IPESettings Build(InstallPlan p, IEditionSettings edition, bool legacyTargetChain, bool unguardedSelector = false, bool legacyPePaging = false) => !p.UseGeneratedPe
         ? new DefaultPESettings(edition, HardwareSettings.AllEnabled(p))
         : new GeneratePESettings(
-            new UnattendedPartitionSettings(new ScriptTargetDiskSettings(PeDiskSafety.Selector(p, legacyTargetChain, unguardedSelector)), PeDiskSafety.Layout(p), RecoveryMode.Partition, AutoPartitionSettings.SystemSize(p), p.RecoverySizeMB),
+            new UnattendedPartitionSettings(new ScriptTargetDiskSettings(PeDiskSafety.Selector(p, legacyTargetChain, unguardedSelector)), PeDiskSafety.Layout(p), p.PeCreateRecoveryPartition ? RecoveryMode.Partition : RecoveryMode.None, AutoPartitionSettings.SystemSize(p), p.RecoverySizeMB),
             new IndexInstallFromSettings(p.ImageIndex!.Value),
             p.UseCustomPageFile && !legacyTargetChain && !unguardedSelector && !legacyPePaging
                 ? new CustomPagingFileSettings(p.PageFileInitialMiB, p.PageFileMaximumMiB)

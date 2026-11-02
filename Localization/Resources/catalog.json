@@ -37030,5 +37030,89 @@
     "RawArgs": [],
     "SourceHash": "3e8212524afb56be40305f2d2ae03fdf04f3a1da7b861e5f8ae54c8f687fcddb",
     "ProtectedTokens": []
+  },
+  "v133.recovery.name": {
+    "Source": "创建恢复分区并保留 Windows RE（PE，推荐）",
+    "Contexts": [
+      "Desktop/MainWindow.xaml",
+      "Core/PeDiskSafety.cs",
+      "Core/AutoPartitionSettings.cs",
+      "Desktop/SettingsSearchCatalog.cs"
+    ],
+    "RawArgs": [],
+    "SourceHash": "15d6729dcf6a48f8571b8d7eb9b7382ba2ad1d5666d7b92a1fa5819f8acfef4a",
+    "ProtectedTokens": []
+  },
+  "v133.recovery.help": {
+    "Source": "默认开启。PE 自动分区时预留指定容量的恢复分区，供 Windows RE 使用。\n\n取消勾选后不创建恢复分区，并在释放镜像后移除目标系统的 winre.wim；安装后的 Windows RE 将不可用。需要修复或重装时，请准备外部安装或恢复介质。\n\n仅用于 PE 脚本安装，常规安装不受影响。切换后须重新核对并确认清盘；保留此前填写的恢复分区容量。",
+    "Contexts": [
+      "Desktop/MainWindow.xaml",
+      "Core/PeDiskSafety.cs",
+      "Core/AutoPartitionSettings.cs",
+      "Desktop/SettingsSearchCatalog.cs"
+    ],
+    "RawArgs": [],
+    "SourceHash": "bafc4dac8ce3fa7484330e90cfaab9823d94dbf9bbd188d82f54dea9925b97d8",
+    "ProtectedTokens": []
+  },
+  "v133.recovery.warning": {
+    "Source": "不创建恢复分区，并移除目标系统的 Windows RE。请准备外部安装或恢复介质。",
+    "Contexts": [
+      "Desktop/MainWindow.xaml",
+      "Core/PeDiskSafety.cs",
+      "Core/AutoPartitionSettings.cs",
+      "Desktop/SettingsSearchCatalog.cs"
+    ],
+    "RawArgs": [],
+    "SourceHash": "4ec469c455c11f1a317a8cccf38e313e84d3cad1c626382770baea5b93e3f2d3",
+    "ProtectedTokens": []
+  },
+  "v133.recovery.on": {
+    "Source": "Windows RE：创建独立恢复分区",
+    "Contexts": [
+      "Desktop/MainWindow.xaml",
+      "Core/PeDiskSafety.cs",
+      "Core/AutoPartitionSettings.cs",
+      "Desktop/SettingsSearchCatalog.cs"
+    ],
+    "RawArgs": [],
+    "SourceHash": "e7d7674bcdd6f958aaf190f9a86ebb073db9537bc572d477ed1b718247f00da8",
+    "ProtectedTokens": []
+  },
+  "v133.recovery.off": {
+    "Source": "Windows RE：不创建恢复分区，移除恢复环境",
+    "Contexts": [
+      "Desktop/MainWindow.xaml",
+      "Core/PeDiskSafety.cs",
+      "Core/AutoPartitionSettings.cs",
+      "Desktop/SettingsSearchCatalog.cs"
+    ],
+    "RawArgs": [],
+    "SourceHash": "8bc468783915f91037185f82bd1b6c0320c51027503c3c0ed1813ad44fbdf903",
+    "ProtectedTokens": []
+  },
+  "v133.recovery.summary": {
+    "Source": "系统分区 {0} MB；不创建恢复分区，移除 Windows RE；{1}",
+    "Contexts": [
+      "Desktop/MainWindow.xaml",
+      "Core/PeDiskSafety.cs",
+      "Core/AutoPartitionSettings.cs",
+      "Desktop/SettingsSearchCatalog.cs"
+    ],
+    "RawArgs": [],
+    "SourceHash": "3e906c0d92362f27cd4e15004e89e428979e63110f734d9476102aea3401b5bd",
+    "ProtectedTokens": []
+  },
+  "v133.recovery.aliases": {
+    "Source": "PeCreateRecoveryPartition RecoveryMode Windows RE WinRE 恢复环境 恢复分区 不创建恢复分区 移除恢复环境",
+    "Contexts": [
+      "Desktop/MainWindow.xaml",
+      "Core/PeDiskSafety.cs",
+      "Core/AutoPartitionSettings.cs",
+      "Desktop/SettingsSearchCatalog.cs"
+    ],
+    "RawArgs": [],
+    "SourceHash": "bec5d41ed1be60e3df154a01d5ed2a43401935392fb200caadd8b33549f97f11",
+    "ProtectedTokens": []
   }
 }

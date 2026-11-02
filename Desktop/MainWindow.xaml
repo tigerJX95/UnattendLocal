@@ -584,7 +584,11 @@
               <CheckBox x:Name="PauseBeforeFormattingCheck" Content="{loc:Source text.f4cc320ab93b}" IsChecked="{Binding Plan.PauseBeforeFormatting}" ToolTip="{Binding DataContext.HelpTips[partitionpause],RelativeSource={RelativeSource AncestorType=Window}}"/>
               <TextBlock Style="{StaticResource ExplanationText}" Text="{loc:Display Value={Binding AutoPartitionSummary}}"/>
               <TextBlock Style="{StaticResource ExplanationText}" Text="{loc:Text text.f5fc729aed55}" Foreground="{DynamicResource SecondaryBrush}"/>
+              <CheckBox x:Name="PeRecoveryPartitionCheck" Content="{loc:Source v133.recovery.name}" IsChecked="{Binding Plan.PeCreateRecoveryPartition}" IsEnabled="{Binding CanEditPeInstall}" Visibility="{Binding Plan.UseGeneratedPe,Converter={StaticResource VisibleWhen}}" ToolTip="{loc:Text v133.recovery.help}"/>
+              <TextBlock Style="{StaticResource ExplanationText}" Text="{loc:Text v133.recovery.warning}" Foreground="{DynamicResource WarningBrush}" Visibility="{Binding IsPeRecoveryDisabled,Converter={StaticResource VisibleWhen}}"/>
+              <StackPanel Visibility="{Binding ShowRecoverySize,Converter={StaticResource VisibleWhen}}">
               <TextBlock Text="{loc:Text text.ef1ac524438a}"/><TextBox x:Name="SettingAnchor067" Text="{Binding Plan.RecoverySizeMB,UpdateSourceTrigger=PropertyChanged,ValidatesOnExceptions=True}" ToolTip="{Binding DataContext.HelpTips[disklayout],RelativeSource={RelativeSource AncestorType=Window}}"/>
+              </StackPanel>
               <CheckBox x:Name="ConfirmWipeDiskCheck" Content="{loc:Source text.65c045dc5940}" IsChecked="{Binding Plan.ConfirmWipeDisk}" Foreground="{DynamicResource DangerBrush}" FontWeight="SemiBold" ToolTip="{Binding DataContext.HelpTips[diskconfirm],RelativeSource={RelativeSource AncestorType=Window}}" />
             </StackPanel>
           </StackPanel></Border>

@@ -57,7 +57,7 @@ public static class PeDiskSafety
             ["MIN"] = Number(p.PeMinDiskGiB), ["MAX"] = Number(p.PeMaxDiskGiB),
             ["EMPTY"] = p.PeRequireEmptyDisk ? "True" : "False", ["INTERFACE"] = p.PeRequireInterfaceType ? "True" : "False",
             ["MEDIA"] = p.PeRequireFixedMedia ? "True" : "False", ["LAYOUT"] = Layout(p).ToString(),
-            ["BYTES"] = (((long)AutoPartitionSettings.SystemSize(p) + p.RecoverySizeMB + 1024) * 1048576).ToString(CultureInfo.InvariantCulture) + ".0",
+            ["BYTES"] = (((long)AutoPartitionSettings.SystemSize(p) + (p.PeCreateRecoveryPartition ? p.RecoverySizeMB : 0) + 1024) * 1048576).ToString(CultureInfo.InvariantCulture) + ".0",
             ["CUSTOM"] = p.PeTargetMode == "script" ? CustomWriter(p.PeTargetScript) : "' No custom script."
         };
         // One pass prevents placeholder-looking text inside user scripts from being rewritten.
@@ -128,6 +128,6 @@ public static class PeDiskSafety
         var conditions = UiText.Format("v127.conditions", Number(p.PeMinDiskGiB), Number(p.PeMaxDiskGiB),
             p.PeTargetMode == "match" ? Number(p.PeMatchDiskIndex) : "—", Flag(p.PeRequireEmptyDisk),
             Flag(p.PeRequireInterfaceType), Flag(p.PeRequireFixedMedia));
-        return UiText.Concat([main, "\n", conditions, "\n", UiText.Source(p.PeCheckImageIntegrity ? "v132.integrity.on" : "v132.integrity.off")], [false, false, false, false, false]);
+        return UiText.Concat([main, "\n", conditions, "\n", UiText.Source(p.PeCheckImageIntegrity ? "v132.integrity.on" : "v132.integrity.off"), "\n", UiText.Source(p.PeCreateRecoveryPartition ? "v133.recovery.on" : "v133.recovery.off")], [false, false, false, false, false, false, false]);
     }
 }

@@ -8,7 +8,7 @@
 
 ### 使用范围
 
-支持 x64 PE 和 x64 Windows 镜像，按镜像索引安装，清空一个已确认的目标磁盘，并创建系统、Windows 和独立恢复分区。可指定 UEFI/GPT、BIOS/MBR，或跟随实际启动方式。BIOS/MBR 主要用于兼容的 Windows 10 环境，不代表绕过 Windows 11 的平台要求。
+支持 x64 PE 和 x64 Windows 镜像，按镜像索引安装，清空一个已确认的目标磁盘，并创建系统和 Windows 分区；默认另外创建独立恢复分区。可指定 UEFI/GPT、BIOS/MBR，或跟随实际启动方式。BIOS/MBR 主要用于兼容的 Windows 10 环境，不代表绕过 Windows 11 的平台要求。
 
 常规 Setup 安装路径保持不变；以下动态选盘和安全检查仅作用于 PE 脚本安装。ARM64、x86、自定义完整 PE 流程及多目标磁盘安装不在本版范围内。
 
@@ -17,7 +17,7 @@
 ### 配置步骤
 
 1. 使用自定义配置，选择“按镜像索引”并填写介质中实际存在的索引。
-2. 选择“清空指定磁盘后自动分区”，启用 PE 脚本安装，选择目标磁盘方式和布局，核对系统与恢复分区大小。自动布局留空系统分区大小时使用 500 MiB，适用于两种布局。
+2. 选择“清空指定磁盘后自动分区”，启用 PE 脚本安装，选择目标磁盘方式和布局，核对系统分区大小，以及启用恢复分区时的恢复容量。自动布局留空系统分区大小时使用 500 MiB，适用于两种布局。
 3. 固定编号使用下方目标编号；条件匹配使用独立的可选匹配编号，留空不会自动套用固定编号。按需填写容量范围和勾选安全条件。所有选盘方式（包括自定义 VBScript 和安装时交互选择）的最小、最大容量均可独立留空；留空表示不限制对应方向，填写后仍对最终选中的磁盘进行检查。
 4. PE 模式由实际镜像索引决定安装版本，不通过 SKU 或安装密钥选择版本。“版本与密钥方式”需选择“在 Windows 安装程序中手动输入”，这是当前 PE 路径的兼容选项，不会因此增加 PE 脚本的密钥输入步骤。原有选择与草稿保留，不自动修改。独立激活密钥仍可配置，但须与目标版本匹配，不用于选择镜像索引。
 5. 首次验证建议启用分区前暂停和重启前暂停。核对清盘风险并确认后，导出 XML 或应答文件 ISO。
@@ -35,7 +35,7 @@
 
 容量范围按实际字节比较：1 GiB = 1073741824 字节，边界包含在内，不将磁盘容量四舍五入。可留空，输入范围为 1–1048576 GiB。容量和“无分区”“IDE/SCSI 接口”“固定硬盘介质”条件适用于所有方式；可选匹配编号只用于条件匹配。
 
-接口和介质条件采用 WMI 原始分类，不保证按接口名称排除所有 USB 桥接或虚拟磁盘。无法获取必需属性、映射分区数与磁盘报告不一致，或已映射卷盘符无法识别时停止。最低容量检查还为系统、恢复分区及 1 GiB 基本空间保留容量；它不估算镜像展开和安装后的全部空间需求，应自行设置足够的最小容量。
+接口和介质条件采用 WMI 原始分类，不保证按接口名称排除所有 USB 桥接或虚拟磁盘。无法获取必需属性、映射分区数与磁盘报告不一致，或已映射卷盘符无法识别时停止。最低容量检查还为系统分区、启用时的恢复分区及 1 GiB 基本空间保留容量；它不估算镜像展开和安装后的全部空间需求，应自行设置足够的最小容量。
 
 ### 分区前安全检查
 
@@ -73,13 +73,13 @@ Enable **Install using a PE script** on Image and partitions. It is off by defau
 
 ### Scope and configuration
 
-Supports x64 PE, x64 images selected by index, one explicitly confirmed target and separate system, Windows and recovery partitions. Choose UEFI/GPT, BIOS/MBR or follow firmware. BIOS/MBR primarily targets compatible Windows 10 installations and does not bypass Windows 11 platform requirements. The ordinary Setup path is unchanged; the dynamic selectors and gates described here apply only to PE script installation.
+Supports x64 PE, x64 images selected by index, one explicitly confirmed target and separate system and Windows partitions, plus a recovery partition by default. Choose UEFI/GPT, BIOS/MBR or follow firmware. BIOS/MBR primarily targets compatible Windows 10 installations and does not bypass Windows 11 platform requirements. The ordinary Setup path is unchanged; the dynamic selectors and gates described here apply only to PE script installation.
 
 Use custom configuration, select an actual image index, choose automatic disk wiping, enable PE installation and review the selector, layout and partition sizes. Automatic layout defaults to a 500 MiB system partition when unspecified. The actual image index selects the edition; SKU and installation-key selection are not supported by this PE path. Keep the mode at Enter manually in Windows Setup, a compatibility setting that does not add a key prompt to the PE script. Existing inputs are preserved. A separate activation key must match the target edition and does not select the image index. Enable both pauses for initial testing, review erasure consent, then export XML or an answer-file ISO. The answer-file ISO is not bootable.
 
 Fixed mode requires the target PE disk number. Matching mode uses its own optional index filter and must find exactly one disk; zero or multiple matches stop. Interactive mode lists disks and accepts one unsigned number. Custom mode executes a trusted VBScript that must return exactly one unsigned index, optionally followed by one newline, with exit code 0 and empty stderr within 60 seconds.
 
-Capacity bounds are inclusive, compared directly in bytes using 1 GiB = 1073741824 bytes, without rounding. Either field may remain blank in every selection mode, including custom VBScript and interactive selection. Blank means no corresponding bound; accepted input is 1–1048576 GiB. Capacity, unpartitioned, IDE/SCSI-interface and fixed-media conditions apply to all modes. Interface/media names are WMI classifications, not a guarantee of excluding all USB bridges or virtual disks. Required properties and existing partition mappings must be readable. Mapping counts must agree with the disk report, and mapped volume identifiers must be valid drive letters. A basic space floor reserves the system/recovery partitions plus 1 GiB, not the full expanded-image and operating-system requirement; configure a suitable minimum yourself.
+Capacity bounds are inclusive, compared directly in bytes using 1 GiB = 1073741824 bytes, without rounding. Either field may remain blank in every selection mode, including custom VBScript and interactive selection. Blank means no corresponding bound; accepted input is 1–1048576 GiB. Capacity, unpartitioned, IDE/SCSI-interface and fixed-media conditions apply to all modes. Interface/media names are WMI classifications, not a guarantee of excluding all USB bridges or virtual disks. Required properties and existing partition mappings must be readable. Mapping counts must agree with the disk report, and mapped volume identifiers must be valid drive letters. A basic space floor reserves the system partition, the recovery partition when enabled, and 1 GiB, not the full expanded-image and operating-system requirement; configure a suitable minimum yourself.
 
 ### Safety and trust boundaries
 
@@ -141,3 +141,27 @@ Enable PE script installation in Image and partition to find Check installation 
 Unchecking omits only those two apply-stage options. It may reduce verification overhead but successful application does not establish image integrity. Use only trusted, independently verified images. Image metadata, index, x64 architecture, target selection and pre-partition checks remain enabled; regular Setup is unaffected. Changes revoke deployment consent without granting it automatically.
 
 Minimum check: compare the Apply-Image line in two generated PEScriptCopy blocks, with verification enabled and disabled. Confirm that the two options are omitted only when disabled and that other deployment checks remain. Use an independently verified image for any snapshot VM deployment; generation tests do not establish safe use of corrupt images.
+
+## V1.33：恢复分区与 Windows RE
+
+入口：“镜像与分区” → “清空指定磁盘后自动分区” → 启用“使用 PE 脚本安装” → 自动分区区域的“创建恢复分区并保留 Windows RE（PE，推荐）”。
+
+默认勾选，按现有恢复分区容量预留独立分区。取消勾选后，GPT、MBR 及自动布局均不再预留恢复空间或创建恢复分区；固定生成核心会在释放镜像后删除 `W:\Windows\System32\Recovery\winre.wim`。安装后的 Windows RE 将不可用，修复或重装前须准备外部介质。这并不限制用户脚本或定制镜像中的其他安装逻辑。
+
+关闭时容量输入隐藏，但保留原值；重新开启后恢复输入并继续校验 1024–65536 MB 范围。修改此项会撤销清盘和导入风险确认。常规安装不使用该选项，仍创建恢复分区并校验容量。
+
+旧 JSON 和完整匹配的已知 XML 缺少字段时默认为开启。已知 XML 可以切换后重新导出；外部或被修改的 PE 执行流程继续只读保护。搜索 `PeCreateRecoveryPartition` 或“不创建恢复分区”可定位实际复选框；当前模式隐藏此项时沿用所属区域提示，不自动开启 PE。
+
+最小验证：同一配置分别勾选和取消勾选，比较脱敏预览中的 `PEScriptCopy`。关闭后应没有恢复分区的 `SHRINK MINIMUM`、`LABEL="Recovery"`，并包含删除 `winre.wim` 的命令。实际部署须在可清空的虚拟磁盘上验证分区表、启动结果和 `reagentc /info`；本版自动检查不等于真实 PE 安装验收。
+
+## V1.33: Recovery partition and Windows RE
+
+Under Image & partitions, select automatic disk erasure and partitioning, enable PE script installation, then find Create a recovery partition and retain Windows RE (PE, recommended) in automatic partitioning.
+
+Enabled by default. Unchecking it omits recovery-space reservation and recovery-partition creation for GPT, MBR and automatic layout. The pinned generator deletes `W:\Windows\System32\Recovery\winre.wim` after image application. Windows RE will be unavailable after installation; prepare external installation or recovery media. Custom images and user scripts may have additional installation behavior.
+
+The inactive size editor is hidden while its value is retained. Reenabling validates the retained 1024–65536 MB size. Changing this option revokes disk-erasure and imported-XML consent. Regular Setup still creates its recovery partition and validates its size.
+
+Old JSON and fully matched known XML default to enabled when the field is absent. Known PE XML remains editable; external or modified pipelines remain protected. Search targets the checkbox and never enables PE automatically.
+
+For generated-output verification, compare `PEScriptCopy` with the option on and off: disabled output omits recovery `SHRINK MINIMUM` and `LABEL="Recovery"`, and includes deletion of `winre.wim`. Actual deployment validation requires a disposable VM disk, partition-table and boot checks, and `reagentc /info`. Automated generation checks do not establish a successful PE installation.

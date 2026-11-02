@@ -3930,5 +3930,12 @@
   "v132.integrity.warning": "已关闭释放阶段的完整性校验。仅用于来源可信且已自行核验的镜像；成功释放不代表镜像内容完整。修改后须重新确认清盘。",
   "v132.integrity.on": "镜像完整性校验：开启（/CheckIntegrity /Verify）",
   "v132.integrity.off": "镜像完整性校验：关闭（仍核对索引、架构与磁盘）",
-  "v132.integrity.aliases": "PeCheckImageIntegrity SkipIntegrityCheck CheckIntegrity Verify DISM PE 镜像 映像 完整性校验 跳过校验"
+  "v132.integrity.aliases": "PeCheckImageIntegrity SkipIntegrityCheck CheckIntegrity Verify DISM PE 镜像 映像 完整性校验 跳过校验",
+  "v133.recovery.name": "创建恢复分区并保留 Windows RE（PE，推荐）",
+  "v133.recovery.help": "默认开启。PE 自动分区时预留指定容量的恢复分区，供 Windows RE 使用。\n\n取消勾选后不创建恢复分区，并在释放镜像后移除目标系统的 winre.wim；安装后的 Windows RE 将不可用。需要修复或重装时，请准备外部安装或恢复介质。\n\n仅用于 PE 脚本安装，常规安装不受影响。切换后须重新核对并确认清盘；保留此前填写的恢复分区容量。",
+  "v133.recovery.warning": "不创建恢复分区，并移除目标系统的 Windows RE。请准备外部安装或恢复介质。",
+  "v133.recovery.on": "Windows RE：创建独立恢复分区",
+  "v133.recovery.off": "Windows RE：不创建恢复分区，移除恢复环境",
+  "v133.recovery.summary": "系统分区 {0} MB；不创建恢复分区，移除 Windows RE；{1}",
+  "v133.recovery.aliases": "PeCreateRecoveryPartition RecoveryMode Windows RE WinRE 恢复环境 恢复分区 不创建恢复分区 移除恢复环境"
 }
