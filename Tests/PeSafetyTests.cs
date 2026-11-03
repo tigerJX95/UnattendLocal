@@ -128,6 +128,9 @@ static class PeSafetyTests
         {
             var previous = Plan(); previous.DiskLayout = layout;
             string oldXml = Encoding.UTF8.GetString(generator.GenerateV134PeBaseline(previous));
+            Check(XmlMerge.Read(oldXml).SelectNodes("//comment()")!.Cast<XmlComment>()
+                  .Any(comment => comment.Value?.StartsWith("UnattendLocal:v1 ", StringComparison.Ordinal) == true),
+                "V1.34 compatibility XML includes a valid configuration snapshot");
             var restored = XmlPlanImport.Import(oldXml, generator);
             Check(restored.UseGeneratedPe && restored.ImportedXml?.GeneratedPeEditable == true,
                 "unmodified V1.34 PE XML can be imported for " + layout);

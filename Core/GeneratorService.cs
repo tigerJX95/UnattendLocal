@@ -30,7 +30,7 @@ public class GeneratorService {
  internal byte[] GenerateLegacyPeBaseline(InstallPlan p)=>GenerateDocument(p,false,false,true);
  internal byte[] GeneratePreviousPeBaseline(InstallPlan p)=>GenerateDocument(p,false,false,false,true);
  internal byte[] GeneratePrePagingPeBaseline(InstallPlan p)=>GenerateDocument(p,false,false,false,false,true);
- internal byte[] GenerateV134PeBaseline(InstallPlan p)=>GenerateDocument(p,false,false,false,false,false,true);
+ internal byte[] GenerateV134PeBaseline(InstallPlan p)=>GenerateDocument(p,true,false,false,false,false,true);
  private byte[] GenerateDocument(InstallPlan p,bool includeImport,bool checkDeployment=true,bool legacyTargetChain=false,bool unguardedSelector=false,bool legacyPePaging=false,bool previousFirmwareGuard=false) {
   GeneratedPeSettings.Validate(p);
   NativePreferences.Validate(p);
