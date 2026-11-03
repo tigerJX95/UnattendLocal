@@ -36,6 +36,16 @@ static class PeSafetyTests
     {
         int count = 0;
         void Check(bool value, string message) { if (!value) throw new Exception("PE safety: " + message); count++; }
+        // Plain-language tooltips must bypass the global structured HelpTip template.
+        string uiXaml = File.ReadAllText(Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "..", "Desktop", "MainWindow.xaml"));
+        foreach (var key in new[] { "v125.pe.help", "v131.pagefile.gotoHelp", "v131.compact.gotoHelp", "v132.integrity.help", "v133.recovery.help" })
+            Check(uiXaml.Contains("ContentTemplate=\"{x:Null}\" Content=\"{loc:Text " + key + "}\"", StringComparison.Ordinal),
+                "image/partition tooltip renders plain text: " + key);
+        Check(!uiXaml.Contains("ToolTip=\"{loc:Text", StringComparison.Ordinal), "plain localized tooltip avoids structured global template");
+        var emptySummary = Plan(); emptySummary.ImageIndex = null; emptySummary.TargetDiskId = null;
+        string summary = PeDiskSafety.Summary(emptySummary);
+        Check(!summary.Contains("?") && !summary.Contains("—") && summary.Contains(UiText.Source("v135.summary.notSet")),
+            "unset index and disk number have localized readable status");
         void Reject(Action<InstallPlan> change)
         {
             var p = Plan(); change(p); p.ConfirmWipeDisk = true;
@@ -56,6 +66,24 @@ static class PeSafetyTests
             Check(selector.Contains("CDbl(MinGiB) * 1073741824") && !selector.Contains("CInt("), "capacity comparison does not round GiB");
             Check(selector.Contains("accepted.Count <> 1") && selector.Contains("PNPDeviceID") && selector.Contains("saved(1) <> identity"), "unique selection and identity recheck are present");
             string script = Script(generator.Generate(p));
+            // Firmware/layout mismatch must abort before image checks and disk selection.
+            int firmwareGuard = layout switch
+            {
+                "UEFI / GPT" => script.IndexOf("Selected UEFI / GPT layout requires UEFI boot. No disk was formatted.", StringComparison.Ordinal),
+                "BIOS / MBR" => script.IndexOf("Selected BIOS / MBR layout requires BIOS boot. No disk was formatted.", StringComparison.Ordinal),
+                _ => script.IndexOf("rem Automatic layout follows the firmware detected in Windows PE.", StringComparison.Ordinal)
+            };
+            int imagePreflight = script.IndexOf("Selected installation image is missing. No disk was formatted.", StringComparison.Ordinal);
+            int selectorGate = script.IndexOf("rem UnattendLocal selection gate v1", StringComparison.Ordinal);
+            Check(firmwareGuard >= 0 && imagePreflight > firmwareGuard && selectorGate > imagePreflight,
+                "firmware layout preflight precedes image checks and disk selection for " + layout);
+            Check(layout switch
+            {
+                "UEFI / GPT" => script.Contains("if /I not \"%UL_PE_FIRMWARE%\"==\"0x2\" call :fail", StringComparison.Ordinal),
+                "BIOS / MBR" => script.Contains("if /I not \"%UL_PE_FIRMWARE%\"==\"0x1\" call :fail", StringComparison.Ordinal),
+                _ => !script.Contains("Selected UEFI / GPT layout requires UEFI boot.", StringComparison.Ordinal) &&
+                     !script.Contains("Selected BIOS / MBR layout requires BIOS boot.", StringComparison.Ordinal)
+            }, "fixed layouts require the corresponding firmware; automatic stays unrestricted");
             string diskPartCommand = layout == PeDiskSafety.AutomaticLayout
                 ? @"diskpart.exe /s X:\%LAYOUT%.txt"
                 : @"diskpart.exe /s X:\diskpart.txt";
@@ -81,6 +109,24 @@ static class PeSafetyTests
             Check(imported.UseGeneratedPe && imported.PeTargetMode == mode && imported.ImportedXml!.GeneratedPeEditable, "owned XML restores selection mode");
             imported.ConfirmWipeDisk = true; imported.ConfirmImportedXmlRisk = true;
             Check(Script(generator.Generate(imported)) == script, "XML roundtrip preserves guarded pipeline");
+        }
+        // Previously generated V1.34 XML must remain safely editable when the
+        // complete original PE pipeline still matches the known predecessor.
+        foreach (var layout in new[] { "UEFI / GPT", "BIOS / MBR", PeDiskSafety.AutomaticLayout })
+        {
+            var previous = Plan(); previous.DiskLayout = layout;
+            string oldXml = Encoding.UTF8.GetString(generator.GenerateV134PeBaseline(previous));
+            var restored = XmlPlanImport.Import(oldXml, generator);
+            Check(restored.UseGeneratedPe && restored.ImportedXml?.GeneratedPeEditable == true,
+                "unmodified V1.34 PE XML can be imported for " + layout);
+            restored.ConfirmWipeDisk = true;
+            restored.ConfirmImportedXmlRisk = true;
+            string upgraded = Script(generator.Generate(restored));
+            Check(upgraded.Contains("Selected installation image is missing. No disk was formatted.", StringComparison.Ordinal)
+                  && upgraded.Contains(PeDiskSafety.Layout(restored) == Schneegans.Unattend.PartitionLayout.Automatic
+                     ? "rem Automatic layout follows the firmware detected in Windows PE."
+                     : "layout requires", StringComparison.Ordinal),
+                "V1.34 imported PE pipeline is upgraded without dropping preflight for " + layout);
         }
         foreach (var mode in new[] { "fixed", "match", "interactive", "script" })
         foreach (var bounds in new (int? Min, int? Max)[] { (null, null), (64, null), (null, 512) })

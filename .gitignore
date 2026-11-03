@@ -20,3 +20,6 @@ artifacts/
 # Optional translation-maintenance tool caches
 **/__pycache__/
 *.pyc
+
+# WPF temporary compilation projects
+**/*_wpftmp.csproj

@@ -37141,5 +37141,23 @@
     "RawArgs": [],
     "SourceHash": "cb222d3af12f1c2a5a9b30965fed34470ef95b53472c46e4e16d1f9b9dba32ee",
     "ProtectedTokens": []
+  },
+  "v135.summary.notSet": {
+    "Source": "未设置",
+    "SourceHash": "2f5f1d6fbfb061ed02def5f4a3a151303da034681e38179744c7d1b1401f1caf",
+    "Contexts": [
+      "Core/PeDiskSafety.cs"
+    ],
+    "RawArgs": [],
+    "ProtectedTokens": []
+  },
+  "v135.summary.na": {
+    "Source": "不适用",
+    "SourceHash": "2746d995801b1cc88d3b666d149c5ff80330c98c00348a186125253c012084e7",
+    "Contexts": [
+      "Core/PeDiskSafety.cs"
+    ],
+    "RawArgs": [],
+    "ProtectedTokens": []
   }
 }

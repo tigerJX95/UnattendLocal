@@ -5,7 +5,7 @@
 
 UnattendLocal is a Windows desktop tool with Simplified Chinese and English interfaces based on [Christoph Schneegans’ UnattendGenerator](https://github.com/cschneegans/unattend-generator). It lets you edit, check, and generate `autounattend.xml` for Windows 10 / 11 locally.
 
-Current version: **V1.34**. When PE script installation is enabled, image selection switches to **By image index** and requires an index from the installation image; the regular Windows Setup path retains all image selection modes. Includes static IPv4/IPv6 dual stack, subnet-mask input, settings search, setup driver directories, Dynamic Update, partitioning, OOBE and account settings, and existing XML import/editing.
+Current version: **V1.35**. When PE script installation is enabled, image selection switches to **By image index** and requires an index from the installation image; the regular Windows Setup path retains all image selection modes. Includes static IPv4/IPv6 dual stack, subnet-mask input, settings search, setup driver directories, Dynamic Update, partitioning, OOBE and account settings, and existing XML import/editing.
 
 ## 💡 Why this project exists
 
@@ -56,6 +56,17 @@ The displayed product key is a public generic installation key for selecting an 
 - Save and restore JSON plans; review summaries, recommended-setting differences, checks, redacted previews, and XML exports.
 - Import existing XML and edit supported settings while preserving unknown content. Export stops with an explanation when changes cannot be merged reliably.
 
+## V1.35 PE firmware and partition-layout preflight · 2026-11-03
+
+- Before disk selection or partitioning, reject fixed UEFI/GPT or BIOS/MBR layouts when the actual Windows PE boot firmware does not match, with an explicit error message.
+- Keep the automatic layout option adaptive to the detected firmware without imposing fixed-layout restrictions.
+- Preserve existing image-index, disk-selection, pre-format recheck, WinRE, and ordinary Windows Setup behavior.
+
+See [PE script installation](docs/GeneratedPe.md).
+
+<details>
+<summary>Update history (click to expand)</summary>
+
 ## V1.34 PE failure handling and preflight checks · 2026-11-03
 
 - Confirm that the selected installation image exists before DISM inspection; stop before disk discovery and partitioning when it is missing.
@@ -65,8 +76,7 @@ The displayed product key is a public generic installation key for selecting an 
 
 See [PE script installation](docs/GeneratedPe.md).
 
-<details>
-<summary>Update history (click to expand)</summary>
+
 
 ## V1.33 PE recovery partition option · 2026-11-02
 

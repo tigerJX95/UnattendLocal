@@ -30,7 +30,8 @@ public class GeneratorService {
  internal byte[] GenerateLegacyPeBaseline(InstallPlan p)=>GenerateDocument(p,false,false,true);
  internal byte[] GeneratePreviousPeBaseline(InstallPlan p)=>GenerateDocument(p,false,false,false,true);
  internal byte[] GeneratePrePagingPeBaseline(InstallPlan p)=>GenerateDocument(p,false,false,false,false,true);
- private byte[] GenerateDocument(InstallPlan p,bool includeImport,bool checkDeployment=true,bool legacyTargetChain=false,bool unguardedSelector=false,bool legacyPePaging=false) {
+ internal byte[] GenerateV134PeBaseline(InstallPlan p)=>GenerateDocument(p,false,false,false,false,false,true);
+ private byte[] GenerateDocument(InstallPlan p,bool includeImport,bool checkDeployment=true,bool legacyTargetChain=false,bool unguardedSelector=false,bool legacyPePaging=false,bool previousFirmwareGuard=false) {
   GeneratedPeSettings.Validate(p);
   NativePreferences.Validate(p);
   AdditionalXmlSettings.Validate(p,checkDeployment);
@@ -107,7 +108,7 @@ public class GeneratorService {
    PESettings=GeneratedPeSettings.Build(p,CreateEdition(p),legacyTargetChain,unguardedSelector,legacyPePaging),
    ProcessorArchitectures=ImmutableHashSet.Create(Enum.Parse<ProcessorArchitecture>(p.Architecture))
   };
-  var doc=GeneratedPeSettings.Generate(generator,config,p,legacyTargetChain);
+  var doc=GeneratedPeSettings.Generate(generator,config,p,legacyTargetChain,previousFirmwareGuard);
   var ns=new XmlNamespaceManager(doc.NameTable);ns.AddNamespace("u","urn:schemas-microsoft-com:unattend");
   foreach(XmlElement oobe in doc.SelectNodes("//u:OOBE",ns)!) {
    SetOobe(doc,ns,oobe,"HideEULAPage",p.HideEula);

@@ -138,10 +138,10 @@ public static class PeDiskSafety
         string Number(int? value) => value?.ToString(CultureInfo.InvariantCulture) ?? UiText.Source("v127.unbounded");
         var main = UiText.Format("v127.summary",
             UiText.Source("v127.mode." + (p.PeTargetMode is "fixed" or "match" or "interactive" or "script" ? p.PeTargetMode : "fixed")),
-            p.PeTargetMode == "fixed" ? p.TargetDiskId?.ToString(CultureInfo.InvariantCulture) ?? "?" : "—",
-            p.DiskLayout, p.ImageIndex?.ToString(CultureInfo.InvariantCulture) ?? "?");
+            p.PeTargetMode == "fixed" ? p.TargetDiskId?.ToString(CultureInfo.InvariantCulture) ?? UiText.Source("v135.summary.notSet") : UiText.Source("v135.summary.na"),
+            p.DiskLayout, p.ImageIndex?.ToString(CultureInfo.InvariantCulture) ?? UiText.Source("v135.summary.notSet"));
         var conditions = UiText.Format("v127.conditions", Number(p.PeMinDiskGiB), Number(p.PeMaxDiskGiB),
-            p.PeTargetMode == "match" ? Number(p.PeMatchDiskIndex) : "—", Flag(p.PeRequireEmptyDisk),
+            p.PeTargetMode == "match" ? p.PeMatchDiskIndex?.ToString(CultureInfo.InvariantCulture) ?? UiText.Source("v135.summary.notSet") : UiText.Source("v135.summary.na"), Flag(p.PeRequireEmptyDisk),
             Flag(p.PeRequireInterfaceType), Flag(p.PeRequireFixedMedia));
         return UiText.Concat([main, "\n", conditions, "\n", UiText.Source(p.PeCheckImageIntegrity ? "v132.integrity.on" : "v132.integrity.off"), "\n", UiText.Source(p.PeCreateRecoveryPartition ? "v133.recovery.on" : "v133.recovery.off")], [false, false, false, false, false, false, false]);
     }

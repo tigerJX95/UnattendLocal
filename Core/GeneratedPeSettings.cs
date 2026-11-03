@@ -38,7 +38,7 @@ public static class GeneratedPeSettings
             PauseBeforeReboot: p.PauseBeforePeReboot, CompactOs: p.CompactOsMode == CompactOsSettings.Enabled, SkipIntegrityCheck: !p.PeCheckImageIntegrity);
 
     public static XmlDocument Generate(Schneegans.Unattend.UnattendGenerator engine, Configuration config, InstallPlan p) => Generate(engine, config, p, false);
-    internal static XmlDocument Generate(Schneegans.Unattend.UnattendGenerator engine, Configuration config, InstallPlan p, bool legacyTargetChain)
+    internal static XmlDocument Generate(Schneegans.Unattend.UnattendGenerator engine, Configuration config, InstallPlan p, bool legacyTargetChain, bool previousFirmwareGuard = false)
     {
         var doc = engine.GenerateXml(config);
         if (!p.UseGeneratedPe) return doc;
@@ -59,6 +59,7 @@ public static class GeneratedPeSettings
             if /I not "%UL_PE_FIRMWARE%"=="0x1" if /I not "%UL_PE_FIRMWARE%"=="0x2" call :fail "Cannot identify BIOS or UEFI. No disk was formatted."
             set "LAYOUT="
             set "FIRMWARE="
+            {FirmwareLayoutPreflight(p)}
             if not exist "%IMAGE_FILE%" call :fail "Selected installation image is missing. No disk was formatted."
             dism.exe /English /Get-ImageInfo /ImageFile:"%IMAGE_FILE%" /Index:{p.ImageIndex!.Value.ToString(System.Globalization.CultureInfo.InvariantCulture)} >X:\UL-imageinfo.txt 2>&1
             set "UL_IMAGEINFO_EXIT=%errorlevel%"
@@ -75,8 +76,29 @@ public static class GeneratedPeSettings
             if not "%UL_IMAGE_CHECK_EXIT%"=="0" call :fail "Cannot verify selected image information. No disk was formatted."
 
             """;
+        // Recognition-only predecessor for safe import of exact V1.34 PE XML.
+        // This path is not exposed to user exports.
+        if (previousFirmwareGuard)
+        {
+            string firmwareLine = FirmwareLayoutPreflight(p) + "\n";
+            if (!guard.Contains(firmwareLine, StringComparison.Ordinal))
+                throw new InvalidOperationException("Unexpected PE preflight structure.");
+            guard = guard.Replace(firmwareLine, "", StringComparison.Ordinal);
+        }
         return engine.GenerateXml(config with { PESettings = new ScriptPESetttings(PeDiskSafety.Guard(script.Insert(at, guard + "\r\n"), p, legacyTargetChain)) });
     }
+    // A fixed partition layout must match how the installer actually booted.
+    // Automatic mode already selects GPT or MBR at runtime; do not constrain it.
+    // All checks run before target discovery and any destructive commands.
+    internal static string FirmwareLayoutPreflight(InstallPlan p) => LayoutFirmwareGuard(PeDiskSafety.Layout(p));
+    internal static string LayoutFirmwareGuard(PartitionLayout layout) => layout switch
+    {
+        PartitionLayout.GPT => "if /I not \"%UL_PE_FIRMWARE%\"==\"0x2\" call :fail \"Selected UEFI / GPT layout requires UEFI boot. No disk was formatted.\"",
+        PartitionLayout.MBR => "if /I not \"%UL_PE_FIRMWARE%\"==\"0x1\" call :fail \"Selected BIOS / MBR layout requires BIOS boot. No disk was formatted.\"",
+        PartitionLayout.Automatic => "rem Automatic layout follows the firmware detected in Windows PE.",
+        _ => throw new ArgumentOutOfRangeException(nameof(layout))
+    };
+
     private static string Pipeline(XmlDocument d)
     {
         var parts = d.SelectNodes("/*[local-name()='unattend']/*[local-name()='settings'][@pass='windowsPE'] | //*[local-name()='PEScriptCopy']")!.Cast<XmlElement>();
@@ -92,13 +114,14 @@ public static class GeneratedPeSettings
         var source = XmlMerge.Read(data.SourceXml);
         var sourcePipeline = Pipeline(source);
         XmlDocument? predecessor = null;
-        foreach (int revision in new[] { 0, 1, 2 })
+        foreach (int revision in new[] { 0, 1, 2, 3 })
         {
             var candidate = XmlMerge.Read(System.Text.Encoding.UTF8.GetString(revision switch
             {
                 0 => service.GeneratePrePagingPeBaseline(baselinePlan),
                 1 => service.GeneratePreviousPeBaseline(baselinePlan),
-                _ => service.GenerateLegacyPeBaseline(baselinePlan)
+                2 => service.GenerateLegacyPeBaseline(baselinePlan),
+                _ => service.GenerateV134PeBaseline(baselinePlan)
             }));
             if (p.UseCustomPageFile)
             {

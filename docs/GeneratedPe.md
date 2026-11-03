@@ -172,3 +172,10 @@ For generated-output verification, compare `PEScriptCopy` with the option on and
 启用“使用 PE 脚本安装（x64）”时，安装镜像选择会自动切换为“按镜像索引”，需人工填写安装镜像中的实际索引。PE 模式不允许“由安装程序决定”或“按镜像名称”，关闭 PE 后恢复其可选状态。导出时仍校验索引大于零；载入旧配置不会静默重写已保存的镜像选择。
 
 When PE script installation is enabled, the image selection automatically switches to **By image index**. Enter the actual index in the installation image. Installer-determined and image-name options are unavailable while PE is enabled and become available again when PE is disabled. Export still validates the index; loading an older plan does not silently rewrite its saved choice.
+
+
+### V1.35 PE 固定布局与启动方式 / Fixed-layout firmware check
+
+选择固定 UEFI/GPT 时，必须以 UEFI 模式启动 Windows PE；选择固定 BIOS/MBR 时，必须以 BIOS 模式启动。若不匹配，脚本会在镜像检查、磁盘选择及 DiskPart 执行前停止，并说明原因。“跟随启动方式”会继续自动选择对应布局。此项检查不会替用户转换虚拟机的固件设置。
+
+For fixed UEFI/GPT, boot Windows PE in UEFI mode; for fixed BIOS/MBR, boot it in BIOS mode. A mismatch fails before image inspection, target selection, or DiskPart. Automatic mode still follows the detected firmware. The check does not change VM firmware settings.
