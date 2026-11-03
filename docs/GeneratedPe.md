@@ -165,3 +165,10 @@ The inactive size editor is hidden while its value is retained. Reenabling valid
 Old JSON and fully matched known XML default to enabled when the field is absent. Known PE XML remains editable; external or modified pipelines remain protected. Search targets the checkbox when visible. If PE is off, it locates the PE toggle; if automatic erasure/partitioning is not selected, it locates the disk-mode selector. It never enables PE or disk erasure automatically.
 
 For generated-output verification, compare `PEScriptCopy` with the option on and off: disabled output omits recovery `SHRINK MINIMUM` and `LABEL="Recovery"`, and includes deletion of `winre.wim`. Actual deployment validation requires a disposable VM disk, partition-table and boot checks, and `reagentc /info`. Automated generation checks do not establish a successful PE installation.
+
+
+### V1.34 镜像索引选择 / Image index selection
+
+启用“使用 PE 脚本安装（x64）”时，安装镜像选择会自动切换为“按镜像索引”，需人工填写安装镜像中的实际索引。PE 模式不允许“由安装程序决定”或“按镜像名称”，关闭 PE 后恢复其可选状态。导出时仍校验索引大于零；载入旧配置不会静默重写已保存的镜像选择。
+
+When PE script installation is enabled, the image selection automatically switches to **By image index**. Enter the actual index in the installation image. Installer-determined and image-name options are unavailable while PE is enabled and become available again when PE is disabled. Export still validates the index; loading an older plan does not silently rewrite its saved choice.

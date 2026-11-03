@@ -59,8 +59,10 @@ public static class GeneratedPeSettings
             if /I not "%UL_PE_FIRMWARE%"=="0x1" if /I not "%UL_PE_FIRMWARE%"=="0x2" call :fail "Cannot identify BIOS or UEFI. No disk was formatted."
             set "LAYOUT="
             set "FIRMWARE="
+            if not exist "%IMAGE_FILE%" call :fail "Selected installation image is missing. No disk was formatted."
             dism.exe /English /Get-ImageInfo /ImageFile:"%IMAGE_FILE%" /Index:{p.ImageIndex!.Value.ToString(System.Globalization.CultureInfo.InvariantCulture)} >X:\UL-imageinfo.txt 2>&1
-            if errorlevel 1 (
+            set "UL_IMAGEINFO_EXIT=%errorlevel%"
+            if not "%UL_IMAGEINFO_EXIT%"=="0" (
                 type X:\UL-imageinfo.txt
                 call :fail "Cannot read selected image. No disk was formatted."
             )

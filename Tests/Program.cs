@@ -211,6 +211,22 @@ viewModel.Plan.BypassNetwork=true;viewModel.Plan.HideOnlineAccount=true;Check(!v
 viewModel.Plan.AccountMode="自动创建本地账户";Check(viewModel.IsAutomaticAccounts&&viewModel.CanBypassNetwork&&viewModel.Plan.HideOnlineAccount&&viewModel.IsPasswordDays,"returning to local accounts restores applicable control states");
 viewModel.Plan.EditionMode="指定自己的产品密钥";Check(viewModel.IsCustomEdition&&!viewModel.IsGenericEdition,"custom key panel follows edition selection");viewModel.Plan.EditionMode="按 SKU 使用通用安装密钥";viewModel.Plan.EditionId="pro";Check(viewModel.IsGenericEdition&&!viewModel.IsCustomEdition&&viewModel.SelectedEditionKey==genericKeys["pro"],"SKU key display synchronizes after switching back");
 viewModel.Plan.ImageSelection="按镜像名称";Check(viewModel.IsImageName&&!viewModel.IsImageIndex,"image name field follows selection");viewModel.Plan.ImageSelection="按镜像索引";Check(!viewModel.IsImageName&&viewModel.IsImageIndex,"image index field follows selection");
+// V1.34: PE mode must never leave the user in a selection that disables the required index.
+viewModel.Plan.ImageSelection="由安装程序决定";
+viewModel.Plan.ImageIndex=2;
+Check(!viewModel.IsImageIndex&&viewModel.CanUseSetupImageSelection,"Setup mode permits installer-determined image");
+viewModel.Plan.UseGeneratedPe=true;
+Check(viewModel.Plan.ImageSelection=="按镜像索引"&&viewModel.IsImageIndex&&!viewModel.IsImageName&&!viewModel.CanUseSetupImageSelection,"enabling PE selects editable image index and disables incompatible choices");
+Check(viewModel.Plan.ImageIndex==2,"enabling PE preserves previously entered image index");
+viewModel.Plan.UseGeneratedPe=false;
+Check(viewModel.CanUseSetupImageSelection&&viewModel.IsImageIndex,"disabling PE re-enables other image choices without discarding index");
+viewModel.Plan.ImageSelection="按镜像名称";
+Check(viewModel.IsImageName&&!viewModel.IsImageIndex,"Setup image name mode remains available");
+var legacyPeImageVm=new UnattendLocal.Desktop.MainViewModel { Plan=PlanStore.Deserialize("{\"SchemaVersion\":1,\"UseGeneratedPe\":true,\"ImageSelection\":\"由安装程序决定\"}") };
+Check(legacyPeImageVm.Plan.ImageSelection=="由安装程序决定"&&!legacyPeImageVm.CanUseSetupImageSelection,"loading an old invalid PE plan preserves persisted choices for explicit correction");
+legacyPeImageVm.Plan.ImageSelection="按镜像索引";
+Check(legacyPeImageVm.IsImageIndex,"an imported invalid PE choice can be corrected manually");
+
 viewModel.Plan.DiskMode=InstallationSettings.Wipe;viewModel.Plan.TargetDiskId=0;viewModel.Plan.ConfirmWipeDisk=true;viewModel.Plan.Architecture="arm64";Check(!viewModel.Plan.ConfirmWipeDisk,"changing architecture invalidates destructive disk consent");
 
 // Changes to all users invalidate a previous preview, including unselected users; old subscriptions are detached.

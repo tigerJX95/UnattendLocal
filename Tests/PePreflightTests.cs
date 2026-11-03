@@ -19,7 +19,17 @@ static class PePreflightTests
    int gate=script.IndexOf("rem UnattendLocal destructive gate v2",StringComparison.Ordinal);
    int disk=script.IndexOf("diskpart.exe /s",StringComparison.Ordinal);
    Check(architecture>=0 && target>architecture && gate>target && disk>gate,"architecture, selection, recheck and partition ordering");
-   Check(script.Contains("if errorlevel 1 (")&&script.Contains("Cannot read selected image."),"DISM failure remains distinct");
+   int dism = script.IndexOf("dism.exe /English /Get-ImageInfo", StringComparison.Ordinal);
+   int dismExit = script.IndexOf("set \"UL_IMAGEINFO_EXIT=%errorlevel%\"", StringComparison.Ordinal);
+   int dismGate = script.IndexOf("if not \"%UL_IMAGEINFO_EXIT%\"==\"0\" (", StringComparison.Ordinal);
+   Check(dism>=0 && dismExit>dism && dismGate>dismExit && architecture>dismGate && !script.Contains("if errorlevel 1 ("),"DISM requires exact zero exit, including negative failure codes");
+   Check(script.Contains("Cannot read selected image."),"DISM failure remains distinct");
+   int missingImage = script.IndexOf("if not exist \"%IMAGE_FILE%\" call :fail", StringComparison.Ordinal);
+   Check(missingImage >= 0 && missingImage < dism, "missing installation image stops before DISM and disk selection");
+   int diskpartExit = script.IndexOf("set \"UL_DISKPART_EXIT=%errorlevel%\"", StringComparison.Ordinal);
+   int diskpartGate = script.IndexOf("if not \"%UL_DISKPART_EXIT%\"==\"0\" call :fail", StringComparison.Ordinal);
+   Check(diskpartExit > disk && diskpartGate > diskpartExit && !script.Contains("diskpart.txt || call :fail"),
+      "DiskPart requires exact zero exit, including negative failure codes");
    Check(script.Contains("set \"UL_IMAGE_CHECK_EXIT=%errorlevel%\"")&&script.Contains("\"42\" call :fail \"Selected image is not x64.")&&script.Contains("Cannot verify selected image information."),"checker exit status is captured and classified");
    Check(script.Contains("/Index:3")&&script.Contains("/CheckIntegrity /Verify"),"image index and integrity checks retained");
    Check(script.LastIndexOf("\npause",gate,StringComparison.Ordinal)<gate&&script.LastIndexOf("\npause",gate,StringComparison.Ordinal)>target,"destructive recheck remains after pause");

@@ -5,7 +5,7 @@
 
 UnattendLocal is a Windows desktop tool with Simplified Chinese and English interfaces based on [Christoph Schneegans’ UnattendGenerator](https://github.com/cschneegans/unattend-generator). It lets you edit, check, and generate `autounattend.xml` for Windows 10 / 11 locally.
 
-Current version: **V1.33**. Includes static IPv4/IPv6 dual stack, subnet-mask input, settings search, setup driver directories, Dynamic Update, partitioning, OOBE and account settings, and existing XML import/editing.
+Current version: **V1.34**. When PE script installation is enabled, image selection switches to **By image index** and requires an index from the installation image; the regular Windows Setup path retains all image selection modes. Includes static IPv4/IPv6 dual stack, subnet-mask input, settings search, setup driver directories, Dynamic Update, partitioning, OOBE and account settings, and existing XML import/editing.
 
 ## 💡 Why this project exists
 
@@ -23,7 +23,7 @@ See [first-logon options](docs/FirstLogon.md) and [XML import behavior](docs/Xml
 
 ## 📸 Screenshots
 
-These **V1.23 screenshots captured on Windows** show the English light and dark interfaces. Refer to the V1.25 update notes for the newly added features.
+These **V1.23 screenshots captured on Windows** show the English light and dark interfaces. Refer to the current-version notes for the latest features.
 
 | English · Light theme | English · Dark theme |
 | :---: | :---: |
@@ -56,6 +56,18 @@ The displayed product key is a public generic installation key for selecting an 
 - Save and restore JSON plans; review summaries, recommended-setting differences, checks, redacted previews, and XML exports.
 - Import existing XML and edit supported settings while preserving unknown content. Export stops with an explanation when changes cannot be merged reliably.
 
+## V1.34 PE failure handling and preflight checks · 2026-11-03
+
+- Confirm that the selected installation image exists before DISM inspection; stop before disk discovery and partitioning when it is missing.
+- Require an exact zero exit status after DiskPart; any other return stops deployment before applying the Windows image.
+- Retain the V1.33 recovery-partition, WinRE, and prerequisite-aware search behavior without changing the selected disk mode.
+- Keep the existing Windows Setup installation path unchanged and extend PE regression checks.
+
+See [PE script installation](docs/GeneratedPe.md).
+
+<details>
+<summary>Update history (click to expand)</summary>
+
 ## V1.33 PE recovery partition option · 2026-11-02
 
 - Add Create a recovery partition and retain Windows RE (PE, recommended) to automatic partitioning under Image & partitions. It appears when PE script installation is enabled and defaults to checked.
@@ -69,8 +81,7 @@ The displayed product key is a public generic installation key for selecting an 
 
 See [PE script installation](docs/GeneratedPe.md).
 
-<details>
-<summary>Update history (click to expand)</summary>
+
 
 ## V1.32 PE image integrity verification option · 2026-11-01
 

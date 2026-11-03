@@ -106,6 +106,16 @@ public static class PeDiskSafety
         if (legacyTargetChain) return script.Insert(calls[0].Index,
             "rem UnattendLocal destructive gate v2\r\n" +
             "cscript.exe //E:vbscript X:\\target.vbs //Nologo --verify >X:\\UL-verify.out || call :fail \"Disk safety recheck failed. No disk was formatted.\"\r\n");
+        // Preserve the recognized historical pipeline only for exact old-XML matching.
+        // Current exports require an exact zero exit code after DiskPart; errorlevel
+        // comparisons must not allow negative process exit values to continue.
+        const string originalDiskPart = "diskpart.exe /s X:\\diskpart.txt || call :fail \"diskpart.exe encountered an error.\"";
+        string strictDiskPart = "diskpart.exe /s X:\\diskpart.txt\r\n" +
+            "set \"UL_DISKPART_EXIT=%errorlevel%\"\r\n" +
+            "if not \"%UL_DISKPART_EXIT%\"==\"0\" call :fail \"DiskPart failed. Check partition output before continuing.\"";
+        if (!script.Contains(originalDiskPart, StringComparison.Ordinal) || script.Split(originalDiskPart).Length != 2)
+            throw new InvalidOperationException("Unexpected PE DiskPart completion chain.");
+        script = script.Replace(originalDiskPart, strictDiskPart, StringComparison.Ordinal);
         return script.Insert(calls[0].Index,
             "rem UnattendLocal destructive gate v2\r\n" +
             "set \"ERRORLEVEL=\"\r\n" +
