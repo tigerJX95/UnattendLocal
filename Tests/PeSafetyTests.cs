@@ -127,6 +127,8 @@ static class PeSafetyTests
         foreach (var layout in new[] { "UEFI / GPT", "BIOS / MBR", PeDiskSafety.AutomaticLayout })
         {
             var previous = Plan(); previous.DiskLayout = layout;
+            // Layout changes revoke consent; finish the fixture before confirming.
+            previous.ConfirmWipeDisk = true;
             string oldXml = Encoding.UTF8.GetString(generator.GenerateV134PeBaseline(previous));
             Check(XmlMerge.Read(oldXml).SelectNodes("//comment()")!.Cast<XmlComment>()
                   .Any(comment => comment.Value?.StartsWith("UnattendLocal:v1 ", StringComparison.Ordinal) == true),
@@ -134,6 +136,17 @@ static class PeSafetyTests
             var restored = XmlPlanImport.Import(oldXml, generator);
             Check(restored.UseGeneratedPe && restored.ImportedXml?.GeneratedPeEditable == true,
                 "unmodified V1.34 PE XML can be imported for " + layout);
+            Check(!restored.ConfirmWipeDisk && !restored.ConfirmImportedXmlRisk,
+                "V1.34 recognition grants no deployment consent for " + layout);
+            // Imported XML review alone must never authorize erasing a disk.
+            restored.ConfirmImportedXmlRisk = true;
+            bool wipeRejected = false;
+            try { _ = generator.Generate(restored); }
+            catch (ConfigurationValidationException error)
+            {
+                wipeRejected = error.Field == nameof(InstallPlan.ConfirmWipeDisk);
+            }
+            Check(wipeRejected, "V1.34 export still requires explicit erase consent for " + layout);
             restored.ConfirmWipeDisk = true;
             restored.ConfirmImportedXmlRisk = true;
             string upgraded = Script(generator.Generate(restored));
