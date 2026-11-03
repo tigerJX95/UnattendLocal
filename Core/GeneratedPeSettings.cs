@@ -79,14 +79,26 @@ public static class GeneratedPeSettings
         // Recognition-only predecessor for safe import of exact V1.34 PE XML.
         // This path is not exposed to user exports.
         if (previousFirmwareGuard)
-        {
-            string firmwareLine = FirmwareLayoutPreflight(p) + "\n";
-            if (!guard.Contains(firmwareLine, StringComparison.Ordinal))
-                throw new InvalidOperationException("Unexpected PE preflight structure.");
-            guard = guard.Replace(firmwareLine, "", StringComparison.Ordinal);
-        }
+            guard = RemoveKnownFirmwarePreflight(guard, FirmwareLayoutPreflight(p));
         return engine.GenerateXml(config with { PESettings = new ScriptPESetttings(PeDiskSafety.Guard(script.Insert(at, guard + "\r\n"), p, legacyTargetChain)) });
     }
+    // Reconstruct a known V1.34 import baseline without the V1.35 firmware
+    // check. C# raw string literals preserve the checkout's line endings,
+    // so do not assume LF when matching the line on Windows (CRLF).
+    internal static string RemoveKnownFirmwarePreflight(string script, string firmwareLine)
+    {
+        int start = script.IndexOf(firmwareLine, StringComparison.Ordinal);
+        if (start < 0 || (start > 0 && script[start - 1] != '\n') ||
+            script.IndexOf(firmwareLine, start + firmwareLine.Length, StringComparison.Ordinal) >= 0)
+            throw new InvalidOperationException("Unexpected PE preflight structure.");
+        int end = start + firmwareLine.Length;
+        int newlineLength = script.AsSpan(end).StartsWith("\r\n", StringComparison.Ordinal) ? 2
+            : end < script.Length && script[end] == '\n' ? 1 : 0;
+        if (newlineLength == 0)
+            throw new InvalidOperationException("Unexpected PE preflight structure.");
+        return script.Remove(start, firmwareLine.Length + newlineLength);
+    }
+
     // A fixed partition layout must match how the installer actually booted.
     // Automatic mode already selects GPT or MBR at runtime; do not constrain it.
     // All checks run before target discovery and any destructive commands.

@@ -110,6 +110,18 @@ static class PeSafetyTests
             imported.ConfirmWipeDisk = true; imported.ConfirmImportedXmlRisk = true;
             Check(Script(generator.Generate(imported)) == script, "XML roundtrip preserves guarded pipeline");
         }
+        // V1.34 import baseline reconstruction must work with both GitHub's LF
+        // and Windows checkout's CRLF without weakening the exact-line guard.
+        foreach (string newline in new[] { "\n", "\r\n" })
+        foreach (var layout in new[] { "UEFI / GPT", "BIOS / MBR", PeDiskSafety.AutomaticLayout })
+        {
+            var baselinePlan = Plan(); baselinePlan.DiskLayout = layout;
+            string firmwareLine = GeneratedPeSettings.FirmwareLayoutPreflight(baselinePlan);
+            string before = "first" + newline + firmwareLine + newline + "last" + newline;
+            Check(GeneratedPeSettings.RemoveKnownFirmwarePreflight(before, firmwareLine)
+                  == "first" + newline + "last" + newline,
+                "V1.34 firmware preflight import baseline supports both LF and CRLF for " + layout);
+        }
         // Previously generated V1.34 XML must remain safely editable when the
         // complete original PE pipeline still matches the known predecessor.
         foreach (var layout in new[] { "UEFI / GPT", "BIOS / MBR", PeDiskSafety.AutomaticLayout })
