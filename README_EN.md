@@ -5,7 +5,7 @@
 
 UnattendLocal is a Windows desktop tool with Simplified Chinese and English interfaces based on [Christoph Schneegans’ UnattendGenerator](https://github.com/cschneegans/unattend-generator). It lets you edit, check, and generate `autounattend.xml` for Windows 10 / 11 locally.
 
-Current version: **V1.35**. When PE script installation is enabled, image selection switches to **By image index** and requires an index from the installation image; the regular Windows Setup path retains all image selection modes. Includes static IPv4/IPv6 dual stack, subnet-mask input, settings search, setup driver directories, Dynamic Update, partitioning, OOBE and account settings, and existing XML import/editing.
+Current version: **V1.36**. When PE script installation is enabled, image selection switches to **By image index** and requires an index from the installation image; the regular Windows Setup path retains all image selection modes. Includes static IPv4/IPv6 dual stack, subnet-mask input, settings search, setup driver directories, Dynamic Update, partitioning, OOBE and account settings, and existing XML import/editing.
 
 ## 💡 Why this project exists
 
@@ -56,6 +56,19 @@ The displayed product key is a public generic installation key for selecting an 
 - Save and restore JSON plans; review summaries, recommended-setting differences, checks, redacted previews, and XML exports.
 - Import existing XML and edit supported settings while preserving unknown content. Export stops with an explanation when changes cannot be merged reliably.
 
+## V1.36 PE interaction summaries and pause notices · 2026-11-03
+
+- Describe the actual PE disk selector, partition layout and image index instead of using the regular Windows Setup fixed-partition description.
+- Stop incorrectly listing manual disk selection for fixed-number and unique-match selectors. Retain review notices for interactive selection, custom VBScript and unrecognized imported flows.
+- Omit the Windows Setup product-key prompt from the PE interaction summary while retaining it for regular installation.
+- List enabled pauses before automatic partitioning and before restarting at the end of the PE stage. Omit disabled pauses and those not used by the selected installation mode.
+- Preserve disk operations, WinRE, image-index handling and existing safety checks. Reading a summary never grants disk-erasure consent.
+
+See [PE script installation](docs/GeneratedPe.md).
+
+<details>
+<summary>Update history (click to expand)</summary>
+
 ## V1.35 PE firmware and partition-layout preflight · 2026-11-03
 
 - Before disk selection or partitioning, reject fixed UEFI/GPT or BIOS/MBR layouts when the actual Windows PE boot firmware does not match, with an explicit error message.
@@ -63,9 +76,6 @@ The displayed product key is a public generic installation key for selecting an 
 - Preserve existing image-index, disk-selection, pre-format recheck, WinRE, and ordinary Windows Setup behavior.
 
 See [PE script installation](docs/GeneratedPe.md).
-
-<details>
-<summary>Update history (click to expand)</summary>
 
 ## V1.34 PE failure handling and preflight checks · 2026-11-03
 
@@ -332,7 +342,7 @@ For media preparation and explicit invocation, see [XML and ISO export](docs/Ans
 
 Download and fully extract the program ZIP to keep the editable `Languages` folder beside the EXE. The EXE also has embedded Chinese and English fallback resources. See [language packs](docs/Localization.md).
 
-Download and run the matching Windows x64 executable from the repository’s [**Releases**](https://github.com/tigerJX95/UnattendLocal/releases/latest) page: `UnattendLocal_V1.25_x64_SelfContained.exe` or `UnattendLocal_V1.25_x64_FrameworkDependent.exe`. Choose `UnattendLocal_V1.25_x64_SelfContained.exe` for a bundled .NET runtime, or `UnattendLocal_V1.25_x64_FrameworkDependent.exe` if .NET 10 Desktop Runtime x64 is already installed. Both have the same features. Use a virtual machine for initial testing.
+Download and run the matching Windows x64 executable from the repository’s [**Releases**](https://github.com/tigerJX95/UnattendLocal/releases/latest) page: `UnattendLocal_V1.36_x64_SelfContained.exe` or `UnattendLocal_V1.36_x64_FrameworkDependent.exe`. Choose `UnattendLocal_V1.36_x64_SelfContained.exe` for a bundled .NET runtime, or `UnattendLocal_V1.36_x64_FrameworkDependent.exe` if .NET 10 Desktop Runtime x64 is already installed. Both have the same features. Use a virtual machine for initial testing.
 
 1. Choose a recommended scenario or a custom configuration and enter the required account and image settings.
 2. Adjust system, appearance, and application removal options as needed.

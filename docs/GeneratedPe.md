@@ -179,3 +179,18 @@ When PE script installation is enabled, the image selection automatically switch
 选择固定 UEFI/GPT 时，必须以 UEFI 模式启动 Windows PE；选择固定 BIOS/MBR 时，必须以 BIOS 模式启动。若不匹配，脚本会在镜像检查、磁盘选择及 DiskPart 执行前停止，并说明原因。“跟随启动方式”会继续自动选择对应布局。此项检查不会替用户转换虚拟机的固件设置。
 
 For fixed UEFI/GPT, boot Windows PE in UEFI mode; for fixed BIOS/MBR, boot it in BIOS mode. A mismatch fails before image inspection, target selection, or DiskPart. Automatic mode still follows the detected firmware. The check does not change VM firmware settings.
+
+
+### V1.36 安装交互摘要 / Installation interaction review
+
+配置摘要中的“安装时可能需要操作”按实际安装路径显示。PE 模式使用固定编号或条件唯一匹配时，不额外列出手动选择磁盘；使用交互选盘、自定义 VBScript 或无法完整识别的导入流程时，继续提示核对安装目标。自定义 VBScript 可自行请求输入，工具不会据此承诺全程无人值守。
+
+PE 模式不会经过 Windows Setup 的产品密钥输入步骤，因此交互摘要不再列出该步骤。常规 Windows Setup 仍按原有密钥选项显示提示。已启用的自动分区前暂停会显示在交互摘要中；仅 PE 模式显示已启用的重启前暂停。停用的暂停选项以及不使用自动分区时保留的暂停草稿不显示。
+
+这些说明仅用于配置核对，不执行磁盘探测或自定义脚本，不改变分区、WinRE、镜像索引及安全校验，也不会自动勾选风险确认。未识别、外部修改或省略原文的导入配置仍保留原有保护。
+
+The installation-interaction review follows the selected installation path. Fixed-number and unique-match PE selectors do not add a manual disk-selection step. Interactive selectors, custom VBScript and unrecognized imported flows retain a target-review notice. A custom VBScript can request input itself, so it is not presented as guaranteed unattended selection.
+
+PE installation does not pass through the Windows Setup product-key prompt; that step is therefore omitted from the PE interaction review. Regular Setup retains its existing key-mode notice. Enabled pre-partition pauses are listed, and the enabled pre-reboot pause is listed only for PE installation. Disabled or inactive pause settings are omitted.
+
+The review is presentation only: it does not inspect disks, execute custom scripts, change partitioning, WinRE, image-index handling or safety checks, or grant risk consent. Unrecognized, externally modified or source-omitted imports retain their existing protection.
