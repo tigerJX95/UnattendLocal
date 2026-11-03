@@ -56,6 +56,13 @@ static class PeSafetyTests
             Check(selector.Contains("CDbl(MinGiB) * 1073741824") && !selector.Contains("CInt("), "capacity comparison does not round GiB");
             Check(selector.Contains("accepted.Count <> 1") && selector.Contains("PNPDeviceID") && selector.Contains("saved(1) <> identity"), "unique selection and identity recheck are present");
             string script = Script(generator.Generate(p));
+            string diskPartCommand = layout == PeDiskSafety.AutomaticLayout
+                ? @"diskpart.exe /s X:\%LAYOUT%.txt"
+                : @"diskpart.exe /s X:\diskpart.txt";
+            Check(script.Contains(diskPartCommand + "\nset \"UL_DISKPART_EXIT=%errorlevel%\"", StringComparison.Ordinal)
+                && script.Contains("if not \"%UL_DISKPART_EXIT%\"==\"0\" call :fail", StringComparison.Ordinal)
+                && !script.Contains(diskPartCommand + " || call :fail", StringComparison.Ordinal),
+                "exact-zero DiskPart completion check uses the correct script path for " + layout);
             int gate = script.IndexOf("rem UnattendLocal destructive gate v2", StringComparison.Ordinal);
             int execute = script.IndexOf("diskpart.exe /s ", StringComparison.Ordinal);
             int pause = script.LastIndexOf("\npause", gate, StringComparison.Ordinal);

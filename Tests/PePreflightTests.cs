@@ -26,6 +26,9 @@ static class PePreflightTests
    Check(script.Contains("Cannot read selected image."),"DISM failure remains distinct");
    int missingImage = script.IndexOf("if not exist \"%IMAGE_FILE%\" call :fail", StringComparison.Ordinal);
    Check(missingImage >= 0 && missingImage < dism, "missing installation image stops before DISM and disk selection");
+   string diskpartPath = layout == PeDiskSafety.AutomaticLayout ? @"X:\%LAYOUT%.txt" : @"X:\diskpart.txt";
+   Check(script.Contains("diskpart.exe /s " + diskpartPath + "\nset \"UL_DISKPART_EXIT=%errorlevel%\"", StringComparison.Ordinal),
+      "DiskPart exact-exit check preserves the correct script path for " + layout);
    int diskpartExit = script.IndexOf("set \"UL_DISKPART_EXIT=%errorlevel%\"", StringComparison.Ordinal);
    int diskpartGate = script.IndexOf("if not \"%UL_DISKPART_EXIT%\"==\"0\" call :fail", StringComparison.Ordinal);
    Check(diskpartExit > disk && diskpartGate > diskpartExit && !script.Contains("diskpart.txt || call :fail"),

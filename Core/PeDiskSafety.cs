@@ -109,11 +109,16 @@ public static class PeDiskSafety
         // Preserve the recognized historical pipeline only for exact old-XML matching.
         // Current exports require an exact zero exit code after DiskPart; errorlevel
         // comparisons must not allow negative process exit values to continue.
-        const string originalDiskPart = "diskpart.exe /s X:\\diskpart.txt || call :fail \"diskpart.exe encountered an error.\"";
-        string strictDiskPart = "diskpart.exe /s X:\\diskpart.txt\r\n" +
+        // Upstream emits a firmware-dependent script name in Automatic mode;
+        // fixed GPT/MBR layouts use diskpart.txt. Require the exact known command.
+        string diskPartCommand = Layout(p) == PartitionLayout.Automatic
+            ? @"diskpart.exe /s X:\%LAYOUT%.txt"
+            : @"diskpart.exe /s X:\diskpart.txt";
+        string originalDiskPart = diskPartCommand + " || call :fail \"diskpart.exe encountered an error.\"";
+        string strictDiskPart = diskPartCommand + "\r\n" +
             "set \"UL_DISKPART_EXIT=%errorlevel%\"\r\n" +
             "if not \"%UL_DISKPART_EXIT%\"==\"0\" call :fail \"DiskPart failed. Check partition output before continuing.\"";
-        if (!script.Contains(originalDiskPart, StringComparison.Ordinal) || script.Split(originalDiskPart).Length != 2)
+        if (script.Split(originalDiskPart, StringSplitOptions.None).Length != 2)
             throw new InvalidOperationException("Unexpected PE DiskPart completion chain.");
         script = script.Replace(originalDiskPart, strictDiskPart, StringComparison.Ordinal);
         return script.Insert(calls[0].Index,
