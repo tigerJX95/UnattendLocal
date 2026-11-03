@@ -35,6 +35,18 @@ public static class InstallationReview
     }
     public static Target ForPlan(InstallPlan p)
     {
+        if (p.UseGeneratedPe)
+        {
+            // Review only. Unrecognized imported scripts must not inherit the
+            // editor's defaults or imply that target selection is unattended.
+            if (p.DiskMode != InstallationSettings.Wipe ||
+                p.PeTargetMode is not ("fixed" or "match" or "interactive" or "script") ||
+                (p.ImportedXml != null && !GeneratedPeSettings.OwnsImported(p)))
+                return new(global::UnattendLocal.Localization.UiText.Source("v125.pe.review"), true);
+            bool automatic = p.PeTargetMode == "match" || p.PeTargetMode == "fixed" && p.TargetDiskId is >= 0;
+            // A custom VBScript may itself request input; preserve the caution.
+            return new(GeneratedPeSettings.Summary(p), !automatic);
+        }
         if (p.DiskMode != InstallationSettings.Manual) {
             if (p.TargetDiskId is null or < 0) return new(global::UnattendLocal.Localization.UiText.Source("text.9c48322114b0"), true);
             if (p.DiskMode == InstallationSettings.Wipe)

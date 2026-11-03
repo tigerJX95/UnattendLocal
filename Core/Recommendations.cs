@@ -88,7 +88,7 @@ public static class Recommendations {
   var steps=new List<string>();
   if(p.InteractiveLanguage)steps.Add(global::UnattendLocal.Localization.UiText.Source("text.29a94580f825"));
   if(p.ComputerNameMode==ComputerNamingSettings.Prompt)steps.Add(global::UnattendLocal.Localization.UiText.Source("text.f953e0a40266"));
-  if(p.EditionMode==global::UnattendLocal.Localization.UiText.Source("text.5056d73b13ec"))steps.Add(global::UnattendLocal.Localization.UiText.Source("text.1235621bb371"));
+  if(!p.UseGeneratedPe&&p.EditionMode==global::UnattendLocal.Localization.UiText.Source("text.5056d73b13ec"))steps.Add(global::UnattendLocal.Localization.UiText.Source("text.1235621bb371"));
   if(p.AccountMode is "安装时创建本地账户" or "安装时添加微软账户")steps.Add(global::UnattendLocal.Localization.UiText.Source("text.c5d5e281d36b"));
   if(p.WifiMode==global::UnattendLocal.Localization.UiText.Source("text.fd17c35ec3cc"))steps.Add(global::UnattendLocal.Localization.UiText.Source("text.011fdba1ddda"));
   if(p.PrivacyMode==global::UnattendLocal.Localization.UiText.Source("text.fd17c35ec3cc"))steps.Add(global::UnattendLocal.Localization.UiText.Source("text.964b2354c843"));
@@ -96,6 +96,8 @@ public static class Recommendations {
   if(!p.HideOEMRegistration)steps.Add(global::UnattendLocal.Localization.UiText.Source("text.0bc7cece683a"));
   if(p.AccountMode!=global::UnattendLocal.Localization.UiText.Source("text.5f78e95b6bd9")&&!p.HideOnlineAccount)steps.Add(global::UnattendLocal.Localization.UiText.Source("text.84384815b32e"));
   if(InstallationReview.ForPlan(p).MayNeedSelection)steps.Add(global::UnattendLocal.Localization.UiText.Source("text.5cf9e6eebffc"));
+  if(p.DiskMode==InstallationSettings.Wipe&&p.PauseBeforeFormatting)steps.Add(global::UnattendLocal.Localization.UiText.Source("text.f4cc320ab93b"));
+  if(p.UseGeneratedPe&&p.PauseBeforePeReboot)steps.Add(global::UnattendLocal.Localization.UiText.Source("v125.pe.pause"));
   return steps.Count==0?global::UnattendLocal.Localization.UiText.Source("text.cafe0af0399a"):global::UnattendLocal.Localization.UiText.Join("、", steps, false);
  }
  public static string MissingInputs(InstallPlan p){

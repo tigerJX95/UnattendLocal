@@ -99,6 +99,64 @@ static class GeneratedPeTests
             string value = Script(g.Generate(t));
             Check(value.Contains("Const FixedIndex = " + disk) && value.Contains("/Index:" + image), "selected disk/image pair " + disk + "/" + image);
         }
+        // Presentation must describe the selected PE path without changing it.
+        string previousLanguage = UiText.Language;
+        try
+        {
+            foreach (string language in new[] { "zh-CN", "en-US" })
+            foreach (string mode in new[] { "fixed", "match", "interactive", "script" })
+            foreach (string layout in new[] { "UEFI / GPT", "BIOS / MBR", PeDiskSafety.AutomaticLayout })
+            {
+                UiText.SetLanguage(language);
+                var reviewPlan = Plan(); reviewPlan.PeTargetMode = mode; reviewPlan.DiskLayout = layout;
+                if (mode != "fixed") reviewPlan.TargetDiskId = null;
+                reviewPlan.PeTargetScript = "WScript.Echo 0";
+                reviewPlan.ConfirmWipeDisk = true;
+                byte[] beforeXml = g.Generate(reviewPlan);
+                string beforeJson = PlanStore.Serialize(reviewPlan, true);
+                var review = InstallationReview.ForPlan(reviewPlan);
+                Check(review.Description == GeneratedPeSettings.Summary(reviewPlan), "PE target review uses actual selector and layout " + mode + layout);
+                // Arbitrary trusted VBScript can itself prompt, so keep its caution.
+                Check(review.MayNeedSelection == (mode is "interactive" or "script"), "PE target interaction classification " + mode + layout);
+                string steps = Recommendations.InteractiveSteps(reviewPlan);
+                Check(!steps.Contains(UiText.Source("text.1235621bb371")), "PE does not promise a Setup product-key prompt");
+                Check(steps.Contains(UiText.Source("text.5cf9e6eebffc")) == review.MayNeedSelection, "PE interaction list agrees with target review");
+                foreach (bool pause in new[] { false, true })
+                {
+                    reviewPlan.PauseBeforeFormatting = pause; reviewPlan.PauseBeforePeReboot = pause;
+                    string pausedSteps = Recommendations.InteractiveSteps(reviewPlan);
+                    Check(pausedSteps.Contains(UiText.Source("text.f4cc320ab93b")) == pause &&
+                        pausedSteps.Contains(UiText.Source("v125.pe.pause")) == pause, "only enabled PE pauses appear in review");
+                    Check(!System.Text.RegularExpressions.Regex.IsMatch(UiText.Translate(pausedSteps), "[\u4e00-\u9fff]") || language == "zh-CN", "PE interaction review translates completely");
+                }
+                // Restore the original settings and explicitly reconfirm after edits.
+                reviewPlan.PauseBeforeFormatting = reviewPlan.PauseBeforePeReboot = false;
+                Check(!reviewPlan.ConfirmWipeDisk, "review never grants erase consent after pause edits");
+                reviewPlan.ConfirmWipeDisk = true;
+                Check(PlanStore.Serialize(reviewPlan, true) == beforeJson && g.Generate(reviewPlan).SequenceEqual(beforeXml), "review preserves plan and generated deployment XML");
+            }
+            var missingTarget = Plan(); missingTarget.TargetDiskId = null;
+            Check(InstallationReview.ForPlan(missingTarget).MayNeedSelection, "missing fixed PE target remains a caution");
+            var unknownMode = Plan(); unknownMode.PeTargetMode = "unknown";
+            Check(InstallationReview.ForPlan(unknownMode).MayNeedSelection, "unknown PE selector remains a caution");
+            var invalidDiskMode = Plan(); invalidDiskMode.DiskMode = InstallationSettings.Manual;
+            Check(InstallationReview.ForPlan(invalidDiskMode).MayNeedSelection, "incomplete PE disk mode remains a caution");
+            var knownReview = XmlPlanImport.Import(Encoding.UTF8.GetString(g.Generate(Plan())), g);
+            Check(!InstallationReview.ForPlan(knownReview).MayNeedSelection && !knownReview.ConfirmWipeDisk, "known PE import reviews its target without restoring consent");
+            knownReview.ImportedXml!.SourceXml = knownReview.ImportedXml.SourceXml.Replace("rem UnattendLocal generated PE v1", "rem changed externally", StringComparison.Ordinal);
+            Check(InstallationReview.ForPlan(knownReview).MayNeedSelection, "modified imported PE flow remains a caution");
+            knownReview.ImportedXml.OriginalOmitted = true;
+            Check(InstallationReview.ForPlan(knownReview).MayNeedSelection, "omitted imported PE source remains a caution");
+            var setupReview = Plan(); setupReview.UseGeneratedPe = false;
+            Check(Recommendations.InteractiveSteps(setupReview).Contains(UiText.Source("text.1235621bb371")), "regular Setup retains product-key interaction");
+            setupReview.PauseBeforePeReboot = true;
+            Check(!Recommendations.InteractiveSteps(setupReview).Contains(UiText.Source("v125.pe.pause")), "inactive PE reboot pause is omitted from Setup review");
+            setupReview.PauseBeforeFormatting = true;
+            Check(Recommendations.InteractiveSteps(setupReview).Contains(UiText.Source("text.f4cc320ab93b")), "regular automatic partition pause appears in review");
+            setupReview.DiskMode = InstallationSettings.Manual;
+            Check(!Recommendations.InteractiveSteps(setupReview).Contains(UiText.Source("text.f4cc320ab93b")), "inactive partition pause is omitted from manual mode");
+        }
+        finally { UiText.SetLanguage(previousLanguage); }
         return count;
     }
 }
