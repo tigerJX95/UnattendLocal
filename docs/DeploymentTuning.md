@@ -8,7 +8,7 @@
 
 **禁止新建 NTFS 8.3 短文件名**：在 System 阶段设置系统级创建策略。只影响后续短文件名创建，不扫描或删除已有短文件名。例如，新建文件以后不再额外生成旧式短名称。依赖短路径的旧程序应保持此项关闭。设置生效可能需要重启。
 
-**自定义 C 盘分页文件（高级）**：常规安装在 System 阶段关闭自动管理，并创建或更新 `C:\pagefile.sys` 的容量，保留其他盘符现有分页文件。初始值至少 16 MiB，最大值不小于初始值且不超过 1048576 MiB。这里的上限是输入校验范围，不代表磁盘或 Windows 一定能分配该容量。默认输入 2048 / 4096 MiB，例如可将初始值设为 4096、最大值设为 8192；应按实际磁盘空间、工作负载及故障转储需求选择。重启后检查实际配置。此项不提供禁用分页文件选项，也不依赖自动登录。
+**自定义 C 盘分页文件（高级）**：常规安装在 System 阶段关闭自动管理，并创建或更新 `C:\pagefile.sys` 的容量，保留其他盘符现有分页文件。初始值至少 16 MiB，最大值不小于初始值且不超过 1048576 MiB。这里的上限是输入校验范围，不代表磁盘或 Windows 一定能分配该容量。默认输入 2048 / 4096 MiB，例如可将初始值设为 4096、最大值设为 8192；应按实际磁盘空间、工作负载及故障转储需求选择。重启后检查实际配置。常规安装通过此项设置容量，无需自动登录。
 
 PE 脚本安装复用相同的初始与最大容量，在映像释放后直接配置目标系统的离线分页文件。它把分页文件列表设为指定的 C 盘文件，不保留自定义镜像中原有的其他分页文件条目；此路径不再生成重复的 System 分页文件脚本。该操作仅在目标 PE 部署时运行。
 
@@ -46,3 +46,16 @@ For a disposable snapshot VM, enable custom paging in a PE plan with 2048 / 4096
 分页文件仍在 OOBE 的“系统性能与存储”中编辑。“镜像与分区”的 PE 区域显示状态并提供“前往设置”，只定位和高亮，不改变配置；不勾选表示保留目标镜像的分页文件设置。
 
 Edit the paging file under System performance and storage in OOBE. The PE area in Image and partition shows status and links to the same editor without changing values. Unchecked retains the target image paging file settings.
+
+
+## V1.37 PE 无分页文件 / No paging file in PE
+
+在“镜像与分区”启用 PE 脚本安装后，可勾选“关闭安装后 Windows 的分页文件”。默认关闭。启用时在映像释放后将目标系统的分页文件列表设为空。配置摘要显示实际生效模式，自定义容量仍保存在方案中。切换后需重新核对并确认清盘。
+
+关闭分页文件会降低内存提交上限，也可能影响系统崩溃转储。可在带快照的测试虚拟机中完成安装并重启，再用 `Get-CimInstance Win32_PageFileUsage` 核对是否存在活动分页文件。
+
+Under Image and partition, enable PE script installation to access **Disable paging files in the installed Windows (PE)**. The option is off by default. When enabled, it clears the target paging-file list after image application. The summary shows the effective mode and the plan retains custom sizes. Review and reconfirm disk erasure after changing the option.
+
+Disabling paging lowers the memory commit limit and can affect crash dumps. In a snapshot VM, run `Get-CimInstance Win32_PageFileUsage` after installation and restart to check for active paging files.
+
+[Microsoft paging-file and crash-dump guidance](https://learn.microsoft.com/en-us/troubleshoot/windows-client/performance/how-to-determine-the-appropriate-page-file-size-for-64-bit-versions-of-windows)

@@ -43,7 +43,35 @@ static class PePagingTests
             imported.ConfirmWipeDisk = true; imported.ConfirmImportedXmlRisk = true;
             Check(Pe(Document(generator.Generate(imported))) == pe, "current PE XML roundtrip");
             p.UseCustomPageFile = false; p.ConfirmWipeDisk = true;
-            Check(!Pe(Document(generator.Generate(p))).Contains("/v PagingFiles "), "system-managed default adds no offline override");
+            var defaultPe = Pe(Document(generator.Generate(p)));
+            Check(!defaultPe.Contains("/v PagingFiles "), "system-managed default adds no offline override");
+
+            p.UseCustomPageFile = true;
+            p.PageFileInitialMiB = 8192; // An inactive custom draft must not block this mode.
+            p.PeDisablePageFile = true;
+            Check(!p.ConfirmWipeDisk, "changing PE paging mode revokes erase consent");
+            p.ConfirmWipeDisk = true;
+            var noPaging = Document(generator.Generate(p));
+            var noPagingScript = Pe(noPaging);
+            var command = noPagingScript.Split('\n').Single(line => line.Contains("/v PagingFiles "));
+            Check(command.TrimEnd().EndsWith("/v PagingFiles /t REG_MULTI_SZ /f", StringComparison.Ordinal), "native empty PagingFiles value: " + layout);
+            Check(noPagingScript.IndexOf("/v PagingFiles ", StringComparison.Ordinal) > noPagingScript.IndexOf("dism.exe /Apply-Image", StringComparison.Ordinal), "empty paging value applied after imaging");
+            Check(!noPaging.InnerText.Contains("Win32_PageFileSetting") && noPaging.InnerText.Contains("PAGING-USER-SCRIPT"), "no competing pagefile writer; preserve user script");
+            var savedNoPaging = PlanStore.Deserialize(PlanStore.Serialize(p, true));
+            Check(savedNoPaging.PeDisablePageFile && savedNoPaging.UseCustomPageFile && savedNoPaging.PageFileInitialMiB == 8192 && !savedNoPaging.ConfirmWipeDisk,
+                "JSON retains PE mode and custom draft without consent");
+            Check(new MainViewModel { Plan = savedNoPaging }.PageFileStatus == UiText.Source("v137.pagefile.disabled"), "summary shows effective PE mode");
+            var importedNoPaging = XmlPlanImport.Import(noPaging.OuterXml, generator);
+            Check(importedNoPaging.PeDisablePageFile && new MainViewModel { Plan = importedNoPaging }.CanEditPeInstall &&
+                !importedNoPaging.ConfirmWipeDisk && !importedNoPaging.ConfirmImportedXmlRisk, "own PE XML restores mode without consent");
+            var scriptNode = noPaging.SelectSingleNode("//*[local-name()='PEScriptCopy']")!;
+            scriptNode.InnerText = noPagingScript.Replace(command.TrimEnd(), command.TrimEnd() + " /d \"C:\\pagefile.sys 0 0\"", StringComparison.Ordinal);
+            var modified = XmlPlanImport.Import(noPaging.OuterXml, generator);
+            Check(!new MainViewModel { Plan = modified }.CanEditPeInstall, "changed imported PE command stays read-only");
+            p.PageFileInitialMiB = 2048;
+            p.PeDisablePageFile = false;
+            p.ConfirmWipeDisk = true;
+            Check(Pe(Document(generator.Generate(p))) == pe, "returning to custom restores original PE script");
         }
         // Exact old full documents must migrate both the PE script and the old
         // System payload, rather than preserving a second pagefile writer.
@@ -63,7 +91,7 @@ static class PePagingTests
             var reopened = XmlPlanImport.Import(updated.OuterXml, generator);
             Check(new MainViewModel { Plan = reopened }.CanEditPeInstall && reopened.PageFileMaximumMiB == 4096, "upgraded XML reimports");
         }
-        var regular = Plan("UEFI / GPT"); regular.UseGeneratedPe = false; regular.ConfirmWipeDisk = true;
+        var regular = Plan("UEFI / GPT"); regular.UseGeneratedPe = false; regular.PeDisablePageFile = true; regular.ConfirmWipeDisk = true;
         var normal = Document(generator.Generate(regular));
         Check(normal.InnerText.Contains("Win32_PageFileSetting") && normal.SelectSingleNode("//*[local-name()='PEScriptCopy']") == null, "ordinary Setup keeps System configuration");
         var invalid = Plan("UEFI / GPT"); invalid.PageFileInitialMiB = 8192;

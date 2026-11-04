@@ -20,6 +20,18 @@ public class InstallPlan : Observable {
  public bool DisableNewNtfsShortNames { get=>_DisableNewNtfsShortNames; set=>Set(ref _DisableNewNtfsShortNames,value); }
  private bool _UseCustomPageFile;
  public bool UseCustomPageFile { get=>_UseCustomPageFile; set=>Set(ref _UseCustomPageFile,value); }
+ private bool _PeDisablePageFile;
+ [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingDefault)]
+ public bool PeDisablePageFile
+ {
+     get => _PeDisablePageFile;
+     set
+     {
+         if (_PeDisablePageFile == value) return;
+         ClearDiskConsent();
+         Set(ref _PeDisablePageFile, value);
+     }
+ }
  private int _PageFileInitialMiB=2048;
  public int PageFileInitialMiB { get=>_PageFileInitialMiB; set=>Set(ref _PageFileInitialMiB,value); }
  private int _PageFileMaximumMiB=4096;

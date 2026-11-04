@@ -3942,5 +3942,8 @@
   "v133.search.diskMode": "; located the partitioning mode. This setting requires automatic disk erasure and partitioning. Verify the target disk, select the mode, then locate this setting again.",
   "v133.search.enableRecovery": "; located the recovery partition switch. Enable it to edit the recovery partition size.",
   "v135.summary.notSet": "Not set",
-  "v135.summary.na": "Not applicable"
+  "v135.summary.na": "Not applicable",
+  "v137.pagefile.name": "Disable paging files in the installed Windows (PE)",
+  "v137.pagefile.help": "Applies to PE script installation and is off by default. Enabling it clears the target paging-file list after image application and suspends custom sizes. Disabling paging lowers the memory commit limit and can affect crash dumps. Review and reconfirm disk erasure after changing this setting.",
+  "v137.pagefile.disabled": "Paging files: disabled (PE)"
 }

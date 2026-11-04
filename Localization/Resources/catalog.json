@@ -37159,5 +37159,34 @@
     ],
     "RawArgs": [],
     "ProtectedTokens": []
+  },
+  "v137.pagefile.name": {
+    "Source": "关闭安装后 Windows 的分页文件（PE）",
+    "Contexts": [
+      "Desktop/MainWindow.xaml",
+      "Desktop/SettingsSearchCatalog.cs"
+    ],
+    "RawArgs": [],
+    "SourceHash": "45e17ac8be2d2f59b130c6ba5cde5e4acb99d24c04652d00f52d64ac57a42211",
+    "ProtectedTokens": []
+  },
+  "v137.pagefile.help": {
+    "Source": "仅用于 PE 脚本安装，默认关闭。启用后在释放映像后将目标系统的分页文件列表设为空，暂时停用自定义容量。关闭分页文件会降低内存提交上限，也可能影响系统崩溃转储。切换后请重新核对并确认清盘。",
+    "Contexts": [
+      "Desktop/MainWindow.xaml",
+      "Desktop/SettingsSearchCatalog.cs"
+    ],
+    "RawArgs": [],
+    "SourceHash": "4510abd085feda7ef43acaaf745d03d35f408f80c1eb1a05ccee62b85a932681",
+    "ProtectedTokens": []
+  },
+  "v137.pagefile.disabled": {
+    "Source": "分页文件：关闭（PE）",
+    "Contexts": [
+      "Core/DeploymentTuningSettings.cs"
+    ],
+    "RawArgs": [],
+    "SourceHash": "6af8ee8c6b3c5f444428d25adbfdceeb0707b7b4814c64d4084da8c1e133c548",
+    "ProtectedTokens": []
   }
 }

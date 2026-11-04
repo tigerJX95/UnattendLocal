@@ -222,11 +222,7 @@ public class MainViewModel : Observable {
  public bool CanEditCompactOs=>CompactOsSettings.CanEdit(Plan);
  public string CompactOsSummary=>CompactOsSettings.ModeSummary(Plan);
  public string PeCompactOsStatus=>global::UnattendLocal.Localization.UiText.Format("v131.compact.peStatus",[CompactOsSummary]);
- public string PageFileStatus=>!Plan.UseCustomPageFile
-  ?global::UnattendLocal.Localization.UiText.Source("v131.pagefile.default")
-  :Plan.PageFileInitialMiB<16||Plan.PageFileMaximumMiB<Plan.PageFileInitialMiB||Plan.PageFileMaximumMiB>1048576
-   ?global::UnattendLocal.Localization.UiText.Source("v131.pagefile.invalid")
-   :global::UnattendLocal.Localization.UiText.Format("v131.pagefile.custom",[Plan.PageFileInitialMiB.ToString(System.Globalization.CultureInfo.InvariantCulture),Plan.PageFileMaximumMiB.ToString(System.Globalization.CultureInfo.InvariantCulture)]);
+ public string PageFileStatus=>DeploymentTuningSettings.PageFileStatus(Plan);
  private void RefreshCompactOs(){Notify(nameof(PeCompactOsStatus));Notify(nameof(PageFileStatus));Notify(nameof(CanEditCompactOs));Notify(nameof(CompactOsSummary));}
  public bool HasImportedXml=>Plan.ImportedXml!=null;
  public bool HasImportedXmlRisk=>Plan.ImportedXml?.RequiresDiskReview==true;

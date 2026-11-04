@@ -91,3 +91,13 @@ https://github.com/cschneegans/unattend-generator/blob/82d4ffdd11ea3266f8f3b29d4
 代码基线为用户仓库正式 V1.31，提交 a6a28b6248c0a2c8d0766845941e926b509a9dca。完整保留该提交的两个 Issue 模板、config.yml 与 .gitattributes；新增 WPF 临时项目排除规则。
 
 2026-11-02：V1.33 以正式 V1.32 提交 6ed7e8909c7ceee7a06edbeb4d9d61d4ca681c0f 为基线。官网仍标注 82d4ffd，提供 Remove Windows RE。核对固定 vendor 的 RecoveryMode.None：不创建恢复分区，并删除目标镜像 winre.wim；本版仅接入此配置，保留默认 Partition 与现有检查。vendor 未修改。
+
+
+## V1.37 官网与上游核对
+
+2026-11-04 对照官网与上游主分支 `82d4ffdd11ea3266f8f3b29d4fcd80f66bfdbaf6`。本版接入官网 PE 的 **Use no paging file** 选项，映射到固定核心已有的 `NoPagingFileSettings`。新增选项默认关闭，兼容原有 JSON 方案与自定义分页容量。 [官网](https://schneegans.de/windows/unattend-generator/) · [上游源码](https://github.com/cschneegans/unattend-generator/blob/82d4ffdd11ea3266f8f3b29d4fcd80f66bfdbaf6/modifier/Disk.cs)
+
+- 上游 `82d4ffd` 默认启用配置集并改变 PE 的 OEM 文件复制行为。本地按用户所选开关控制复制。 [提交](https://github.com/cschneegans/unattend-generator/commit/82d4ffdd11ea3266f8f3b29d4fcd80f66bfdbaf6)
+- 交互计算机名、VirtIO 存储驱动、协同安装器策略与 Edge 启动加速策略在本地已有对应实现。 [协同安装器议题 #448](https://github.com/cschneegans/unattend-generator/issues/448) · [已合并 PR #211](https://github.com/cschneegans/unattend-generator/pull/211)
+- 8.3 短文件名议题关闭于安装完成后，未发现对应修复提交。现有本地选项保留已创建的短文件名。 [议题 #461](https://github.com/cschneegans/unattend-generator/issues/461)
+- 离线 JSON 合约请求标记为不计划实现，本地继续维护现有方案格式。 [议题 #457](https://github.com/cschneegans/unattend-generator/issues/457)

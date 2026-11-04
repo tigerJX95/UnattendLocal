@@ -7,7 +7,7 @@ namespace UnattendLocal.Desktop;
 public static class SettingsSearchPrerequisites
 {
     public static bool HasExplicitTarget(string target) => target is
-        "PeRecoveryPartitionCheck" or "SettingAnchor066" or "SystemPartitionSizeEditor" or
+        "PeDisablePageFileCheck" or "PeRecoveryPartitionCheck" or "SettingAnchor066" or "SystemPartitionSizeEditor" or
         "PauseBeforeFormattingCheck" or "SettingAnchor067" or "ConfirmWipeDiskCheck";
 
     public static string? HintKey(string requested, string resolved) => requested == resolved ? null : resolved switch
@@ -20,6 +20,7 @@ public static class SettingsSearchPrerequisites
 
     public static string Resolve(string target, InstallPlan plan)
     {
+        if (target == "PeDisablePageFileCheck" && !plan.UseGeneratedPe) return "GeneratedPeMode";
         if (target == "PeRecoveryPartitionCheck")
         {
             if (!plan.UseGeneratedPe) return "GeneratedPeMode";

@@ -31,11 +31,18 @@ public static class GeneratedPeSettings
         : new GeneratePESettings(
             new UnattendedPartitionSettings(new ScriptTargetDiskSettings(PeDiskSafety.Selector(p, legacyTargetChain, unguardedSelector)), PeDiskSafety.Layout(p), p.PeCreateRecoveryPartition ? RecoveryMode.Partition : RecoveryMode.None, AutoPartitionSettings.SystemSize(p), p.RecoverySizeMB),
             new IndexInstallFromSettings(p.ImageIndex!.Value),
-            p.UseCustomPageFile && !legacyTargetChain && !unguardedSelector && !legacyPePaging
-                ? new CustomPagingFileSettings(p.PageFileInitialMiB, p.PageFileMaximumMiB)
-                : new AutomaticPagingFileSettings(),
+            BuildPagingFile(p, legacyTargetChain || unguardedSelector || legacyPePaging),
             DisableDefender: false, Disable8Dot3Names: false, PauseBeforeFormatting: p.PauseBeforeFormatting,
             PauseBeforeReboot: p.PauseBeforePeReboot, CompactOs: p.CompactOsMode == CompactOsSettings.Enabled, SkipIntegrityCheck: !p.PeCheckImageIntegrity);
+
+    private static IPagingFileSettings BuildPagingFile(InstallPlan plan, bool legacy)
+    {
+        if (legacy) return new AutomaticPagingFileSettings();
+        if (DeploymentTuningSettings.DisablesPageFile(plan)) return new NoPagingFileSettings();
+        return plan.UseCustomPageFile
+            ? new CustomPagingFileSettings(plan.PageFileInitialMiB, plan.PageFileMaximumMiB)
+            : new AutomaticPagingFileSettings();
+    }
 
     public static XmlDocument Generate(Schneegans.Unattend.UnattendGenerator engine, Configuration config, InstallPlan p) => Generate(engine, config, p, false);
     internal static XmlDocument Generate(Schneegans.Unattend.UnattendGenerator engine, Configuration config, InstallPlan p, bool legacyTargetChain, bool previousFirmwareGuard = false)
@@ -122,7 +129,7 @@ public static class GeneratedPeSettings
     // merge upgrade it on export without discarding unrelated source content.
     internal static void RestoreLegacyImport(InstallPlan p, InstallPlan baselinePlan, GeneratorService service)
     {
-        if (!p.UseGeneratedPe || OwnsImported(p) || p.ImportedXml is not { OriginalOmitted: false, Blockers.Length: 0 } data) return;
+        if (!p.UseGeneratedPe || p.PeDisablePageFile || OwnsImported(p) || p.ImportedXml is not { OriginalOmitted: false, Blockers.Length: 0 } data) return;
         var source = XmlMerge.Read(data.SourceXml);
         var sourcePipeline = Pipeline(source);
         XmlDocument? predecessor = null;

@@ -526,6 +526,10 @@
             </WrapPanel>
             <TextBlock Style="{StaticResource ExplanationText}" Text="{loc:Text v125.pe.help}" Visibility="{Binding Plan.UseGeneratedPe,Converter={StaticResource VisibleWhen}}"/>
             <StackPanel Visibility="{Binding Plan.UseGeneratedPe,Converter={StaticResource VisibleWhen}}" IsEnabled="{Binding CanEditPeInstall}">
+              <CheckBox x:Name="PeDisablePageFileCheck" Content="{loc:Source v137.pagefile.name}" IsChecked="{Binding Plan.PeDisablePageFile}">
+                <CheckBox.ToolTip><ToolTip ContentTemplate="{x:Null}" Content="{loc:Text v137.pagefile.help}"/></CheckBox.ToolTip>
+              </CheckBox>
+              <TextBlock Style="{StaticResource ExplanationText}" Text="{loc:Text v137.pagefile.help}" Foreground="{DynamicResource WarningBrush}" Visibility="{Binding Plan.PeDisablePageFile,Converter={StaticResource VisibleWhen}}"/>
               <CheckBox x:Name="PeImageIntegrityCheck" Content="{loc:Source v132.integrity.name}" IsChecked="{Binding Plan.PeCheckImageIntegrity}"><CheckBox.ToolTip><ToolTip ContentTemplate="{x:Null}" Content="{loc:Text v132.integrity.help}"/></CheckBox.ToolTip></CheckBox>
               <TextBlock Style="{StaticResource ExplanationText}" Text="{loc:Text v132.integrity.warning}" Foreground="{DynamicResource WarningBrush}" Visibility="{Binding IsPeIntegrityCheckDisabled,Converter={StaticResource VisibleWhen}}"/>
 
