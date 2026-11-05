@@ -25,6 +25,14 @@ public static class UiText
     public static string Language { get; private set; } = "zh-CN";
     public static bool IsEnglish => Language == "en-US";
     private static readonly JsonSerializerOptions Json = new() { PropertyNameCaseInsensitive = true };
+    private static readonly JsonSerializerOptions ExternalJson = new() { PropertyNameCaseInsensitive = true, AllowDuplicateProperties = false };
+    private static readonly Encoding ExternalUtf8 = new UTF8Encoding(true, true);
+    private static readonly Encoding[] ExternalBomEncodings =
+    [
+        new UTF32Encoding(false, true, true), new UTF32Encoding(true, true, true),
+        new UnicodeEncoding(false, true, true), new UnicodeEncoding(true, true, true),
+        ExternalUtf8
+    ];
     // Keep token matching linear for untrusted language packs. Boundary checks
     // below preserve escaped-brace behavior without unsupported lookarounds.
     private static readonly Regex PlaceholderPattern = new(@"\{\d+(?:,[^{}]+)?(?::[^{}]+)?\}", RegexOptions.CultureInvariant | RegexOptions.NonBacktracking, TimeSpan.FromMilliseconds(250));
@@ -46,12 +54,27 @@ public static class UiText
     public static bool LoadLanguageManifest(string path,out string? error){
         error=null;
         try{
-            if(new FileInfo(path).Length>65536)throw new ArgumentException("Language manifest is too large.");
-            var items=JsonSerializer.Deserialize<UiLanguage[]>(File.ReadAllText(path,new UTF8Encoding(false,true)),Json)??throw new ArgumentException("Invalid language manifest.");
+            var items=ReadExternalJson<UiLanguage[]>(path,65536,"Language manifest is too large.")??throw new ArgumentException("Invalid language manifest.");
             if(items.Any(i=>i is null)||items.Length>64||items.Select(i=>i.Code).Distinct().Count()!=items.Length||!items.Any(i=>i.Code=="zh-CN")||!items.Any(i=>i.Code=="en-US"))throw new ArgumentException("Required or duplicate language codes.");
             foreach(var item in items){if(!Regex.IsMatch(item.Code,@"^[a-z]{2,3}(?:-[A-Za-z0-9]{2,8})*$")||string.IsNullOrWhiteSpace(item.Name)||item.Name.Length>80)throw new ArgumentException("Invalid language identity.");_ = CultureInfo.GetCultureInfo(item.Code);}
             Languages=Array.AsReadOnly(items);return true;
-        }catch(Exception ex)when(ex is IOException or UnauthorizedAccessException or ArgumentException or JsonException){error=ex.Message;return false;}
+        }catch(Exception ex)when(ex is IOException or UnauthorizedAccessException or ArgumentException or JsonException or NotSupportedException){error=ex.Message;return false;}
+    }
+    private static T? ReadExternalJson<T>(string path, int maxBytes, string sizeError)
+    {
+        using var input = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.Read);
+        long length = input.Length;
+        if (length > maxBytes) throw new ArgumentException(sizeError);
+        var bytes = new byte[(int)length];
+        input.ReadExactly(bytes);
+        if (input.ReadByte() != -1) throw new IOException("Language file changed while it was being read.");
+
+        // Honor previously supported BOMs without switching to a permissive decoder.
+        var content = bytes.AsSpan();
+        foreach (var encoding in ExternalBomEncodings)
+            if (content.StartsWith(encoding.Preamble))
+                return JsonSerializer.Deserialize<T>(encoding.GetString(content[encoding.Preamble.Length..]), ExternalJson);
+        return JsonSerializer.Deserialize<T>(ExternalUtf8.GetString(content), ExternalJson);
     }
     private static T Read<T>(string name)
     {
@@ -111,12 +134,8 @@ public static class UiText
         try
         {
             if (!IsSupported(code)) throw new ArgumentException("Unsupported language pack.");
-            var info = new FileInfo(path);
-            if (info.Length > 4 * 1024 * 1024) throw new ArgumentException("Language pack is too large.");
-            var raw = File.ReadAllText(path, new UTF8Encoding(false, true));
-            using var parsed = JsonDocument.Parse(raw);
-            if (parsed.RootElement.ValueKind != JsonValueKind.Object || parsed.RootElement.EnumerateObject().GroupBy(p => p.Name).Any(g => g.Count() > 1)) throw new ArgumentException("Invalid or duplicate language keys.");
-            var pack = JsonSerializer.Deserialize<Dictionary<string, string>>(raw) ?? throw new ArgumentException("Invalid language pack.");
+            var pack = ReadExternalJson<Dictionary<string, string>>(path, 4 * 1024 * 1024, "Language pack is too large.")
+                ?? throw new ArgumentException("Invalid language pack.");
             foreach (var item in pack)
                 if (!IsValidEntry(item.Key, item.Value)) throw new ArgumentException("Invalid language entry: " + item.Key);
             Overrides[code] = pack;

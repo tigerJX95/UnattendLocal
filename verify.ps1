@@ -8,6 +8,10 @@ $ErrorActionPreference = 'Stop'
 Set-StrictMode -Version 2.0
 Push-Location $PSScriptRoot
 try {
+    $temporaryProjects = @(Get-ChildItem -LiteralPath 'Desktop', 'Tests/WpfBindings' -Filter '*_wpftmp.csproj' -File)
+    if ($temporaryProjects.Count -gt 0) {
+        throw 'Remove WPF temporary compilation projects (*_wpftmp.csproj) from the source tree before verification.'
+    }
     & (Join-Path $PSScriptRoot 'Tests/BuildScripts.Tests.ps1')
     & (Join-Path $PSScriptRoot 'Tests/ScriptTemplates.Tests.ps1')
     & (Join-Path $PSScriptRoot 'Tests/DeploymentTemplates.Tests.ps1')

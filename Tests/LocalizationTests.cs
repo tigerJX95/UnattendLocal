@@ -136,8 +136,25 @@ static class LocalizationTests
             Check(!UiText.LoadExternalPack("en-US", Pack("flat-summary.json", new Dictionary<string, string> { [structuredKey] = flatSummary }), out _), "structured summary line loss rejected");
             var duplicate = Path.Combine(directory, "duplicate.json"); File.WriteAllText(duplicate, "{\"" + cancel + "\":\"A\",\"" + cancel + "\":\"B\"}");
             Check(!UiText.LoadExternalPack("en-US", duplicate, out _), "duplicate keys rejected");
+            var malformedKey = Path.Combine(directory, "malformed-key.json");
+            File.WriteAllText(malformedKey, """{"\uD800":"Invalid"}""");
+            Check(!UiText.LoadExternalPack("en-US", malformedKey, out var keyError) && keyError != null && UiText.Get(cancel) == "Dismiss", "unpaired JSON surrogate in pack key rejected atomically");
+            var malformedValue = Path.Combine(directory, "malformed-value.json");
+            File.WriteAllText(malformedValue, "{\"" + cancel + "\":\"\\uD800\"}");
+            Check(!UiText.LoadExternalPack("en-US", malformedValue, out _) && UiText.Get(cancel) == "Dismiss", "unpaired JSON surrogate in pack value rejected atomically");
             var invalidUtf8 = Path.Combine(directory, "encoding.json"); File.WriteAllBytes(invalidUtf8, [0xFF, 0xFE, 0xFF]);
             Check(!UiText.LoadExternalPack("en-US", invalidUtf8, out _), "invalid UTF8 rejected");
+            var encodedPack = Path.Combine(directory, "encoded-pack.json");
+            foreach (var encoding in new Encoding[] { new UTF8Encoding(true), Encoding.Unicode, Encoding.BigEndianUnicode, Encoding.UTF32, new UTF32Encoding(true, true) })
+            {
+                File.WriteAllText(encodedPack, File.ReadAllText(englishPack), encoding);
+                Check(UiText.LoadExternalPack("en-US", encodedPack, out _) && UiText.Get(cancel) == "Dismiss", "BOM-marked language pack remains readable: " + encoding.WebName);
+            }
+            var invalidUtf16 = Path.Combine(directory, "invalid-utf16.json");
+            var utf16Prefix = Encoding.Unicode.GetBytes("{\"" + cancel + "\":\"");
+            var utf16Suffix = Encoding.Unicode.GetBytes("\"}");
+            File.WriteAllBytes(invalidUtf16, [.. Encoding.Unicode.GetPreamble(), .. utf16Prefix, 0x00, 0xD8, .. utf16Suffix]);
+            Check(!UiText.LoadExternalPack("en-US", invalidUtf16, out _) && UiText.Get(cancel) == "Dismiss", "invalid UTF16 in otherwise valid pack rejected atomically");
             var oversized = Path.Combine(directory, "large.json"); using (var file = File.Create(oversized)) file.SetLength(4 * 1024 * 1024 + 1);
             Check(!UiText.LoadExternalPack("en-US", oversized, out _), "oversized pack rejected");
             foreach (var item in catalog.RootElement.EnumerateObject())
@@ -159,6 +176,12 @@ static class LocalizationTests
             Check(UiText.Get(cancel) == "Annuler" && UiText.Get(Key("用户名")) == UiText.EnglishResources[Key("用户名")], "new language uses English fallback for missing keys");
             Check(!UiText.LoadLanguageManifest(Pack("bad-manifest.json", new[] { new { Code = "../bad", Name = "Bad" } }), out _), "path traversal manifest rejected");
             Check(!UiText.LoadLanguageManifest(Pack("null-manifest.json", new object?[] { null }), out _), "null manifest rejected");
+            var duplicateManifest = Path.Combine(directory, "duplicate-manifest.json");
+            File.WriteAllText(duplicateManifest, """[{"Code":"ignored","Code":"zh-CN","Name":"简体中文"},{"Code":"en-US","Name":"English"}]""");
+            Check(!UiText.LoadLanguageManifest(duplicateManifest, out _) && UiText.IsSupported("fr-FR"), "duplicate manifest property rejected without replacing active manifest");
+            var oversizedManifest = Path.Combine(directory, "large-manifest.json");
+            using (var file = File.Create(oversizedManifest)) file.SetLength(65537);
+            Check(!UiText.LoadLanguageManifest(oversizedManifest, out _) && UiText.IsSupported("fr-FR"), "oversized manifest rejected without replacing active manifest");
         }
         finally
         {

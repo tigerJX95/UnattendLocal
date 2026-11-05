@@ -2,9 +2,34 @@ using System.Text;
 using System.Xml;
 using UnattendLocal.Core;
 
-// Reproductions from the V1.12 audit. No imported command is executed.
+// Audit reproductions. No imported command is executed.
 static class SecurityAuditFixTests
 {
+    public static int CheckScriptMergeBudget()
+    {
+        const string path = @"C:\Windows\Setup\Scripts\Specialize.ps1";
+        const string baseline = "alpha\nbeta\nold\ngamma\ndelta";
+        const string updated = "alpha\nbeta\nnew\ngamma\ndelta";
+        string Merge(string source) => XmlMerge.MergeScript(source, baseline, updated, path);
+        if (Merge("custom\n" + baseline) != "custom\n" + updated)
+            throw new Exception("A unique edit must preserve unrelated script lines.");
+
+        void Reject(Action merge, string key)
+        {
+            try { merge(); }
+            catch (ArgumentException error) when (error.Message.Contains(UnattendLocal.Localization.UiText.Source(key), StringComparison.Ordinal)) { return; }
+            throw new Exception("Expected a safe script merge conflict: " + key);
+        }
+        Reject(() => Merge(baseline + "\ncustom\n" + baseline), "text.5e022c20d552");
+        Reject(() => Merge(string.Concat(Enumerable.Repeat("x\n", 100_001)) + baseline), "text.ce4aa7191923");
+
+        var groups = Enumerable.Range(0, 25).Select(i => $"a{i}\nb{i}\nold{i}\nc{i}\nd{i}");
+        string manyEdits = string.Join('\n', groups);
+        string largeSource = string.Concat(Enumerable.Repeat("custom\n", 40_000)) + manyEdits;
+        Reject(() => XmlMerge.MergeScript(largeSource, manyEdits, manyEdits.Replace("old", "new"), path), "text.ce4aa7191923");
+        return 4;
+    }
+
     public static int Run(GeneratorService generator)
     {
         int count = 0;

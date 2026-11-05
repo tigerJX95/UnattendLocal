@@ -90,8 +90,15 @@ public static class XmlMerge {
   }
  }
  internal static string MergeScript(string source,string baseline,string updated,string path){
-  var b=Normalize(baseline).Split('\n');var a=Normalize(updated).Split('\n');var s=Normalize(source).Split('\n').ToList();
-  if((long)b.Length*a.Length>4_000_000)throw Conflict(global::UnattendLocal.Localization.UiText.Concat(new object?[] { path, global::UnattendLocal.Localization.UiText.Source("text.ce4aa7191923") },new bool[]{true,false}));
+  const int maxLines=100_000,maxComparisons=4_000_000;
+  Exception TooLarge()=>Conflict(global::UnattendLocal.Localization.UiText.Concat(new object?[] { path, global::UnattendLocal.Localization.UiText.Source("text.ce4aa7191923") },new bool[]{true,false}));
+  string[] Lines(string text){
+   var lines=Normalize(text).Split('\n',maxLines+1);
+   if(lines.Length>maxLines)throw TooLarge();
+   return lines;
+  }
+  var b=Lines(baseline);var a=Lines(updated);var s=Lines(source).ToList();
+  if((long)b.Length*a.Length>maxComparisons)throw TooLarge();
   var lcs=new int[b.Length+1,a.Length+1];
   for(int i=b.Length-1;i>=0;i--)for(int j=a.Length-1;j>=0;j--)lcs[i,j]=b[i]==a[j]?lcs[i+1,j+1]+1:Math.Max(lcs[i+1,j],lcs[i,j+1]);
   var hunks=new List<(int Start,int End,List<string> Replacement)>();int x=0,y=0;
@@ -107,12 +114,28 @@ public static class XmlMerge {
   // Every edit needs an exact unique match including surrounding unchanged lines.
   bool generatedStage=System.Text.RegularExpressions.Regex.IsMatch(path,@"\\(?:Specialize|DefaultUser|FirstLogon|UserOnce)\.ps1(?:\)|$)",System.Text.RegularExpressions.RegexOptions.IgnoreCase,TimeSpan.FromSeconds(1));
   string Compare(string line)=>generatedStage?XmlImportPaths.Command(line):line;
+  var comparisonSource=generatedStage?s.Select(Compare).ToList():s;
+  long remainingComparisons=maxComparisons;
   foreach(var h in hunks.AsEnumerable().Reverse()){
-   int left=Math.Max(0,h.Start-2),right=Math.Min(b.Length,h.End+2);var needle=b[left..right];var matches=new List<int>();
-   var comparable=needle.Select(Compare).ToArray();
-   for(int i=0;i+needle.Length<=s.Count;i++)if(s.Skip(i).Take(needle.Length).Select(Compare).SequenceEqual(comparable))matches.Add(i);
-   if(matches.Count!=1)throw Conflict(global::UnattendLocal.Localization.UiText.Concat(new object?[] { path, global::UnattendLocal.Localization.UiText.Source("text.5e022c20d552") },new bool[]{true,false}));
-   int at=matches[0]+h.Start-left;s.RemoveRange(at,h.End-h.Start);s.InsertRange(at,h.Replacement);
+   int left=Math.Max(0,h.Start-2),right=Math.Min(b.Length,h.End+2);
+   var comparable=b[left..right].Select(Compare).ToArray();
+   int candidates=s.Count-comparable.Length+1, match=-1;
+   remainingComparisons-=(long)Math.Max(0,candidates)*comparable.Length;
+   if(remainingComparisons<0)throw TooLarge();
+   for(int i=0;i<candidates;i++){
+    int offset=0;
+    while(offset<comparable.Length&&comparisonSource[i+offset]==comparable[offset])offset++;
+    if(offset!=comparable.Length)continue;
+    if(match>=0){match=-1;break;}
+    match=i;
+   }
+   if(match<0)throw Conflict(global::UnattendLocal.Localization.UiText.Concat(new object?[] { path, global::UnattendLocal.Localization.UiText.Source("text.5e022c20d552") },new bool[]{true,false}));
+   int at=match+h.Start-left;
+   s.RemoveRange(at,h.End-h.Start);s.InsertRange(at,h.Replacement);
+   if(generatedStage){
+    comparisonSource.RemoveRange(at,h.End-h.Start);
+    comparisonSource.InsertRange(at,h.Replacement.Select(Compare));
+   }
   }
   return global::UnattendLocal.Localization.UiText.Join('\n', s, false);
  }

@@ -32,6 +32,7 @@ if(args.Contains("--native-preferences-only")){Console.WriteLine($"V1.15 native 
 if(args.Contains("--advanced-xml-only")){Console.WriteLine($"V1.14 presets and advanced XML: {AdvancedXmlTests.Run(g)} checks passed.");return;}
 if(args.Contains("--answer-export-only")){var i=Array.IndexOf(args,"--export-samples");Console.WriteLine($"V1.13 export: {AnswerFileExportTests.Run(g,i>=0?args[i+1]:null)} checks passed.");return;}
 if(args.Contains("--security-audit-only")){Console.WriteLine($"V1.12.1 security audit: {SecurityAuditFixTests.Run(g)} checks passed.");return;}
+if(args.Contains("--script-merge-budget-only")){Console.WriteLine($"Script merge: {SecurityAuditFixTests.CheckScriptMergeBudget()} checks passed.");return;}
 if(args.Contains("--import-enhancements-only")){Console.WriteLine($"V1.12 import enhancements: {ImportEnhancementTests.Run(g)} checks passed.");return;}
 if(args.Contains("--unified-network-only")){Console.WriteLine($"V1.11 unified network: {UnifiedSubnetTests.Run(g)} checks passed.");return;}
 if(args.Contains("--error-location-only")){Console.WriteLine($"V1.11 error location: {ErrorLocationTests.Run(g)} checks passed.");return;}
@@ -2136,3 +2137,4 @@ count+=PeImageIntegrityTests.Run(g);Console.WriteLine($"V1.32 final total: {coun
 count+=PeRecoveryTests.Run(g);Console.WriteLine($"V1.33 final total: {count} tests passed.");
 
 count+=SearchPrerequisiteTests.Run();Console.WriteLine($"V1.33 navigation fix total: {count} tests passed.");
+count+=SecurityAuditFixTests.CheckScriptMergeBudget();Console.WriteLine($"V1.38 final total: {count} tests passed.");
