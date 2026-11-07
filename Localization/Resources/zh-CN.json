@@ -3945,5 +3945,10 @@
   "v135.summary.na": "不适用",
   "v137.pagefile.name": "关闭安装后 Windows 的分页文件（PE）",
   "v137.pagefile.help": "仅用于 PE 脚本安装，默认关闭。启用后在释放映像后将目标系统的分页文件列表设为空，暂时停用自定义容量。关闭分页文件会降低内存提交上限，也可能影响系统崩溃转储。切换后请重新核对并确认清盘。",
-  "v137.pagefile.disabled": "分页文件：关闭（PE）"
+  "v137.pagefile.disabled": "分页文件：关闭（PE）",
+  "xml.importDraft": "导入 XML 片段",
+  "xml.importDraftHelp": "从文件读取组件的设置子元素，按当前所选组件和阶段创建停用草稿。未选中条目时，使用 Shell-Setup 的 specialize 阶段。",
+  "xml.draftFilter": "XML 片段 (*.xml)|*.xml",
+  "xml.draftTooLarge": "XML 片段文件过大。每项最多 131,072 个字符。",
+  "xml.draftImported": "已导入停用的 XML 草稿。请核对组件、阶段和内容后再启用。"
 }

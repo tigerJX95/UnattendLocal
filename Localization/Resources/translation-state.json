@@ -3946,6 +3946,11 @@
     "v135.summary.na": "2746d995801b1cc88d3b666d149c5ff80330c98c00348a186125253c012084e7",
     "v137.pagefile.name": "45e17ac8be2d2f59b130c6ba5cde5e4acb99d24c04652d00f52d64ac57a42211",
     "v137.pagefile.help": "4510abd085feda7ef43acaaf745d03d35f408f80c1eb1a05ccee62b85a932681",
-    "v137.pagefile.disabled": "6af8ee8c6b3c5f444428d25adbfdceeb0707b7b4814c64d4084da8c1e133c548"
+    "v137.pagefile.disabled": "6af8ee8c6b3c5f444428d25adbfdceeb0707b7b4814c64d4084da8c1e133c548",
+    "xml.importDraft": "ff5dfd35b2f4adbddd9d28fa6dd4d94b2c78caf829edb835b76931fabe6e5eaf",
+    "xml.importDraftHelp": "311174586065cee6149962a711f4e7deee71b1e6a999be3d6c57aa081e3bb665",
+    "xml.draftFilter": "25533feee4d72877fc6412ce72cdd18efba5f857964d84cc4cb08c5e00701129",
+    "xml.draftTooLarge": "6ab56fab240fc3e82bc5dd75e066d14f93790b0737814e180a68c7163ae5a078",
+    "xml.draftImported": "67838c35593241655419d2f129ab7e4d69a0dec3f17244d7991f3b4446fc641a"
   }
 }

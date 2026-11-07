@@ -41,6 +41,21 @@ public static class AdditionalXmlSettings
         ["Microsoft-Windows-UnattendedJoin"]=["Identification"]
     };
 
+    public static XmlComponentEntry ReadDraft(string path, XmlComponentEntry? target = null)
+    {
+        var row = new XmlComponentEntry
+        {
+            Content = TextFileImport.Read(path, MaxLength * 4L + 4, global::UnattendLocal.Localization.UiText.Source("xml.draftTooLarge"))
+        };
+        if (target != null)
+        {
+            row.Component = target.Component;
+            row.Pass = target.Pass;
+        }
+        _ = Parse(row);
+        return row;
+    }
+
     public static XmlDocument Parse(XmlComponentEntry row)
     {
         if (!Catalog.Value.Components.TryGetValue(row.Component ?? "", out var component) ||

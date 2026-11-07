@@ -16,6 +16,8 @@
 3. 使用“检查额外 XML”检查片段结构，然后勾选启用及核对确认。
 4. 使用“检查与预览”核对与当前生成内容的重复项，最后导出 XML 或 ISO。
 
+已有本地片段时，先选中目标组件和阶段相同的条目，再点击“导入 XML 片段”。程序新增一条停用草稿，保留原条目。未选中条目时使用 `Microsoft-Windows-Shell-Setup` 的 `specialize` 阶段。文件只应包含设置子元素，可有多个同级子元素，省去 XML 声明和应答文件包装。支持 UTF-8，以及带 BOM 的 UTF-16、UTF-32。
+
 新增条目默认停用。最多 15 项，每项最多 131,072 个字符、64 层和 2,048 个元素。允许标准 `wcm` 和 `xsi` 命名空间属性；禁止 DTD、外部实体、处理指令及其他元素命名空间。
 
 组件及其阶段来自当前固定的原作者目录。选用某阶段不会自动触发 Sysprep、审核模式或脱机维护。每个参数是否受目标 Windows 版本、版本类型和架构支持，仍需查阅微软文档并用目标镜像在 Windows SIM 中核对。
@@ -68,3 +70,5 @@ JSON 选择保存敏感内容时保留片段。选择不保存时清空片段，
 The Configuration page provides minimal and local-account starting points. The advanced editor is below Custom scripts and accepts up to 15 component/pass XML fragments. New entries and the OEM example start disabled. It adds independent child settings and refuses duplicate top-level settings instead of replacing generated components. The catalog is pinned to the bundled upstream generator; Windows SIM and target-image installation checks remain necessary.
 
 Preview redacts custom XML. JSON saved without sensitive content omits fragments while retaining their enabled state, requiring re-entry before export. Own exported XML can restore editor entries through its intact configuration snapshot. Unknown third-party XML remains preserved through the existing import workflow.
+
+Use **Import XML fragment** to add a disabled draft for the selected entry's component and pass. Without a selected entry, the target is `Microsoft-Windows-Shell-Setup` in `specialize`. Save the child elements as UTF-8 or BOM-marked UTF-16 or UTF-32, omitting the XML declaration and answer-file wrappers.

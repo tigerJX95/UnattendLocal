@@ -85,6 +85,74 @@ static class AdvancedXmlTests
         Reject(()=>generator.Generate(foreign),"custom XML cannot overwrite unknown imported values");
         Reject(()=>AdditionalXmlSettings.Parse(new XmlComponentEntry{Content="<RegisteredOwner>Duplicate editor</RegisteredOwner>"}),"managed native field cannot have two editors");
         Check(ConfigurationErrorLocation.FromField(nameof(InstallPlan.XmlComponents))?.Setting.Target=="AdditionalXmlSection","validation navigates to advanced editor");
+        count += CheckDraftFiles(generator);
+        return count;
+    }
+
+    private static int CheckDraftFiles(GeneratorService generator)
+    {
+        int count = 0;
+        void Check(bool ok, string message)
+        {
+            if (!ok) throw new Exception(message);
+            count++;
+        }
+        var directory = Directory.CreateTempSubdirectory("unattend-xml-draft-");
+        try
+        {
+            string path = Path.Combine(directory.FullName, "fragment.xml");
+            const string content = "<OEMInformation><SupportProvider>LOCAL-导入</SupportProvider></OEMInformation>";
+            File.WriteAllText(path, content, Encoding.Unicode);
+            var defaults = AdditionalXmlSettings.ReadDraft(path);
+            Check(!defaults.Enabled && defaults.Component == "Microsoft-Windows-Shell-Setup" &&
+                defaults.Pass == "specialize" && defaults.Content == content, "UTF-16 draft with default target");
+
+            var selected = new XmlComponentEntry { Enabled = true, Pass = "offlineServicing", Content = AdditionalXmlSettings.Example };
+            var draft = AdditionalXmlSettings.ReadDraft(path, selected);
+            Check(!draft.Enabled && draft.Pass == selected.Pass && draft.Component == selected.Component &&
+                draft.Content == content && selected.Enabled && selected.Content == AdditionalXmlSettings.Example,
+                "draft copies only the selected target and preserves the selected entry");
+
+            var plan = QuickPresets.Create(QuickPresets.Minimal);
+            var vm = new MainViewModel { Plan = plan };
+            plan.ConfirmAdditionalXml = true;
+            plan.XmlComponents.Add(draft);
+            Check(!plan.ConfirmAdditionalXml && !Encoding.UTF8.GetString(generator.Generate(plan)).Contains("LOCAL-导入"),
+                "adding a draft invalidates consent and keeps the fragment out of export");
+            draft.Enabled = true;
+            try
+            {
+                generator.Generate(plan);
+                throw new Exception("Enabling a draft should require consent.");
+            }
+            catch (ConfigurationValidationException error)
+            {
+                Check(error.Field == nameof(InstallPlan.XmlComponents), "draft export requires normal XML consent");
+            }
+            plan.ConfirmAdditionalXml = true;
+            var exported = generator.Generate(plan);
+            Check(XmlMerge.Read(Encoding.UTF8.GetString(exported)).InnerText.Contains("LOCAL-导入") &&
+                !GeneratorService.Preview(exported, plan).Contains("LOCAL-导入"), "reviewed draft exports and remains redacted in preview");
+
+            void RejectFile(string message)
+            {
+                try { _ = AdditionalXmlSettings.ReadDraft(path); }
+                catch (ArgumentException) { count++; return; }
+                throw new Exception("Expected draft file rejection: " + message);
+            }
+            foreach (string invalid in new[] { "<unattend/>", "<ComputerName>managed</ComputerName>",
+                "<!DOCTYPE a [<!ENTITY x SYSTEM 'file:///local.txt'>]><a>&x;</a>",
+                new string(' ', AdditionalXmlSettings.MaxLength) + "<a/>" })
+            {
+                File.WriteAllText(path, invalid);
+                RejectFile("invalid or overlong fragment");
+            }
+            File.WriteAllBytes(path, [0xef, 0xbb, 0xbf, 0xff]);
+            RejectFile("invalid encoding");
+            using (var file = File.Create(path)) file.SetLength(AdditionalXmlSettings.MaxLength * 4L + 5);
+            RejectFile("over byte limit");
+        }
+        finally { directory.Delete(recursive: true); }
         return count;
     }
 }

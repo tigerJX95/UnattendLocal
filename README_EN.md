@@ -5,7 +5,7 @@
 
 UnattendLocal is a Windows desktop tool with Simplified Chinese and English interfaces based on [Christoph Schneegans’ UnattendGenerator](https://github.com/cschneegans/unattend-generator). It lets you edit, check, and generate `autounattend.xml` for Windows 10 / 11 locally.
 
-Current version: **V1.38**. When PE script installation is enabled, image selection switches to **By image index** and requires an index from the installation image; the regular Windows Setup path retains all image selection modes. Includes static IPv4/IPv6 dual stack, subnet-mask input, settings search, setup driver directories, Dynamic Update, partitioning, OOBE and account settings, and existing XML import/editing.
+Current version: **V1.39**. When PE script installation is enabled, image selection switches to **By image index** and requires an index from the installation image; the regular Windows Setup path retains all image selection modes. Includes static IPv4/IPv6 dual stack, subnet-mask input, settings search, setup driver directories, Dynamic Update, partitioning, OOBE and account settings, and existing XML import/editing.
 
 ## 💡 Why this project exists
 
@@ -56,14 +56,21 @@ The displayed product key is a public generic installation key for selecting an 
 - Save and restore JSON plans; review summaries, recommended-setting differences, checks, redacted previews, and XML exports.
 - Import existing XML and edit supported settings while preserving unknown content. Export stops with an explanation when changes cannot be merged reliably.
 
+## V1.39 Import additional XML fragments · 2026-11-05
+
+- Import component settings from a local file. The new draft uses the selected component and pass, starts disabled, and leaves the existing entry intact.
+- Import checks encoding, size, and fragment structure. Exporting an enabled draft still requires confirmation and checks for conflicting settings.
+
+See [Quick presets and additional XML](docs/AdvancedXml.md).
+
+<details>
+<summary>Update history (click to expand)</summary>
+
 ## V1.38 Import hardening and source verification · 2026-11-04
 
 - Read external language packs and manifests through one size-limited file handle. Invalid Unicode and duplicate properties are rejected, preserving the active translations and language list.
 - Bound the context-matching work when merging edits into scripts from imported XML. Export stops when the context is ambiguous or the work exceeds the limit.
 - Remove generated WPF compilation projects from source control and check for them before verification builds.
-
-<details>
-<summary>Update history (click to expand)</summary>
 
 ## V1.37 PE paging-file settings · 2026-11-04
 
@@ -356,7 +363,7 @@ For media preparation and explicit invocation, see [XML and ISO export](docs/Ans
 
 Download and fully extract the program ZIP to keep the editable `Languages` folder beside the EXE. The EXE also has embedded Chinese and English fallback resources. See [language packs](docs/Localization.md).
 
-Download and run the matching Windows x64 executable from the repository’s [**Releases**](https://github.com/tigerJX95/UnattendLocal/releases/latest) page: `UnattendLocal_V1.38_x64_SelfContained.exe` or `UnattendLocal_V1.38_x64_FrameworkDependent.exe`. Choose `UnattendLocal_V1.38_x64_SelfContained.exe` for a bundled .NET runtime, or `UnattendLocal_V1.38_x64_FrameworkDependent.exe` if .NET 10 Desktop Runtime x64 is already installed. Both have the same features. Use a virtual machine for initial testing.
+Download and run the matching Windows x64 executable from the repository’s [**Releases**](https://github.com/tigerJX95/UnattendLocal/releases/latest) page: `UnattendLocal_V1.39_x64_SelfContained.exe` or `UnattendLocal_V1.39_x64_FrameworkDependent.exe`. Choose `UnattendLocal_V1.39_x64_SelfContained.exe` for a bundled .NET runtime, or `UnattendLocal_V1.39_x64_FrameworkDependent.exe` if .NET 10 Desktop Runtime x64 is already installed. Both have the same features. Use a virtual machine for initial testing.
 
 1. Choose a recommended scenario or a custom configuration and enter the required account and image settings.
 2. Adjust system, appearance, and application removal options as needed.

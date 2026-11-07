@@ -3945,5 +3945,10 @@
   "v135.summary.na": "Not applicable",
   "v137.pagefile.name": "Disable paging files in the installed Windows (PE)",
   "v137.pagefile.help": "Applies to PE script installation and is off by default. Enabling it clears the target paging-file list after image application and suspends custom sizes. Disabling paging lowers the memory commit limit and can affect crash dumps. Review and reconfirm disk erasure after changing this setting.",
-  "v137.pagefile.disabled": "Paging files: disabled (PE)"
+  "v137.pagefile.disabled": "Paging files: disabled (PE)",
+  "xml.importDraft": "Import XML fragment",
+  "xml.importDraftHelp": "Load component settings from a file as a disabled draft for the selected component and pass. With no entry selected, the draft uses Shell-Setup in the specialize pass.",
+  "xml.draftFilter": "XML fragment (*.xml)|*.xml",
+  "xml.draftTooLarge": "The XML fragment file is too large. Each entry can contain at most 131,072 characters.",
+  "xml.draftImported": "The XML fragment was imported as a disabled draft. Review its component, pass, and content before enabling it."
 }

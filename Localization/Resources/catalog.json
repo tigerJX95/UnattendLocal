@@ -37188,5 +37188,56 @@
     "RawArgs": [],
     "SourceHash": "6af8ee8c6b3c5f444428d25adbfdceeb0707b7b4814c64d4084da8c1e133c548",
     "ProtectedTokens": []
+  },
+  "xml.importDraft": {
+    "Source": "导入 XML 片段",
+    "Contexts": [
+      "Desktop/MainWindow.xaml"
+    ],
+    "RawArgs": [],
+    "SourceHash": "ff5dfd35b2f4adbddd9d28fa6dd4d94b2c78caf829edb835b76931fabe6e5eaf",
+    "ProtectedTokens": []
+  },
+  "xml.importDraftHelp": {
+    "Source": "从文件读取组件的设置子元素，按当前所选组件和阶段创建停用草稿。未选中条目时，使用 Shell-Setup 的 specialize 阶段。",
+    "Contexts": [
+      "Desktop/MainWindow.xaml"
+    ],
+    "RawArgs": [],
+    "SourceHash": "311174586065cee6149962a711f4e7deee71b1e6a999be3d6c57aa081e3bb665",
+    "ProtectedTokens": [
+      "Shell-Setup",
+      "specialize"
+    ]
+  },
+  "xml.draftFilter": {
+    "Source": "XML 片段 (*.xml)|*.xml",
+    "Contexts": [
+      "Desktop/MainWindow.xaml.cs"
+    ],
+    "RawArgs": [],
+    "SourceHash": "25533feee4d72877fc6412ce72cdd18efba5f857964d84cc4cb08c5e00701129",
+    "ProtectedTokens": [],
+    "FilterPatterns": [
+      "*.xml"
+    ]
+  },
+  "xml.draftTooLarge": {
+    "Source": "XML 片段文件过大。每项最多 131,072 个字符。",
+    "Contexts": [
+      "Core/AdditionalXmlSettings.cs"
+    ],
+    "RawArgs": [],
+    "SourceHash": "6ab56fab240fc3e82bc5dd75e066d14f93790b0737814e180a68c7163ae5a078",
+    "ProtectedTokens": []
+  },
+  "xml.draftImported": {
+    "Source": "已导入停用的 XML 草稿。请核对组件、阶段和内容后再启用。",
+    "Contexts": [
+      "Desktop/MainWindow.xaml.cs"
+    ],
+    "RawArgs": [],
+    "SourceHash": "67838c35593241655419d2f129ab7e4d69a0dec3f17244d7991f3b4446fc641a",
+    "ProtectedTokens": []
   }
 }

@@ -70,6 +70,21 @@ public partial class MainWindow : Window {
  private void Load(InstallPlan p){var previous=loading;loading=true;try{vm.Plan=p;vm.SelectedUser=p.Users.FirstOrDefault();WifiPassword.Password=p.WifiPassword;BuiltinAdministratorPassword.Password=p.BuiltinAdministratorPassword;vm.Preview=global::UnattendLocal.Localization.UiText.Source("text.752e25c039af");vm.Status=p.XmlComponents.Any(row=>row.Enabled&&string.IsNullOrWhiteSpace(row.Content))?global::UnattendLocal.Localization.UiText.Source("text.e3f69b9966a6"):p.Scripts.Any(row=>row.IsRemovedType)?global::UnattendLocal.Localization.UiText.Source("text.e3dd9f9604bc"):global::UnattendLocal.Localization.UiText.Source("text.c8e08c93e59a");}finally{loading=previous;}}
  private void AddXmlComponentClick(object s,RoutedEventArgs e)=>Run(()=>{if(vm.Plan.XmlComponents.Count>=AdditionalXmlSettings.MaxCount)throw new ArgumentException(global::UnattendLocal.Localization.UiText.Source("text.e0be0678cd02"));var row=new XmlComponentEntry();vm.Plan.XmlComponents.Add(row);vm.SelectedXmlComponent=row;});
  private void RemoveXmlComponentClick(object s,RoutedEventArgs e){if(vm.SelectedXmlComponent is {} row)vm.Plan.XmlComponents.Remove(row);}
+ private void ImportXmlComponentClick(object sender, RoutedEventArgs e) => Run(() =>
+ {
+  if (vm.Plan.XmlComponents.Count >= AdditionalXmlSettings.MaxCount)
+   throw new ArgumentException(global::UnattendLocal.Localization.UiText.Source("text.e0be0678cd02"));
+  var dialog = new OpenFileDialog
+  {
+   Title = global::UnattendLocal.Localization.UiText.Get("xml.importDraft"),
+   Filter = global::UnattendLocal.Localization.UiText.Get("xml.draftFilter")
+  };
+  if (dialog.ShowLocalized(this) != true) return;
+  var draft = AdditionalXmlSettings.ReadDraft(dialog.FileName, vm.SelectedXmlComponent);
+  vm.Plan.XmlComponents.Add(draft);
+  vm.SelectedXmlComponent = draft;
+  vm.Status = global::UnattendLocal.Localization.UiText.Source("xml.draftImported");
+ });
  private void XmlComponentExampleClick(object s,RoutedEventArgs e)=>Run(()=>{if(vm.Plan.XmlComponents.Count>=AdditionalXmlSettings.MaxCount)throw new ArgumentException(global::UnattendLocal.Localization.UiText.Source("text.e0be0678cd02"));var row=new XmlComponentEntry{Content=AdditionalXmlSettings.Example};vm.Plan.XmlComponents.Add(row);vm.SelectedXmlComponent=row;vm.Status=global::UnattendLocal.Localization.UiText.Source("text.fbe871ae011e");});
  private void CheckXmlComponentClick(object s,RoutedEventArgs e)=>Run(()=>{if(vm.SelectedXmlComponent is not {} row)throw new ArgumentException(global::UnattendLocal.Localization.UiText.Source("text.d9c31bccd272"));_=AdditionalXmlSettings.Parse(row);vm.Status=global::UnattendLocal.Localization.UiText.Source("text.57e53e8bea9e");});
  private void QuickPresetClick(object s,RoutedEventArgs e){
