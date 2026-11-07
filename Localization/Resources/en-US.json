@@ -3950,5 +3950,17 @@
   "xml.importDraftHelp": "Load component settings from a file as a disabled draft for the selected component and pass. With no entry selected, the draft uses Shell-Setup in the specialize pass.",
   "xml.draftFilter": "XML fragment (*.xml)|*.xml",
   "xml.draftTooLarge": "The XML fragment file is too large. Each entry can contain at most 131,072 characters.",
-  "xml.draftImported": "The XML fragment was imported as a disabled draft. Review its component, pass, and content before enabling it."
+  "xml.draftImported": "The XML fragment was imported as a disabled draft. Review its component, pass, and content before enabling it.",
+  "applocker.review.title": "AppLocker policy review",
+  "applocker.review.structure": "The AppLocker XML passed structural validation.",
+  "applocker.review.collection": "{0}: {1}, {2} allow / {3} deny",
+  "applocker.review.enabled": "Enforce",
+  "applocker.review.audit": "Audit only",
+  "applocker.review.unconfigured": "Not configured",
+  "applocker.review.empty": "This policy contains no file rules.",
+  "applocker.review.unknown": "Review the {0} unrecognized rule collection(s) on the target system.",
+  "applocker.review.enforcementRisk": "The {0} collection(s) may block apps, setup scripts, or system tools. Verify them in a test environment first.",
+  "applocker.review.implicitRisk": "Collections with rules may still enforce when their mode is not configured: {0}.",
+  "applocker.review.denyOnlyRisk": "The {0} collection(s) contain only deny rules. If enforced, the lack of allow rules may prevent files of these types from running.",
+  "applocker.review.limit": "This review covers the policy in the file. Verify Group Policy and application behavior on the target Windows system."
 }

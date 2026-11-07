@@ -37239,5 +37239,126 @@
     "RawArgs": [],
     "SourceHash": "67838c35593241655419d2f129ab7e4d69a0dec3f17244d7991f3b4446fc641a",
     "ProtectedTokens": []
+  },
+  "applocker.review.title": {
+    "Source": "AppLocker 策略检查",
+    "Contexts": [
+      "Desktop/MainWindow.xaml.cs"
+    ],
+    "RawArgs": [],
+    "SourceHash": "e7a387b9fa88755368727acf7100d5d48a4278389b0a5b07cab3680c12d40480",
+    "ProtectedTokens": []
+  },
+  "applocker.review.structure": {
+    "Source": "AppLocker XML 结构检查通过。",
+    "Contexts": [
+      "Core/AppControlSettings.cs"
+    ],
+    "RawArgs": [],
+    "SourceHash": "4933d6e4f276019ad856bcd2ac9aab5eb437df67fdbe2b0804ee2c8d61d397eb",
+    "ProtectedTokens": []
+  },
+  "applocker.review.collection": {
+    "Source": "{0}：{1}，允许 {2} 条，拒绝 {3} 条",
+    "Contexts": [
+      "Core/AppControlSettings.cs"
+    ],
+    "RawArgs": [
+      true,
+      false,
+      true,
+      true
+    ],
+    "SourceHash": "271ddd00c558a81c181d4f734b700b61c20688fa149913daf02501b0c3c08503",
+    "ProtectedTokens": []
+  },
+  "applocker.review.enabled": {
+    "Source": "强制",
+    "Contexts": [
+      "Core/AppControlSettings.cs"
+    ],
+    "RawArgs": [],
+    "SourceHash": "dbbae07255459cfb5cf0c979c8471c223624cdb0ea2ae6e67fc14a68f0ade2ac",
+    "ProtectedTokens": []
+  },
+  "applocker.review.audit": {
+    "Source": "仅审核",
+    "Contexts": [
+      "Core/AppControlSettings.cs"
+    ],
+    "RawArgs": [],
+    "SourceHash": "c2ea2e0578dc83c5cd8ae7afb74cd0c97888036dab5b0307ccf820a245803206",
+    "ProtectedTokens": []
+  },
+  "applocker.review.unconfigured": {
+    "Source": "未配置",
+    "Contexts": [
+      "Core/AppControlSettings.cs"
+    ],
+    "RawArgs": [],
+    "SourceHash": "80a57e03f0717f9106a3154ec94c249dd1019831c8d8e3a354b619e55ba49753",
+    "ProtectedTokens": []
+  },
+  "applocker.review.empty": {
+    "Source": "此策略没有文件规则。",
+    "Contexts": [
+      "Core/AppControlSettings.cs"
+    ],
+    "RawArgs": [],
+    "SourceHash": "802c955d0f250411f70f9516fae32f905cb9848e27e51a12bb0c3b2f4185f1d2",
+    "ProtectedTokens": []
+  },
+  "applocker.review.unknown": {
+    "Source": "有 {0} 个未识别的规则集合，需要在目标系统上核对。",
+    "Contexts": [
+      "Core/AppControlSettings.cs"
+    ],
+    "RawArgs": [
+      true
+    ],
+    "SourceHash": "a4c71d401b2430fe2868184080fb64881b453abcc9f9e03c1bc8b7607b0921f3",
+    "ProtectedTokens": []
+  },
+  "applocker.review.enforcementRisk": {
+    "Source": "{0} 集合可能拦截程序、安装脚本或系统工具。请先在测试环境验证。",
+    "Contexts": [
+      "Core/AppControlSettings.cs"
+    ],
+    "RawArgs": [
+      true
+    ],
+    "SourceHash": "92d5032ad9e4679881e1a5fe15e9ef639324694a6155a4dc0c9eb9b7db51b5ce",
+    "ProtectedTokens": []
+  },
+  "applocker.review.implicitRisk": {
+    "Source": "未配置模式的集合仍可能强制执行：{0}。",
+    "Contexts": [
+      "Core/AppControlSettings.cs"
+    ],
+    "RawArgs": [
+      true
+    ],
+    "SourceHash": "6c710427bf005d3e13ed657c4b6ae0b287457f259a7b11c8f1644785209fddea",
+    "ProtectedTokens": []
+  },
+  "applocker.review.denyOnlyRisk": {
+    "Source": "{0} 集合只有拒绝规则。强制执行时，缺少允许规则可能使该类文件无法运行。",
+    "Contexts": [
+      "Core/AppControlSettings.cs"
+    ],
+    "RawArgs": [
+      true
+    ],
+    "SourceHash": "e3821101b94a5f3ab6f6be5662ca43e068ec0e6e85ce1bbd274f5a7fb926a935",
+    "ProtectedTokens": []
+  },
+  "applocker.review.limit": {
+    "Source": "此检查依据文件中的策略。组策略和实际程序运行结果需要在目标 Windows 环境核对。",
+    "Contexts": [
+      "Core/AppControlSettings.cs"
+    ],
+    "RawArgs": [],
+    "SourceHash": "b9a212c1bf319532661a49684a1fc6b7627d0534220bc6277473ef7a4ddc2370",
+    "ProtectedTokens": []
   }
 }

@@ -3,6 +3,7 @@ using System.Text.Json;
 using System.Xml;
 using System.Xml.Schema;
 using Schneegans.Unattend;
+using UnattendLocal.Localization;
 namespace UnattendLocal.Core;
 
 public static class AppControlSettings
@@ -38,6 +39,59 @@ public static class AppControlSettings
         catch (XmlException e) { throw new ArgumentException(global::UnattendLocal.Localization.UiText.Concat(new object?[] { global::UnattendLocal.Localization.UiText.Source("text.4a8494695212"), e.Message },new bool[]{false,false}), e); }
     }
     public static IAppLockerSettings Build(InstallPlan p) => p.UseAppLocker ? new ConfigureAppLockerSettings(ReadPolicy(p.AppLockerPolicyXml).OuterXml) : new SkipAppLockerSettings();
+
+    public record PolicyReview(string Message, bool HasWarnings);
+
+    public static PolicyReview ReviewPolicy(string text)
+    {
+        var doc = ReadPolicy(text);
+        var lines = new List<string> { UiText.Source("applocker.review.structure") };
+        var enforced = new List<string>();
+        var implicitMode = new List<string>();
+        var denyOnly = new List<string>();
+        int unknownCollections = 0;
+        int ruleCount = 0;
+
+        foreach (var collection in doc.DocumentElement!.ChildNodes.OfType<XmlElement>().Where(e => e.Name == "RuleCollection"))
+        {
+            var rules = collection.ChildNodes.OfType<XmlElement>();
+            int allow = rules.Count(e => e.GetAttribute("Action") == "Allow");
+            int deny = rules.Count(e => e.GetAttribute("Action") == "Deny");
+            ruleCount += allow + deny;
+            string type = collection.GetAttribute("Type");
+            if (type is not ("Exe" or "Dll" or "Msi" or "Script" or "Appx"))
+            {
+                unknownCollections++;
+                continue;
+            }
+
+            string mode = collection.GetAttribute("EnforcementMode");
+            string modeKey = mode switch
+            {
+                "Enabled" => "applocker.review.enabled",
+                "AuditOnly" => "applocker.review.audit",
+                _ => "applocker.review.unconfigured"
+            };
+            lines.Add(UiText.Format("applocker.review.collection", type, UiText.Source(modeKey), UiText.Arg(allow), UiText.Arg(deny)));
+            if (allow + deny == 0 || mode == "AuditOnly") continue;
+            enforced.Add(type);
+            if (mode != "Enabled") implicitMode.Add(type);
+            if (allow == 0) denyOnly.Add(type);
+        }
+
+        var warnings = new List<string>();
+        if (ruleCount == 0) warnings.Add(UiText.Source("applocker.review.empty"));
+        if (unknownCollections > 0) warnings.Add(UiText.Format("applocker.review.unknown", UiText.Arg(unknownCollections)));
+        if (enforced.Count > 0) warnings.Add(UiText.Format("applocker.review.enforcementRisk", string.Join(", ", enforced)));
+        if (implicitMode.Count > 0) warnings.Add(UiText.Format("applocker.review.implicitRisk", string.Join(", ", implicitMode)));
+        if (denyOnly.Count > 0) warnings.Add(UiText.Format("applocker.review.denyOnlyRisk", string.Join(", ", denyOnly)));
+        if (warnings.Count > 0) lines.Add("");
+        lines.AddRange(warnings);
+        lines.Add("");
+        lines.Add(UiText.Source("applocker.review.limit"));
+        return new(UiText.Join('\n', lines), warnings.Count > 0);
+    }
+
     public static string Summary(InstallPlan p)
     {
         if (!p.UseAppLocker) return global::UnattendLocal.Localization.UiText.Source("text.2dd0ae2a6155");
