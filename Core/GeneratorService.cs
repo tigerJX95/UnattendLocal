@@ -147,7 +147,7 @@ public class GeneratorService {
   foreach(XmlNode n in doc.SelectNodes("//u:component[@name='Microsoft-Windows-UnattendedJoin']//u:Credentials/u:Password | //u:component[@name='Microsoft-Windows-UnattendedJoin']//u:MachinePassword | //u:component[@name='Microsoft-Windows-UnattendedJoin']//u:Provisioning/u:AccountData",ns)!)n.InnerText=Label("text.b8de0a664760");
   foreach(XmlNode n in doc.SelectNodes("//u:ProductKey/u:Key | //u:component[@name='Microsoft-Windows-Shell-Setup']/u:ProductKey",ns)!)n.InnerText=Label("text.abf82a99491a");
   foreach(XmlNode n in doc.SelectNodes("//*[local-name()='File']",ns)!)
-   if(n.Attributes?["path"]?.Value.EndsWith("Wifi.xml",StringComparison.OrdinalIgnoreCase)==true)
+   if(n.Attributes?["path"]?.Value.EndsWith("Wifi.xml",StringComparison.OrdinalIgnoreCase)==true||WifiSettings.IsWlanProfile(n.InnerText))
     n.InnerText=Label("text.838cc513a5e2");
    else if(n.Attributes?["path"]?.Value.EndsWith("AppLockerPolicy.xml",StringComparison.OrdinalIgnoreCase)==true)
     n.InnerText=Label("text.c67ed423c4cf");

@@ -69,6 +69,22 @@ public static class WifiSettings
         catch (Exception e) when (e is XmlException or System.Xml.Schema.XmlSchemaException or ConfigurationException or FormatException or InvalidOperationException)
         { throw new ArgumentException(global::UnattendLocal.Localization.UiText.Source("text.5ccccaa053a7"), e); }
     }
+    internal static bool IsWlanProfile(string text)
+    {
+        var content = text.AsSpan().TrimStart().TrimStart('\uFEFF');
+        if (content.IsEmpty || content[0] != '<' || !content.Contains("WLANProfile", StringComparison.Ordinal)) return false;
+        try
+        {
+            using var reader = XmlReader.Create(new StringReader(content.ToString()), new XmlReaderSettings
+            {
+                DtdProcessing = DtdProcessing.Prohibit,
+                XmlResolver = null,
+                MaxCharactersInDocument = XmlMerge.MaxLength
+            });
+            return reader.MoveToContent() == XmlNodeType.Element && reader.LocalName == "WLANProfile" && reader.NamespaceURI == WlanNamespace;
+        }
+        catch (XmlException) { return false; }
+    }
     private static XmlNamespaceManager WlanNs(XmlDocument doc) { var ns = new XmlNamespaceManager(doc.NameTable); ns.AddNamespace("w", WlanNamespace); return ns; }
     private static string Normal(string value) => global::UnattendLocal.Localization.UiText.Join('\n', value.Replace("\r\n", "\n").Split('\n').Select(l => l.Trim()).Where(l => l.Length > 0), true);
     private static bool Related(string line) => line.Contains("WlanSvc", StringComparison.OrdinalIgnoreCase) || Regex.IsMatch(line, @"netsh\.exe\s+wlan\s+(?:add\s+profile|connect)\b", RegexOptions.IgnoreCase, TimeSpan.FromSeconds(1));

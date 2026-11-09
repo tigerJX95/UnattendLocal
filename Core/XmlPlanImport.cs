@@ -128,7 +128,6 @@ public static class XmlPlanImport {
   var wipe=doc.SelectNodes("//u:RunSynchronousCommand/u:Path",ns)!.Cast<XmlNode>().FirstOrDefault(n=>n.InnerText.Contains(@"X:\UnattendLocal-diskpart.txt")&&n.InnerText.Contains("echo clean"));
   if(wipe!=null){
    p.DiskMode=InstallationSettings.Wipe;p.DiskLayout=wipe.InnerText.Contains("echo convert gpt")?"UEFI / GPT":"BIOS / MBR";
-   var recovery=Match(wipe.InnerText,@"shrink minimum=(\d+)");if(recovery.Success)p.RecoverySizeMB=int.Parse(recovery.Groups[1].Value);
   }
  }
  private static void ReadCredentials(XmlDocument doc,XmlNamespaceManager ns,InstallPlan p,List<string> notes){
@@ -226,7 +225,9 @@ public static class XmlPlanImport {
   if(p.ImportedXml is not {OriginalOmitted:false} data||data.SourceXml.Length==0||data.BaselineXml.Length==0)return;
   var prefixes=new[]{global::UnattendLocal.Localization.UiText.Source("text.9eee6c2b8190"),global::UnattendLocal.Localization.UiText.Source("text.4c3edd7b0617"),global::UnattendLocal.Localization.UiText.Source("text.c7d1ca7be040"),global::UnattendLocal.Localization.UiText.Source("text.744284b7b7ca"),global::UnattendLocal.Localization.UiText.Source("text.37bb8b2fec20"),global::UnattendLocal.Localization.UiText.Source("text.8af4bbf685c1"),global::UnattendLocal.Localization.UiText.Source("text.52db4d9bfdb7")};
   var notes=data.Notices.Where(n=>!prefixes.Any(prefix=>n.StartsWith(prefix,StringComparison.Ordinal))).ToList();
-  DescribeRemainder(XmlMerge.Read(data.SourceXml),XmlMerge.Read(data.BaselineXml),notes);
+  var source=XmlMerge.Read(data.SourceXml);
+  data.RequiresDiskReview=data.RequiresDiskReview||NeedsDiskReview(XmlImportPaths.Inspection(source));
+  DescribeRemainder(source,XmlMerge.Read(data.BaselineXml),notes);
   data.Notices=notes.Distinct().ToArray();
  }
  private static void ReadForm(XmlDocument doc,InstallPlan p,List<string> notes){
@@ -346,8 +347,10 @@ public static class XmlPlanImport {
  }
  private static bool NeedsDiskReview(XmlDocument doc){
   var ns=NamespaceManager(doc);
+  if(doc.SelectNodes("//u:DiskConfiguration",ns)!.Count>0||Match(doc.InnerText,@"\b(diskpart(?:\.exe)?|Clear-Disk|Initialize-Disk|Format-Volume|Remove-Partition|New-Partition)\b").Success)return true;
   bool knownNarrator=AdditionalSetupSettings.Inspect(doc)[nameof(InstallPlan.UseNarrator)].Enabled;
-  return doc.SelectNodes("//u:DiskConfiguration",ns)!.Count>0||Match(doc.InnerText,@"\b(diskpart(?:\.exe)?|Clear-Disk|Initialize-Disk|Format-Volume|Remove-Partition|New-Partition)\b").Success||doc.SelectNodes("//u:settings[@pass='windowsPE']//u:Path",ns)!.Cast<XmlNode>().Any(n=>!(knownNarrator&&AdditionalSetupSettings.IsNarratorPeCommand(n.InnerText))&&!Match(n.InnerText,@"^reg\.exe add .*LabConfig.*Bypass(?:TPM|RAM|SecureBoot)Check").Success);
+  return doc.SelectNodes("//u:settings[@pass='windowsPE']//u:Path",ns)!.Cast<XmlNode>().Any(node=>
+   !HardwareSettings.IsKnownBypassCommand(node.InnerText)&&!(knownNarrator&&AdditionalSetupSettings.IsNarratorPeCommand(node.InnerText)));
  }
  private static bool HasRemovedScript(XmlDocument doc)=>doc.SelectNodes("//*[local-name()='File']")!.Cast<XmlElement>().Any(f=>f.GetAttribute("path").EndsWith(".js",StringComparison.OrdinalIgnoreCase))||Match(doc.InnerText,@"//e:jscript|\bjscript\b|\b(?:cscript|wscript)(?:\.exe)?[^\r\n]*\.js\b").Success;
 }

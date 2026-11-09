@@ -3964,5 +3964,7 @@
   "applocker.review.denyOnlyRisk": "The {0} collection(s) contain only deny rules. If enforced, the lack of allow rules may prevent files of these types from running.",
   "applocker.review.limit": "This review covers the policy in the file. Verify Group Policy and application behavior on the target Windows system.",
   "applocker.export.unrecognized": "The answer file contains an unrecognized AppLocker policy or command. Its enforcement behavior could not be determined. Review the original configuration before continuing.",
-  "applocker.export.confirm": "Continue exporting after reviewing the AppLocker policy?"
+  "applocker.export.confirm": "Continue exporting after reviewing the AppLocker policy?",
+  "partition.import.recoverySizeOutOfRange": "The recovery partition size in the imported XML is outside the supported range. The original partitioning command is read-only. Review and confirm the disk operation risks before exporting.",
+  "import.error.numberOutOfRange": "A number in the imported file is outside the allowed range. Check and correct the value in the original file, then try again."
 }

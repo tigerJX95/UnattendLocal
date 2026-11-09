@@ -6,6 +6,7 @@ namespace UnattendLocal.Core;
 
 public static class AutoPartitionSettings {
  public static readonly string ReadOnlyNotice=global::UnattendLocal.Localization.UiText.Source("text.d2f2d8e00b8f");
+ private static string RecoverySizeNotice=>global::UnattendLocal.Localization.UiText.Source("partition.import.recoverySizeOutOfRange");
  private const string File=@"X:\UnattendLocal-diskpart.txt";
  public static int SystemSize(InstallPlan p)=>p.SystemPartitionSizeMB??(p.DiskLayout=="UEFI / GPT"?300:500);
  public static bool CanEdit(InstallPlan p)=>p.ImportedXml?.AutoPartitionReadOnly!=true;
@@ -25,15 +26,21 @@ public static class AutoPartitionSettings {
   string pause=p.PauseBeforeFormatting?$"echo WARNING: Disk {Number(p.TargetDiskId)} will be erased. Verify the target disk before continuing. && pause && ":"";
   return global::UnattendLocal.Localization.UiText.Concat(new object?[] { global::UnattendLocal.Localization.UiText.Concat(new object?[] { global::UnattendLocal.Localization.UiText.Concat(new object?[] { global::UnattendLocal.Localization.UiText.Concat(new object?[] { global::UnattendLocal.Localization.UiText.Concat(new object?[] { global::UnattendLocal.Localization.UiText.Concat(new object?[] { global::UnattendLocal.Localization.UiText.Concat(new object?[] { global::UnattendLocal.Localization.UiText.Concat(new object?[] { "cmd.exe /c \"(", global::UnattendLocal.Localization.UiText.Join(" & ", commands.Select(c=>"echo "+c), false) },new bool[] { false, false }), ") > " },new bool[] { false, false }), File },new bool[] { false, false }), " && " },new bool[] { false, false }), pause },new bool[] { false, false }), "diskpart.exe /s " },new bool[] { false, false }), File },new bool[] { false, false }), "\"" },new bool[] { false, false });
  }
- public record Source(bool Mentioned,bool Known,InstallPlan? Values,XmlElement? Path);
+ public record Source(bool Mentioned,bool Known,InstallPlan? Values,XmlElement? Path){
+  internal bool RecoverySizeOutOfRange {get;init;}
+  internal string? Notice=>!Mentioned||Known?null:RecoverySizeOutOfRange?RecoverySizeNotice:ReadOnlyNotice;
+ }
  private static XmlNamespaceManager Ns(XmlDocument doc){var n=new XmlNamespaceManager(doc.NameTable);n.AddNamespace("u",XmlMerge.Namespace);return n;}
  public static Source Inspect(XmlDocument doc){
   var ns=Ns(doc);
   var paths=doc.SelectNodes("//u:RunSynchronousCommand/u:Path",ns)!.Cast<XmlElement>().Where(e=>e.InnerText.Contains(File,StringComparison.OrdinalIgnoreCase)&&e.InnerText.Contains("echo clean",StringComparison.OrdinalIgnoreCase)).ToArray();
   if(paths.Length==0)return new(doc.SelectNodes("//*[local-name()='PEScriptCopy']")!.Count>0,false,null,null);
   var node=paths[0];if(paths.Length!=1||node.ParentNode?.ParentNode?.ParentNode is not XmlElement component||component.GetAttribute("name")!="Microsoft-Windows-Setup"||component.ParentNode is not XmlElement settings||settings.GetAttribute("pass")!="windowsPE")return new(true,false,null,node);
-  var matches=Regex.Match(node.InnerText,@"echo select disk (?<disk>\d+) & echo clean & echo convert (?<layout>gpt|mbr) & echo create partition (?:efi|primary) size=(?<size>\d+).*?shrink minimum=(?<recovery>\d+) desired=\d+",RegexOptions.CultureInvariant,TimeSpan.FromSeconds(1));
-  if(!matches.Success||!int.TryParse(matches.Groups["disk"].Value,out int disk)||!int.TryParse(matches.Groups["size"].Value,out int size)||!int.TryParse(matches.Groups["recovery"].Value,out int recovery))return new(true,false,null,node);
+  var matches=Regex.Match(node.InnerText,@"echo select disk (?<disk>\d+) & echo clean & echo convert (?<layout>gpt|mbr) & echo create partition (?:efi|primary) size=(?<size>\d+).*?shrink minimum=(?<minimum>-?\d+) desired=(?<desired>-?\d+)",RegexOptions.CultureInvariant,TimeSpan.FromSeconds(1));
+  if(!matches.Success||!int.TryParse(matches.Groups["disk"].Value,out int disk)||!int.TryParse(matches.Groups["size"].Value,out int size))return new(true,false,null,node);
+  if(!int.TryParse(matches.Groups["minimum"].Value,out int recovery)||!InstallationSettings.ValidRecoverySize(recovery)||
+     !int.TryParse(matches.Groups["desired"].Value,out int desired)||!InstallationSettings.ValidRecoverySize(desired))
+   return new(true,false,null,node){RecoverySizeOutOfRange=true};
   var p=new InstallPlan{DiskMode=InstallationSettings.Wipe,DiskLayout=matches.Groups["layout"].Value=="gpt"?"UEFI / GPT":"BIOS / MBR",TargetDiskId=disk,RecoverySizeMB=recovery,SystemPartitionSizeMB=size,PauseBeforeFormatting=node.InnerText.Contains("&& pause &&",StringComparison.Ordinal)};
   string expectedPartition=p.DiskLayout=="UEFI / GPT"?"3":"2";
   var targets=component.SelectNodes("u:ImageInstall/u:OSImage/u:InstallTo",ns)!.Cast<XmlElement>().ToArray();
@@ -45,7 +52,7 @@ public static class AutoPartitionSettings {
  public static Source ReadIntoPlan(XmlDocument doc,InstallPlan p,List<string> notes){
   var state=Inspect(doc);
   if(state is {Known:true,Values:{} values}){p.DiskMode=InstallationSettings.Wipe;p.DiskLayout=values.DiskLayout;p.TargetDiskId=values.TargetDiskId;p.RecoverySizeMB=values.RecoverySizeMB;p.SystemPartitionSizeMB=p.SystemPartitionSizeMB==SystemSize(values)?p.SystemPartitionSizeMB:values.SystemPartitionSizeMB;p.PauseBeforeFormatting=values.PauseBeforeFormatting;}
-  else if(state.Mentioned)notes.Add(ReadOnlyNotice);
+  else if(state.Notice is {} notice)notes.Add(notice);
   return state;
  }
  public static void ValidateImported(InstallPlan p,XmlDocument doc){
@@ -59,7 +66,8 @@ public static class AutoPartitionSettings {
  public static void NormalizeLoaded(InstallPlan p,JsonElement json){
   if(p.ImportedXml is not {OriginalOmitted:false} data||data.SourceXml.Length==0)return;
   var state=Inspect(XmlMerge.Read(data.SourceXml));data.AutoPartitionReadOnly=state.Mentioned&&!state.Known;
-  if(data.AutoPartitionReadOnly&&!data.Notices.Contains(ReadOnlyNotice))data.Notices=[..data.Notices,ReadOnlyNotice];
+  if(state.RecoverySizeOutOfRange)data.Notices=data.Notices.Where(n=>n!=ReadOnlyNotice).ToArray();
+  if(state.Notice is {} notice&&!data.Notices.Contains(notice))data.Notices=[..data.Notices,notice];
   if(state is not {Known:true,Values:{} values})return;
   bool sizeMissing=!json.TryGetProperty(nameof(InstallPlan.SystemPartitionSizeMB),out _),pauseMissing=!json.TryGetProperty(nameof(InstallPlan.PauseBeforeFormatting),out _);
   if(!sizeMissing&&!pauseMissing)return;
