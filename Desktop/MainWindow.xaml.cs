@@ -7,6 +7,7 @@ using System.Windows.Media;
 using System.Xml;
 using Microsoft.Win32;
 using UnattendLocal.Core;
+using UnattendLocal.Localization;
 namespace UnattendLocal.Desktop;
 public partial class MainWindow : Window {
  private readonly MainViewModel vm=new(); private bool loading; 
@@ -145,7 +146,7 @@ public partial class MainWindow : Window {
   var invalid=SettingsSearchCatalog.All.Select(setting=>FindName(setting.Target)).OfType<FrameworkElement>()
    .FirstOrDefault(field=>field.IsEnabled&&System.Windows.Controls.Validation.GetHasError(field))??Invalid(this);
   if(invalid is not null)throw new ConfigurationValidationException(invalid.Name,global::UnattendLocal.Localization.UiText.Source("text.4f7678afdc63"));return vm.Service.Generate(vm.Plan);}
- private void PreviewClick(object s,RoutedEventArgs e)=>Run(()=>{var bytes=Generate();vm.ShowXmlPreview(bytes);vm.Status=global::UnattendLocal.Localization.UiText.Concat(new object?[] { global::UnattendLocal.Localization.UiText.Source("text.66c560c48e92"), InstallationReview.ExportSummary(bytes) },new bool[]{false,false});ExportPage.IsSelected=true;}, locateConfiguration:true);
+ private void PreviewClick(object s,RoutedEventArgs e)=>Run(()=>{var review=vm.ShowXmlPreview(Generate());vm.Status=global::UnattendLocal.Localization.UiText.Concat(new object?[] { global::UnattendLocal.Localization.UiText.Source("text.66c560c48e92"), review.Target },new bool[]{false,false});ExportPage.IsSelected=true;}, locateConfiguration:true);
  private void ApplyRecommendationClick(object s,RoutedEventArgs e)=>Run(()=>{
   if(LocalizedMessageBox.Show(this,global::UnattendLocal.Localization.UiText.Source("text.e99546b2272a"),global::UnattendLocal.Localization.UiText.Source("text.a9087ee41397"),MessageBoxButton.YesNo,MessageBoxImage.Question)!=MessageBoxResult.Yes)return;
   Recommendations.Apply(vm.Plan,vm.PendingRecommendation);vm.Preview=global::UnattendLocal.Localization.UiText.Source("text.142f2839b283");vm.Status=global::UnattendLocal.Localization.UiText.Source("text.9c12b69de53e");
@@ -215,5 +216,45 @@ public partial class MainWindow : Window {
  });
  private void ExportClick(object s,RoutedEventArgs e)=>ExportAnswerFile(false);
  private void ExportIsoClick(object s,RoutedEventArgs e)=>ExportAnswerFile(true);
- private void ExportAnswerFile(bool iso)=>Run(()=>{var bytes=Generate();if((InstallationSettings.Destructive(vm.Plan)||vm.HasImportedXmlRisk)&&LocalizedMessageBox.Show(this,global::UnattendLocal.Localization.UiText.Concat(new object?[] { InstallationReview.ExportSummary(bytes), "\n", InstallationSettings.DiskSummary(vm.Plan), (vm.HasImportedXmlRisk?global::UnattendLocal.Localization.UiText.Source("text.c4357e3b2c27"):""), "\n\n", DiskSafety.Risk, "\n\n", DiskSafety.Preparation, "\n\n", DiskSafety.Responsibility, global::UnattendLocal.Localization.UiText.Source("text.52007b38f82f") },new bool[]{false,false,false,false,false,false,false,false,false,false,false}),global::UnattendLocal.Localization.UiText.Source("text.74dff760c77e"),MessageBoxButton.YesNo,MessageBoxImage.Warning,MessageBoxResult.No)!=MessageBoxResult.Yes)return;bool manual=vm.Plan.ExportNonAutomaticFilename;var d=new SaveFileDialog{Title=global::UnattendLocal.Localization.UiText.Translate(iso?global::UnattendLocal.Localization.UiText.Source("text.c6c90fe1aedd"):global::UnattendLocal.Localization.UiText.Source("text.fd7a9b584e6d")),Filter=global::UnattendLocal.Localization.UiText.Translate(iso?global::UnattendLocal.Localization.UiText.Source("text.893861008ab4"):global::UnattendLocal.Localization.UiText.Source("text.d5d85641e8a3")),DefaultExt=iso?".iso":".xml",AddExtension=true,OverwritePrompt=true,FileName=iso?AnswerFileExport.IsoName(manual):AnswerFileExport.FileName(manual)};if(d.ShowLocalized(this)!=true)return;if(iso)AnswerFileExport.WriteIso(d.FileName,bytes,manual);else AnswerFileExport.WriteXml(d.FileName,bytes);vm.Status=global::UnattendLocal.Localization.UiText.Concat(new object?[] { (iso?global::UnattendLocal.Localization.UiText.Source("text.c1b71c21eff7"):global::UnattendLocal.Localization.UiText.Source("text.bc67c530f6df")), InstallationReview.ExportSummary(bytes) },new bool[] { false, false });}, locateConfiguration:true);
+ private void ExportAnswerFile(bool iso) => Run(() =>
+ {
+  var bytes = Generate();
+  var review = InstallationReview.ForExport(bytes);
+  bool diskRisk = InstallationSettings.Destructive(vm.Plan) || vm.HasImportedXmlRisk;
+  var policy = review.AppLocker is { HasWarnings: true } warning ? warning.Message : null;
+  if (diskRisk || policy != null)
+  {
+   var sections = new List<string>();
+   if (diskRisk)
+   {
+    sections.Add(UiText.Concat([review.Target, "\n", InstallationSettings.DiskSummary(vm.Plan),
+     vm.HasImportedXmlRisk ? UiText.Source("text.c4357e3b2c27") : ""], [false, false, false, false]));
+    sections.Add(DiskSafety.Risk);
+    sections.Add(DiskSafety.Preparation);
+    sections.Add(DiskSafety.Responsibility);
+   }
+   if (policy != null) sections.Add(policy);
+   if (!diskRisk) sections.Add(UiText.Source("applocker.export.confirm"));
+   var message = UiText.Join("\n\n", sections);
+   if (diskRisk) message = UiText.Concat([message, UiText.Source("text.52007b38f82f")], [false, false]);
+   var caption = UiText.Source(diskRisk ? "text.74dff760c77e" : "applocker.review.title");
+   if (LocalizedMessageBox.Show(this, message, caption,
+     MessageBoxButton.YesNo, MessageBoxImage.Warning, MessageBoxResult.No) != MessageBoxResult.Yes) return;
+  }
+
+  bool manual = vm.Plan.ExportNonAutomaticFilename;
+  var dialog = new SaveFileDialog
+  {
+   Title = UiText.Translate(UiText.Source(iso ? "text.c6c90fe1aedd" : "text.fd7a9b584e6d")),
+   Filter = UiText.Translate(UiText.Source(iso ? "text.893861008ab4" : "text.d5d85641e8a3")),
+   DefaultExt = iso ? ".iso" : ".xml",
+   AddExtension = true,
+   OverwritePrompt = true,
+   FileName = iso ? AnswerFileExport.IsoName(manual) : AnswerFileExport.FileName(manual)
+  };
+  if (dialog.ShowLocalized(this) != true) return;
+  if (iso) AnswerFileExport.WriteIso(dialog.FileName, bytes, manual);
+  else AnswerFileExport.WriteXml(dialog.FileName, bytes);
+  vm.Status = UiText.Concat([UiText.Source(iso ? "text.c1b71c21eff7" : "text.bc67c530f6df"), review.Target], [false, false]);
+ }, locateConfiguration: true);
 }

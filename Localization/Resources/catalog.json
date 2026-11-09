@@ -37360,5 +37360,27 @@
     "RawArgs": [],
     "SourceHash": "b9a212c1bf319532661a49684a1fc6b7627d0534220bc6277473ef7a4ddc2370",
     "ProtectedTokens": []
+  },
+  "applocker.export.unrecognized": {
+    "Source": "应答文件包含未完整识别的 AppLocker 策略或命令，无法确认其执行方式。请检查原始配置后再继续。",
+    "Contexts": [
+      "Core/AppControlSettings.cs"
+    ],
+    "RawArgs": [],
+    "SourceHash": "052afd2c13542292eeb279033370ad5516b10dee17c85c00f5bb59b0ff7a32fd",
+    "ProtectedTokens": [
+      "AppLocker"
+    ]
+  },
+  "applocker.export.confirm": {
+    "Source": "已核对 AppLocker 策略，继续导出？",
+    "Contexts": [
+      "Desktop/MainWindow.xaml.cs"
+    ],
+    "RawArgs": [],
+    "SourceHash": "f4d9ec069dbea4ff941ec7817cf881db0ed13b88eb593bf80ec721ea45d90e42",
+    "ProtectedTokens": [
+      "AppLocker"
+    ]
   }
 }

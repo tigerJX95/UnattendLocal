@@ -42,9 +42,17 @@ public static class AppControlSettings
 
     public record PolicyReview(string Message, bool HasWarnings);
 
-    public static PolicyReview ReviewPolicy(string text)
+    public static PolicyReview ReviewPolicy(string text) => ReviewPolicy(ReadPolicy(text));
+
+    internal static PolicyReview? ReviewEmbeddedPolicy(XmlDocument doc)
     {
-        var doc = ReadPolicy(text);
+        var state = Inspect(doc, out var policy);
+        if (state.Enabled) return ReviewPolicy(policy!);
+        return state.Ambiguous ? new(UiText.Source("applocker.export.unrecognized"), true) : null;
+    }
+
+    private static PolicyReview ReviewPolicy(XmlDocument doc)
+    {
         var lines = new List<string> { UiText.Source("applocker.review.structure") };
         var enforced = new List<string>();
         var implicitMode = new List<string>();
@@ -102,16 +110,18 @@ public static class AppControlSettings
     private static bool Related(string line) => new[] { "AppLockerPolicy.xml", "AppIDSvc", "Set-AppLockerPolicy" }.Any(m => line.Contains(m, StringComparison.OrdinalIgnoreCase));
     private static readonly Lazy<string> Expected = new(() => AdditionalSetupSettings.KnownBlocks(new UnattendGenerator().GenerateXml(Configuration.Default with { AppLockerSettings = new ConfigureAppLockerSettings(Example) }), "Specialize.ps1").Single(Related));
     public record State(bool Enabled, bool Ambiguous, string Xml);
-    public static State Inspect(XmlDocument doc)
+    public static State Inspect(XmlDocument doc) => Inspect(doc, out _);
+
+    private static State Inspect(XmlDocument doc, out XmlDocument? policy)
     {
         var files = doc.SelectNodes("//*[local-name()='File']")!.Cast<XmlElement>().ToArray();
         var policies = files.Where(f => f.GetAttribute("path").Equals(PolicyPath, StringComparison.OrdinalIgnoreCase)).ToArray();
         var ns = new XmlNamespaceManager(doc.NameTable); ns.AddNamespace("u", XmlMerge.Namespace);
         var refs = files.Except(policies).SelectMany(f => Normal(f.InnerText).Split('\n')).Concat(doc.SelectNodes("//u:Path|//u:CommandLine", ns)!.Cast<XmlElement>().Select(n => n.InnerText)).Where(Related).ToArray();
         var expected = Expected.Value; var needed = expected.Split('\n').Where(Related).ToArray();
-        bool valid = false;
-        if (policies.Length == 1) { try { _ = ReadPolicy(policies[0].InnerText); valid = true; } catch (ArgumentException) { } }
-        bool enabled = valid && AdditionalSetupSettings.KnownBlocks(doc, "Specialize.ps1").Count(b => b == expected) == 1 && refs.Length == needed.Length && needed.All(l => refs.Count(v => v == l) == needed.Count(v => v == l));
+        policy = null;
+        if (policies.Length == 1) { try { policy = ReadPolicy(policies[0].InnerText); } catch (ArgumentException) { } }
+        bool enabled = policy != null && AdditionalSetupSettings.KnownBlocks(doc, "Specialize.ps1").Count(b => b == expected) == 1 && refs.Length == needed.Length && needed.All(l => refs.Count(v => v == l) == needed.Count(v => v == l));
         return new(enabled, (policies.Length > 0 || refs.Length > 0) && !enabled, enabled ? policies[0].InnerText : "");
     }
     public static void ReadIntoPlan(XmlDocument doc, InstallPlan p, List<string> notes)

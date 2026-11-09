@@ -3962,5 +3962,7 @@
   "applocker.review.enforcementRisk": "{0} 集合可能拦截程序、安装脚本或系统工具。请先在测试环境验证。",
   "applocker.review.implicitRisk": "未配置模式的集合仍可能强制执行：{0}。",
   "applocker.review.denyOnlyRisk": "{0} 集合只有拒绝规则。强制执行时，缺少允许规则可能使该类文件无法运行。",
-  "applocker.review.limit": "此检查依据文件中的策略。组策略和实际程序运行结果需要在目标 Windows 环境核对。"
+  "applocker.review.limit": "此检查依据文件中的策略。组策略和实际程序运行结果需要在目标 Windows 环境核对。",
+  "applocker.export.unrecognized": "应答文件包含未完整识别的 AppLocker 策略或命令，无法确认其执行方式。请检查原始配置后再继续。",
+  "applocker.export.confirm": "已核对 AppLocker 策略，继续导出？"
 }

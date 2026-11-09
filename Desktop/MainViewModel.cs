@@ -81,11 +81,15 @@ public class MainViewModel : Observable {
  // XML is already redacted and localized at its authored boundaries. Never translate its body.
  private string? englishXmlPreview;
  public string Preview {get=>englishXmlPreview is null?global::UnattendLocal.Localization.UiText.Translate(preview):global::UnattendLocal.Localization.UiText.IsEnglish?englishXmlPreview:preview;set{englishXmlPreview=null;Set(ref preview,value);}}
- public void ShowXmlPreview(byte[] bytes){
-  var summary=InstallationReview.ExportSummary(bytes);
+ public InstallationReview.ExportReview ShowXmlPreview(byte[] bytes){
+  var review=InstallationReview.ForExport(bytes);
+  var summary=review.AppLocker is {} policy
+   ?global::UnattendLocal.Localization.UiText.Join("\n\n",new[]{review.Target,policy.Message})
+   :review.Target;
   preview=summary+"\n\n"+GeneratorService.Preview(bytes,Plan);
   englishXmlPreview=global::UnattendLocal.Localization.UiText.EnglishText(summary)+"\n\n"+GeneratorService.Preview(bytes,Plan,english:true);
   Notify(nameof(Preview));
+  return review;
  }
  public void RefreshPreviewLanguage()=>Notify(nameof(Preview)); public string Status {get=>status;set=>Set(ref status,value);}
  public string ExportXmlButtonText=>global::UnattendLocal.Localization.UiText.Concat(new object?[] { global::UnattendLocal.Localization.UiText.Source("text.199c1f379826"), AnswerFileExport.FileName(Plan.ExportNonAutomaticFilename) },new bool[]{false,true});

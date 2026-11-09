@@ -2,6 +2,13 @@
 
 [Back to the README](README_EN.md) · [简体中文](CHANGELOG.md)
 
+## V1.40 AppLocker policy review · 2026-11-07
+
+- Show each AppLocker rule collection's enforcement mode and allow/deny counts in the policy check dialog.
+- Flag collections that may enforce rules, including unconfigured collections with rules and collections containing only deny rules.
+
+See [Configuration sets and AppLocker](docs/DeploymentOptions.md).
+
 ## V1.39 Import additional XML fragments · 2026-11-05
 
 - Import component settings from a local file. The new draft uses the selected component and pass, starts disabled, and leaves the existing entry intact.

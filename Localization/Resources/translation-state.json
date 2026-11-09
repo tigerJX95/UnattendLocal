@@ -3963,6 +3963,8 @@
     "applocker.review.enforcementRisk": "92d5032ad9e4679881e1a5fe15e9ef639324694a6155a4dc0c9eb9b7db51b5ce",
     "applocker.review.implicitRisk": "6c710427bf005d3e13ed657c4b6ae0b287457f259a7b11c8f1644785209fddea",
     "applocker.review.denyOnlyRisk": "e3821101b94a5f3ab6f6be5662ca43e068ec0e6e85ce1bbd274f5a7fb926a935",
-    "applocker.review.limit": "b9a212c1bf319532661a49684a1fc6b7627d0534220bc6277473ef7a4ddc2370"
+    "applocker.review.limit": "b9a212c1bf319532661a49684a1fc6b7627d0534220bc6277473ef7a4ddc2370",
+    "applocker.export.unrecognized": "052afd2c13542292eeb279033370ad5516b10dee17c85c00f5bb59b0ff7a32fd",
+    "applocker.export.confirm": "f4d9ec069dbea4ff941ec7817cf881db0ed13b88eb593bf80ec721ea45d90e42"
   }
 }

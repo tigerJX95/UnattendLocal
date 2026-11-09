@@ -5,7 +5,7 @@
 
 UnattendLocal 是基于 [Christoph Schneegans 的 UnattendGenerator](https://github.com/cschneegans/unattend-generator) 开发的 Windows 桌面配置工具，支持简体中文与英语界面，用于在本地编辑、检查和生成 Windows 10 / 11 的 `autounattend.xml`。
 
-当前版本：**V1.40**。启用 PE 脚本安装后会自动切换为“按镜像索引”，须自行填写安装镜像中的实际索引；普通 Windows Setup 仍支持原有全部镜像选择方式。支持简体中文 / English 即时切换、独立语言包维护、静态 IPv4 / IPv6 双栈、子网掩码输入、设置搜索、安装驱动目录、动态更新、自动分区、OOBE 与账户配置，以及已有 XML 的导入编辑。
+当前版本：**V1.41**。启用 PE 脚本安装后会自动切换为“按镜像索引”，须自行填写安装镜像中的实际索引；普通 Windows Setup 仍支持原有全部镜像选择方式。支持简体中文 / English 即时切换、独立语言包维护、静态 IPv4 / IPv6 双栈、子网掩码输入、设置搜索、安装驱动目录、动态更新、自动分区、OOBE 与账户配置，以及已有 XML 的导入编辑。
 
 ## 💡 开发初衷
 
@@ -54,10 +54,10 @@ UnattendLocal 是基于 [Christoph Schneegans 的 UnattendGenerator](https://git
 - 保存和恢复 JSON 方案，提供配置摘要、推荐差异、检查、脱敏预览和 XML 导出。
 - 导入已有 XML 后编辑已支持设置，保留未知内容；遇到无法可靠合并的修改时停止导出并说明原因。
 
-## V1.40 AppLocker 策略检查 · 2026-11-07
+## V1.41 应答文件导出前核对 AppLocker · 2026-11-09
 
-- 在 AppLocker 的“检查策略结构”窗口显示各类规则集合的模式、允许规则数和拒绝规则数。
-- 提示可能强制执行、未配置执行模式但已有规则、只有拒绝规则等情况。
+- “检查与预览”根据最终生成的应答文件显示 AppLocker 规则集合、执行模式和风险提示。
+- 导出 XML 或 ISO 时，如策略有警告，或原应答文件保留了无法完整识别的 AppLocker 命令，会先提示核对。仅审核的常规策略直接进入保存流程。
 
 使用方法见 [配置集与 AppLocker](docs/DeploymentOptions.md)。
 
@@ -65,14 +65,12 @@ UnattendLocal 是基于 [Christoph Schneegans 的 UnattendGenerator](https://git
 
 ## 📦 下载与使用
 
-推荐下载程序 ZIP 并完整解压，保留 EXE 旁的 `Languages` 文件夹，以便单独更新译文。仅运行 EXE 时仍有内置中英文资源回退。详见[语言包说明](docs/Localization.md)。
-
-从仓库的 [**Releases**](https://github.com/tigerJX95/UnattendLocal/releases/latest) 页面下载并直接运行对应的 `UnattendLocal_V1.40_x64_SelfContained.exe` 或 `UnattendLocal_V1.40_x64_FrameworkDependent.exe`：
+从仓库的 [**Releases**](https://github.com/tigerJX95/UnattendLocal/releases/latest) 页面下载并直接运行对应的 `UnattendLocal_V1.41_x64_SelfContained.exe` 或 `UnattendLocal_V1.41_x64_FrameworkDependent.exe`：
 
 | 程序文件 | 运行要求 |
 | --- | --- |
-| `UnattendLocal_V1.40_x64_SelfContained.exe` | 集成 .NET 运行时，无需单独安装；通常选择此版。 |
-| `UnattendLocal_V1.40_x64_FrameworkDependent.exe` | 文件较小，需安装 .NET 10 Desktop Runtime x64。 |
+| `UnattendLocal_V1.41_x64_SelfContained.exe` | 集成 .NET 运行时，无需单独安装；通常选择此版。 |
+| `UnattendLocal_V1.41_x64_FrameworkDependent.exe` | 文件较小，需安装 .NET 10 Desktop Runtime x64。 |
 
 两版功能相同。首次安装测试建议使用虚拟机。
 
@@ -198,6 +196,8 @@ UnattendLocal 是基于 [Christoph Schneegans 的 UnattendGenerator](https://git
 ## 🛠️ 从源码生成
 
 使用 Visual Studio 2026 与 .NET 10 SDK，安装“.NET 桌面开发”，打开仓库根目录的 `UnattendLocal.sln`。四个项目为 Desktop、Core、vendor/UnattendGenerator、Tests，默认将 Desktop 设为启动项目。
+
+在 Windows 上运行源码根目录的 `build.cmd`，可生成 x64 自包含版和依赖框架版 EXE。默认输出到源码目录旁的 `UnattendLocal-release/v1.41`。
 
 也可在源码根目录手动执行：
 

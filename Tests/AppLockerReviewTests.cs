@@ -1,4 +1,7 @@
+using System.Text;
+using System.Xml;
 using UnattendLocal.Core;
+using UnattendLocal.Desktop;
 using UnattendLocal.Localization;
 
 static class AppLockerReviewTests
@@ -43,6 +46,45 @@ static class AppLockerReviewTests
             !explicitReview.Message.Contains("d3b66501"), "review does not echo paths, SIDs or rule IDs");
         string english = UiText.EnglishText(deny.Message);
         Check(english.Contains("1 deny") && english.Contains("only deny rules") && !english.Contains("强制"), "English review is fully localized");
+
+        var generator = new GeneratorService();
+        var plan = QuickPresets.Create(QuickPresets.Minimal);
+        plan.AppLockerPolicyXml = enabled;
+        var disabledBytes = generator.Generate(plan);
+        Check(InstallationReview.ForExport(disabledBytes).AppLocker == null, "disabled draft is absent from export review");
+        plan.UseAppLocker = true;
+        var bytes = generator.Generate(plan);
+        var export = InstallationReview.ForExport(bytes);
+        Check(export.AppLocker is { HasWarnings: true } && export.AppLocker.Message.Contains("强制"),
+            "export review detects enforcement in generated XML");
+        Check(export.Target == InstallationReview.ExportSummary(bytes), "export review preserves the installation target summary");
+
+        var model = new MainViewModel { Plan = plan };
+        string language = UiText.Language;
+        try
+        {
+            model.ShowXmlPreview(bytes);
+            UiText.SetLanguage("zh-CN");
+            Check(model.Preview.Contains("可能拦截") && !model.Preview.Contains("%WINDIR%"),
+                "Chinese preview includes the warning and redacts policy paths");
+            UiText.SetLanguage("en-US");
+            Check(model.Preview.Contains("may block apps") && !model.Preview.Contains("S-1-1-0"),
+                "English preview includes the warning and redacts policy identities");
+        }
+        finally { UiText.SetLanguage(language); }
+
+        plan.AppLockerPolicyXml = example;
+        Check(InstallationReview.ForExport(generator.Generate(plan)).AppLocker is { HasWarnings: false },
+            "audit-only export is summarized without requiring additional confirmation");
+
+        var source = XmlMerge.Read(Encoding.UTF8.GetString(bytes));
+        var specialize = source.SelectNodes("//*[local-name()='File']")!.Cast<XmlElement>()
+            .Single(file => file.GetAttribute("path").EndsWith(@"\Specialize.ps1"));
+        specialize.InnerText = specialize.InnerText.Replace("Set-AppLockerPolicy -XmlPolicy", "Set-AppLockerPolicy -Merge -XmlPolicy");
+        var imported = XmlPlanImport.Import(source.OuterXml, generator);
+        var importedReview = InstallationReview.ForExport(generator.Generate(imported)).AppLocker;
+        Check(!imported.UseAppLocker && importedReview is { HasWarnings: true } && importedReview.Message.Contains("无法确认其执行方式"),
+            "retained custom AppLocker command is flagged even when the editor is off");
         return count;
     }
 }

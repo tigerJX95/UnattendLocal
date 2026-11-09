@@ -5,7 +5,7 @@
 
 UnattendLocal is a Windows desktop tool with Simplified Chinese and English interfaces based on [Christoph Schneegans’ UnattendGenerator](https://github.com/cschneegans/unattend-generator). It lets you edit, check, and generate `autounattend.xml` for Windows 10 / 11 locally.
 
-Current version: **V1.40**. When PE script installation is enabled, image selection switches to **By image index** and requires an index from the installation image; the regular Windows Setup path retains all image selection modes. Includes static IPv4/IPv6 dual stack, subnet-mask input, settings search, setup driver directories, Dynamic Update, partitioning, OOBE and account settings, and existing XML import/editing.
+Current version: **V1.41**. When PE script installation is enabled, image selection switches to **By image index** and requires an index from the installation image; the regular Windows Setup path retains all image selection modes. Includes static IPv4/IPv6 dual stack, subnet-mask input, settings search, setup driver directories, Dynamic Update, partitioning, OOBE and account settings, and existing XML import/editing.
 
 ## 💡 Why this project exists
 
@@ -56,10 +56,10 @@ The displayed product key is a public generic installation key for selecting an 
 - Save and restore JSON plans; review summaries, recommended-setting differences, checks, redacted previews, and XML exports.
 - Import existing XML and edit supported settings while preserving unknown content. Export stops with an explanation when changes cannot be merged reliably.
 
-## V1.40 AppLocker policy review · 2026-11-07
+## V1.41 AppLocker review before exporting answer files · 2026-11-09
 
-- Show each AppLocker rule collection's enforcement mode and allow/deny counts in the policy check dialog.
-- Flag collections that may enforce rules, including unconfigured collections with rules and collections containing only deny rules.
+- The preview shows AppLocker rule collections, enforcement modes, and warnings from the generated answer file.
+- XML and ISO export ask for review when the policy has warnings or when retained AppLocker commands cannot be fully recognized. An audit-only policy without warnings goes directly to the save dialog.
 
 See [Configuration sets and AppLocker](docs/DeploymentOptions.md).
 
@@ -67,9 +67,7 @@ See [Configuration sets and AppLocker](docs/DeploymentOptions.md).
 
 ## 📦 Download and usage
 
-Download and fully extract the program ZIP to keep the editable `Languages` folder beside the EXE. The EXE also has embedded Chinese and English fallback resources. See [language packs](docs/Localization.md).
-
-Download and run the matching Windows x64 executable from the repository’s [**Releases**](https://github.com/tigerJX95/UnattendLocal/releases/latest) page: `UnattendLocal_V1.40_x64_SelfContained.exe` or `UnattendLocal_V1.40_x64_FrameworkDependent.exe`. Choose `UnattendLocal_V1.40_x64_SelfContained.exe` for a bundled .NET runtime, or `UnattendLocal_V1.40_x64_FrameworkDependent.exe` if .NET 10 Desktop Runtime x64 is already installed. Both have the same features. Use a virtual machine for initial testing.
+Download and run the matching Windows x64 executable from the repository’s [**Releases**](https://github.com/tigerJX95/UnattendLocal/releases/latest) page: `UnattendLocal_V1.41_x64_SelfContained.exe` or `UnattendLocal_V1.41_x64_FrameworkDependent.exe`. Choose `UnattendLocal_V1.41_x64_SelfContained.exe` for a bundled .NET runtime, or `UnattendLocal_V1.41_x64_FrameworkDependent.exe` if .NET 10 Desktop Runtime x64 is already installed. Both have the same features. Use a virtual machine for initial testing.
 
 1. Choose a recommended scenario or a custom configuration and enter the required account and image settings.
 2. Adjust system, appearance, and application removal options as needed.
@@ -209,6 +207,8 @@ Open a JSON plan to restore saved settings, or import an answer XML to continue 
 ## 🛠️ Build from source
 
 Use Visual Studio 2026 and the .NET 10 SDK with the .NET desktop development workload. Open `UnattendLocal.sln` at the repository root. The solution contains Desktop, Core, vendor/UnattendGenerator, and Tests; Desktop is the default startup project.
+
+On Windows, run `build.cmd` from the source root to build the self-contained and framework-dependent x64 executables. By default, the output goes to `UnattendLocal-release/v1.41` next to the source directory.
 
 Alternatively, run these commands from the source root:
 
