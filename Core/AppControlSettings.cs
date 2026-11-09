@@ -46,7 +46,7 @@ public static class AppControlSettings
 
     internal static PolicyReview? ReviewEmbeddedPolicy(XmlDocument doc)
     {
-        var state = Inspect(doc, out var policy);
+        var state = Inspect(XmlImportPaths.Inspection(doc), out var policy);
         if (state.Enabled) return ReviewPolicy(policy!);
         return state.Ambiguous ? new(UiText.Source("applocker.export.unrecognized"), true) : null;
     }

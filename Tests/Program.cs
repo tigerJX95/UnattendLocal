@@ -1,5 +1,6 @@
 using System.Text;using System.Xml;using UnattendLocal.Core;
 int count=0;var g=new GeneratorService();
+if(args.Contains("--v1411-audit-only")){Console.WriteLine($"V1.41.1 audit: {V1411AuditTests.Run(g)} checks passed.");return;}
 if(args.Contains("--applocker-review-only")){Console.WriteLine($"AppLocker review: {AppLockerReviewTests.Run()} checks passed.");return;}
 if(args.Contains("--search-prerequisites-only")){Console.WriteLine($"Search prerequisites: {SearchPrerequisiteTests.Run()} checks passed.");return;}
 if(args.Contains("--pe-recovery-only")){Console.WriteLine($"PE recovery: {PeRecoveryTests.Run(g)} checks passed.");return;}
@@ -1831,6 +1832,7 @@ Console.WriteLine($"Final V0.10 total: {count} tests passed.");
 Check(!InstallPlan.New().UseAppLocker&&!InstallPlan.New().UseConfigurationSet&&!InstallPlan.NewCustom().UseAppLocker&&!InstallPlan.NewCustom().UseConfigurationSet,"V0.11 optional deployment settings default off");
 Check(AppControlSettings.ReadPolicy(AppControlSettings.Example).DocumentElement!.Name=="AppLockerPolicy"&&AppControlSettings.Example.Contains("AuditOnly"),"AppLocker example is schema-valid audit-only policy");
 count += AppLockerReviewTests.Run();
+count += V1411AuditTests.Run(g);
 foreach(string bad11 in new[]{"", "<wrong/>","<AppLockerPolicy/>","<AppLockerPolicy Version='1'><RuleCollection Type='Exe' EnforcementMode='Invalid'/></AppLockerPolicy>","<!DOCTYPE AppLockerPolicy [<!ENTITY value SYSTEM 'file:///private'>]><AppLockerPolicy Version='1'>&value;</AppLockerPolicy>","<?instruction unsafe?><AppLockerPolicy Version='1'/>",new string('x',AppControlSettings.MaxLength+1)}){
  try{_=AppControlSettings.ReadPolicy(bad11);throw new Exception("unexpected valid policy");}catch(ArgumentException){Check(true,"invalid, external-entity, processing-instruction or oversized policy rejected");}
 }

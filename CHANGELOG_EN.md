@@ -2,6 +2,20 @@
 
 [Back to the README](README_EN.md) · [简体中文](CHANGELOG.md)
 
+## V1.41.1 Security and reliability fixes · 2026-11-09
+
+- The XML preview recognizes embedded WLAN profiles by their root element and redacts their keys even when the files have been renamed.
+- WinPE review exempts only exact matches for known hardware-check commands. Loading a legacy JSON plan rechecks the retained source XML to determine whether review is required.
+- AppLocker import and export review recognize legacy paths consistently and distinguish audit-only policies from enforced policies.
+- XML import accepts files with out-of-range recovery partition sizes. The original command is kept read-only and must be reviewed before export. Recovery size and other numeric overflow notices are available in Chinese and English.
+
+## V1.41 AppLocker review before exporting answer files · 2026-11-09
+
+- The preview shows AppLocker rule collections, enforcement modes, and warnings from the generated answer file.
+- XML and ISO export ask for review when the policy has warnings or when retained AppLocker commands cannot be fully recognized. An audit-only policy without warnings goes directly to the save dialog.
+
+See [Configuration sets and AppLocker](docs/DeploymentOptions.md).
+
 ## V1.40 AppLocker policy review · 2026-11-07
 
 - Show each AppLocker rule collection's enforcement mode and allow/deny counts in the policy check dialog.

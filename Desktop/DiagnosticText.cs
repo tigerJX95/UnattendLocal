@@ -3,6 +3,10 @@ namespace UnattendLocal.Desktop;
 // Match application-produced diagnostic states, never generic words in user content.
 public static class DiagnosticText
 {
+    internal static string ForImportError(Exception error) => error is OverflowException
+        ? global::UnattendLocal.Localization.UiText.Source("import.error.numberOutOfRange")
+        : error.Message;
+
     public static bool IsErrorSummary(string? text)
     {
         string value = (text ?? "").TrimStart();

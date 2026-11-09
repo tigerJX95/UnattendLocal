@@ -37382,5 +37382,26 @@
     "ProtectedTokens": [
       "AppLocker"
     ]
+  },
+  "partition.import.recoverySizeOutOfRange": {
+    "Source": "原 XML 的恢复分区大小超出支持范围。自动分区命令已按只读保留，导出前请核对并确认原 XML 的磁盘操作风险。",
+    "Contexts": [
+      "Core/AutoPartitionSettings.cs"
+    ],
+    "RawArgs": [],
+    "SourceHash": "4f8107c40e33512206341fc89914cfc3e623f0b179d70b62705837e26049998b",
+    "ProtectedTokens": [
+      "XML"
+    ]
+  },
+  "import.error.numberOutOfRange": {
+    "Source": "导入文件中的数值超出允许范围。请检查并修正原文件中的数值后重试。",
+    "Contexts": [
+      "Desktop/DiagnosticText.cs",
+      "Desktop/MainWindow.Import.cs"
+    ],
+    "RawArgs": [],
+    "SourceHash": "09cd54ece1f4ef8c88241defab8c4ac3cf25fb887251e5130dbadcce34158eeb",
+    "ProtectedTokens": []
   }
 }
