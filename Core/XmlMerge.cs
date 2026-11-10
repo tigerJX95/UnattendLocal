@@ -49,9 +49,9 @@ public static class XmlMerge {
  public static bool Equal(XmlElement? a,XmlElement? b)=>a==null?b==null:b!=null&&Canonical(a)==Canonical(b);
  private static string Normalize(string text)=>text.Replace("\r\n","\n").Replace('\r','\n').Trim();
  private static Exception Conflict(string path)=>new ArgumentException(global::UnattendLocal.Localization.UiText.Concat(new object?[] { global::UnattendLocal.Localization.UiText.Source("text.3d67795104d8"), path, global::UnattendLocal.Localization.UiText.Source("text.8be88ce22898") },new bool[]{false,true,false}));
- public static XmlDocument Apply(string source,string baseline,XmlDocument updated)=>Apply(source,baseline,updated,null);
- internal static XmlDocument Apply(string source,string baseline,XmlDocument updated,Func<string,string,string,string,string?>? scriptMerge){
-  var original=Read(source);var before=Read(baseline);Merge(original.DocumentElement!,before.DocumentElement!,updated.DocumentElement!,"unattend",scriptMerge);return original;
+ public static XmlDocument Apply(string source,string baseline,XmlDocument updated)=>Apply(Read(source),Read(baseline),updated);
+ internal static XmlDocument Apply(XmlDocument source,XmlDocument baseline,XmlDocument updated,Func<string,string,string,string,string?>? scriptMerge=null){
+  Merge(source.DocumentElement!,baseline.DocumentElement!,updated.DocumentElement!,"unattend",scriptMerge);return source;
  }
  private static void Merge(XmlElement target,XmlElement before,XmlElement after,string path,Func<string,string,string,string,string?>? scriptMerge){
   if(Equal(before,after))return;

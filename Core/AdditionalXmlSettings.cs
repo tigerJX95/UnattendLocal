@@ -84,7 +84,7 @@ public static class AdditionalXmlSettings
         }
         catch (Exception e) when (e is XmlException or ArgumentException)
         {
-            throw new ConfigurationValidationException(nameof(InstallPlan.XmlComponents), global::UnattendLocal.Localization.UiText.Concat(new object?[] { global::UnattendLocal.Localization.UiText.Source("text.3bfa38fae34b"), e.Message },new bool[]{false,false}));
+            throw new ConfigurationValidationException(nameof(InstallPlan.XmlComponents), global::UnattendLocal.Localization.UiText.Concat(new object?[] { global::UnattendLocal.Localization.UiText.Source("text.3bfa38fae34b"), global::UnattendLocal.Localization.UiText.DescribeError(e) },new bool[]{false,false}), e);
         }
     }
 

@@ -3,9 +3,14 @@ namespace UnattendLocal.Desktop;
 // Match application-produced diagnostic states, never generic words in user content.
 public static class DiagnosticText
 {
-    internal static string ForImportError(Exception error) => error is OverflowException
-        ? global::UnattendLocal.Localization.UiText.Source("import.error.numberOutOfRange")
-        : error.Message;
+    internal static string ForDialogError(Exception error, bool importing = false)
+    {
+        if (importing && error is OverflowException)
+            return global::UnattendLocal.Localization.UiText.Source("import.error.numberOutOfRange");
+        if (error is Schneegans.Unattend.ConfigurationException)
+            return global::UnattendLocal.Localization.UiText.Source("diagnostic.generator.configuration");
+        return global::UnattendLocal.Localization.UiText.DescribeError(error);
+    }
 
     public static bool IsErrorSummary(string? text)
     {

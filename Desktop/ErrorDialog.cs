@@ -6,8 +6,9 @@ namespace UnattendLocal.Desktop;
 // One themed path for operational errors; confirmation and risk dialogs keep their own semantics.
 internal static class ErrorDialog
 {
-    public static bool Show(Window owner, string message, string? title = null, string? location = null, string? actionText = null)
+    public static bool Show(Window owner, Exception error, string? title = null, string? location = null, string? actionText = null, bool importing = false)
     {
+        string message = DiagnosticText.ForDialogError(error, importing);
         title ??= UnattendLocal.Localization.UiText.Source("text.47b3e2cd0b17");
         actionText ??= UnattendLocal.Localization.UiText.Source("text.90e01acb5c9e");
         bool navigate = false;

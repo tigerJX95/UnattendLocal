@@ -1,5 +1,7 @@
 using System.Text;using System.Xml;using UnattendLocal.Core;
 int count=0;var g=new GeneratorService();
+if(args.Contains("--embedded-background-only")){Console.WriteLine($"Embedded backgrounds: {EmbeddedBackgroundTests.Run(g)} checks passed.");return;}
+if(args.Contains("--popup-localization-only")){Console.WriteLine($"Popup localization: {PopupLocalizationTests.Run(g)} checks passed.");return;}
 if(args.Contains("--v1411-audit-only")){Console.WriteLine($"V1.41.1 audit: {V1411AuditTests.Run(g)} checks passed.");return;}
 if(args.Contains("--applocker-review-only")){Console.WriteLine($"AppLocker review: {AppLockerReviewTests.Run()} checks passed.");return;}
 if(args.Contains("--search-prerequisites-only")){Console.WriteLine($"Search prerequisites: {SearchPrerequisiteTests.Run()} checks passed.");return;}
@@ -25,7 +27,7 @@ if(args.Contains("--localization-only") || args.Contains("--localization-stress-
   _ = new UnattendLocal.Desktop.MainViewModel().Status;
   for(int i=0;i<12005;i++)UnattendLocal.Localization.UiText.Concat(["cache probe ", i], [false, true]);
  }
- try{LocalizationTests.Run(g);}catch(Exception failure){Console.Error.WriteLine(failure.GetType().FullName);Console.Error.WriteLine(failure.Message);Environment.ExitCode=1;}return;
+ try{LocalizationTests.Run(g);Console.WriteLine($"Popup localization: {PopupLocalizationTests.Run(g)} checks passed.");}catch(Exception failure){Console.Error.WriteLine(failure.GetType().FullName);Console.Error.WriteLine(failure.Message);Environment.ExitCode=1;}return;
 }
 if(args.Contains("--script-enhancements-only")){ScriptEnhancementTests.Run(g);return;}
 if(args.Contains("--script-templates-only")){ScriptTemplateTests.Run(g);return;}
@@ -2115,7 +2117,7 @@ Console.WriteLine($"V1.18 final total: {count} tests passed.");
 
 Console.WriteLine($"V1.19 final total: {count} tests passed.");
 
-try{count+=LocalizationTests.Run(g);}catch(Exception failure){Console.Error.WriteLine(failure.GetType().FullName);Console.Error.WriteLine(failure.Message);Environment.ExitCode=1;return;}
+try{count+=LocalizationTests.Run(g);count+=PopupLocalizationTests.Run(g);count+=EmbeddedBackgroundTests.Run(g);}catch(Exception failure){Console.Error.WriteLine(failure.GetType().FullName);Console.Error.WriteLine(failure.Message);Environment.ExitCode=1;return;}
 Console.WriteLine($"V1.20 final total: {count} tests passed.");
 
 count+=DeploymentTuningTests.Run(g);

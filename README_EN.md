@@ -5,7 +5,7 @@
 
 UnattendLocal is a Windows desktop tool with Simplified Chinese and English interfaces based on [Christoph Schneegans’ UnattendGenerator](https://github.com/cschneegans/unattend-generator). It lets you edit, check, and generate `autounattend.xml` for Windows 10 / 11 locally.
 
-Current version: **V1.41.1**. When PE script installation is enabled, image selection switches to **By image index** and requires an index from the installation image; the regular Windows Setup path retains all image selection modes. Includes static IPv4/IPv6 dual stack, subnet-mask input, settings search, setup driver directories, Dynamic Update, partitioning, OOBE and account settings, and existing XML import/editing.
+Current version: **V1.42**. When PE script installation is enabled, image selection switches to **By image index** and requires an index from the installation image; the regular Windows Setup path retains all image selection modes. Includes static IPv4/IPv6 dual stack, subnet-mask input, settings search, setup driver directories, Dynamic Update, partitioning, OOBE and account settings, and existing XML import/editing.
 
 ## 💡 Why this project exists
 
@@ -56,18 +56,17 @@ The displayed product key is a public generic installation key for selecting an 
 - Save and restore JSON plans; review summaries, recommended-setting differences, checks, redacted previews, and XML exports.
 - Import existing XML and edit supported settings while preserving unknown content. Export stops with an explanation when changes cannot be merged reliably.
 
-## V1.41.1 Security and reliability fixes · 2026-11-09
+## V1.42 Localized dialogs and setup prompts · 2026-11-10
 
-- The XML preview recognizes embedded WLAN profiles by their root element and redacts their keys even when the files have been renamed.
-- WinPE review exempts only exact matches for known hardware-check commands. Loading a legacy JSON plan rechecks the retained source XML to determine whether review is required.
-- AppLocker import and export review recognize legacy paths consistently and distinguish audit-only policies from enforced policies.
-- XML import accepts files with out-of-range recovery partition sizes. The original command is kept read-only and must be reviewed before export. Recovery size and other numeric overflow notices are available in Chinese and English.
+- Unify error dialogs for imports, saving plans and scripts, and exports. XML and JSON parsing errors use the app language and retain available line, column, or byte positions.
+- Display the installation-time computer name prompt in Simplified Chinese or English based on the target Windows UI language. Re-export to update the old built-in prompt. Custom naming scripts are preserved.
+- In Colors and backgrounds, select a local PNG or JPEG as the desktop wallpaper or lock screen image, up to 1 MiB per image. The answer XML includes the images for offline use during Setup.
 
 [Version history](CHANGELOG_EN.md)
 
 ## 📦 Download and usage
 
-Download and run the matching Windows x64 executable from the repository’s [**Releases**](https://github.com/tigerJX95/UnattendLocal/releases/latest) page: `UnattendLocal_V1.41.1_x64_SelfContained.exe` or `UnattendLocal_V1.41.1_x64_FrameworkDependent.exe`. Choose `UnattendLocal_V1.41.1_x64_SelfContained.exe` for a bundled .NET runtime, or `UnattendLocal_V1.41.1_x64_FrameworkDependent.exe` if .NET 10 Desktop Runtime x64 is already installed. Both have the same features. Use a virtual machine for initial testing.
+Download and run the matching Windows x64 executable from the repository’s [**Releases**](https://github.com/tigerJX95/UnattendLocal/releases/latest) page: `UnattendLocal_V1.42_x64_SelfContained.exe` or `UnattendLocal_V1.42_x64_FrameworkDependent.exe`. Choose `UnattendLocal_V1.42_x64_SelfContained.exe` for a bundled .NET runtime, or `UnattendLocal_V1.42_x64_FrameworkDependent.exe` if .NET 10 Desktop Runtime x64 is already installed. Both have the same features. Use a virtual machine for initial testing.
 
 1. Choose a recommended scenario or a custom configuration and enter the required account and image settings.
 2. Adjust system, appearance, and application removal options as needed.
@@ -96,6 +95,7 @@ Open a JSON plan to restore saved settings, or import an answer XML to continue 
 - Choose the naming mode in basic settings.
 - Leaving the fixed name empty still lets Windows generate it.
 - The installation-time dialog requires valid input before setup can continue.
+- The installation-time title, instructions, and invalid-name message use Simplified Chinese when the target Windows UI language is Simplified Chinese and English otherwise.
 - A naming script must return a valid computer name (1–15 characters, not entirely numeric, without invalid characters, and different from local account names).
 - The tool does not run the script or verify its runtime result.
 - Scripts are stored verbatim in plans and XML; check for sensitive information before sharing.

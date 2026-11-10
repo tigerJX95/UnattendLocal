@@ -70,7 +70,7 @@ public static class XmlPlanImport {
   string baseline="";
   try{baseline=Encoding.UTF8.GetString(service.GenerateImportBaseline(clone));var seed=XmlMerge.Read(baseline);NativePreferences.SeedBaseline(seed,doc,p);baseline=seed.OuterXml;}
   catch(Exception e)when(e is ArgumentException or ConfigurationException or XmlException){
-   blockers.Add(global::UnattendLocal.Localization.UiText.Concat(new object?[] { global::UnattendLocal.Localization.UiText.Source("text.7ce37087b03b"), SafeReason(e.Message) },new bool[]{false,false}));
+   blockers.Add(global::UnattendLocal.Localization.UiText.Concat(new object?[] { global::UnattendLocal.Localization.UiText.Source("text.7ce37087b03b"), SafeReason(global::UnattendLocal.Localization.UiText.DescribeError(e)) },new bool[]{false,false}));
   }
   XmlImportParameters.Reconcile(doc,p,appRemovalState,notes);
   if(baseline.Length>0)DescribeRemainder(doc,XmlMerge.Read(baseline),notes);
@@ -90,6 +90,7 @@ public static class XmlPlanImport {
   FirstLogonSettings.UpdateImportState(p.ImportedXml,p,firstLogonState);
   p.ClearDiskConsent();return p;
  }
+ private static string DescribeBlocker(string message)=>global::UnattendLocal.Localization.UiText.IsKnownSource(message)?message:global::UnattendLocal.Localization.UiText.Source("text.b80caac11032");
  private static string SafeReason(string message)=>message.Contains("'")?global::UnattendLocal.Localization.UiText.Source("text.b80caac11032"):message;
  private static void ReadBasic(XmlDocument doc,XmlNamespaceManager ns,InstallPlan p,GeneratorService service,List<string> notes){
   var computer=Text(doc,"//u:settings[@pass='specialize']/u:component[@name='Microsoft-Windows-Shell-Setup']/u:ComputerName",ns);p.ComputerName=computer is null or "*"?"":computer;
@@ -207,6 +208,8 @@ public static class XmlPlanImport {
  }
  private static void DescribeRemainder(XmlDocument source,XmlDocument baseline,List<string> notes){
   var comparison=AppRemovalSettings.ComparisonDocument(source);
+  ComputerNamingSettings.UpgradeLegacyPrompt(comparison);
+  ComputerNamingSettings.UpgradeLegacyPrompt(baseline);
   var generated=baseline.SelectNodes("//*[local-name()='File']")!.Cast<XmlElement>().ToDictionary(f=>f.GetAttribute("path"),StringComparer.OrdinalIgnoreCase);
   foreach(XmlElement file in comparison.SelectNodes("//*[local-name()='File']")!) {
    string path=file.GetAttribute("path");
@@ -300,8 +303,9 @@ public static class XmlPlanImport {
   if(copy.DiskMode!=DiskScriptSettings.Mode)copy.DiskPartScript="";
   // Inactive PE drafts belong to JSON plans, not deployment recovery metadata.
   if(!copy.UseGeneratedPe || copy.PeTargetMode!="script")copy.PeTargetScript="";
-  if(!WallpaperSettings.IsScript(copy))copy.WallpaperImageScript="";
-  if(!ImageBackgroundSettings.IsLockScript(copy))copy.LockScreenImageScript="";
+  // Embedded images are restored from the actual loader files during XML import.
+  if(!WallpaperSettings.IsScript(copy)||ImageBackgroundSettings.IsEmbeddedImageScript(copy.WallpaperImageScript))copy.WallpaperImageScript="";
+  if(!ImageBackgroundSettings.IsLockScript(copy)||ImageBackgroundSettings.IsEmbeddedImageScript(copy.LockScreenImageScript))copy.LockScreenImageScript="";
   // Active fragment elements already exist in the export. Retain only those elements
   // in its editable snapshot; omit disabled drafts and comments outside the elements.
   var snapshot=System.Text.Json.Nodes.JsonNode.Parse(PlanStore.Serialize(copy,false))!;
@@ -313,7 +317,7 @@ public static class XmlPlanImport {
  public static void ValidateImported(InstallPlan p){
   if(p.ImportedXml is not {} data)return;
   if(data.OriginalOmitted||data.SourceXml.Length==0||data.BaselineXml.Length==0)throw new ArgumentException(global::UnattendLocal.Localization.UiText.Source("text.76fd34fad718"));
-  if(data.Blockers.Length>0)throw new ArgumentException(global::UnattendLocal.Localization.UiText.Join("\n", data.Blockers, false));
+  if(data.Blockers.Length>0)throw new ArgumentException(global::UnattendLocal.Localization.UiText.Join("\n", data.Blockers.Select(DescribeBlocker).Distinct(), false));
   var source=XmlImportPaths.Inspection(XmlMerge.Read(data.SourceXml));
   AutoPartitionSettings.ValidateImported(p,source);
   CompactOsSettings.ValidateImported(p,source);

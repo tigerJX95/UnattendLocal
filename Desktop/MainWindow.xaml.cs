@@ -53,7 +53,7 @@ public partial class MainWindow : Window {
  private void Run(Action action, bool locateConfiguration=false){try{action();}catch(Exception e){
   vm.Status=global::UnattendLocal.Localization.UiText.Source("text.63026f42b636");
   var location=locateConfiguration?ConfigurationErrorLocation.FromException(e):null;
-  if(ErrorDialog.Show(this,e.Message,location:location?.Path,actionText:location?.ActionText??global::UnattendLocal.Localization.UiText.Source("text.90e01acb5c9e"))&&location is not null){
+  if(ErrorDialog.Show(this,e,location:location?.Path,actionText:location?.ActionText??global::UnattendLocal.Localization.UiText.Source("text.90e01acb5c9e"))&&location is not null){
    if(location.UserIndex is int index&&index>=0&&index<vm.Plan.Users.Count)vm.SelectedUser=vm.Plan.Users[index];
    NavigateToSetting(location.Setting,focusEditor:true);
   }
@@ -105,24 +105,24 @@ public partial class MainWindow : Window {
   var panel=new StackPanel{Margin=new Thickness(24),Width=480};panel.Children.Add(new TextBlock{Text=global::UnattendLocal.Localization.UiText.Translate(global::UnattendLocal.Localization.UiText.Source("text.f5e9b8f55f20")),TextWrapping=TextWrapping.Wrap});
   var buttons=new StackPanel{Orientation=Orientation.Horizontal,HorizontalAlignment=HorizontalAlignment.Center,Margin=new Thickness(0,16,0,0)};
   bool? choice=null;
-  var reset=new Button{Content=global::UnattendLocal.Localization.UiText.Source("text.e4804b0350c5")};reset.Click+=(_,_)=>{choice=true;dialog.DialogResult=true;};
-  var keep=new Button{Content=global::UnattendLocal.Localization.UiText.Source("text.f0866be5e5a3")};keep.Click+=(_,_)=>{choice=false;dialog.DialogResult=true;};
-  var cancel=new Button{Content=global::UnattendLocal.Localization.UiText.Source("text.2cd0f3be8738"),IsCancel=true};buttons.Children.Add(reset);buttons.Children.Add(keep);buttons.Children.Add(cancel);panel.Children.Add(buttons);dialog.Content=panel;
+  var reset=new Button{Content=UiText.Get("text.e4804b0350c5")};reset.Click+=(_,_)=>{choice=true;dialog.DialogResult=true;};
+  var keep=new Button{Content=UiText.Get("text.f0866be5e5a3")};keep.Click+=(_,_)=>{choice=false;dialog.DialogResult=true;};
+  var cancel=new Button{Content=UiText.Get("text.2cd0f3be8738"),IsCancel=true};buttons.Children.Add(reset);buttons.Children.Add(keep);buttons.Children.Add(cancel);panel.Children.Add(buttons);dialog.Content=panel;
   dialog.SourceInitialized+=(_,_)=>UiTheme.UpdateTitleBar(dialog);
   dialog.ShowDialog();var result=choice;if(result==true){Load(InstallPlan.NewCustom());vm.Status=global::UnattendLocal.Localization.UiText.Source("text.bd3484eaffe7");}
   else if(result==false){vm.Plan.ConfigurationMode=global::UnattendLocal.Localization.UiText.Source("text.cb1e0e22c7de");vm.Plan.CustomStartingPoint=global::UnattendLocal.Localization.UiText.Source("text.f0866be5e5a3");}
   else{loading=true;try{vm.Plan.ConfigurationMode=global::UnattendLocal.Localization.UiText.Source("text.933c2fd10345");}finally{loading=false;}}
  }
- private void OpenClick(object s,RoutedEventArgs e){
+ private void OpenClick(object s,RoutedEventArgs e)=>Run(()=>{
   var dialog=new OpenFileDialog{Filter=global::UnattendLocal.Localization.UiText.Translate(global::UnattendLocal.Localization.UiText.Source("text.7fba054e9c5b")),Title=global::UnattendLocal.Localization.UiText.Translate(global::UnattendLocal.Localization.UiText.Source("text.b3b3ae93ff98"))};
   if(dialog.ShowLocalized(this)==true)ImportConfigurationFile(dialog.FileName);
   else vm.Status=global::UnattendLocal.Localization.UiText.Source("text.2f558d0ef888");
- }
- private void ImportAnswerClick(object s,RoutedEventArgs e){
+ });
+ private void ImportAnswerClick(object s,RoutedEventArgs e)=>Run(()=>{
   var dialog=new OpenFileDialog{Filter=global::UnattendLocal.Localization.UiText.Translate(global::UnattendLocal.Localization.UiText.Source("text.8fb4efdfdbd7")),Title=global::UnattendLocal.Localization.UiText.Translate(global::UnattendLocal.Localization.UiText.Source("text.79ca8dae6c91"))};
   if(dialog.ShowLocalized(this)==true)ImportConfigurationFile(dialog.FileName);
   else vm.Status=global::UnattendLocal.Localization.UiText.Source("text.c22f829e67db");
- }
+ });
  private void ImportWifiProfileClick(object s,RoutedEventArgs e)=>Run(()=>{var d=new OpenFileDialog{Filter=global::UnattendLocal.Localization.UiText.Translate(global::UnattendLocal.Localization.UiText.Source("text.b05d59acd5ff")),Title=global::UnattendLocal.Localization.UiText.Translate(global::UnattendLocal.Localization.UiText.Source("text.83662e044811"))};if(d.ShowLocalized(this)!=true)return;var text=TextFileImport.Read(d.FileName,2L*1024*1024,global::UnattendLocal.Localization.UiText.Source("text.4d8c95c9efd6"));_=WifiSettings.ReadProfile(text);vm.Plan.WifiProfileXml=text;vm.Status=global::UnattendLocal.Localization.UiText.Source("text.21910a5ae514");});
  private void ValidateWifiProfileClick(object s,RoutedEventArgs e)=>Run(()=>{_=WifiSettings.ReadProfile(vm.Plan.WifiProfileXml);vm.Status=global::UnattendLocal.Localization.UiText.Source("text.2143ae1d0ce3");});
  private void ImportAppLockerClick(object s,RoutedEventArgs e)=>Run(()=>{var d=new OpenFileDialog{Filter=global::UnattendLocal.Localization.UiText.Translate(global::UnattendLocal.Localization.UiText.Source("text.ab7f0e83ac46")),Title=global::UnattendLocal.Localization.UiText.Translate(global::UnattendLocal.Localization.UiText.Source("text.cc905c3b5184"))};if(d.ShowLocalized(this)!=true)return;var text=TextFileImport.Read(d.FileName,AppControlSettings.MaxLength*4L,global::UnattendLocal.Localization.UiText.Source("text.e2f2859ef687"));_=AppControlSettings.ReadPolicy(text);if(!string.IsNullOrWhiteSpace(vm.Plan.AppLockerPolicyXml)&&LocalizedMessageBox.Show(this,global::UnattendLocal.Localization.UiText.Source("text.cb4f9f9d7056"),global::UnattendLocal.Localization.UiText.Source("text.cc905c3b5184"),MessageBoxButton.YesNo,MessageBoxImage.Question)!=MessageBoxResult.Yes)return;vm.Plan.AppLockerPolicyXml=text;vm.Status=global::UnattendLocal.Localization.UiText.Source("text.f4eb02fd233e");});
@@ -134,7 +134,7 @@ public partial class MainWindow : Window {
    image: review.HasWarnings ? MessageBoxImage.Warning : MessageBoxImage.Information);
  });
  private void AppLockerExampleClick(object s,RoutedEventArgs e)=>Run(()=>{if(!string.IsNullOrWhiteSpace(vm.Plan.AppLockerPolicyXml)&&LocalizedMessageBox.Show(this,global::UnattendLocal.Localization.UiText.Source("text.589d0d4463c8"),global::UnattendLocal.Localization.UiText.Source("text.f5ea8a3828c8"),MessageBoxButton.YesNo,MessageBoxImage.Question)!=MessageBoxResult.Yes)return;vm.Plan.AppLockerPolicyXml=AppControlSettings.Example;vm.Status=global::UnattendLocal.Localization.UiText.Source("text.f5864e089baf");});
- private void SaveClick(object s,RoutedEventArgs e)=>Run(()=>{var d=new SaveFileDialog{Filter=global::UnattendLocal.Localization.UiText.Translate(global::UnattendLocal.Localization.UiText.Source("text.7fba054e9c5b")),FileName=global::UnattendLocal.Localization.UiText.Source("text.8552e8eed1a1")};if(d.ShowLocalized(this)!=true)return;var answer=LocalizedMessageBox.Show(this,global::UnattendLocal.Localization.UiText.Source("text.8bacde0493a7"),global::UnattendLocal.Localization.UiText.Source("text.47c61ce5cda2"),MessageBoxButton.YesNoCancel,MessageBoxImage.Question,MessageBoxResult.No);if(answer==MessageBoxResult.Cancel)return;AtomicFile.WriteAllText(d.FileName,PlanStore.Serialize(vm.Plan,answer==MessageBoxResult.Yes),new UTF8Encoding(false));vm.Status=global::UnattendLocal.Localization.UiText.Source("text.9a986abbc474");});
+ private void SaveClick(object s,RoutedEventArgs e)=>Run(()=>{var d=new SaveFileDialog{Title=UiText.Get("text.a6aa8cd3f498"),Filter=global::UnattendLocal.Localization.UiText.Translate(global::UnattendLocal.Localization.UiText.Source("text.7fba054e9c5b")),FileName=global::UnattendLocal.Localization.UiText.Source("text.8552e8eed1a1")};if(d.ShowLocalized(this)!=true)return;var answer=LocalizedMessageBox.Show(this,global::UnattendLocal.Localization.UiText.Source("text.8bacde0493a7"),global::UnattendLocal.Localization.UiText.Source("text.47c61ce5cda2"),MessageBoxButton.YesNoCancel,MessageBoxImage.Question,MessageBoxResult.No);if(answer==MessageBoxResult.Cancel)return;AtomicFile.WriteAllText(d.FileName,PlanStore.Serialize(vm.Plan,answer==MessageBoxResult.Yes),new UTF8Encoding(false));vm.Status=global::UnattendLocal.Localization.UiText.Source("text.9a986abbc474");});
  private FrameworkElement? Invalid(DependencyObject root){
   if(root is UIElement element&&!element.IsEnabled)return null;
   if(root is FrameworkElement field&&System.Windows.Controls.Validation.GetHasError(root))return field;
@@ -159,7 +159,7 @@ public partial class MainWindow : Window {
  private void SetLayoutContent(string kind,string content){switch(kind){case "taskbar":vm.Plan.TaskbarIconsXml=content;break;case "tiles":vm.Plan.StartTilesXml=content;break;case "pins":vm.Plan.StartPinsJson=content;break;default:throw new ArgumentException(global::UnattendLocal.Localization.UiText.Source("text.041423d2ccdd"));}}
  private void ImportLayoutClick(object s,RoutedEventArgs e)=>Run(()=>{
   if(s is not Button {Tag:string kind})return;
-  var d=new OpenFileDialog{Filter=global::UnattendLocal.Localization.UiText.Translate(kind=="pins"?global::UnattendLocal.Localization.UiText.Source("text.0488d9c42a3d"):global::UnattendLocal.Localization.UiText.Source("text.a65466e1a097"))};
+  var d=new OpenFileDialog{Title=UiText.Get("text.f535358de46d"),Filter=global::UnattendLocal.Localization.UiText.Translate(kind=="pins"?global::UnattendLocal.Localization.UiText.Source("text.0488d9c42a3d"):global::UnattendLocal.Localization.UiText.Source("text.a65466e1a097"))};
   if(d.ShowLocalized(this)!=true)return;
   var content=TextFileImport.Read(d.FileName,ShellSettings.MaxDocumentLength*4L,global::UnattendLocal.Localization.UiText.Source("text.3500d767caae"));ShellSettings.ValidateDocument(kind,content);
   if(!string.IsNullOrWhiteSpace(LayoutContent(kind))&&LocalizedMessageBox.Show(this,global::UnattendLocal.Localization.UiText.Source("text.abd2dd56b959"),global::UnattendLocal.Localization.UiText.Source("text.f535358de46d"),MessageBoxButton.YesNo,MessageBoxImage.Question)!=MessageBoxResult.Yes)return;
@@ -171,10 +171,12 @@ public partial class MainWindow : Window {
   SetLayoutContent(kind,kind switch {"taskbar"=>ShellSettings.TaskbarExample,"tiles"=>ShellSettings.TilesExample,"pins"=>ShellSettings.PinsExample,_=>throw new ArgumentException(global::UnattendLocal.Localization.UiText.Source("text.041423d2ccdd"))});vm.Status=global::UnattendLocal.Localization.UiText.Source("text.26582afc8a94");
  });
  private void ImportScriptFileClick(object s,RoutedEventArgs e){
-  var d=new OpenFileDialog{Title=global::UnattendLocal.Localization.UiText.Translate(global::UnattendLocal.Localization.UiText.Source("text.c724ee9da759")),Filter=global::UnattendLocal.Localization.UiText.Translate(global::UnattendLocal.Localization.UiText.Source("text.2eacfaccc5f3")),Multiselect=false};
-  if(d.ShowLocalized(this)!=true){vm.Status=global::UnattendLocal.Localization.UiText.Source("text.0686968bdaaa");return;}
-  try{_=vm.ImportScriptFile(d.FileName);vm.Status=global::UnattendLocal.Localization.UiText.Source("text.f9097577f961");}
-  catch(Exception error){vm.Status=global::UnattendLocal.Localization.UiText.Source("text.cfe65a0b90d3");ErrorDialog.Show(this,error.Message,global::UnattendLocal.Localization.UiText.Source("text.18c5568b93d5"));}
+  try{
+   var d=new OpenFileDialog{Title=global::UnattendLocal.Localization.UiText.Translate(global::UnattendLocal.Localization.UiText.Source("text.c724ee9da759")),Filter=global::UnattendLocal.Localization.UiText.Translate(global::UnattendLocal.Localization.UiText.Source("text.2eacfaccc5f3")),Multiselect=false};
+   if(d.ShowLocalized(this)!=true){vm.Status=global::UnattendLocal.Localization.UiText.Source("text.0686968bdaaa");return;}
+   _=vm.ImportScriptFile(d.FileName);vm.Status=global::UnattendLocal.Localization.UiText.Source("text.f9097577f961");
+  }
+  catch(Exception error){vm.Status=global::UnattendLocal.Localization.UiText.Source("text.cfe65a0b90d3");ErrorDialog.Show(this,error,global::UnattendLocal.Localization.UiText.Source("text.18c5568b93d5"),importing:true);}
  }
  private void SaveScriptFileClick(object s,RoutedEventArgs e){
   if(vm.SelectedScript is not {} row){vm.Status=global::UnattendLocal.Localization.UiText.Source("text.83cabd7a568f");return;}
@@ -184,7 +186,7 @@ public partial class MainWindow : Window {
    if(d.ShowLocalized(this)!=true){vm.Status=global::UnattendLocal.Localization.UiText.Source("text.7349f02b9d4e");return;}
    ScriptFiles.Write(row,d.FileName);
    vm.Status=global::UnattendLocal.Localization.UiText.Concat(new object?[] { global::UnattendLocal.Localization.UiText.Source("text.245524589836"), ScriptFiles.EncodingHint(row.Type) },new bool[]{false,false});
-  }catch(Exception error){vm.Status=global::UnattendLocal.Localization.UiText.Source("text.79a660a9296f");ErrorDialog.Show(this,error.Message,global::UnattendLocal.Localization.UiText.Source("text.3fb76b0a450a"));}
+  }catch(Exception error){vm.Status=global::UnattendLocal.Localization.UiText.Source("text.79a660a9296f");ErrorDialog.Show(this,error,global::UnattendLocal.Localization.UiText.Source("text.3fb76b0a450a"));}
  }
  private void DuplicateScriptClick(object s,RoutedEventArgs e)=>Run(()=>{if(vm.DuplicateSelectedScript()!=null)vm.Status=global::UnattendLocal.Localization.UiText.Source("text.49d7d75f75cb");});
  private void SelectFilteredAppsClick(object s,RoutedEventArgs e)=>Run(()=>{if(s is not Button {Tag:string mode})return;var count=vm.FilteredAppRemovalChoices.Count;if(count==0){vm.Status=global::UnattendLocal.Localization.UiText.Source("text.af62195e1dff");return;}bool selected=mode=="select";if(selected&&LocalizedMessageBox.Show(this,global::UnattendLocal.Localization.UiText.Format("message.6713a8dff22c", new string[] { global::UnattendLocal.Localization.UiText.Arg((count), 0, null) }),global::UnattendLocal.Localization.UiText.Source("text.a5db3d650007"),MessageBoxButton.YesNo,MessageBoxImage.Question)!=MessageBoxResult.Yes)return;vm.SelectFilteredApps(selected);vm.Status=global::UnattendLocal.Localization.UiText.Format("message.fdb4c317e78a", new string[] { global::UnattendLocal.Localization.UiText.Arg(((selected?global::UnattendLocal.Localization.UiText.Source("text.c6cdcd00b6a5"):global::UnattendLocal.Localization.UiText.Source("text.2cd0f3be8738"))), 0, null), global::UnattendLocal.Localization.UiText.Arg((count), 0, null) });});
@@ -193,6 +195,29 @@ public partial class MainWindow : Window {
  private void RemoveScriptClick(object s,RoutedEventArgs e){if(vm.SelectedScript is {} row)vm.Plan.Scripts.Remove(row);}
  private void MoveScriptClick(object s,RoutedEventArgs e){if(vm.SelectedScript is {} row&&s is Button {Tag:string direction}){var index=vm.Plan.Scripts.IndexOf(row);var target=index+(direction=="up"?-1:1);if(target>=0&&target<vm.Plan.Scripts.Count)vm.Plan.Scripts.Move(index,target);vm.SelectedScript=row;}}
  private void CustomScriptExampleClick(object s,RoutedEventArgs e)=>Run(()=>{if(vm.Plan.Scripts.Count>=60)throw new ArgumentException(global::UnattendLocal.Localization.UiText.Source("text.bca97a516f08"));var network=s is Button {Tag:"network"};var row=new ScriptEntry{Enabled=false,Phase=network?"FirstLogon":"System",Type=network?"Ps1":"Cmd",Content=network?CustomScripts.NetworkExample:CustomScripts.DirectoryExample};vm.Plan.Scripts.Add(row);vm.SelectedScript=row;vm.Status=global::UnattendLocal.Localization.UiText.Source("text.011496a027e6");});
+ private void EmbedBackgroundImageClick(object sender, RoutedEventArgs e) => Run(() =>
+ {
+  bool wallpaper = sender is Button { Tag: "wallpaper" };
+  var dialog = new OpenFileDialog { Title = UiText.Get("image.embed.button"), Filter = UiText.Get("image.embed.filter") };
+  if (dialog.ShowLocalized(this) != true) return;
+  string script = ImageBackgroundSettings.ReadEmbeddedImage(dialog.FileName);
+  string current = wallpaper ? vm.Plan.WallpaperImageScript : vm.Plan.LockScreenImageScript;
+  if (!string.IsNullOrWhiteSpace(current) &&
+      LocalizedMessageBox.Show(this, UiText.Source("image.embed.replace"), UiText.Source("image.embed.button"),
+          MessageBoxButton.YesNo, MessageBoxImage.Question, MessageBoxResult.No) != MessageBoxResult.Yes) return;
+
+  if (wallpaper)
+  {
+   vm.Plan.WallpaperImageScript = script;
+   vm.Plan.WallpaperMode = WallpaperSettings.Script;
+  }
+  else
+  {
+   vm.Plan.LockScreenImageScript = script;
+   vm.Plan.LockScreenMode = ImageBackgroundSettings.LockScript;
+  }
+  vm.Status = UiText.Source("image.embed.success");
+ });
  private void ImageScriptExampleClick(object s,RoutedEventArgs e)=>Run(()=>{
   if(s is not Button {Tag:string kind}||kind is not ("wallpaper" or "lockscreen"))return;
   string current=kind=="wallpaper"?vm.Plan.WallpaperImageScript:vm.Plan.LockScreenImageScript;

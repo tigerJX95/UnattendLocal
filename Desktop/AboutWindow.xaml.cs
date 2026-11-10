@@ -131,7 +131,7 @@ public partial class AboutWindow : Window
         }
         catch (Exception ex) when (ex is Win32Exception or InvalidOperationException or System.Security.SecurityException)
         {
-            System.Windows.MessageBox.Show(this, global::UnattendLocal.Localization.UiText.Get("about.linkOpenError"), global::UnattendLocal.Localization.UiText.Get("text.4b9659ed544c"), MessageBoxButton.OK, MessageBoxImage.Information);
+            LocalizedMessageBox.Show(this, global::UnattendLocal.Localization.UiText.Source("about.linkOpenError"), global::UnattendLocal.Localization.UiText.Source("text.4b9659ed544c"), image: MessageBoxImage.Information);
         }
     }
 }

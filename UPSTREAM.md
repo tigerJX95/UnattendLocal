@@ -101,3 +101,7 @@ https://github.com/cschneegans/unattend-generator/blob/82d4ffdd11ea3266f8f3b29d4
 - 交互计算机名、VirtIO 存储驱动、协同安装器策略与 Edge 启动加速策略在本地已有对应实现。 [协同安装器议题 #448](https://github.com/cschneegans/unattend-generator/issues/448) · [已合并 PR #211](https://github.com/cschneegans/unattend-generator/pull/211)
 - 8.3 短文件名议题关闭于安装完成后，未发现对应修复提交。现有本地选项保留已创建的短文件名。 [议题 #461](https://github.com/cschneegans/unattend-generator/issues/461)
 - 离线 JSON 合约请求标记为不计划实现，本地继续维护现有方案格式。 [议题 #457](https://github.com/cschneegans/unattend-generator/issues/457)
+
+## V1.42 本地图片内嵌
+
+原站支持通过返回图片字节的脚本设置桌面壁纸和锁屏。UnattendLocal 复用已有的安装流程，在编辑方案时选取本地 PNG 或 JPEG，生成返回内嵌图片字节的脚本。每张图片最多 1 MiB。 [原作者网站](https://schneegans.de/windows/unattend-generator/)

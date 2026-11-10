@@ -276,9 +276,9 @@ public static class StaticIPv4Settings
     }
     private static bool SameValues(Values? a, Values? b) => a != null && b != null && a.Mac == b.Mac && a.Address == b.Address && a.Prefix == b.Prefix && a.Gateway == b.Gateway && a.DnsServers.SequenceEqual(b.DnsServers);
     private static bool SameIPv6(IPv6Values? a,IPv6Values? b)=>a==null&&b==null||a!=null&&b!=null&&a.Mac==b.Mac&&a.Address==b.Address&&a.Prefix==b.Prefix&&a.Gateway==b.Gateway&&a.DnsServers.SequenceEqual(b.DnsServers);
-    internal static XmlDocument PrepareMergeSource(XmlDocument source, string baselineXml, XmlDocument updated)
+    internal static XmlDocument PrepareMergeSource(XmlDocument source, XmlDocument baseline, XmlDocument updated)
     {
-        var baseline = XmlMerge.Read(baselineXml); var before = Nodes(baseline); var after = Nodes(updated);
+        var before = Nodes(baseline); var after = Nodes(updated);
         bool unchanged = before.Length == after.Length && before.All(n => after.Count(a => a.GetAttribute("name") == n.GetAttribute("name") && XmlMerge.Equal(a, n)) == 1);
         if (unchanged || before.Length == 0) return source;
         var state = Inspect(source); var previous = Inspect(baseline);

@@ -1,3 +1,4 @@
+using System.IO;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
@@ -43,7 +44,26 @@ internal static class LocalizedFileDialog
     public static bool? ShowLocalized(this FileDialog dialog, Window owner)
     {
         dialog.Title = UiText.Translate(dialog.Title); dialog.Filter = UiText.Translate(dialog.Filter);
-        return dialog.ShowDialog(owner);
+        if (dialog is not SaveFileDialog { OverwritePrompt: true } save) return dialog.ShowDialog(owner);
+
+        // Confirm after the native picker closes so the prompt uses the app language.
+        save.OverwritePrompt = false;
+        try
+        {
+            bool? result;
+            while ((result = save.ShowDialog(owner)) == true)
+            {
+                try { _ = File.GetAttributes(save.FileName); }
+                catch (FileNotFoundException) { return true; }
+                catch (DirectoryNotFoundException) { return true; }
+
+                if (LocalizedMessageBox.Show(owner, UiText.Format("dialog.overwriteFile", save.SafeFileName),
+                    UiText.Source("dialog.overwriteTitle"), MessageBoxButton.YesNo, MessageBoxImage.Warning, MessageBoxResult.No) == MessageBoxResult.Yes)
+                    return true;
+            }
+            return result;
+        }
+        finally { save.OverwritePrompt = true; }
     }
 }
 public static class LocalizedItems

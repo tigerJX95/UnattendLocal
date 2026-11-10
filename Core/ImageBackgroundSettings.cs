@@ -3,12 +3,57 @@ using System.Text.Json;
 using System.Text.RegularExpressions;
 using System.Xml;
 using Schneegans.Unattend;
+using UnattendLocal.Localization;
 
 namespace UnattendLocal.Core;
 
 public static class ImageBackgroundSettings
 {
     public const string LockDefault = "使用 Windows 默认锁屏", LockScript = "使用锁屏图片（脚本加载）";
+    public const int MaxEmbeddedImageBytes = 1024 * 1024;
+    private const string EmbeddedImageMarker = "# UnattendLocal embedded background image";
+    private const string EmbeddedImageStart = EmbeddedImageMarker + "\nreturn ,([System.Convert]::FromBase64String(@'\n";
+    private const string EmbeddedImageEnd = "\n'@))";
+
+    public static string ReadEmbeddedImage(string path)
+    {
+        using var image = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.Read);
+        long size = image.Length;
+        if (size == 0 || size > MaxEmbeddedImageBytes)
+            throw new ArgumentException(UiText.Source("image.embed.size"));
+
+        var bytes = new byte[(int)size];
+        image.ReadExactly(bytes);
+        if (image.ReadByte() != -1)
+            throw new IOException();
+
+        ReadOnlySpan<byte> header = bytes;
+        bool png = bytes.Length >= 33 && header.StartsWith(
+            new byte[] { 0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a, 0, 0, 0, 13, 0x49, 0x48, 0x44, 0x52 });
+        bool jpeg = bytes.Length > 4 && header.StartsWith(new byte[] { 0xff, 0xd8, 0xff });
+        if (!png && !jpeg)
+            throw new ArgumentException(UiText.Source("image.embed.format"));
+
+        string data = Convert.ToBase64String(bytes, Base64FormattingOptions.InsertLineBreaks).ReplaceLineEndings("\n");
+        return EmbeddedImageStart + data + EmbeddedImageEnd;
+    }
+
+    internal static bool IsEmbeddedImageScript(string script)
+    {
+        var text = script.AsSpan().Trim();
+        if (!text.StartsWith(EmbeddedImageMarker, StringComparison.Ordinal))
+            return false;
+
+        // Windows editors and imported XML may use different newline conventions.
+        var normalized = text.Contains('\r') ? text.ToString().ReplaceLineEndings("\n").AsSpan() : text;
+        if (normalized.Length <= EmbeddedImageStart.Length + EmbeddedImageEnd.Length ||
+            !normalized.StartsWith(EmbeddedImageStart, StringComparison.Ordinal) ||
+            !normalized.EndsWith(EmbeddedImageEnd, StringComparison.Ordinal))
+            return false;
+
+        var data = normalized[EmbeddedImageStart.Length..^EmbeddedImageEnd.Length];
+        return System.Buffers.Text.Base64.IsValid(data, out int size) && size is > 0 and <= MaxEmbeddedImageBytes;
+    }
     public const string DesktopExample = """
         foreach ($drive in [System.IO.DriveInfo]::GetDrives()) {
             if (-not $drive.IsReady) { continue; }

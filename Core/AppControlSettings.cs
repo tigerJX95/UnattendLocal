@@ -33,10 +33,10 @@ public static class AppControlSettings
             while (pending.Count > 0) { var (element, depth) = pending.Pop(); if (depth > 64 || ++count > 50000) throw new ArgumentException(global::UnattendLocal.Localization.UiText.Source("text.ae6a77a76098")); foreach (var child in element.ChildNodes.OfType<XmlElement>()) pending.Push((child, depth + 1)); }
             using var schema = typeof(UnattendGenerator).Assembly.GetManifestResourceStream("Schneegans.Unattend.resource.AppLocker.xsd")!;
             doc.Schemas.XmlResolver = null; doc.Schemas.Add(null, XmlReader.Create(schema, new XmlReaderSettings { DtdProcessing = DtdProcessing.Prohibit, XmlResolver = null }));
-            doc.Validate((_, e) => throw new ArgumentException(global::UnattendLocal.Localization.UiText.Concat(new object?[] { global::UnattendLocal.Localization.UiText.Source("text.097aa8e71d60"), e.Message },new bool[]{false,false})));
+            doc.Validate((_, e) => throw new ArgumentException(global::UnattendLocal.Localization.UiText.Concat(new object?[] { global::UnattendLocal.Localization.UiText.Source("text.097aa8e71d60"), UiText.DescribeError(e.Exception) },new bool[]{false,false}), e.Exception));
             return doc;
         }
-        catch (XmlException e) { throw new ArgumentException(global::UnattendLocal.Localization.UiText.Concat(new object?[] { global::UnattendLocal.Localization.UiText.Source("text.4a8494695212"), e.Message },new bool[]{false,false}), e); }
+        catch (XmlException e) { throw new ArgumentException(global::UnattendLocal.Localization.UiText.Concat(new object?[] { global::UnattendLocal.Localization.UiText.Source("text.4a8494695212"), UiText.DescribeError(e) },new bool[]{false,false}), e); }
     }
     public static IAppLockerSettings Build(InstallPlan p) => p.UseAppLocker ? new ConfigureAppLockerSettings(ReadPolicy(p.AppLockerPolicyXml).OuterXml) : new SkipAppLockerSettings();
 

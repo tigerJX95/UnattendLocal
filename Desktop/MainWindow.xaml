@@ -1402,6 +1402,9 @@
               <ComboBoxItem Content="{loc:Source text.5adaebfcffd9}"/><ComboBoxItem Content="{loc:Source text.2c2952107a47}"/><ComboBoxItem Content="{loc:Source text.3e2018867839}"/>
             </ComboBox>
             <TextBlock Text="{loc:Display Value={Binding DesktopWallpaperSummary}}" TextWrapping="Wrap" Margin="0,8,0,12"/>
+            <Button HorizontalAlignment="Left" Content="{loc:Text image.embed.button}" Tag="wallpaper" Click="EmbedBackgroundImageClick" Margin="0,0,0,8">
+              <Button.ToolTip><ToolTip ContentTemplate="{x:Null}"><TextBlock Text="{loc:Text image.embed.tip}" TextWrapping="Wrap"/></ToolTip></Button.ToolTip>
+            </Button>
             <StackPanel Visibility="{Binding IsSolidWallpaper,Converter={StaticResource VisibleWhen}}">
               <TextBlock Text="{loc:Text text.40a25130ac8e}"/>
               <ComboBox ItemsSource="{Binding WallpaperColorChoices}" SelectedValue="{Binding WallpaperColorPreset}" SelectedValuePath="Id" ToolTip="{Binding DataContext.HelpTips[wallpapercolor],RelativeSource={RelativeSource AncestorType=Window}}">
@@ -1433,6 +1436,9 @@
             <TextBlock x:Name="SettingAnchor228" Text="{loc:Text text.c7a90b8fdf58}" FontSize="20" FontWeight="SemiBold" Margin="0,0,0,16" ToolTip="{Binding DataContext.HelpTips[lockscreen],RelativeSource={RelativeSource AncestorType=Window}}"/>
             <ComboBox x:Name="SettingAnchor229" SelectedValue="{Binding Plan.LockScreenMode}" SelectedValuePath="Content" ToolTip="{Binding DataContext.HelpTips[lockscreen],RelativeSource={RelativeSource AncestorType=Window}}"><ComboBoxItem Content="{loc:Source text.c53ce0b8874c}"/><ComboBoxItem Content="{loc:Source text.082cb2ddf7ad}"/></ComboBox>
             <TextBlock Style="{StaticResource ExplanationText}" Text="{loc:Display Value={Binding LockScreenSummary}}" Foreground="{DynamicResource SecondaryBrush}"/>
+            <Button HorizontalAlignment="Left" Content="{loc:Text image.embed.button}" Tag="lockscreen" Click="EmbedBackgroundImageClick" Margin="0,0,0,8">
+              <Button.ToolTip><ToolTip ContentTemplate="{x:Null}"><TextBlock Text="{loc:Text image.embed.tip}" TextWrapping="Wrap"/></ToolTip></Button.ToolTip>
+            </Button>
             <StackPanel Visibility="{Binding IsScriptLockScreen,Converter={StaticResource VisibleWhen}}">
               <TextBlock Style="{StaticResource ExplanationText}" Text="{loc:Text text.0caf211520c7}" Foreground="{DynamicResource SecondaryBrush}"/>
               <DockPanel LastChildFill="True" Margin="0,4,0,4">

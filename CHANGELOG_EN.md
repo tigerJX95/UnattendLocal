@@ -2,12 +2,20 @@
 
 [Back to the README](README_EN.md) · [简体中文](CHANGELOG.md)
 
+## V1.42 Localized dialogs and setup prompts · 2026-11-10
+
+- Unify error dialogs for imports, saving plans and scripts, and exports. XML and JSON parsing errors use the app language and retain available line, column, or byte positions.
+- Display the installation-time computer name prompt in Simplified Chinese or English based on the target Windows UI language. Re-export to update the old built-in prompt. Custom naming scripts are preserved.
+- In Colors and backgrounds, select a local PNG or JPEG as the desktop wallpaper or lock screen image, up to 1 MiB per image. The answer XML includes the images for offline use during Setup.
+
 ## V1.41.1 Security and reliability fixes · 2026-11-09
 
 - The XML preview recognizes embedded WLAN profiles by their root element and redacts their keys even when the files have been renamed.
 - WinPE review exempts only exact matches for known hardware-check commands. Loading a legacy JSON plan rechecks the retained source XML to determine whether review is required.
 - AppLocker import and export review recognize legacy paths consistently and distinguish audit-only policies from enforced policies.
 - XML import accepts files with out-of-range recovery partition sizes. The original command is kept read-only and must be reviewed before export. Recovery size and other numeric overflow notices are available in Chinese and English.
+- Localize validation details for AppLocker, layouts, and additional XML. Account and computer name validation still links to the affected settings.
+- Use the app language for custom configuration buttons, file dialog titles, file replacement confirmation, and project link errors.
 
 ## V1.41 AppLocker review before exporting answer files · 2026-11-09
 
