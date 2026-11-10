@@ -148,11 +148,17 @@ static class PopupLocalizationTests
                 "a fixed name can still replace the legacy prompt");
         }
 
-        legacyPlan.ComputerNameScript += "\n# User comment to preserve";
-        var custom = XmlPlanImport.Import(Encoding.UTF8.GetString(generator.Generate(legacyPlan)), generator);
-        Check(custom.ComputerNameMode == ComputerNamingSettings.Script &&
-            ComputerNamingSettings.Inspect(XmlMerge.Read(Encoding.UTF8.GetString(generator.Generate(custom))))
-                .Getter.Trim() == legacyPlan.ComputerNameScript.Trim(), "customized legacy script stays verbatim");
+        string customScript = legacyScript.Replace("\r\n", "\n") + "\n# User comment to preserve";
+        foreach (string lineEnding in new[] { "\n", "\r\n" })
+        {
+            legacyPlan.ComputerNameScript = customScript.Replace("\n", lineEnding);
+            var custom = XmlPlanImport.Import(Encoding.UTF8.GetString(generator.Generate(legacyPlan)), generator);
+            var exported = XmlMerge.Read(Encoding.UTF8.GetString(generator.Generate(custom)));
+            // XML normalizes line endings. Compare the remaining script text exactly.
+            Check(custom.ComputerNameMode == ComputerNamingSettings.Script &&
+                ComputerNamingSettings.Inspect(exported).Getter.Replace("\r\n", "\n").Trim() == customScript.Trim(),
+                "customized legacy script content survives LF and CRLF round-trips");
+        }
 
         var ambiguous = XmlMerge.Read(legacyBaseline);
         var setter = ambiguous.SelectNodes("//*[local-name()='File']")!.Cast<XmlElement>()
