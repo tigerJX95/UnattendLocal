@@ -83,6 +83,32 @@ public static class UiText
     }
     private static string Normalize(string text) => string.Concat(text.Where(c => !char.IsWhiteSpace(c)));
     public static string Source(string key) => Catalog.TryGetValue(key, out var value) ? value.Source : throw new ArgumentException("Unknown localization key: " + key);
+    public static bool IsKnownSource(string source) => SourceKeys.ContainsKey(source) || Authored.ContainsKey(source) || Projections.ContainsKey(source);
+
+    // Runtime diagnostics can include English prose, paths or input values.
+    // Keep application messages and use typed, localized summaries for other errors.
+    public static string DescribeError(Exception error)
+    {
+        if (IsKnownSource(error.Message)) return error.Message;
+        return error switch
+        {
+            System.Xml.XmlException xml when xml.LineNumber > 0 && xml.LinePosition > 0 =>
+                Format("diagnostic.xml.position", Arg(xml.LineNumber), Arg(xml.LinePosition)),
+            System.Xml.XmlException => Source("diagnostic.xml.syntax"),
+            System.Xml.Schema.XmlSchemaException => Source("diagnostic.xml.schema"),
+            JsonException json when json.LineNumber is long line && json.BytePositionInLine is long position =>
+                Format("diagnostic.json.position", Arg(line + 1), Arg(position + 1)),
+            JsonException => Source("diagnostic.json.syntax"),
+            OverflowException or ArgumentOutOfRangeException => Source("diagnostic.numberOutOfRange"),
+            FileNotFoundException or DirectoryNotFoundException => Source("diagnostic.file.missing"),
+            PathTooLongException => Source("diagnostic.file.pathTooLong"),
+            UnauthorizedAccessException or System.Security.SecurityException => Source("diagnostic.file.access"),
+            IOException => Source("diagnostic.file.io"),
+            FormatException or ArgumentException => Source("diagnostic.invalidInput"),
+            _ => Source("diagnostic.unexpected")
+        };
+    }
+
     public static string Get(string key) => GetFor(Language,key);
     private static string GetFor(string code,string key, bool paragraphs = true)
     {

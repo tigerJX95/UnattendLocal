@@ -26,7 +26,7 @@ public partial class MainWindow {
    if(e.Data.GetData(DataFormats.FileDrop) is not string[] paths)throw new ArgumentException(global::UnattendLocal.Localization.UiText.Source("text.d7361479b693"));
    string path=PlanFileImport.SingleFile(paths);
    if(ImportConfigurationFile(path))e.Effects=DragDropEffects.Copy;
-  }catch(Exception error){vm.Status=global::UnattendLocal.Localization.UiText.Source("text.94a9765decb7");ErrorDialog.Show(this,error.Message,global::UnattendLocal.Localization.UiText.Source("text.582f42199cd6"));}
+  }catch(Exception error){vm.Status=global::UnattendLocal.Localization.UiText.Source("text.94a9765decb7");ErrorDialog.Show(this,error,global::UnattendLocal.Localization.UiText.Source("text.582f42199cd6"),importing:true);}
  }
  private bool ImportConfigurationFile(string path){
   var previous=loading;loading=true;string type=global::UnattendLocal.Localization.UiText.Source("text.39932f24fe11");
@@ -41,7 +41,7 @@ public partial class MainWindow {
    bool accepted=kind==PlanFileKind.AnswerXml?vm.ImportXml(text,Confirm):vm.ImportJson(text,Confirm);
    if(!accepted){LocalizedMessageBox.Show(this,vm.Status,global::UnattendLocal.Localization.UiText.Concat(new object?[] { type, global::UnattendLocal.Localization.UiText.Source("text.00cd011fe5c0") },new bool[]{false,false}),MessageBoxButton.OK,MessageBoxImage.Information);return false;}
    string status=vm.Status;Load(vm.Plan);Pages.SelectedIndex=0;vm.Status=status;return true;
-  }catch(Exception error){vm.Status=global::UnattendLocal.Localization.UiText.Concat(new object?[] { type, global::UnattendLocal.Localization.UiText.Source("text.ff00d66cc95b") },new bool[]{false,false});ErrorDialog.Show(this,DiagnosticText.ForImportError(error),global::UnattendLocal.Localization.UiText.Concat(new object?[] { type, global::UnattendLocal.Localization.UiText.Source("text.01aaebc96af1") },new bool[]{false,false}));return false;}
+  }catch(Exception error){vm.Status=global::UnattendLocal.Localization.UiText.Concat(new object?[] { type, global::UnattendLocal.Localization.UiText.Source("text.ff00d66cc95b") },new bool[]{false,false});ErrorDialog.Show(this,error,global::UnattendLocal.Localization.UiText.Concat(new object?[] { type, global::UnattendLocal.Localization.UiText.Source("text.01aaebc96af1") },new bool[]{false,false}),importing:true);return false;}
   finally{loading=previous;}
  }
 }

@@ -8,14 +8,30 @@ public static class ComputerNamingSettings
 {
     public const string Existing = "Existing", Prompt = "Prompt", Script = "Script", Mac = "Mac";
     public const string Example = "return 'DESKTOP-{0:D3}' -f ( Get-Random -Minimum 0 -Maximum 999 );";
-    private static readonly Lazy<string> PromptText = new(() => { using var stream = typeof(ComputerNamingSettings).Assembly.GetManifestResourceStream("UnattendLocal.Core.Resources.ComputerNamePrompt.ps1")!; using var reader = new StreamReader(stream, Encoding.UTF8, true); return reader.ReadToEnd(); });
+    private static readonly Lazy<string> PromptText = new(() => ReadResource("ComputerNamePrompt.ps1"));
+    private static readonly Lazy<string> LegacyPromptSignature = new(() => Normal(ReadResource("LegacyComputerNamePrompt.ps1")));
     public static string PromptScript => PromptText.Value;
-    private static readonly Lazy<string> MacText = new(() => { using var stream = typeof(ComputerNamingSettings).Assembly.GetManifestResourceStream("UnattendLocal.Core.Resources.ComputerNameFromMac.ps1")!; using var reader = new StreamReader(stream, Encoding.UTF8, true); return reader.ReadToEnd(); });
+    private static readonly Lazy<string> MacText = new(() => ReadResource("ComputerNameFromMac.ps1"));
     public static string MacScript => MacText.Value;
     private const string Root = @"C:\Windows\Setup\Scripts\";
+    private static string ReadResource(string name)
+    {
+        using var stream = typeof(ComputerNamingSettings).Assembly.GetManifestResourceStream("UnattendLocal.Core.Resources." + name)!;
+        using var reader = new StreamReader(stream, Encoding.UTF8, true);
+        return reader.ReadToEnd();
+    }
     public static IComputerNameSettings Build(InstallPlan p)
     {
-        if (p.ComputerNameMode == Existing) return string.IsNullOrEmpty(p.ComputerName) ? new RandomComputerNameSettings() : new CustomComputerNameSettings(p.ComputerName);
+        if (p.ComputerNameMode == Existing)
+        {
+            if (string.IsNullOrEmpty(p.ComputerName)) return new RandomComputerNameSettings();
+            try { return new CustomComputerNameSettings(p.ComputerName); }
+            catch (ConfigurationException error)
+            {
+                throw new ConfigurationValidationException(nameof(InstallPlan.ComputerName),
+                    global::UnattendLocal.Localization.UiText.Source("diagnostic.computerName"), error);
+            }
+        }
         if (p.ComputerNameMode == Prompt)
         {
             return new ScriptComputerNameSettings(PromptScript);
@@ -61,10 +77,24 @@ public static class ComputerNamingSettings
         var state = Inspect(doc); p.ComputerNameMode = Existing; p.ComputerNameScript = "";
         if (state.Enabled)
         {
-            p.ComputerNameMode = Normal(state.Getter) == Normal(PromptScript) ? Prompt : Normal(state.Getter) == Normal(MacScript) ? Mac : Script;
+            var signature = Normal(state.Getter);
+            p.ComputerNameMode = signature == Normal(PromptScript) || signature == LegacyPromptSignature.Value
+                ? Prompt : signature == Normal(MacScript) ? Mac : Script;
             if (p.ComputerNameMode == Script) p.ComputerNameScript = state.Getter;
         }
         else if (state.Ambiguous) notes.Add(global::UnattendLocal.Localization.UiText.Source("text.a74e8bff7308"));
+    }
+    internal static void UpgradeLegacyPrompt(XmlDocument doc)
+    {
+        // Upgrade only the original getter in a complete, recognized naming pipeline.
+        // Leave the saved source and baseline intact; callers pass working XML documents.
+        var getters = doc.SelectNodes("//*[local-name()='File']")!.Cast<XmlElement>()
+            .Where(f => XmlImportPaths.Path(f.GetAttribute("path")).Equals(Root + "GetComputerName.ps1", StringComparison.OrdinalIgnoreCase))
+            .ToArray();
+        if (getters.Length == 1 && getters[0].ChildNodes.Cast<XmlNode>().All(n => n is XmlText or XmlCDataSection)
+            && getters[0].InnerText.Length <= 65536 && Normal(getters[0].InnerText) == LegacyPromptSignature.Value
+            && Inspect(XmlImportPaths.Inspection(doc)).Enabled)
+            getters[0].InnerText = PromptScript;
     }
     public static void ValidateImported(InstallPlan p, XmlDocument source)
     {

@@ -37403,5 +37403,281 @@
     "RawArgs": [],
     "SourceHash": "09cd54ece1f4ef8c88241defab8c4ac3cf25fb887251e5130dbadcce34158eeb",
     "ProtectedTokens": []
+  },
+  "diagnostic.xml.position": {
+    "Source": "XML 格式无效。请检查第 {0} 行、第 {1} 列。",
+    "Contexts": [
+      "Localization/UiText.cs"
+    ],
+    "RawArgs": [
+      true,
+      true
+    ],
+    "SourceHash": "6fe0a24e272e9f797e7ee2523c9df3f7cdeff1bde880a68f8cbb030a28899362",
+    "ProtectedTokens": [
+      "XML"
+    ]
+  },
+  "diagnostic.xml.syntax": {
+    "Source": "XML 格式无效。请检查元素、属性和文件编码。",
+    "Contexts": [
+      "Localization/UiText.cs"
+    ],
+    "RawArgs": [],
+    "SourceHash": "855642e68d0581e3fe751166ffaabb002c069ed3f805f510c9ad92e1d07402c6",
+    "ProtectedTokens": [
+      "XML"
+    ]
+  },
+  "diagnostic.xml.schema": {
+    "Source": "XML 中的元素、属性或值不符合所需结构。",
+    "Contexts": [
+      "Localization/UiText.cs"
+    ],
+    "RawArgs": [],
+    "SourceHash": "e548867be173e43b0ade3ca62d370bbce58d3f8349449c748a52d576a1b8477c",
+    "ProtectedTokens": [
+      "XML"
+    ]
+  },
+  "diagnostic.json.position": {
+    "Source": "JSON 内容无效。请检查第 {0} 行的第 {1} 个字节。",
+    "Contexts": [
+      "Localization/UiText.cs"
+    ],
+    "RawArgs": [
+      true,
+      true
+    ],
+    "SourceHash": "74dd1ca23083e51a60f5734aba1fce8d5eff9c1785e519828f3972c172e07257",
+    "ProtectedTokens": [
+      "JSON"
+    ]
+  },
+  "diagnostic.json.syntax": {
+    "Source": "JSON 内容无效。请检查文件格式和字段类型。",
+    "Contexts": [
+      "Localization/UiText.cs"
+    ],
+    "RawArgs": [],
+    "SourceHash": "71b38603e2f96a2ac24b74d05d0643a46ffc953be6b35a25e4b840e532ee0030",
+    "ProtectedTokens": [
+      "JSON"
+    ]
+  },
+  "diagnostic.numberOutOfRange": {
+    "Source": "数值超出允许范围。请检查输入后重试。",
+    "Contexts": [
+      "Localization/UiText.cs"
+    ],
+    "RawArgs": [],
+    "SourceHash": "a0840965ed61fa357895f2e4305546f6ebdae72566f0afc956f4be5808d40f56",
+    "ProtectedTokens": []
+  },
+  "diagnostic.file.missing": {
+    "Source": "找不到文件或文件夹。请检查路径后重试。",
+    "Contexts": [
+      "Localization/UiText.cs"
+    ],
+    "RawArgs": [],
+    "SourceHash": "16e17330efb905643b174d782cbf0c16cad759a84d4685c74b4f139e5339ea0d",
+    "ProtectedTokens": []
+  },
+  "diagnostic.file.pathTooLong": {
+    "Source": "文件路径过长。请选择较短的文件名或目录。",
+    "Contexts": [
+      "Localization/UiText.cs"
+    ],
+    "RawArgs": [],
+    "SourceHash": "4a229b5cb0e650d1c6e5e14a8b93db1b82392ebb87b50f4d2cb1f433d0678c50",
+    "ProtectedTokens": []
+  },
+  "diagnostic.file.access": {
+    "Source": "没有权限访问文件或文件夹。请检查访问权限或选择其他位置。",
+    "Contexts": [
+      "Localization/UiText.cs"
+    ],
+    "RawArgs": [],
+    "SourceHash": "89a8d47115f230a31b2a595b4c7c70c797af400c37247e17ccea98c6eded54aa",
+    "ProtectedTokens": []
+  },
+  "diagnostic.file.io": {
+    "Source": "文件读取或写入失败。请检查文件是否被占用、磁盘空间是否充足，然后重试。",
+    "Contexts": [
+      "Localization/UiText.cs"
+    ],
+    "RawArgs": [],
+    "SourceHash": "2abf112d7391712877b21371cd6886f3dc66793dff97cd1739bf692bc83f317c",
+    "ProtectedTokens": []
+  },
+  "diagnostic.invalidInput": {
+    "Source": "输入内容无效。请检查相关设置或文件内容。",
+    "Contexts": [
+      "Localization/UiText.cs"
+    ],
+    "RawArgs": [],
+    "SourceHash": "04e34aa9109d812e569b36d757a891b2201632d67b983f84bfff869ef8c158ec",
+    "ProtectedTokens": []
+  },
+  "diagnostic.unexpected": {
+    "Source": "发生意外错误，操作未完成。请核对当前配置后重试。",
+    "Contexts": [
+      "Localization/UiText.cs"
+    ],
+    "RawArgs": [],
+    "SourceHash": "40d30e7c5ec0d8a06a6c9261c23c4dcb7365945e95d65623e3f5a87e9601d5a6",
+    "ProtectedTokens": []
+  },
+  "diagnostic.generator.configuration": {
+    "Source": "当前配置无法生成 Windows 应答文件。请核对相关设置后重试。",
+    "Contexts": [
+      "Desktop/DiagnosticText.cs"
+    ],
+    "RawArgs": [],
+    "SourceHash": "df64fe3fc6a63e2be7684d18fc80ded7e821141117c5ff93d8a3d9ac96d085b9",
+    "ProtectedTokens": [
+      "Windows"
+    ]
+  },
+  "diagnostic.account.name": {
+    "Source": "本地账户名称无效。请检查长度、首尾空格及名称中的特殊字符。",
+    "Contexts": [
+      "Core/GeneratorService.cs"
+    ],
+    "RawArgs": [],
+    "SourceHash": "73f09d2eae81071a7d26b32e68bcaf814e999e3ce7dfca3a5388c34065ba9d12",
+    "ProtectedTokens": []
+  },
+  "diagnostic.account.adminRequired": {
+    "Source": "请至少配置一个本地管理员账户。",
+    "Contexts": [
+      "Core/GeneratorService.cs"
+    ],
+    "RawArgs": [],
+    "SourceHash": "25e1251fc05c4d21df3cc922f44567b1c280f4b4231da51b83c08391eecc1db3",
+    "ProtectedTokens": []
+  },
+  "diagnostic.account.duplicate": {
+    "Source": "本地账户名称重复。请为每个账户填写不同的名称。",
+    "Contexts": [
+      "Core/GeneratorService.cs"
+    ],
+    "RawArgs": [],
+    "SourceHash": "e92c8c60fa8887584dadb4519275e69e8eec147ae5c4c0b22b13b8057cc47cc4",
+    "ProtectedTokens": []
+  },
+  "diagnostic.account.computerCollision": {
+    "Source": "本地账户名称不能与计算机名相同。",
+    "Contexts": [
+      "Core/GeneratorService.cs"
+    ],
+    "RawArgs": [],
+    "SourceHash": "26b1cb32d3195913c5cf2677e6878b2f01f8598351a6f724e0e060a31837babe",
+    "ProtectedTokens": []
+  },
+  "diagnostic.computerName": {
+    "Source": "计算机名无效。请检查长度、空白字符和特殊字符，并避免使用纯数字名称。",
+    "Contexts": [
+      "Core/ComputerNamingSettings.cs"
+    ],
+    "RawArgs": [],
+    "SourceHash": "17c6c4816aad270599fc2cc30d5e2827d92de3f6c689d9cb3108ddc6e408ff44",
+    "ProtectedTokens": []
+  },
+  "dialog.overwriteFile": {
+    "Source": "文件“{0}”已存在。要替换它吗？",
+    "Contexts": [
+      "Desktop/LocalizedDialogs.cs"
+    ],
+    "RawArgs": [
+      true
+    ],
+    "SourceHash": "83bfc2621a92d0eb6e65ff2362408844fab802950e4242d702b4872a115564fb",
+    "ProtectedTokens": []
+  },
+  "dialog.overwriteTitle": {
+    "Source": "确认替换文件",
+    "Contexts": [
+      "Desktop/LocalizedDialogs.cs"
+    ],
+    "RawArgs": [],
+    "SourceHash": "356a1c0bd2914b36732171f1824e071ce9d26b078166d2d1811f3ab7f5128dc4",
+    "ProtectedTokens": []
+  },
+  "image.embed.button": {
+    "Source": "内嵌本地图片…",
+    "SourceHash": "c43687b57b8fa23054ad602d8d7c85a1c386f3e7ee0fef5564f189e3731dba9c",
+    "Contexts": [
+      "Desktop/MainWindow.xaml",
+      "Desktop/MainWindow.xaml.cs"
+    ],
+    "RawArgs": [],
+    "ProtectedTokens": []
+  },
+  "image.embed.tip": {
+    "Source": "支持 PNG 或 JPEG，每张最多 1 MiB。图片会随应答 XML 一起导出。",
+    "SourceHash": "4131c9990069c4cabc75baef6cbfbc97ed88148c4ce6f70f07ef649afdd0a420",
+    "Contexts": [
+      "Desktop/MainWindow.xaml"
+    ],
+    "RawArgs": [],
+    "ProtectedTokens": []
+  },
+  "image.embed.filter": {
+    "Source": "PNG 或 JPEG 图片 (*.png;*.jpg;*.jpeg)|*.png;*.jpg;*.jpeg",
+    "SourceHash": "3d2c1bbea5b92b01da767734bae9240e392687d033ea54a9fbdc4fc3b533f7a5",
+    "Contexts": [
+      "Desktop/MainWindow.xaml.cs"
+    ],
+    "RawArgs": [],
+    "ProtectedTokens": [],
+    "FilterPatterns": [
+      "*.png;*.jpg;*.jpeg"
+    ]
+  },
+  "image.embed.replace": {
+    "Source": "要用选中的图片替换现有图片或加载脚本吗？",
+    "SourceHash": "2e040c0b120add3b38b522e180445184d20f2712b408ab01ac7331c12df09d01",
+    "Contexts": [
+      "Desktop/MainWindow.xaml.cs"
+    ],
+    "RawArgs": [],
+    "ProtectedTokens": []
+  },
+  "image.embed.success": {
+    "Source": "图片已内嵌到当前配置。",
+    "SourceHash": "634e6bc5d66161f3932309df34142163c1c56f1fffceba59d41f2a37a45d8896",
+    "Contexts": [
+      "Desktop/MainWindow.xaml.cs"
+    ],
+    "RawArgs": [],
+    "ProtectedTokens": []
+  },
+  "image.embed.size": {
+    "Source": "图片为空或超过 1 MiB。请选择大小合适的 PNG 或 JPEG 图片。",
+    "SourceHash": "4ff32da5f955f65e08dfe6915fa63b66feeee8c652f5e6bba341f06e44c82423",
+    "Contexts": [
+      "Core/ImageBackgroundSettings.cs"
+    ],
+    "RawArgs": [],
+    "ProtectedTokens": []
+  },
+  "image.embed.format": {
+    "Source": "无法识别图片格式。请选择 PNG 或 JPEG 图片。",
+    "SourceHash": "3a5f05ac7a9910875e9c8952fa96880d22e6cf94e30612a1f69449a0b6654a7f",
+    "Contexts": [
+      "Core/ImageBackgroundSettings.cs"
+    ],
+    "RawArgs": [],
+    "ProtectedTokens": []
+  },
+  "image.embed.preview": {
+    "Source": "[内嵌图片数据仅在预览中省略]",
+    "SourceHash": "6d40da8674a6518059d4cdb378e051ecbb413452091ec68256a10516de0a7168",
+    "Contexts": [
+      "Core/GeneratorService.cs"
+    ],
+    "RawArgs": [],
+    "ProtectedTokens": []
   }
 }

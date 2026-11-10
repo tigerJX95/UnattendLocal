@@ -119,12 +119,13 @@ static class V1411AuditTests
             Check(Encoding.UTF8.GetString(generator.Generate(imported)).Contains(invalidCommand),
                 "Reviewed partition command remains unchanged.");
         }
-        string diagnostic = DiagnosticText.ForImportError(new OverflowException("raw runtime message"));
+        string diagnostic = DiagnosticText.ForDialogError(new OverflowException("raw runtime message"), importing: true);
         Check(diagnostic.Contains("导入文件中的数值超出允许范围") &&
             UiText.EnglishText(diagnostic).Contains("A number in the imported file is outside the allowed range"),
             "Other import overflow errors use the localized diagnostic in both languages.");
-        Check(DiagnosticText.ForImportError(new ArgumentException("existing diagnostic")) == "existing diagnostic",
-            "Unrelated import errors retain their diagnostics.");
+        string authored = UiText.Source("text.b5484829fe54");
+        Check(DiagnosticText.ForDialogError(new ArgumentException(authored), importing: true) == authored,
+            "Application-authored import errors retain their localized diagnostics.");
         return count;
     }
 }

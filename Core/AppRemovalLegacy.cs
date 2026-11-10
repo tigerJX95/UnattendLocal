@@ -117,11 +117,14 @@ public static partial class AppRemovalSettings
     internal static XmlDocument MergeImported(InstallPlan p,XmlDocument updated)
     {
         var imported=p.ImportedXml!;
-        var source=StaticIPv4Settings.PrepareMergeSource(XmlMerge.Read(imported.SourceXml),imported.BaselineXml,updated);
+        var baseline=XmlMerge.Read(imported.BaselineXml);
+        var source=StaticIPv4Settings.PrepareMergeSource(XmlMerge.Read(imported.SourceXml),baseline,updated);
+        ComputerNamingSettings.UpgradeLegacyPrompt(source);
+        ComputerNamingSettings.UpgradeLegacyPrompt(baseline);
         var normalized=NormalizeLegacy(source, preserveOriginal: true);
         if(normalized==null || InspectCurrent(XmlImportPaths.Inspection(normalized)).Selected.Order().SequenceEqual(p.RemovedApps.Order()))
-            return XmlMerge.Apply(source.OuterXml,imported.BaselineXml,updated);
-        return XmlMerge.Apply(normalized.OuterXml,imported.BaselineXml,updated,MergeRemovalBlocks);
+            return XmlMerge.Apply(source,baseline,updated);
+        return XmlMerge.Apply(normalized,baseline,updated,MergeRemovalBlocks);
     }
     private static string? MergeRemovalBlocks(string path,string source,string before,string after)
     {

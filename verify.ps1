@@ -15,6 +15,7 @@ try {
     & (Join-Path $PSScriptRoot 'Tests/BuildScripts.Tests.ps1')
     & (Join-Path $PSScriptRoot 'Tests/ScriptTemplates.Tests.ps1')
     & (Join-Path $PSScriptRoot 'Tests/DeploymentTemplates.Tests.ps1')
+    & (Join-Path $PSScriptRoot 'Tests/ComputerNamePrompt.Tests.ps1')
     & (Join-Path $PSScriptRoot 'Tests/ReleaseAssets.Tests.ps1')
     & (Join-Path $PSScriptRoot 'Tests/V122Templates.Tests.ps1')
     & (Join-Path $PSScriptRoot 'Tests/V123Templates.Tests.ps1')

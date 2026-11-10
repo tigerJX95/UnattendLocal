@@ -131,7 +131,7 @@ public class GeneratorService {
   if(includeImport&&p.ImportedXml is {} imported){FirstLogonSettings.ValidateGenerated(p,doc);doc=AppRemovalSettings.MergeImported(p,doc);WorkgroupSettings.FinishImported(doc,p);NativePreferences.FinishImported(doc,p);}
   using var schema=typeof(UnattendGenerator).Assembly.GetManifestResourceStream("Schneegans.Unattend.resource.autounattend.xsd")!;
   doc.Schemas.Add("urn:schemas-microsoft-com:unattend",XmlReader.Create(schema));
-  doc.Validate((_,e)=>throw new ArgumentException(global::UnattendLocal.Localization.UiText.Concat(new object?[] { global::UnattendLocal.Localization.UiText.Source("text.f0a035a733c2"), e.Message },new bool[]{false,false})));
+  doc.Validate((_,e)=>throw new ArgumentException(global::UnattendLocal.Localization.UiText.Concat(new object?[] { global::UnattendLocal.Localization.UiText.Source("text.f0a035a733c2"), global::UnattendLocal.Localization.UiText.DescribeError(e.Exception) },new bool[]{false,false}), e.Exception));
   if(checkDeployment)StaticIPv4Settings.ValidateDeployment(doc);
   if(includeImport)XmlPlanImport.AddSnapshot(doc,p);
   return UnattendGenerator.Serialize(doc);
@@ -151,6 +151,9 @@ public class GeneratorService {
     n.InnerText=Label("text.838cc513a5e2");
    else if(n.Attributes?["path"]?.Value.EndsWith("AppLockerPolicy.xml",StringComparison.OrdinalIgnoreCase)==true)
     n.InnerText=Label("text.c67ed423c4cf");
+   else if(n.Attributes?["path"]?.Value is @"C:\Windows\Setup\Scripts\GetWallpaper.ps1" or @"C:\Windows\Setup\Scripts\GetLockScreenImage.ps1"
+      && ImageBackgroundSettings.IsEmbeddedImageScript(n.InnerText))
+    n.InnerText=Label("image.embed.preview");
   using var sw=new StringWriter();using(var w=XmlWriter.Create(sw,new XmlWriterSettings{Indent=true,OmitXmlDeclaration=true}))doc.Save(w);
   return Label("text.991932c052b6").TrimEnd() + "\n" + sw.ToString();
  }
@@ -178,6 +181,27 @@ public class GeneratorService {
    if(string.IsNullOrEmpty(u.Password)&&!u.AllowEmptyPassword)throw new ConfigurationValidationException("Users.Password", global::UnattendLocal.Localization.UiText.Format("message.d0e561967ca1", new string[] { global::UnattendLocal.Localization.UiText.Arg((u.Name), 0, null) }), userIndex:i);
    if(u.AllowEmptyPassword&&!string.IsNullOrEmpty(u.Password))throw new ConfigurationValidationException("Users.Password", global::UnattendLocal.Localization.UiText.Format("message.38acde427f2b", new string[] { global::UnattendLocal.Localization.UiText.Arg((u.Name), 0, null) }), userIndex:i);
   }
-  return new UnattendedAccountSettings(p.Users.Select(u=>new Account(u.Name,u.DisplayName,u.Password,u.Administrator?Constants.AdministratorsGroup:Constants.UsersGroup)).ToImmutableList(),FirstLogonSettings.Build(p),p.ObscurePasswords);
+  var accounts = ImmutableList.CreateBuilder<Account>();
+  for (int i = 0; i < p.Users.Count; i++)
+  {
+   var user = p.Users[i];
+   try { accounts.Add(new Account(user.Name, user.DisplayName, user.Password, user.Administrator ? Constants.AdministratorsGroup : Constants.UsersGroup)); }
+   catch (ConfigurationException error)
+   {
+    throw new ConfigurationValidationException("Users.Name", global::UnattendLocal.Localization.UiText.Source("diagnostic.account.name"), error, i);
+   }
+  }
+  var logon = FirstLogonSettings.Build(p);
+  if (logon is not BuiltinAutoLogonSettings && !accounts.Any(account => account.Group == Constants.AdministratorsGroup))
+   throw new ConfigurationValidationException(nameof(InstallPlan.Users), global::UnattendLocal.Localization.UiText.Source("diagnostic.account.adminRequired"));
+  var names = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+  for (int i = 0; i < accounts.Count; i++)
+  {
+   if (!names.Add(accounts[i].Name))
+    throw new ConfigurationValidationException("Users.Name", global::UnattendLocal.Localization.UiText.Source("diagnostic.account.duplicate"), userIndex: i);
+   if (p.ComputerNameMode == ComputerNamingSettings.Existing && string.Equals(accounts[i].Name, p.ComputerName, StringComparison.OrdinalIgnoreCase))
+    throw new ConfigurationValidationException("Users.Name", global::UnattendLocal.Localization.UiText.Source("diagnostic.account.computerCollision"), userIndex: i);
+  }
+  return new UnattendedAccountSettings(accounts.ToImmutable(), logon, p.ObscurePasswords);
  }
 }
