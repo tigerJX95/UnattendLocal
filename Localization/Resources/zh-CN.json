@@ -3994,5 +3994,8 @@
   "image.embed.success": "图片已内嵌到当前配置。",
   "image.embed.size": "图片为空或超过 1 MiB。请选择大小合适的 PNG 或 JPEG 图片。",
   "image.embed.format": "无法识别图片格式。请选择 PNG 或 JPEG 图片。",
-  "image.embed.preview": "[内嵌图片数据仅在预览中省略]"
+  "image.embed.preview": "[内嵌图片数据仅在预览中省略]",
+  "naming.ipv4.name": "按 IPv4 地址生成计算机名",
+  "naming.ipv4.help": "安装时从已连接的物理以太网适配器读取唯一可用 IPv4 地址，取末两段生成名称，例如 192.168.12.34 生成 PC-12-34。\n\n网卡驱动和地址必须已就绪。没有地址或有多个可用地址时会报错；不采用回环、自动私有地址、组播或未指定地址。不同子网可能生成相同名称，部署前须确认唯一性。",
+  "naming.ipv4.aliases": "IPv4 IP 地址 命名 电脑名称 有线网卡"
 }

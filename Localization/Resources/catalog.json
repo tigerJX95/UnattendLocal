@@ -37679,5 +37679,34 @@
     ],
     "RawArgs": [],
     "ProtectedTokens": []
+  },
+  "naming.ipv4.name": {
+    "Source": "按 IPv4 地址生成计算机名",
+    "SourceHash": "5309ef4ebf61e1e2826974500274c3a0337ce47942c35ef3ca60a2743cc826bb",
+    "Contexts": [
+      "Core/ComputerNamingSettings.cs",
+      "Desktop/MainWindow.xaml",
+      "Desktop/SettingsSearchCatalog.cs"
+    ],
+    "RawArgs": [],
+    "ProtectedTokens": []
+  },
+  "naming.ipv4.help": {
+    "Source": "安装时从已连接的物理以太网适配器读取唯一可用 IPv4 地址，取末两段生成名称，例如 192.168.12.34 生成 PC-12-34。\n\n网卡驱动和地址必须已就绪。没有地址或有多个可用地址时会报错；不采用回环、自动私有地址、组播或未指定地址。不同子网可能生成相同名称，部署前须确认唯一性。",
+    "SourceHash": "b1ab8701b3feb4a12340325e9a4e40e9d074ddd1f89cc52f9abe80b7497bfbe4",
+    "Contexts": [
+      "Desktop/MainWindow.xaml"
+    ],
+    "RawArgs": [],
+    "ProtectedTokens": []
+  },
+  "naming.ipv4.aliases": {
+    "Source": "IPv4 IP 地址 命名 电脑名称 有线网卡",
+    "SourceHash": "7b3470b2e875b35a2585fdd5aaab5d7b59d015cbd0c3cbe237319a55988f823a",
+    "Contexts": [
+      "Desktop/SettingsSearchCatalog.cs"
+    ],
+    "RawArgs": [],
+    "ProtectedTokens": []
   }
 }

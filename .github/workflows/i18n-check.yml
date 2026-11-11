@@ -52,9 +52,11 @@ jobs:
               or n in (
                   b'Tests/LocalizationTests.cs',
                   b'Tools/check_i18n.py',
+                  b'Tools/localization.py',
                   b'.github/workflows/i18n-check.yml',
                   b'docs/InternationalizationCI.md',
               )
+              or n.startswith(b'Tools/tests/')
               for n in names if n
           )
           with open(os.environ['GITHUB_OUTPUT'], 'a', encoding='utf-8') as output:
@@ -74,6 +76,10 @@ jobs:
           persist-credentials: false
       - name: Check localization resource consistency
         run: python3 Tools/check_i18n.py
+      - name: Check translation review state and contributor tools
+        run: |
+          python3 Tools/localization.py check
+          python3 -m unittest discover -s Tools/tests
 
   localization-regression:
     needs: detect-changes

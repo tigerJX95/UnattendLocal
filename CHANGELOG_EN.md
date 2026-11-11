@@ -2,6 +2,13 @@
 
 [Back to the README](README_EN.md) · [简体中文](CHANGELOG.md)
 
+## V1.43 Translation contributions and IPv4 naming · 2026-11-11
+
+- Provide a guide for contributing translations in any language, covering language setup, partial translation, UI preview, and pull requests, with an example glossary.
+- Initialize language packs, import completed translations in batches, and prefill technical examples. Report current, pending-review, and missing translations. When the source of a translatable entry changes, keep the previous translation as a reference and leave the target field blank for review.
+- Generate computer names from the final two octets of a single usable Ethernet IPv4 address. Cache built-in naming script signatures during XML import.
+- Fix PowerShell window-setting detection when importing dynamic naming XML without a tool snapshot, preventing merge conflicts when switching back to a fixed computer name.
+
 ## V1.42 Localized dialogs and setup prompts · 2026-11-10
 
 - Unify error dialogs for imports, saving plans and scripts, and exports. XML and JSON parsing errors use the app language and retain available line, column, or byte positions.
@@ -267,7 +274,7 @@ Usage and maintenance: [Internationalization and language packs](docs/Localizati
 - Add a Google Chrome installation template using WinGet at FirstLogon. It waits for the executable, installs by exact ID from the community source, preserves hash checks, skips automatic upgrades and checks the exit code.
 - Add a public desktop shortcut template at System for program and web links. Editable defaults link to System Properties and the project release page. The desktop path is resolved by Windows rather than a fixed drive letter.
 - Validate the entire shortcut list before writing. Preserve existing files and folders, generate through temporary files and clean temporary data on failure.
-- Keep both capabilities in the upstream sample-script category. Entries start disabled, remain editable, and support existing plan and XML workflows.
+- Both templates start disabled, remain editable, and support plan saving and XML import and export.
 
 Requirements and examples: [Practical script templates](docs/ScriptTemplates.md).
 
@@ -295,7 +302,6 @@ Details: [Practical script templates](docs/ScriptTemplates.md).
 - Share bounded reading across answer XML, JSON plans, Wi-Fi profiles, AppLocker policies, and Start / taskbar layouts. Byte limits are enforced throughout reading.
 - Reject malformed UTF-8 and BOM-marked UTF-16 / UTF-32 instead of silently replacing invalid bytes. Valid text and line breaks are preserved. Convert ANSI / GBK files before importing.
 - Reuse staged saving for scripts and theme preferences: write and flush a temporary file before replacing the destination. Failed saves preserve the destination and attempt temporary-file cleanup.
-- Confirm that upstream commit 27237f8's computer-name prompt is already included in V1.15; no duplicate merge is needed.
 
 ## V1.15 power plans and Windows Error Reporting
 
@@ -311,7 +317,7 @@ See [Power plans and error reporting](docs/NativePreferences.md) for usage and o
 ## V1.14 quick presets and advanced XML components
 
 - Add a minimal preset that leaves language, edition, partitioning and accounts to Windows Setup, retaining installation-sensitive files by default.
-- Add the upstream local-account example: one Example administrator account with an empty password and one automatic logon; review or change its credentials before export.
+- Add a local-account preset with an Example administrator account, an empty password, and one automatic logon. Review or change its credentials before export.
 - Add up to 15 extra XML entries with component and configuration-pass selection. Independent child settings are added without replacing generated content; duplicate top-level settings stop export.
 - Include a disabled OEM support-information example, fragment checks, settings search and error navigation.
 - Support JSON saving and round-trip editing of this application's XML exports. Preview redacts custom XML; saving without sensitive content omits fragments and requires re-entry.

@@ -1,5 +1,6 @@
 using System.Text;using System.Xml;using UnattendLocal.Core;
 int count=0;var g=new GeneratorService();
+if(args.Contains("--ipv4-naming-only")){Console.WriteLine($"IPv4 naming: {Ipv4NamingTests.Run(g)} checks passed.");return;}
 if(args.Contains("--embedded-background-only")){Console.WriteLine($"Embedded backgrounds: {EmbeddedBackgroundTests.Run(g)} checks passed.");return;}
 if(args.Contains("--popup-localization-only")){Console.WriteLine($"Popup localization: {PopupLocalizationTests.Run(g)} checks passed.");return;}
 if(args.Contains("--v1411-audit-only")){Console.WriteLine($"V1.41.1 audit: {V1411AuditTests.Run(g)} checks passed.");return;}
@@ -2144,3 +2145,5 @@ count+=PeRecoveryTests.Run(g);Console.WriteLine($"V1.33 final total: {count} tes
 
 count+=SearchPrerequisiteTests.Run();Console.WriteLine($"V1.33 navigation fix total: {count} tests passed.");
 count+=SecurityAuditFixTests.CheckScriptMergeBudget();Console.WriteLine($"V1.38 final total: {count} tests passed.");
+
+count+=Ipv4NamingTests.Run(g);Console.WriteLine($"V1.43 final total: {count} tests passed.");

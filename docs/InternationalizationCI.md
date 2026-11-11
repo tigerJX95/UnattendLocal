@@ -1,13 +1,21 @@
 # 国际化 PR 检查 / i18n pull-request checks
 
-V1.20 为国际化资源引入独立工作流 `.github/workflows/i18n-check.yml`。现在对每个 PR 都触发，并且始终报告一个稳定的 `i18n required gate` 检查结果；只有当语言资源、桌面 UI、本地化回归测试、检查脚本、工作流本身或本说明文档变化时，才运行完整的翻译资源校验和 Windows 回归测试。与国际化无关的 PR 会跳过重型检查，并让门禁正常通过。亦可手动触发。
+V1.20 为国际化资源引入独立工作流 `.github/workflows/i18n-check.yml`。现在对每个 PR 都触发，并且始终报告一个稳定的 `i18n required gate` 检查结果；只有当语言资源、桌面 UI、本地化回归测试、翻译工具及其测试、检查脚本、工作流本身或本说明文档变化时，才运行完整的翻译资源校验和 Windows 回归测试。与国际化无关的 PR 会跳过重型检查，并让门禁正常通过。亦可手动触发。
 
-- **Validate translations (Linux, Python 标准库)**：验证 JSON / UTF-8、重复键、语言标识、默认中英文完整键集、未知键、空值、格式占位符、受保护的标记、文件筛选器模式、结构化行、源文本哈希及英文审核状态哈希；输出各语言已提交资源键的覆盖率。
+- **Validate translations (Linux, Python 标准库)**：验证 JSON / UTF-8、重复键、语言标识、默认中英文完整键集、未知键、空值、格式占位符、受保护的标记、文件筛选器模式、结构化行、源文本哈希及各语言已提交译文的审核状态哈希；输出各语言已提交资源键的覆盖率，并执行翻译工具单元测试。
 - **Build and localization regression (Windows, .NET 10)**：编译测试运行器并执行现有 `--localization-only` 回归测试，包括资源语义校验、运行时语言切换、用户设置持久化、语言包校验以及切换语言前后的 XML / JSON 输出一致性。
 
-提交第三方语言时，在 `Localization/Resources/languages.json` 添加合法语言代码与显示名，并提供同名 `<code>.json` 文件。第三方语言包允许未覆盖的键，但已提交的项必须合法；缺失内容按应用已有回退机制处理。`zh-CN` 与 `en-US` 为正式内置语言，必须覆盖所有键。
+提交第三方语言时，从 [参与翻译指南](../Localization/README.md) 开始，用 `init` 注册语言并创建空语言包，再通过 `export` / `import` 填写译文并生成 `translation-state.json` 审阅记录。第三方语言包允许未覆盖的键，但已提交的项必须合法；缺失内容按应用已有回退机制处理。`zh-CN` 与 `en-US` 为正式内置语言，必须覆盖所有键。
 
-本地可运行：`python Tools/check_i18n.py`。Windows 且有 .NET 10 SDK 时，可再运行 `dotnet build Tests/Tests.csproj -c Release -warnaserror` 与 `dotnet Tests/bin/Release/net10.0/Tests.dll --localization-only`。
+本地在仓库根目录运行：
+
+```powershell
+python Tools/check_i18n.py
+python Tools/localization.py check
+python -m unittest discover -s Tools/tests
+```
+
+Windows 且有 .NET 10 SDK 时，可再运行 `dotnet build Tests/Tests.csproj -c Release -warnaserror` 与 `dotnet Tests/bin/Release/net10.0/Tests.dll --localization-only`。
 
 翻译语义、文案自然度及 WPF 控件溢出仍须人工审核。PR 检查不自动发布 EXE，且只赋予 `contents: read` 权限。已有通用 `quality.yml` 会继续独立运行。
 
