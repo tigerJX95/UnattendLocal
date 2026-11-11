@@ -12,7 +12,7 @@ The local UI and adaptation code use the [MIT License](LICENSE), Copyright (c) 2
 
 原作者网站：https://schneegans.de/windows/unattend-generator/
 
-本地界面使用其生成核心并保留原许可证。固定基线与选择性同步范围见 UPSTREAM.md。
+本地界面使用其生成核心并保留原许可证。生成核心的提交与来源见 [UPSTREAM.md](UPSTREAM.md)。
 
 MIT License
 

@@ -6,13 +6,22 @@ namespace UnattendLocal.Core;
 
 public static class ComputerNamingSettings
 {
-    public const string Existing = "Existing", Prompt = "Prompt", Script = "Script", Mac = "Mac";
+    public const string Existing = "Existing", Prompt = "Prompt", Script = "Script", Mac = "Mac", Ipv4 = "Ipv4";
     public const string Example = "return 'DESKTOP-{0:D3}' -f ( Get-Random -Minimum 0 -Maximum 999 );";
     private static readonly Lazy<string> PromptText = new(() => ReadResource("ComputerNamePrompt.ps1"));
     private static readonly Lazy<string> LegacyPromptSignature = new(() => Normal(ReadResource("LegacyComputerNamePrompt.ps1")));
     public static string PromptScript => PromptText.Value;
     private static readonly Lazy<string> MacText = new(() => ReadResource("ComputerNameFromMac.ps1"));
     public static string MacScript => MacText.Value;
+    private static readonly Lazy<string> Ipv4Text = new(() => ReadResource("ComputerNameFromIpv4.ps1"));
+    public static string Ipv4Script => Ipv4Text.Value;
+    private static readonly Lazy<Dictionary<string, string>> BuiltInModes = new(() => new()
+    {
+        [Normal(PromptScript)] = Prompt,
+        [LegacyPromptSignature.Value] = Prompt,
+        [Normal(MacScript)] = Mac,
+        [Normal(Ipv4Script)] = Ipv4
+    });
     private const string Root = @"C:\Windows\Setup\Scripts\";
     private static string ReadResource(string name)
     {
@@ -37,6 +46,7 @@ public static class ComputerNamingSettings
             return new ScriptComputerNameSettings(PromptScript);
         }
         if (p.ComputerNameMode == Mac) return new ScriptComputerNameSettings(MacScript);
+        if (p.ComputerNameMode == Ipv4) return new ScriptComputerNameSettings(Ipv4Script);
         if (p.ComputerNameMode != Script) throw new ArgumentException(global::UnattendLocal.Localization.UiText.Source("text.117da4559ecf"));
         if (string.IsNullOrWhiteSpace(p.ComputerNameScript) || p.ComputerNameScript.Length > 65536) throw new ArgumentException(global::UnattendLocal.Localization.UiText.Source("text.7ff84f51cb52"));
         return new ScriptComputerNameSettings(p.ComputerNameScript);
@@ -48,6 +58,7 @@ public static class ComputerNamingSettings
         Prompt => global::UnattendLocal.Localization.UiText.Source("text.eadd98418a65"),
         Script => global::UnattendLocal.Localization.UiText.Source("text.7981adc16f36"),
         Mac => global::UnattendLocal.Localization.UiText.Source("v124.mac.name"),
+        Ipv4 => global::UnattendLocal.Localization.UiText.Source("naming.ipv4.name"),
         _ => global::UnattendLocal.Localization.UiText.Source("text.6c98d3e90840")
     }) },new bool[]{false,false});
     private static string Normal(string text) => global::UnattendLocal.Localization.UiText.Join('\n', text.Replace("\r\n", "\n").Split('\n').Select(l => l.Trim()).Where(l => l.Length > 0), false);
@@ -78,8 +89,7 @@ public static class ComputerNamingSettings
         if (state.Enabled)
         {
             var signature = Normal(state.Getter);
-            p.ComputerNameMode = signature == Normal(PromptScript) || signature == LegacyPromptSignature.Value
-                ? Prompt : signature == Normal(MacScript) ? Mac : Script;
+            p.ComputerNameMode = BuiltInModes.Value.GetValueOrDefault(signature, Script);
             if (p.ComputerNameMode == Script) p.ComputerNameScript = state.Getter;
         }
         else if (state.Ambiguous) notes.Add(global::UnattendLocal.Localization.UiText.Source("text.a74e8bff7308"));

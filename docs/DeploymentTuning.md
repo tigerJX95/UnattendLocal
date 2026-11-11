@@ -35,7 +35,7 @@ Unchecking an option omits it from the new installation script; it does not undo
 Get-CimInstance Win32_PageFileSetting | Select-Object Name, InitialSize, MaximumSize
 ```
 
-预期 C 盘条目为 `C:\pagefile.sys`、2048、4096；实际可用性仍受磁盘空间和目标系统约束。此项仅用于验证新分页处理，不把此前的磁盘部署回归重新计为本轮实测。
+预期 C 盘条目为 `C:\pagefile.sys`、2048、4096；实际可用性仍受磁盘空间和目标系统约束。
 
 For a disposable snapshot VM, enable custom paging in a PE plan with 2048 / 4096 MiB. After deployment and restart, run the read-only command above in the target Windows and verify its C: entry. Generation tests do not prove that the target system applied the setting.
 

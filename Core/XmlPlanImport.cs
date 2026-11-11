@@ -115,7 +115,9 @@ public static class XmlPlanImport {
   }
   var activation=Text(doc,"//u:component[@name='Microsoft-Windows-Shell-Setup']/u:ProductKey",ns);p.UseActivationKey=activation!=null&&activation!=key;p.ActivationProductKey=p.UseActivationKey?activation!:"";
   p.WifiMode=IsTrue(Text(doc,"//u:OOBE/u:HideWirelessSetupInOOBE",ns))?global::UnattendLocal.Localization.UiText.Source("text.307f498ede07"):global::UnattendLocal.Localization.UiText.Source("text.fd17c35ec3cc");
-  p.KeepSensitiveFiles=!doc.InnerText.Contains("unattend-original.xml");p.HidePowerShellWindows=Match(doc.InnerText,@"-WindowStyle ['""]?Hidden").Success;
+  p.KeepSensitiveFiles=!doc.InnerText.Contains("unattend-original.xml");// Inspect launch commands only; embedded getters can start their own hidden background process.
+  p.HidePowerShellWindows=doc.SelectNodes("//u:Path | //u:CommandLine",ns)!.Cast<XmlElement>()
+   .Any(command=>Match(command.InnerText,@"^\s*powershell(?:\.exe)?\s+-WindowStyle\s+(?:""Hidden""|'Hidden'|Hidden)(?:\s|$)").Success);
   p.BypassNetwork=doc.InnerText.Contains("BypassNRO",StringComparison.OrdinalIgnoreCase);
   foreach(var item in HardwareSettings.Items)typeof(InstallPlan).GetProperty(item.Property)!.SetValue(p,doc.InnerText.Contains(item.RegistryValue));
   p.BypassHardware=false;

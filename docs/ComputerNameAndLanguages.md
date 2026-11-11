@@ -10,15 +10,25 @@
 
 ## 按 MAC 地址生成计算机名 / MAC-based computer naming
 
-在“基础设置”的计算机名方式中选择“按 MAC 地址生成计算机名”。安装时使用唯一物理以太网适配器的 MAC，去掉分隔符并加 `PC-` 前缀，例如 `00-11-22-AA-BB-CC` 生成 `PC-001122AABBCC`，共 15 个字符。它沿用原作者的计算机名脚本应用流程，不在配置工具当前电脑执行。
+在“基础设置”的计算机名方式中选择“按 MAC 地址生成计算机名”。安装时使用唯一物理以太网适配器的 MAC，去掉分隔符并加 `PC-` 前缀，例如 `00-11-22-AA-BB-CC` 生成 `PC-001122AABBCC`，共 15 个字符。命名脚本在目标 Windows 安装期间执行。
 
 按接口类型识别有线网卡，不依赖 `Ethernet` 或“以太网”等显示名称。网卡驱动必须已经可用；Wi-Fi 不作为候选。无候选、多块候选、全零或广播 MAC 都会报错，不任意取第一块，也不静默改用随机名。虚拟机需要驱动将网卡识别为物理接口，并为每台分配唯一 MAC。更换网卡会改变结果，仍须确认名称在网络中唯一。
 
 JSON 保存和本程序原始 XML 恢复均保留该方式。导入时，只有完全匹配内置 MAC 脚本的完整命名流程才恢复为此选项；修改过的脚本继续作为自定义脚本处理，避免丢失用户修改。
 
-Choose **Derive computer name from MAC address** under Basic settings. The setup-time getter uses exactly one physical Ethernet adapter and returns `PC-` plus its 12 uppercase MAC digits (15 characters), for example `PC-001122AABBCC`. It follows the existing upstream naming pipeline. Drivers must be available; Wi-Fi is excluded. Missing, ambiguous, all-zero or broadcast addresses fail explicitly. VM adapter presentation and unique MAC assignment must be verified. A changed adapter changes the name. JSON and original XML roundtrips preserve the mode; edited getter scripts remain custom scripts.
+Choose **Derive computer name from MAC address** under Basic settings. The setup-time getter uses exactly one physical Ethernet adapter and returns `PC-` plus its 12 uppercase MAC digits (15 characters), for example `PC-001122AABBCC`. Drivers must be available; Wi-Fi is excluded. Missing, ambiguous, all-zero or broadcast addresses fail explicitly. VM adapter presentation and unique MAC assignment must be verified. A changed adapter changes the name. JSON and original XML roundtrips preserve the mode; edited getter scripts remain custom scripts.
 
 Source: [upstream MAC naming example](https://schneegans.de/windows/unattend-generator/samples/), [Get-NetAdapter](https://learn.microsoft.com/en-us/powershell/module/netadapter/get-netadapter).
+
+## 按 IPv4 地址生成计算机名 / IPv4-based computer naming
+
+在“基础设置”选择“按 IPv4 地址生成计算机名”。安装时读取已连接物理以太网适配器的唯一可用 IPv4 地址，以末两段生成名称。例如 `192.168.12.34` 生成 `PC-12-34`。适合已规划稳定地址的部署环境。
+
+命名阶段需要驱动和地址已就绪。没有可用地址、读取失败或存在多个不同的可用地址时会报错。回环、自动私有地址、组播和未指定地址被排除。此方式依赖命名阶段已经分配的地址，DHCP 的就绪时机由目标安装环境决定。不同子网的末两段可能相同，须人工确认名称唯一性。修改内置脚本后的 XML 按自定义脚本保留。
+
+Under Basic settings, select **Derive computer name from IPv4 address**. Setup uses the final two octets of the single usable IPv4 address on connected physical Ethernet adapters, for example `PC-12-34` for `192.168.12.34`. Drivers and an address must already be available at the naming stage. Missing, ambiguous or failed address queries report an error. Verify name uniqueness across subnets and use stable addresses for predictable results.
+
+来源与参数说明见 [原作者示例](https://schneegans.de/windows/unattend-generator/samples/)和 [Get-NetIPAddress](https://learn.microsoft.com/en-us/powershell/module/nettcpip/get-netipaddress)。
 
 ## 第二、第三组区域与键盘
 

@@ -3,9 +3,11 @@
 
 [简体中文](README.md) | **English**
 
+[Contribute translations](Localization/README.md#english)
+
 UnattendLocal is a Windows desktop tool with Simplified Chinese and English interfaces based on [Christoph Schneegans’ UnattendGenerator](https://github.com/cschneegans/unattend-generator). It lets you edit, check, and generate `autounattend.xml` for Windows 10 / 11 locally.
 
-Current version: **V1.42**. When PE script installation is enabled, image selection switches to **By image index** and requires an index from the installation image; the regular Windows Setup path retains all image selection modes. Includes static IPv4/IPv6 dual stack, subnet-mask input, settings search, setup driver directories, Dynamic Update, partitioning, OOBE and account settings, and existing XML import/editing.
+Current version: **V1.43**. When PE script installation is enabled, image selection switches to **By image index** and requires an index from the installation image; the regular Windows Setup path retains all image selection modes. Includes static IPv4/IPv6 dual stack, subnet-mask input, settings search, setup driver directories, Dynamic Update, partitioning, OOBE and account settings, and existing XML import/editing.
 
 ## 💡 Why this project exists
 
@@ -56,17 +58,18 @@ The displayed product key is a public generic installation key for selecting an 
 - Save and restore JSON plans; review summaries, recommended-setting differences, checks, redacted previews, and XML exports.
 - Import existing XML and edit supported settings while preserving unknown content. Export stops with an explanation when changes cannot be merged reliably.
 
-## V1.42 Localized dialogs and setup prompts · 2026-11-10
+## V1.43 Translation contributions and IPv4 naming · 2026-11-11
 
-- Unify error dialogs for imports, saving plans and scripts, and exports. XML and JSON parsing errors use the app language and retain available line, column, or byte positions.
-- Display the installation-time computer name prompt in Simplified Chinese or English based on the target Windows UI language. Re-export to update the old built-in prompt. Custom naming scripts are preserved.
-- In Colors and backgrounds, select a local PNG or JPEG as the desktop wallpaper or lock screen image, up to 1 MiB per image. The answer XML includes the images for offline use during Setup.
+- Provide a guide for contributing translations in any language, covering language setup, partial translation, UI preview, and pull requests, with an example glossary.
+- Initialize language packs, import completed translations in batches, and prefill technical examples. The validation tool checks the review status of translations for additional languages.
+- Generate computer names from the final two octets of a single usable Ethernet IPv4 address. Cache built-in naming script signatures during XML import.
+- Fix PowerShell window-setting detection when importing dynamic naming XML without a tool snapshot, preventing merge conflicts when switching back to a fixed computer name.
 
 [Version history](CHANGELOG_EN.md)
 
 ## 📦 Download and usage
 
-Download and run the matching Windows x64 executable from the repository’s [**Releases**](https://github.com/tigerJX95/UnattendLocal/releases/latest) page: `UnattendLocal_V1.42_x64_SelfContained.exe` or `UnattendLocal_V1.42_x64_FrameworkDependent.exe`. Choose `UnattendLocal_V1.42_x64_SelfContained.exe` for a bundled .NET runtime, or `UnattendLocal_V1.42_x64_FrameworkDependent.exe` if .NET 10 Desktop Runtime x64 is already installed. Both have the same features. Use a virtual machine for initial testing.
+Download and run the matching Windows x64 executable from the repository’s [**Releases**](https://github.com/tigerJX95/UnattendLocal/releases/latest) page: `UnattendLocal_V1.43_x64_SelfContained.exe` or `UnattendLocal_V1.43_x64_FrameworkDependent.exe`. Choose `UnattendLocal_V1.43_x64_SelfContained.exe` for a bundled .NET runtime, or `UnattendLocal_V1.43_x64_FrameworkDependent.exe` if .NET 10 Desktop Runtime x64 is already installed. Both have the same features. Use a virtual machine for initial testing.
 
 1. Choose a recommended scenario or a custom configuration and enter the required account and image settings.
 2. Adjust system, appearance, and application removal options as needed.

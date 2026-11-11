@@ -3994,5 +3994,8 @@
   "image.embed.success": "The image is embedded in the current configuration.",
   "image.embed.size": "The image is empty or larger than 1 MiB. Choose a PNG or JPEG image within the limit.",
   "image.embed.format": "The image format could not be recognized. Choose a PNG or JPEG image.",
-  "image.embed.preview": "[Embedded image data omitted from preview]"
+  "image.embed.preview": "[Embedded image data omitted from preview]",
+  "naming.ipv4.name": "Derive computer name from IPv4 address",
+  "naming.ipv4.help": "During Setup, read the only usable IPv4 address from connected physical Ethernet adapters and use its final two octets. For example, 192.168.12.34 produces PC-12-34.\n\nDrivers and an address must already be available. Missing or multiple usable addresses cause an error. Loopback, link-local, multicast and unspecified addresses are excluded. Different subnets can produce the same name, so verify uniqueness before deployment.",
+  "naming.ipv4.aliases": "IPv4 IP address naming computer name Ethernet"
 }

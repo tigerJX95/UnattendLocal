@@ -20,7 +20,7 @@ This configures the component only. It does not apply unofficial patches, change
 
 ## 安装阶段临时暂停更新一小时 / Temporary setup update pause
 
-参考原作者示例，在 System 阶段设置更新暂停时间。添加后默认停用；核对用途后启用。它不禁用更新服务、不创建持续暂停任务。
+在 System 阶段设置更新暂停时间。添加后默认停用；核对用途后启用。它不禁用更新服务、不创建持续暂停任务。
 
 用于尝试减少 Windows 11 初始设置期间的常规更新等待，不保证跳过所有 OOBE 更新。微软明确说明，联网后关键 ZDP 更新会自动下载，用户不能选择退出。
 
@@ -28,7 +28,7 @@ This configures the component only. It does not apply unofficial patches, change
 
 到期后继续遵循 Windows 和组织策略的更新行为；也可按需在设置中恢复更新。不要与“禁用 Windows 更新”的持续暂停策略同时启用，以免目的冲突。取消模板仅影响后续导出，不撤销已经部署的暂停值。
 
-Adapted from the upstream sample, this disabled-by-default System script requests a one-hour feature/quality update pause, computed from UTC execution time. It does not disable services or create recurring tasks. Each later existing expiry is preserved. Unknown date formats fail before writing pause values; write failures do not guarantee rollback. Attempts to reduce waits for regular updates during Windows 11 initial setup; it does not guarantee skipping all OOBE updates. Microsoft states that critical ZDP updates download automatically after connecting to a network and users cannot opt out. Do not combine it with persistent update disabling. Removing the template does not undo a deployed pause.
+This disabled-by-default System script requests a one-hour feature/quality update pause, computed from UTC execution time. It does not disable services or create recurring tasks. Each later existing expiry is preserved. Unknown date formats fail before writing pause values; write failures do not guarantee rollback. Attempts to reduce waits for regular updates during Windows 11 initial setup; it does not guarantee skipping all OOBE updates. Microsoft states that critical ZDP updates download automatically after connecting to a network and users cannot opt out. Do not combine it with persistent update disabling. Removing the template does not undo a deployed pause.
 
 Source: [upstream one-hour update-pause example](https://schneegans.de/windows/unattend-generator/samples/), [Microsoft: Windows updates during OOBE](https://learn.microsoft.com/en-us/windows-hardware/customize/desktop/windows-updates-during-oobe-in-windows-11).
 
@@ -210,7 +210,7 @@ The public desktop template runs at System. Edit the `Shortcuts` list for `.lnk`
 
 ## V1.22：系统盘卷标与卓越性能 / Volume label and Ultimate Performance
 
-两项均保留为原作者示例能力对应的普通脚本模板，在自定义脚本页选择后添加，默认停用。核对完整脚本、名称与阶段后再启用，继续支持 JSON 方案保存及本程序原始 XML 恢复。
+两项均可在自定义脚本页添加，默认停用。核对完整脚本、名称与阶段后再启用，继续支持 JSON 方案保存及本程序原始 XML 恢复。
 
 ### 设置系统盘卷标
 

@@ -25,6 +25,8 @@ Languages/
 
 ## 维护翻译
 
+译者从 [参与翻译指南](../Localization/README.md) 开始，按步骤完成新增语言、分批导入和 PR 提交。
+
 源码中的语言文件位于 `Localization/Resources/`，构建时复制到程序的 `Languages` 目录，并嵌入一份基础资源作为回退。维护译文后重新构建即可更新发布包。
 
 | 文件 | 作用 |
@@ -40,11 +42,11 @@ Languages/
 Python 3.10 及以上可运行以下维护工具；桌面程序、普通构建和验证不依赖 Python：
 
 ```powershell
-python tools/localization.py check
-python tools/localization.py export --language en-US --file translations-en-US.json
+python Tools/localization.py check
+python Tools/localization.py export --language en-US --file translations-en-US.json
 # 翻译或审阅 entries 中的 target 字段，保留其余字段。
-python tools/localization.py import --language en-US --file translations-en-US.json
-python tools/localization.py check
+python Tools/localization.py import --language en-US --file translations-en-US.json
+python Tools/localization.py check
 ```
 
 默认只导出缺失或源文变化的条目。全面校对时为 `export` 加 `--all`。任务文件包含键、源文、源文哈希、使用位置、占位符、保护内容及目标译文。导入前校验整批内容；任何条目过期或不合法都不写入。保存采用临时文件替换；若两份文件之间发生中断，状态检查会要求再次审阅。
@@ -54,7 +56,7 @@ python tools/localization.py check
 新增界面文案时先注册稳定、语义明确的键：
 
 ```powershell
-python tools/localization.py add --key export.exampleHelp --source "核对应答文件后导出。" --context "Desktop/MainWindow.xaml:Text"
+python Tools/localization.py add --key export.exampleHelp --source "核对应答文件后导出。" --context "Desktop/MainWindow.xaml:Text"
 ```
 
 XAML 静态显示使用 `{loc:Text export.exampleHelp}`；绑定的说明使用 `{loc:Display Value={Binding Summary}}`。需要保持原选项值的 `Content` 使用 `{loc:Source key}`，通过显示模板翻译。C# 使用 `UiText.Source(key)` 返回兼容值，在显示处 `UiText.Translate(...)`；参数说明通过 `UiText.Format(key, UiText.Arg(value))` 构造，并在 catalog 的 `RawArgs` 中将用户输入参数标记为 `true`，避免翻译数据。不要把显示译文写回配置或给可编辑文本框加翻译转换器。
@@ -63,9 +65,13 @@ XAML 静态显示使用 `{loc:Text export.exampleHelp}`；绑定的说明使用 
 
 ## 增加其他语言
 
+使用 `init` 并传入所选语言的代码和显示名称，可注册语言并创建空语言包和审阅记录。导出任务后，只填写完成的 `target`，使用 `import --translated-only` 分批导入。命令完整示例见贡献指南。UTF-8 BOM 文件可由维护工具直接读取。
+
 在 `languages.json` 添加语言代码及原生名称，例如 `{"Code":"fr-FR","Name":"Français"}`，并放入同名 `fr-FR.json`。运行时可直接读取新增语言，无须增加语言枚举或分支代码。源码维护时通过相同的导出 / 导入工具建立翻译状态；新增语言可以先部分翻译，缺失内容使用英语。
 
 ## English
+
+See the [translation contribution guide](../Localization/README.md#english) for language initialization, partial imports, UI preview and pull requests.
 
 Choose Simplified Chinese or English at the top right of the main window. The interface updates immediately and remembers the selection. This does not change the installation plan, the target Windows language, scripts, user input, IDs or generated XML.
 

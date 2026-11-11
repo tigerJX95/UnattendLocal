@@ -2,7 +2,7 @@
 
 V1.25 另提供可选的[PE 脚本安装模式](GeneratedPe.md)；以下内容说明默认的常规 Setup 路径。
 
-“镜像与分区” → “清空指定磁盘后自动分区”。本轮在原有本地 Windows Setup / DiskPart 路径中接入原作者的系统分区大小、分区前暂停选项，不切换到完整的 GeneratePESettings 安装流程。
+“镜像与分区” → “清空指定磁盘后自动分区”。系统分区大小和分区前暂停选项适用于常规 Windows Setup 的 DiskPart 自动分区流程。
 
 | 设置 | 默认与范围 | 作用 |
 | --- | --- | --- |
@@ -15,7 +15,7 @@ V1.25 另提供可选的[PE 脚本安装模式](GeneratedPe.md)；以下内容�
 
 XML 仅完整识别本工具的命令及对应安装目标。额外命令、阶段/目标不一致、重复调用等只读保留。未知完整 PE 脚本保留原文，不能叠加本工具的自动清空模式。旧 JSON 缺少新字段时默认行为不变；旧导入方案若可可靠还原，仅迁移新字段与编辑基准，保留待处理修改，否则提示重新导入。
 
-Both controls are under Image and partitions, in automatic disk-wiping/partitioning mode. This extends the existing local Windows Setup / DiskPart path with upstream system-size and pause options; it does not enable the complete GeneratePESettings workflow.
+Both controls are under Image and partitions, in automatic disk-wiping/partitioning mode. The system partition size and pause options apply to the standard Windows Setup workflow that uses DiskPart for automatic partitioning.
 
 A blank system size retains GPT 300 MB / MBR 500 MB. This tool accepts GPT 300–8192 MB and MBR 100–8192 MB. The 8192 MB cap is an application input limit, not a Windows filesystem limit. The GPT minimum covers the current official minimum for 4K-native sectors without inspecting the target hardware.
 

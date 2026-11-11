@@ -25,7 +25,7 @@ def unique(pairs):
     return result
 
 def read(path):
-    return json.loads(Path(path).read_text(encoding='utf-8'), object_pairs_hook=unique)
+    return json.loads(Path(path).read_text(encoding='utf-8-sig'), object_pairs_hook=unique)
 
 def write(path, value):
     path = Path(path)
@@ -76,6 +76,27 @@ def language(root, code):
     path = root / (code + '.json')
     return path, read(path) if path.exists() else {}
 
+def init_language(root, code, name):
+    if not re.fullmatch(r'[a-z]{2,3}(?:-[A-Za-z0-9]{2,8})*', code):
+        raise ValueError('Invalid language code')
+    if not name.strip() or len(name) > 80:
+        raise ValueError('Language name must contain 1 to 80 characters')
+    manifest = read(root / 'languages.json')
+    target = root / (code + '.json')
+    state = read(root / 'translation-state.json')
+    if any(item['Code'] == code for item in manifest):
+        raise ValueError('Language already exists: ' + code)
+    if (target.exists() and read(target) != {}) or state.get(code, {}) != {}:
+        raise ValueError('Unregistered language already contains translations: ' + code)
+    if len(manifest) >= 64:
+        raise ValueError('Language manifest already contains 64 languages')
+    # Publish the manifest last so the application only sees prepared language files.
+    write(target, {})
+    state[code] = {}
+    write(root / 'translation-state.json', state)
+    write(root / 'languages.json', manifest + [{'Code': code, 'Name': name.strip()}])
+    print('Language initialized. Export a job, translate target fields, then import it.')
+
 def load(root):
     return read(root / 'catalog.json'), read(root / 'zh-CN.json'), read(root / 'translation-state.json')
 
@@ -116,11 +137,13 @@ def export_job(root, code, path, all_entries=False):
             entries.append({'key': key, 'source': source[key], 'source_hash': digest(source[key]),
                             'contexts': entry['Contexts'], 'protected_tokens': entry.get('ProtectedTokens', []),
                             'placeholders': PLACEHOLDER.findall(source[key]), 'opaque': entry.get('Opaque', False),
-                            'target': target.get(key, '')})
+                            'structured_lines': entry.get('StructuredLines', False),
+                            'filter_patterns': entry.get('FilterPatterns', []),
+                            'target': target.get(key, entry['Source'] if entry.get('Opaque') else '')})
     write(path, {'schema': 1, 'source_language': 'zh-CN', 'target_language': code, 'entries': entries})
     print(f'Exported {len(entries)} translation jobs.')
 
-def import_job(root, code, path):
+def import_job(root, code, path, translated_only=False):
     catalog, source, state = load(root)
     target_path, target = language(root, code)
     if code == 'zh-CN':
@@ -136,6 +159,8 @@ def import_job(root, code, path):
         seen.add(key)
         if item['source_hash'] != digest(source[key]) or item['source'] != source[key]:
             raise ValueError('Stale source: ' + key + '; export the job again')
+        if translated_only and isinstance(item['target'], str) and not item['target'].strip():
+            continue
         validate(key, item['target'], catalog[key], source[key])
         target[key] = item['target']
         state.setdefault(code, {})[key] = item['source_hash']
@@ -143,7 +168,7 @@ def import_job(root, code, path):
     # interrupted, check/export detects stale state and requires review again.
     write(target_path, target)
     write(root / 'translation-state.json', state)
-    print(f'Imported {len(seen)} translations.')
+    print('Translations imported. Run check and export again to see remaining work.')
 
 def add(root, key, text, context):
     catalog, source, _ = load(root)
@@ -161,12 +186,18 @@ def main():
     parser.add_argument('--resources', type=Path, default=DEFAULT)
     sub = parser.add_subparsers(dest='command', required=True)
     sub.add_parser('check')
+    p = sub.add_parser('init')
+    p.add_argument('--language', required=True)
+    p.add_argument('--name', required=True)
     for command in ('export', 'import'):
         p = sub.add_parser(command)
         p.add_argument('--language', required=True)
         p.add_argument('--file', type=Path, required=True)
         if command == 'export':
             p.add_argument('--all', action='store_true')
+        else:
+            p.add_argument('--translated-only', action='store_true',
+                           help='Skip blank targets while retaining existing translations and review state')
     p = sub.add_parser('add')
     p.add_argument('--key', required=True)
     p.add_argument('--source', required=True)
@@ -174,8 +205,9 @@ def main():
     args = parser.parse_args()
     try:
         if args.command == 'check': check(args.resources)
+        elif args.command == 'init': init_language(args.resources, args.language, args.name)
         elif args.command == 'export': export_job(args.resources, args.language, args.file, args.all)
-        elif args.command == 'import': import_job(args.resources, args.language, args.file)
+        elif args.command == 'import': import_job(args.resources, args.language, args.file, args.translated_only)
         else: add(args.resources, args.key, args.source, args.context)
     except (ValueError, KeyError, TypeError, OSError) as error:
         parser.exit(1, str(error) + '\n')
