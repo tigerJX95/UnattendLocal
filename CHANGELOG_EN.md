@@ -5,7 +5,7 @@
 ## V1.43 Translation contributions and IPv4 naming · 2026-11-11
 
 - Provide a guide for contributing translations in any language, covering language setup, partial translation, UI preview, and pull requests, with an example glossary.
-- Initialize language packs, import completed translations in batches, and prefill technical examples. The validation tool checks the review status of translations for additional languages.
+- Initialize language packs, import completed translations in batches, and prefill technical examples. Report current, pending-review, and missing translations. When the source of a translatable entry changes, keep the previous translation as a reference and leave the target field blank for review.
 - Generate computer names from the final two octets of a single usable Ethernet IPv4 address. Cache built-in naming script signatures during XML import.
 - Fix PowerShell window-setting detection when importing dynamic naming XML without a tool snapshot, preventing merge conflicts when switching back to a fixed computer name.
 

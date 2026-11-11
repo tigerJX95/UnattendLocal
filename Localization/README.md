@@ -34,7 +34,9 @@ UnattendLocal 的界面译文集中保存在本目录的 `Resources/`。翻译�
 
 5. 提交 `Localization/Resources/` 下对应语言的 JSON 文件、`languages.json` 和 `translation-state.json`，推送到自己的 Fork，向本仓库 `main` 创建 PR。任务 JSON 是本地工作文件，PR 中只提交语言包及相关维护文件。
 
-后续运行相同的 `export` 命令会列出缺失或源文变化的条目。已有语言从导出任务开始。全面校对使用 `export --all`。希望清楚发现漏译时，使用不带 `--translated-only` 的严格导入，空白条目会阻止导入。
+已有语言可先用 `python Tools/localization.py status --language $LanguageCode` 查看已复核、待复核和缺译数量，再导出任务。默认导出缺译和待复核条目，全面校对时加 `--all`。
+
+可翻译条目的源文变化后，旧译文会放在 `previous_target` 供参考，`target` 留空。复核后把确认的译文填入 `target`，也可以填回原译文。旧版任务如仍在 `target` 中预填旧译文，请重新导出后再确认。分批导入跳过空白项，严格导入会拒绝空白项。
 
 ## 语言代码示例
 
@@ -64,7 +66,7 @@ Fork the repository and create a translation branch from current `main`. Languag
 
 For a new language, run `Tools/localization.py init --language <code> --name "<native name>"`, then export a job using `export --language <code> --file <job.json>`. For an existing language, start with export.
 
-Edit each task's `target`. Preserve keys, placeholders, source metadata, protected tokens, file filter patterns and structured summary lines. Opaque technical examples are prefilled. Import with `--translated-only` to submit completed entries in batches. Strict import rejects blank targets. Export again to find missing or outdated translations.
+Edit each task's `target`. Preserve keys, placeholders, source metadata, protected tokens, file filter patterns and structured summary lines. Opaque technical examples are prefilled. Import with `--translated-only` to submit completed entries in batches. Strict import rejects blank targets. Run `python Tools/localization.py status --language <code>` to count current, pending-review, and missing entries. When the source of a translatable entry changes, the previous translation appears in `previous_target` and `target` stays blank until you enter the reviewed translation. Export a fresh job before confirming unchanged wording from an older prefilled job.
 
 Run both `python Tools/localization.py check` and `python Tools/check_i18n.py`. Commit the language pack, manifest for a new language, and generated review state. In the PR, describe the locale, translated scope, review method and UI testing. Runtime language files belong in `Languages/` beside the executable for preview. Missing entries in additional languages fall back to English.
 

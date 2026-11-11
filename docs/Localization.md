@@ -43,13 +43,14 @@ Python 3.10 及以上可运行以下维护工具；桌面程序、普通构建�
 
 ```powershell
 python Tools/localization.py check
+python Tools/localization.py status --language en-US
 python Tools/localization.py export --language en-US --file translations-en-US.json
 # 翻译或审阅 entries 中的 target 字段，保留其余字段。
 python Tools/localization.py import --language en-US --file translations-en-US.json
 python Tools/localization.py check
 ```
 
-默认只导出缺失或源文变化的条目。全面校对时为 `export` 加 `--all`。任务文件包含键、源文、源文哈希、使用位置、占位符、保护内容及目标译文。导入前校验整批内容；任何条目过期或不合法都不写入。保存采用临时文件替换；若两份文件之间发生中断，状态检查会要求再次审阅。
+`status` 统计已复核、待复核和缺译数量。默认只导出缺译或待复核的条目，全面校对时为 `export` 加 `--all`。可翻译条目的源文变化后，旧译文放在 `previous_target`，待复核的 `target` 留空。任务文件包含键、源文、源文哈希、使用位置、占位符、保护内容及目标译文。导入前校验整批内容；任何条目过期或不合法都不写入。保存采用临时文件替换；若两份文件之间发生中断，状态检查会要求再次审阅。
 
 自动翻译可以由 CI 或外部服务读取相同任务文件，填写 `target`，经人工核对后导入；流程不绑定翻译厂商。默认不联网发送文案，也不读取方案或用户凭据。重要风险说明应人工核对后再发布。
 
@@ -79,7 +80,7 @@ UTF-8 language packs are independent JSON dictionaries in the `Languages` direct
 
 Source packs live in `Localization/Resources`. Stable keys and canonical compatibility values are recorded in `catalog.json`; editable Chinese wording lives in `zh-CN.json`. Revise displayed wording without changing canonical values used by old plans. `translation-state.json` records the source hash reviewed for each target entry.
 
-Use the Python commands above to validate resources and export/import incremental jobs. Add `--all` to export a complete review batch. Jobs include source hashes, contexts, placeholders and protected tokens. A stale or invalid entry rejects the entire import before any writes. An interrupted two-file update is detected as stale state by validation. The optional tool requires Python 3.10+; the application and normal build do not.
+Use the Python commands above to validate resources, check translation progress and export/import incremental jobs. Add `--all` to export a complete review batch. Jobs include source hashes, contexts, placeholders and protected tokens. A stale or invalid entry rejects the entire import before any writes. An interrupted two-file update is detected as stale state by validation. The optional tool requires Python 3.10+; the application and normal build do not.
 
 External translation services can fill the same job format without changing the desktop architecture. No translation service is contacted automatically, and user plans or credentials are not translation inputs. Review safety-critical messages before release.
 

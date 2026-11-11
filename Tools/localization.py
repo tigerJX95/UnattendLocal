@@ -100,6 +100,19 @@ def init_language(root, code, name):
 def load(root):
     return read(root / 'catalog.json'), read(root / 'zh-CN.json'), read(root / 'translation-state.json')
 
+def review_status(key, source_hash, target, review):
+    if key not in target:
+        return 'missing'
+    return 'current' if review.get(key) == source_hash else 'needs_review'
+
+def translation_progress(root, code):
+    if code == 'zh-CN':
+        raise ValueError('Choose a target language to check translation progress')
+    catalog, source, state = load(root)
+    _, target = language(root, code)
+    review = state.get(code, {})
+    return Counter(review_status(key, digest(source[key]), target, review) for key in catalog)
+
 def check(root):
     catalog, source, state = load(root)
     if set(catalog) != set(source):
@@ -131,15 +144,25 @@ def export_job(root, code, path, all_entries=False):
         raise ValueError('Jobs translate from zh-CN; edit the source pack directly')
     catalog, source, state = load(root)
     _, target = language(root, code)
+    review = state.get(code, {})
     entries = []
     for key, entry in catalog.items():
-        if all_entries or key not in target or state.get(code, {}).get(key) != digest(source[key]):
-            entries.append({'key': key, 'source': source[key], 'source_hash': digest(source[key]),
-                            'contexts': entry['Contexts'], 'protected_tokens': entry.get('ProtectedTokens', []),
-                            'placeholders': PLACEHOLDER.findall(source[key]), 'opaque': entry.get('Opaque', False),
-                            'structured_lines': entry.get('StructuredLines', False),
-                            'filter_patterns': entry.get('FilterPatterns', []),
-                            'target': target.get(key, entry['Source'] if entry.get('Opaque') else '')})
+        source_hash = digest(source[key])
+        status = review_status(key, source_hash, target, review)
+        if not all_entries and status == 'current':
+            continue
+        item = {'key': key, 'source': source[key], 'source_hash': source_hash,
+                'contexts': entry['Contexts'], 'protected_tokens': entry.get('ProtectedTokens', []),
+                'placeholders': PLACEHOLDER.findall(source[key]), 'opaque': entry.get('Opaque', False),
+                'structured_lines': entry.get('StructuredLines', False),
+                'filter_patterns': entry.get('FilterPatterns', []),
+                'target': target.get(key, '')}
+        if entry.get('Opaque'):
+            item['target'] = entry['Source']
+        elif status == 'needs_review':
+            item['previous_target'] = target[key]
+            item['target'] = ''
+        entries.append(item)
     write(path, {'schema': 1, 'source_language': 'zh-CN', 'target_language': code, 'entries': entries})
     print(f'Exported {len(entries)} translation jobs.')
 
@@ -151,7 +174,9 @@ def import_job(root, code, path, translated_only=False):
     job = read(path)
     if job.get('schema') != 1 or job.get('source_language') != 'zh-CN' or job.get('target_language') != code:
         raise ValueError('Translation job language/schema mismatch')
+    review = state.get(code, {})
     seen = set()
+    completed = 0
     for item in job['entries']:
         key = item['key']
         if key in seen or key not in catalog:
@@ -159,16 +184,25 @@ def import_job(root, code, path, translated_only=False):
         seen.add(key)
         if item['source_hash'] != digest(source[key]) or item['source'] != source[key]:
             raise ValueError('Stale source: ' + key + '; export the job again')
-        if translated_only and isinstance(item['target'], str) and not item['target'].strip():
+        value = item['target']
+        if translated_only and isinstance(value, str) and not value.strip():
             continue
-        validate(key, item['target'], catalog[key], source[key])
-        target[key] = item['target']
-        state.setdefault(code, {})[key] = item['source_hash']
+        validate(key, value, catalog[key], source[key])
+        if (not catalog[key].get('Opaque') and review_status(key, item['source_hash'], target, review) == 'needs_review'
+                and value == target[key] and item.get('previous_target') != value):
+            raise ValueError('Previous translation needs explicit review: ' + key + '; export the job again')
+        target[key] = value
+        review[key] = item['source_hash']
+        completed += 1
+    if not completed:
+        print(f'Imported 0 translations. Skipped {len(seen)} blank targets.')
+        return
+    state[code] = review
     # Validate the complete batch before changing either file. If a write is
     # interrupted, check/export detects stale state and requires review again.
     write(target_path, target)
     write(root / 'translation-state.json', state)
-    print('Translations imported. Run check and export again to see remaining work.')
+    print(f'Imported {completed} translations. Skipped {len(seen) - completed} blank targets.')
 
 def add(root, key, text, context):
     catalog, source, _ = load(root)
@@ -186,6 +220,8 @@ def main():
     parser.add_argument('--resources', type=Path, default=DEFAULT)
     sub = parser.add_subparsers(dest='command', required=True)
     sub.add_parser('check')
+    p = sub.add_parser('status', help='Show current, missing and pending review counts')
+    p.add_argument('--language', required=True)
     p = sub.add_parser('init')
     p.add_argument('--language', required=True)
     p.add_argument('--name', required=True)
@@ -205,6 +241,10 @@ def main():
     args = parser.parse_args()
     try:
         if args.command == 'check': check(args.resources)
+        elif args.command == 'status':
+            counts = translation_progress(args.resources, args.language)
+            print(f"{args.language}: {counts['current']}/{counts.total()} current, "
+                  f"{counts['needs_review']} need review, {counts['missing']} missing.")
         elif args.command == 'init': init_language(args.resources, args.language, args.name)
         elif args.command == 'export': export_job(args.resources, args.language, args.file, args.all)
         elif args.command == 'import': import_job(args.resources, args.language, args.file, args.translated_only)

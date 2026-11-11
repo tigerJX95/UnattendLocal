@@ -43,6 +43,47 @@ class TranslationJobs(unittest.TestCase):
         loc.write(self.root / 'zh-CN.json', {'ui.done': '已处理 {0} 项。'})
         self.assert_rejected_without_writes()
 
+    def test_progress_distinguishes_current_missing_and_pending_review(self):
+        loc.write(self.job, self.data)
+        loc.import_job(self.root, 'en-US', self.job)
+        loc.add(self.root, 'ui.wait', '请稍候', 'test')
+        loc.add(self.root, 'ui.next', '下一步', 'test')
+        loc.write(self.root / 'en-US.json', {
+            'ui.done': '{0} items completed.', 'ui.wait': 'Please wait'
+        })
+        self.assertEqual({'current': 1, 'needs_review': 1, 'missing': 1},
+                         dict(loc.translation_progress(self.root, 'en-US')))
+
+    def test_stale_translation_is_reference_until_confirmed(self):
+        loc.write(self.job, self.data)
+        loc.import_job(self.root, 'en-US', self.job)
+        loc.write(self.root / 'zh-CN.json', {'ui.done': '已处理 {0} 项。'})
+        for all_entries in (False, True):
+            loc.export_job(self.root, 'en-US', self.job, all_entries)
+            job = loc.read(self.job)
+            item = job['entries'][0]
+            self.assertEqual('', item['target'])
+            self.assertEqual('{0} items completed.', item['previous_target'])
+            before = {p: p.read_bytes() for p in self.root.glob('*.json')}
+            loc.import_job(self.root, 'en-US', self.job, translated_only=True)
+            self.assertEqual(before, {p: p.read_bytes() for p in self.root.glob('*.json')})
+        item['target'] = item['previous_target']
+        loc.write(self.job, job)
+        loc.import_job(self.root, 'en-US', self.job)
+        self.assertEqual({'current': 1}, dict(loc.translation_progress(self.root, 'en-US')))
+
+    def test_legacy_prefilled_job_cannot_approve_stale_translation(self):
+        loc.write(self.job, self.data)
+        loc.import_job(self.root, 'en-US', self.job)
+        source = '已处理 {0} 项。'
+        loc.write(self.root / 'zh-CN.json', {'ui.done': source})
+        self.data['entries'][0].update(source=source, source_hash=loc.digest(source))
+        self.assert_rejected_without_writes()
+        self.data['entries'][0]['target'] = '{0} items processed.'
+        loc.write(self.job, self.data)
+        loc.import_job(self.root, 'en-US', self.job)
+        self.assertEqual({'current': 1}, dict(loc.translation_progress(self.root, 'en-US')))
+
     def test_unknown_key_rejection(self):
         self.data['entries'][0]['key'] = 'ui.unknown'
         self.assert_rejected_without_writes()
