@@ -2,6 +2,11 @@
 
 [Back to the README](README_EN.md) · [简体中文](CHANGELOG.md)
 
+## V1.44 OEM support information · 2026-11-12
+
+- Enter a support name and website under **Custom scripts → Additional XML** to generate Windows `OEMInformation`. The support name is optional and the website requires a full HTTP or HTTPS URL.
+- Generated entries start disabled. Review, enable, and confirm the entry to include it in the `specialize` pass of the exported answer file.
+
 ## V1.43 Translation contributions and IPv4 naming · 2026-11-11
 
 - Provide a guide for contributing translations in any language, covering language setup, partial translation, UI preview, and pull requests, with an example glossary.

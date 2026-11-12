@@ -37708,5 +37708,78 @@
     ],
     "RawArgs": [],
     "ProtectedTokens": []
+  },
+  "xml.oem.form": {
+    "Source": "填写 OEM 支持信息",
+    "SourceHash": "df6f187d509d0b4b01500f67ea05675406c5aa2efa6f059296449705b9810595",
+    "Contexts": [
+      "Desktop/MainWindow.xaml",
+      "Desktop/SettingsSearchCatalog.cs"
+    ],
+    "RawArgs": [],
+    "ProtectedTokens": []
+  },
+  "xml.oem.help": {
+    "Source": "填写支持网站后可生成一条停用的额外 XML 配置。检查生成内容后，再启用并确认。",
+    "SourceHash": "d2799f4d255454ac7f1566a54563da9b40340a9f23f42be6d28732c7341f8d7b",
+    "Contexts": [
+      "Desktop/MainWindow.xaml"
+    ],
+    "RawArgs": [],
+    "ProtectedTokens": []
+  },
+  "xml.oem.provider": {
+    "Source": "支持名称（可选）",
+    "SourceHash": "ab222bbd25e80e4227d4f12858cc6a811f09e6d2a621ceb3991a0e18b4352020",
+    "Contexts": [
+      "Desktop/MainWindow.xaml"
+    ],
+    "RawArgs": [],
+    "ProtectedTokens": []
+  },
+  "xml.oem.website": {
+    "Source": "支持网站",
+    "SourceHash": "ef528ca9e124c44b7d6526da9c232a760c1a4ec12225d2a90c642bc8033c5b0c",
+    "Contexts": [
+      "Desktop/MainWindow.xaml"
+    ],
+    "RawArgs": [],
+    "ProtectedTokens": []
+  },
+  "xml.oem.add": {
+    "Source": "生成 OEM 配置",
+    "SourceHash": "426c05558b568569f39842333408deb01c26b7673a381319e0a734db64d0e9bd",
+    "Contexts": [
+      "Desktop/MainWindow.xaml"
+    ],
+    "RawArgs": [],
+    "ProtectedTokens": []
+  },
+  "xml.oem.added": {
+    "Source": "已生成 OEM 支持信息。核对配置后可启用该条目。",
+    "SourceHash": "b75488b275cb483051c9911da5a24d3540875431359e028d58881c3afa0788a8",
+    "Contexts": [
+      "Desktop/MainWindow.xaml.cs"
+    ],
+    "RawArgs": [],
+    "ProtectedTokens": []
+  },
+  "xml.oem.providerError": {
+    "Source": "支持名称最多 256 个字符，并须为不含控制字符的有效 XML 文本。",
+    "SourceHash": "5d7381e2083f7696c2df1c5ca60e6bbf7f780a688afdd526c74a5c32e7b3c4b9",
+    "Contexts": [
+      "Core/AdditionalXmlSettings.cs"
+    ],
+    "RawArgs": [],
+    "ProtectedTokens": []
+  },
+  "xml.oem.websiteError": {
+    "Source": "请输入完整的 HTTP 或 HTTPS 支持网址，最多 2083 个字符，不含空白字符或登录凭据。",
+    "SourceHash": "92643a25d34292cc9cf56e6b03eb4e65dceab814027666462837b43e2a89da6a",
+    "Contexts": [
+      "Core/AdditionalXmlSettings.cs"
+    ],
+    "RawArgs": [],
+    "ProtectedTokens": []
   }
 }

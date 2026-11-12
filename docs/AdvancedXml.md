@@ -32,7 +32,9 @@
 
 导入第三方 XML 时，仍按已有规则保留未识别原文，不自动把所有未知内容转换为额外 XML 条目。本程序完整导出的 XML 可通过配置还原记录恢复编辑列表；外部修改导致记录失效时，仍以实际 XML 为准，未识别部分保留。
 
-## OEM 支持信息示例
+## OEM 支持信息
+
+在“自定义脚本 → 额外 XML”展开“填写 OEM 支持信息”。填写完整的 HTTP 或 HTTPS 支持网址，支持名称可留空。点击“生成 OEM 配置”，将条目添加到列表。检查生成的内容后，勾选该条目的启用项和额外 XML 确认项。支持名称最多 256 个字符，网址最多 2083 个字符。Windows 如何呈现支持信息取决于目标系统版本。
 
 “载入 OEM 支持信息示例”新增一个停用条目：
 
@@ -67,7 +69,7 @@ JSON 选择保存敏感内容时保留片段。选择不保存时清空片段，
 
 ## English
 
-The Configuration page provides minimal and local-account starting points. The advanced editor is below Custom scripts and accepts up to 15 component/pass XML fragments. New entries and the OEM example start disabled. It adds independent child settings and refuses duplicate top-level settings instead of replacing generated components. The catalog is pinned to the bundled upstream generator; Windows SIM and target-image installation checks remain necessary.
+The Configuration page provides minimal and local-account starting points. The advanced editor is below Custom scripts and accepts up to 15 component/pass XML fragments. New entries and the OEM example start disabled. Expand **Enter OEM support information**, provide an HTTP or HTTPS support website and an optional support name, then create and review the entry. Enabling and confirming it adds `OEMInformation` during `specialize`. It adds independent child settings and refuses duplicate top-level settings instead of replacing generated components. The catalog is pinned to the bundled upstream generator; Windows SIM and target-image installation checks remain necessary.
 
 Preview redacts custom XML. JSON saved without sensitive content omits fragments while retaining their enabled state, requiring re-entry before export. Own exported XML can restore editor entries through its intact configuration snapshot. Unknown third-party XML remains preserved through the existing import workflow.
 

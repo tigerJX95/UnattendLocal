@@ -87,6 +87,18 @@ public partial class MainWindow : Window {
   vm.Status = global::UnattendLocal.Localization.UiText.Source("xml.draftImported");
  });
  private void XmlComponentExampleClick(object s,RoutedEventArgs e)=>Run(()=>{if(vm.Plan.XmlComponents.Count>=AdditionalXmlSettings.MaxCount)throw new ArgumentException(global::UnattendLocal.Localization.UiText.Source("text.e0be0678cd02"));var row=new XmlComponentEntry{Content=AdditionalXmlSettings.Example};vm.Plan.XmlComponents.Add(row);vm.SelectedXmlComponent=row;vm.Status=global::UnattendLocal.Localization.UiText.Source("text.fbe871ae011e");});
+ private void AddOemSupportClick(object sender, RoutedEventArgs e) => Run(() =>
+ {
+  if (vm.Plan.XmlComponents.Count >= AdditionalXmlSettings.MaxCount)
+   throw new ArgumentException(UiText.Source("text.e0be0678cd02"));
+  var draft = AdditionalXmlSettings.CreateOemSupportDraft(OemSupportProvider.Text, OemSupportWebsite.Text);
+  vm.Plan.XmlComponents.Add(draft);
+  vm.SelectedXmlComponent = draft;
+  OemSupportProvider.Clear();
+  OemSupportWebsite.Clear();
+  OemSupportForm.IsExpanded = false;
+  vm.Status = UiText.Source("xml.oem.added");
+ });
  private void CheckXmlComponentClick(object s,RoutedEventArgs e)=>Run(()=>{if(vm.SelectedXmlComponent is not {} row)throw new ArgumentException(global::UnattendLocal.Localization.UiText.Source("text.d9c31bccd272"));_=AdditionalXmlSettings.Parse(row);vm.Status=global::UnattendLocal.Localization.UiText.Source("text.57e53e8bea9e");});
  private void QuickPresetClick(object s,RoutedEventArgs e){
   if(s is not Button {Tag:string kind})return;

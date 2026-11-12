@@ -1,6 +1,8 @@
 using System.Text.Json.Serialization;
 using System.Xml;
+using System.Xml.Linq;
 using Schneegans.Unattend;
+using UnattendLocal.Localization;
 
 namespace UnattendLocal.Core;
 
@@ -54,6 +56,32 @@ public static class AdditionalXmlSettings
         }
         _ = Parse(row);
         return row;
+    }
+
+    public static XmlComponentEntry CreateOemSupportDraft(string provider, string website)
+    {
+        if (provider.Length > 256 || provider.Any(char.IsControl))
+            throw new ArgumentException(UiText.Source("xml.oem.providerError"));
+        try
+        {
+            XmlConvert.VerifyXmlChars(provider);
+        }
+        catch (XmlException error)
+        {
+            throw new ArgumentException(UiText.Source("xml.oem.providerError"), error);
+        }
+
+        if (website.Length > 2083 || website.Any(c => char.IsWhiteSpace(c) || char.IsControl(c)) ||
+            !Uri.TryCreate(website, UriKind.Absolute, out var url) ||
+            url.Scheme is not ("http" or "https") || string.IsNullOrEmpty(url.Host) ||
+            !string.IsNullOrEmpty(url.UserInfo) || !url.IsWellFormedOriginalString())
+            throw new ArgumentException(UiText.Source("xml.oem.websiteError"));
+
+        var element = new XElement("OEMInformation");
+        if (!string.IsNullOrWhiteSpace(provider))
+            element.Add(new XElement("SupportProvider", provider.Trim()));
+        element.Add(new XElement("SupportURL", website));
+        return new XmlComponentEntry { Content = element.ToString() };
     }
 
     public static XmlDocument Parse(XmlComponentEntry row)

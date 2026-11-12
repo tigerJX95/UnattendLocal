@@ -35,5 +35,3 @@ JSON retains entered names even when unchecked or credentials are omitted. Enabl
 
 - [RegisteredOwner](https://learn.microsoft.com/en-us/windows-hardware/customize/desktop/unattend/microsoft-windows-shell-setup-registeredowner)
 - [RegisteredOrganization](https://learn.microsoft.com/en-us/windows-hardware/customize/desktop/unattend/microsoft-windows-shell-setup-registeredorganization)
-
-本功能接入微软已有的无人值守设置，不表示微软在本轮新增了这些设置。This integrates existing Microsoft unattended settings, not a newly announced Microsoft capability.

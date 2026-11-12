@@ -3997,5 +3997,13 @@
   "image.embed.preview": "[内嵌图片数据仅在预览中省略]",
   "naming.ipv4.name": "按 IPv4 地址生成计算机名",
   "naming.ipv4.help": "安装时从已连接的物理以太网适配器读取唯一可用 IPv4 地址，取末两段生成名称，例如 192.168.12.34 生成 PC-12-34。\n\n网卡驱动和地址必须已就绪。没有地址或有多个可用地址时会报错；不采用回环、自动私有地址、组播或未指定地址。不同子网可能生成相同名称，部署前须确认唯一性。",
-  "naming.ipv4.aliases": "IPv4 IP 地址 命名 电脑名称 有线网卡"
+  "naming.ipv4.aliases": "IPv4 IP 地址 命名 电脑名称 有线网卡",
+  "xml.oem.form": "填写 OEM 支持信息",
+  "xml.oem.help": "填写支持网站后可生成一条停用的额外 XML 配置。检查生成内容后，再启用并确认。",
+  "xml.oem.provider": "支持名称（可选）",
+  "xml.oem.website": "支持网站",
+  "xml.oem.add": "生成 OEM 配置",
+  "xml.oem.added": "已生成 OEM 支持信息。核对配置后可启用该条目。",
+  "xml.oem.providerError": "支持名称最多 256 个字符，并须为不含控制字符的有效 XML 文本。",
+  "xml.oem.websiteError": "请输入完整的 HTTP 或 HTTPS 支持网址，最多 2083 个字符，不含空白字符或登录凭据。"
 }

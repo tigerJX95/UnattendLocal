@@ -7,7 +7,7 @@
 
 UnattendLocal 是基于 [Christoph Schneegans 的 UnattendGenerator](https://github.com/cschneegans/unattend-generator) 开发的 Windows 桌面配置工具，支持简体中文与英语界面，用于在本地编辑、检查和生成 Windows 10 / 11 的 `autounattend.xml`。
 
-当前版本：**V1.43**。启用 PE 脚本安装后会自动切换为“按镜像索引”，须自行填写安装镜像中的实际索引；普通 Windows Setup 仍支持原有全部镜像选择方式。支持简体中文 / English 即时切换、独立语言包维护、静态 IPv4 / IPv6 双栈、子网掩码输入、设置搜索、安装驱动目录、动态更新、自动分区、OOBE 与账户配置，以及已有 XML 的导入编辑。
+当前版本：**V1.44**。启用 PE 脚本安装后会自动切换为“按镜像索引”，须自行填写安装镜像中的实际索引；普通 Windows Setup 仍支持原有全部镜像选择方式。支持简体中文 / English 即时切换、独立语言包维护、静态 IPv4 / IPv6 双栈、子网掩码输入、设置搜索、安装驱动目录、动态更新、自动分区、OOBE 与账户配置，以及已有 XML 的导入编辑。
 
 ## 💡 开发初衷
 
@@ -56,23 +56,21 @@ UnattendLocal 是基于 [Christoph Schneegans 的 UnattendGenerator](https://git
 - 保存和恢复 JSON 方案，提供配置摘要、推荐差异、检查、脱敏预览和 XML 导出。
 - 导入已有 XML 后编辑已支持设置，保留未知内容；遇到无法可靠合并的修改时停止导出并说明原因。
 
-## V1.43 翻译贡献与 IPv4 命名 · 2026-11-11
+## V1.44 OEM 支持信息 · 2026-11-12
 
-- 提供适用于各语言的翻译贡献指南，说明新增语言、分批翻译、界面预览和 PR 提交流程，并附术语表示例。
-- 翻译工具支持初始化语言包、分批导入已完成的译文，并预填技术示例。支持统计已复核、待复核和缺译条目。可翻译条目的源文变化后，旧译文作为参考，待复核的目标字段留空。
-- 支持按唯一可用有线 IPv4 地址的末两段生成计算机名。导入 XML 时缓存内置命名脚本的识别签名。
-- 修复不带工具快照的动态命名 XML 导入时误判 PowerShell 窗口设置的问题，避免改回固定计算机名后发生导出合并冲突。
+- 在“自定义脚本 → 额外 XML”填写支持名称和网站，即可生成 Windows `OEMInformation` 配置。支持名称可选，网站须为完整的 HTTP 或 HTTPS 地址。
+- 生成的配置默认停用。核对后启用并确认，导出时写入 `specialize` 阶段的应答 XML。
 
 [历史版本](CHANGELOG.md)
 
 ## 📦 下载与使用
 
-从仓库的 [**Releases**](https://github.com/tigerJX95/UnattendLocal/releases/latest) 页面下载并直接运行对应的 `UnattendLocal_V1.43_x64_SelfContained.exe` 或 `UnattendLocal_V1.43_x64_FrameworkDependent.exe`：
+从仓库的 [**Releases**](https://github.com/tigerJX95/UnattendLocal/releases/latest) 页面下载并直接运行对应的 `UnattendLocal_V1.44_x64_SelfContained.exe` 或 `UnattendLocal_V1.44_x64_FrameworkDependent.exe`：
 
 | 程序文件 | 运行要求 |
 | --- | --- |
-| `UnattendLocal_V1.43_x64_SelfContained.exe` | 集成 .NET 运行时，无需单独安装；通常选择此版。 |
-| `UnattendLocal_V1.43_x64_FrameworkDependent.exe` | 文件较小，需安装 .NET 10 Desktop Runtime x64。 |
+| `UnattendLocal_V1.44_x64_SelfContained.exe` | 集成 .NET 运行时，无需单独安装；通常选择此版。 |
+| `UnattendLocal_V1.44_x64_FrameworkDependent.exe` | 文件较小，需安装 .NET 10 Desktop Runtime x64。 |
 
 两版功能相同。首次安装测试建议使用虚拟机。
 
@@ -217,7 +215,7 @@ dotnet publish Desktop/Desktop.csproj -c Release -m:1 -nr:false -r win-x64 --sel
 - **Microsoft / .NET 与 WPF 贡献者**：[.NET](https://github.com/dotnet/runtime) · [WPF](https://github.com/dotnet/wpf)，提供桌面与运行环境。
 - **ChatGPT / Codex（OpenAI）**：[ChatGPT](https://chatgpt.com/) · [Codex](https://openai.com/codex/)。在需求梳理、代码实现、问题排查、中文说明与文档整理过程中提供辅助支持。
 
-保留上游版权及 MIT 许可证，见 [vendor/UnattendGenerator/LICENSE.txt](vendor/UnattendGenerator/LICENSE.txt)。第三方记录与固定基线说明随完整源码包提供。本地工具不是原作者的官方桌面发行版。
+保留上游版权及 MIT 许可证，见 [vendor/UnattendGenerator/LICENSE.txt](vendor/UnattendGenerator/LICENSE.txt)。第三方声明与生成核心来源见 [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md) 和 [UPSTREAM.md](UPSTREAM.md)。本地工具不是原作者的官方桌面发行版。
 
 ## 💬 反馈
 
