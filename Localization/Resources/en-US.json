@@ -3997,5 +3997,13 @@
   "image.embed.preview": "[Embedded image data omitted from preview]",
   "naming.ipv4.name": "Derive computer name from IPv4 address",
   "naming.ipv4.help": "During Setup, read the only usable IPv4 address from connected physical Ethernet adapters and use its final two octets. For example, 192.168.12.34 produces PC-12-34.\n\nDrivers and an address must already be available. Missing or multiple usable addresses cause an error. Loopback, link-local, multicast and unspecified addresses are excluded. Different subnets can produce the same name, so verify uniqueness before deployment.",
-  "naming.ipv4.aliases": "IPv4 IP address naming computer name Ethernet"
+  "naming.ipv4.aliases": "IPv4 IP address naming computer name Ethernet",
+  "xml.oem.form": "Enter OEM support information",
+  "xml.oem.help": "Enter a support website to create a disabled additional XML entry. Review the generated content before enabling and confirming it.",
+  "xml.oem.provider": "Support name (optional)",
+  "xml.oem.website": "Support website",
+  "xml.oem.add": "Create OEM entry",
+  "xml.oem.added": "OEM support information created. Review the entry before enabling it.",
+  "xml.oem.providerError": "The support name must be valid XML text without control characters and at most 256 characters long.",
+  "xml.oem.websiteError": "Enter a complete HTTP or HTTPS support URL of up to 2083 characters, without whitespace or credentials."
 }

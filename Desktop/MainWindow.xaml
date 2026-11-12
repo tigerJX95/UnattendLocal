@@ -1514,6 +1514,20 @@
               <Button Content="{loc:Source text.40f98094d525}" Click="XmlComponentExampleClick" />
               <Button Content="{loc:Source text.60c83758425f}" Click="CheckXmlComponentClick" IsEnabled="{Binding HasSelectedXmlComponent}" />
             </WrapPanel>
+            <Expander x:Name="OemSupportForm" Header="{loc:Text xml.oem.form}" Margin="0,6">
+              <StackPanel Margin="12,4,0,4">
+                <TextBlock Style="{StaticResource ExplanationText}" Text="{loc:Text xml.oem.help}" />
+                <Label Content="{loc:Text xml.oem.provider}" Target="{Binding ElementName=OemSupportProvider}" Padding="0,4" />
+                <TextBox x:Name="OemSupportProvider">
+                  <TextBox.ToolTip><ToolTip ContentTemplate="{x:Null}" Content="{loc:Text xml.oem.provider}" /></TextBox.ToolTip>
+                </TextBox>
+                <Label Content="{loc:Text xml.oem.website}" Target="{Binding ElementName=OemSupportWebsite}" Padding="0,4" />
+                <TextBox x:Name="OemSupportWebsite">
+                  <TextBox.ToolTip><ToolTip ContentTemplate="{x:Null}" Content="{loc:Text xml.oem.website}" /></TextBox.ToolTip>
+                </TextBox>
+                <Button Content="{loc:Source xml.oem.add}" Click="AddOemSupportClick" HorizontalAlignment="Left" />
+              </StackPanel>
+            </Expander>
             <ListBox ItemsSource="{Binding Plan.XmlComponents}" SelectedItem="{Binding SelectedXmlComponent}"  MinHeight="65" MaxHeight="170"  loc:LocalizedItems.DisplayPath="Label"><ListBox.ItemTemplate><DataTemplate><TextBlock Text="{loc:Display Value={Binding Label}}" TextWrapping="Wrap"/></DataTemplate></ListBox.ItemTemplate></ListBox>
             <StackPanel DataContext="{Binding SelectedXmlComponent}" IsEnabled="{Binding DataContext.HasSelectedXmlComponent,RelativeSource={RelativeSource AncestorType=Window}}">
               <CheckBox Content="{loc:Source text.f9d86af8e5f1}" IsChecked="{Binding Enabled}" />

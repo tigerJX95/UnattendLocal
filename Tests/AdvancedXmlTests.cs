@@ -10,6 +10,42 @@ static class AdvancedXmlTests
         int count=0;
         void Check(bool ok,string name){if(!ok)throw new Exception(name);count++;}
         void Reject(Action action,string name){try{action();}catch(ArgumentException){count++;return;}throw new Exception("Expected rejection: "+name);}
+        const string provider = "技术支持 <A> & B";
+        const string website = "https://example.org/support?model=A&lang=zh-CN";
+        var oemDraft = AdditionalXmlSettings.CreateOemSupportDraft(provider, website);
+        Check(!oemDraft.Enabled && oemDraft.Pass == "specialize" &&
+            oemDraft.Component == "Microsoft-Windows-Shell-Setup", "OEM form creates a disabled specialize draft");
+        var oemXml = AdditionalXmlSettings.Parse(oemDraft);
+        Check(oemXml.SelectSingleNode("//*[local-name()='SupportProvider']")?.InnerText == provider &&
+            oemXml.SelectSingleNode("//*[local-name()='SupportURL']")?.InnerText == website,
+            "OEM form escapes XML metacharacters without changing either value");
+        var websiteOnly = AdditionalXmlSettings.CreateOemSupportDraft("", "http://example.org/help");
+        Check(!websiteOnly.Content.Contains("SupportProvider"), "OEM provider is optional");
+        foreach (var badUrl in new[] { "", "example.org/help", "file:///help", "javascript:alert(1)",
+            "https://user:pass@example.org/", "https://example.org/a b", "https://example.org/" + new string('a', 2083) })
+            Reject(() => AdditionalXmlSettings.CreateOemSupportDraft("", badUrl), "OEM URL validation");
+        Reject(() => AdditionalXmlSettings.CreateOemSupportDraft("Support\nName", website), "OEM provider rejects control characters");
+        var oemPlan = QuickPresets.Create(QuickPresets.Minimal);
+        oemPlan.XmlComponents.Add(oemDraft);
+        Check(!Encoding.UTF8.GetString(generator.GenerateStandalone(oemPlan)).Contains("<OEMInformation>"),
+            "disabled OEM draft does not appear in answer XML");
+        oemDraft.Enabled = true;
+        Reject(() => generator.Generate(oemPlan), "OEM form requires the existing XML confirmation");
+        oemPlan.ConfirmAdditionalXml = true;
+        string oemAnswer = Encoding.UTF8.GetString(generator.Generate(oemPlan));
+        var answerDoc = XmlMerge.Read(oemAnswer);
+        var answerNs = new XmlNamespaceManager(answerDoc.NameTable);
+        answerNs.AddNamespace("u", XmlMerge.Namespace);
+        const string oemPath = "/u:unattend/u:settings[@pass='specialize']/u:component[@name='Microsoft-Windows-Shell-Setup']/u:OEMInformation";
+        Check(answerDoc.SelectSingleNode(oemPath + "/u:SupportURL", answerNs)?.InnerText == website,
+            "enabled OEM form writes the requested URL to specialize");
+        var oemImported = XmlPlanImport.Import(oemAnswer, generator);
+        Check(oemImported.ImportedXml!.Blockers.Length == 0 && oemImported.XmlComponents.Count == 1 &&
+            oemImported.XmlComponents[0].Enabled, "OEM form entry survives XML round-trip");
+        var importedOem = AdditionalXmlSettings.Parse(oemImported.XmlComponents[0]);
+        Check(importedOem.SelectSingleNode("//*[local-name()='SupportProvider']")?.InnerText == provider &&
+            importedOem.SelectSingleNode("//*[local-name()='SupportURL']")?.InnerText == website,
+            "OEM form values survive XML normalization and import");
         foreach(var kind in new[]{QuickPresets.Minimal,QuickPresets.LocalAccount})
         foreach(var arch in new[]{"amd64","arm64","x86"})
         {

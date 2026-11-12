@@ -38,5 +38,3 @@ Actual support depends on installation media, Setup version, connectivity and po
 - [DynamicUpdate](https://learn.microsoft.com/en-us/windows-hardware/customize/desktop/unattend/microsoft-windows-setup-dynamicupdate)
 - [Enable](https://learn.microsoft.com/en-us/windows-hardware/customize/desktop/unattend/microsoft-windows-setup-dynamicupdate-enable)
 - [WillShowUI](https://learn.microsoft.com/en-us/windows-hardware/customize/desktop/unattend/microsoft-windows-setup-dynamicupdate-willshowui)
-
-以上为微软已有的无人值守能力在本工具的本地接入，不表示微软在本轮新增加了这些设置。This integrates an existing Microsoft unattended-setting capability; it is not a claim of a newly released Microsoft feature.
