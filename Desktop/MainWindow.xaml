@@ -1510,6 +1510,9 @@
               <Button Content="{loc:Source xml.importDraft}" Click="ImportXmlComponentClick">
                 <Button.ToolTip><ToolTip ContentTemplate="{x:Null}" Content="{loc:Text xml.importDraftHelp}" /></Button.ToolTip>
               </Button>
+              <Button Content="{loc:Source xml.saveDraft}" Click="SaveXmlComponentClick" IsEnabled="{Binding HasSelectedXmlComponent}">
+                <Button.ToolTip><ToolTip ContentTemplate="{x:Null}" Content="{loc:Text xml.saveDraftHelp}" /></Button.ToolTip>
+              </Button>
               <Button Content="{loc:Source text.f52b0df3fc68}" Click="RemoveXmlComponentClick" IsEnabled="{Binding HasSelectedXmlComponent}" />
               <Button Content="{loc:Source text.40f98094d525}" Click="XmlComponentExampleClick" />
               <Button Content="{loc:Source text.60c83758425f}" Click="CheckXmlComponentClick" IsEnabled="{Binding HasSelectedXmlComponent}" />

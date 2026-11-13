@@ -3947,7 +3947,7 @@
   "v137.pagefile.help": "仅用于 PE 脚本安装，默认关闭。启用后在释放映像后将目标系统的分页文件列表设为空，暂时停用自定义容量。关闭分页文件会降低内存提交上限，也可能影响系统崩溃转储。切换后请重新核对并确认清盘。",
   "v137.pagefile.disabled": "分页文件：关闭（PE）",
   "xml.importDraft": "导入 XML 片段",
-  "xml.importDraftHelp": "从文件读取组件的设置子元素，按当前所选组件和阶段创建停用草稿。未选中条目时，使用 Shell-Setup 的 specialize 阶段。",
+  "xml.importDraftHelp": "选取文件后，在导入窗口选择组件和执行阶段。未选中条目时预选 Shell-Setup 的 specialize 阶段。导入的草稿默认停用。",
   "xml.draftFilter": "XML 片段 (*.xml)|*.xml",
   "xml.draftTooLarge": "XML 片段文件过大。每项最多 131,072 个字符。",
   "xml.draftImported": "已导入停用的 XML 草稿。请核对组件、阶段和内容后再启用。",
@@ -4005,5 +4005,9 @@
   "xml.oem.add": "生成 OEM 配置",
   "xml.oem.added": "已生成 OEM 支持信息。核对配置后可启用该条目。",
   "xml.oem.providerError": "支持名称最多 256 个字符，并须为不含控制字符的有效 XML 文本。",
-  "xml.oem.websiteError": "请输入完整的 HTTP 或 HTTPS 支持网址，最多 2083 个字符，不含空白字符或登录凭据。"
+  "xml.oem.websiteError": "请输入完整的 HTTP 或 HTTPS 支持网址，最多 2083 个字符，不含空白字符或登录凭据。",
+  "xml.saveDraft": "另存 XML 片段",
+  "xml.saveDraftHelp": "将选中的设置子元素保存为 UTF-8 XML 片段，可在其他方案中导入。",
+  "xml.draftSaved": "已保存 XML 片段。",
+  "xml.draftSaveFailed": "保存 XML 片段失败。"
 }

@@ -1,0 +1,26 @@
+<Window x:Class="UnattendLocal.Desktop.XmlFragmentImportWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:loc="clr-namespace:UnattendLocal.Desktop"
+        Title="{loc:Text xml.importDraft}" Width="580" MinWidth="380" SizeToContent="Height"
+        WindowStartupLocation="CenterOwner" ShowInTaskbar="False"
+        Background="{DynamicResource CanvasBrush}" Foreground="{DynamicResource ForegroundBrush}"
+        FontFamily="Microsoft YaHei UI" FontSize="14">
+  <StackPanel Margin="20">
+    <TextBlock x:Name="FileNameText" TextWrapping="Wrap" Foreground="{DynamicResource SecondaryBrush}" Margin="0,0,0,8"/>
+    <Label Content="{loc:Text text.783d638053ea}" Target="{Binding ElementName=ComponentPicker}" Padding="0,4"/>
+    <ComboBox x:Name="ComponentPicker" SelectionChanged="ComponentChanged" IsTextSearchEnabled="True"/>
+    <Label Content="{loc:Text text.4caf62129d55}" Target="{Binding ElementName=PassPicker}" Padding="0,4"/>
+    <ComboBox x:Name="PassPicker" SelectedValuePath="Id" SelectionChanged="PassChanged" loc:LocalizedItems.DisplayPath="Label">
+      <ComboBox.ItemTemplate>
+        <DataTemplate><TextBlock Text="{loc:Display Value={Binding Label}}"/></DataTemplate>
+      </ComboBox.ItemTemplate>
+    </ComboBox>
+    <WrapPanel HorizontalAlignment="Right" Margin="0,12,0,0">
+      <Button x:Name="ImportButton" Content="{loc:Text xml.importDraft}" ContentTemplate="{x:Null}"
+              Width="Auto" MinWidth="94" Padding="12,6" Click="ImportClick" IsDefault="True" IsEnabled="False"/>
+      <Button Content="{loc:Text text.2cd0f3be8738}" ContentTemplate="{x:Null}"
+              Width="Auto" MinWidth="94" Padding="12,6" IsCancel="True"/>
+    </WrapPanel>
+  </StackPanel>
+</Window>

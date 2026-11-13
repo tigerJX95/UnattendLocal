@@ -81,11 +81,36 @@ public partial class MainWindow : Window {
    Filter = global::UnattendLocal.Localization.UiText.Get("xml.draftFilter")
   };
   if (dialog.ShowLocalized(this) != true) return;
-  var draft = AdditionalXmlSettings.ReadDraft(dialog.FileName, vm.SelectedXmlComponent);
+  var target = new XmlFragmentImportWindow(dialog.FileName, vm.SelectedXmlComponent) { Owner = this };
+  if (target.ShowDialog() != true || target.Draft is not {} draft) return;
   vm.Plan.XmlComponents.Add(draft);
   vm.SelectedXmlComponent = draft;
   vm.Status = global::UnattendLocal.Localization.UiText.Source("xml.draftImported");
  });
+ private void SaveXmlComponentClick(object sender, RoutedEventArgs e)
+ {
+  if (vm.SelectedXmlComponent is not {} row) return;
+  try
+  {
+   var dialog = new SaveFileDialog
+   {
+    Title = UiText.Get("xml.saveDraft"),
+    Filter = UiText.Get("xml.draftFilter"),
+    DefaultExt = ".xml",
+    AddExtension = true,
+    OverwritePrompt = true,
+    FileName = "fragment.xml"
+   };
+   if (dialog.ShowLocalized(this) != true) return;
+   AdditionalXmlSettings.WriteDraft(dialog.FileName, row);
+   vm.Status = UiText.Source("xml.draftSaved");
+  }
+  catch (Exception error)
+  {
+   vm.Status = UiText.Source("xml.draftSaveFailed");
+   ErrorDialog.Show(this, error, vm.Status);
+  }
+ }
  private void XmlComponentExampleClick(object s,RoutedEventArgs e)=>Run(()=>{if(vm.Plan.XmlComponents.Count>=AdditionalXmlSettings.MaxCount)throw new ArgumentException(global::UnattendLocal.Localization.UiText.Source("text.e0be0678cd02"));var row=new XmlComponentEntry{Content=AdditionalXmlSettings.Example};vm.Plan.XmlComponents.Add(row);vm.SelectedXmlComponent=row;vm.Status=global::UnattendLocal.Localization.UiText.Source("text.fbe871ae011e");});
  private void AddOemSupportClick(object sender, RoutedEventArgs e) => Run(() =>
  {

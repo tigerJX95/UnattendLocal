@@ -27,6 +27,10 @@ public static class AdditionalXmlSettings
     public static IReadOnlyList<string> Components => Catalog.Value.Components.Keys.Order(StringComparer.Ordinal).ToArray();
     public record PhaseChoice(string Id, string Label);
     public static PhaseChoice[] Passes => [new("windowsPE", global::UnattendLocal.Localization.UiText.Source("text.48694c417434")), new("offlineServicing", global::UnattendLocal.Localization.UiText.Source("text.1c69f09085d1")), new("generalize", global::UnattendLocal.Localization.UiText.Source("text.e0bfcb6182f5")), new("specialize", global::UnattendLocal.Localization.UiText.Source("text.74b1377ca623")), new("auditSystem", global::UnattendLocal.Localization.UiText.Source("text.b62eef04e8bd")), new("auditUser", global::UnattendLocal.Localization.UiText.Source("text.7df9ef1246ad")), new("oobeSystem", global::UnattendLocal.Localization.UiText.Source("text.6fe4b8c2d667"))];
+    public static PhaseChoice[] PassesForComponent(string? name) =>
+        name != null && Catalog.Value.Components.TryGetValue(name, out var component)
+            ? Passes.Where(choice => component.Passes.Any(pass => pass.ToString() == choice.Id)).ToArray()
+            : [];
 
     // These fields are parsed by existing UI controls, including after a snapshot import.
     // Letting fragments own them would create two editors for one setting on re-import.
@@ -56,6 +60,12 @@ public static class AdditionalXmlSettings
         }
         _ = Parse(row);
         return row;
+    }
+
+    public static void WriteDraft(string path, XmlComponentEntry row)
+    {
+        _ = Parse(row);
+        AtomicFile.WriteAllText(path, row.Content, new System.Text.UTF8Encoding(false));
     }
 
     public static XmlComponentEntry CreateOemSupportDraft(string provider, string website)

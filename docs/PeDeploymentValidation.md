@@ -4,7 +4,7 @@
 
 ## 当前状态
 
-六项真实虚拟机基础验收：**6/6 用户反馈通过**；补充四项 VBScript 异常返回值验证也通过，合计 **10/10**（非数字 INVALID、不存在的编号 99、空输出、非零退出码）。缺失快照等扩展场景未据此计为实机通过。选盘和复核的显式运行错误处理尚未在 Windows 实测。上述 10/10 为此前版本的验证结果。自动生成、JSON/XML 往返和参数边界检查不代表已经成功安装 Windows。
+此前版本通过了 6 项虚拟机基础场景验证和 4 项 VBScript 异常返回值验证。异常返回值包括非数字 INVALID、不存在的编号 99、空输出和非零退出码。缺失快照等扩展场景，以及选盘和复核的显式运行错误处理，仍待 Windows 实测。
 
 Windows WPF 容量绑定专项覆盖两种语言、四种选盘方式和两个容量字段。测试先处理 Dispatcher 队列并确认绑定连接到目标方案，再验证合法输入、清空、空白、非法输入拦截、恢复及修改后撤销清盘确认；失败日志包含具体组合、绑定状态、文本、方案值和校验错误。其运行结果与 PE 部署及虚拟机验收分别记录。
 
@@ -22,11 +22,11 @@ V1.31 已完成 Release 构建、中英文检查及 31,049 项 C# 回归；Windo
 
 | 场景 | 配置示例与预期 | 状态 |
 |---|---|---|
-| 单磁盘 UEFI/GPT | x64 Windows 11、UEFI、80 GiB 目标盘；完成分区、释放镜像、引导、重启及 OOBE | 用户反馈通过 |
-| 单磁盘 BIOS/MBR | 兼容的 x64 Windows 10、BIOS、80 GiB 目标盘；完成安装，GPT 专用 bcdedit 不执行 | 用户反馈通过 |
-| 多盘唯一匹配 | 80 GiB 与 20 GiB 两盘，范围 64–128 GiB；只选择 80 GiB 盘，另一盘保持完整 | 用户反馈通过 |
-| 多盘同时匹配 | 两块 80 GiB 盘，同样容量范围；在分区前停止，两盘数据保持完整 | 用户反馈通过 |
-| 无匹配磁盘 | 20 GiB 盘，范围 64–128 GiB；在分区前停止，不调用破坏性 DiskPart | 用户反馈通过 |
+| 单磁盘 UEFI/GPT | x64 Windows 11、UEFI、80 GiB 目标盘；完成分区、释放镜像、引导、重启及 OOBE | 通过（此前版本） |
+| 单磁盘 BIOS/MBR | 兼容的 x64 Windows 10、BIOS、80 GiB 目标盘；完成安装，GPT 专用 bcdedit 不执行 | 通过（此前版本） |
+| 多盘唯一匹配 | 80 GiB 与 20 GiB 两盘，范围 64–128 GiB；只选择 80 GiB 盘，另一盘保持完整 | 通过（此前版本） |
+| 多盘同时匹配 | 两块 80 GiB 盘，同样容量范围；在分区前停止，两盘数据保持完整 | 通过（此前版本） |
+| 无匹配磁盘 | 20 GiB 盘，范围 64–128 GiB；在分区前停止，不调用破坏性 DiskPart | 通过（此前版本） |
 | 交互或脚本异常 | 不存在的编号、额外字符、脚本多行输出、非零退出码（包括负值运行错误）或缺失目标记录；均须在进入 DiskPart 前停止 | 基础脚本失败及四项异常输出通过；其余扩展场景未计入 |
 
 为需要保留的虚拟盘预先放置校验文件，停止或部署后核对分区表、文件及 SHA256。检查目标磁盘实际编号，不假定磁盘 0 正确。每个成功场景还应检查实际 EFI/活动系统分区、恢复分区和 Windows 启动结果。
@@ -55,7 +55,7 @@ For extended checks, an intact old OS alone is insufficient: confirm that no Dis
 
 本版未执行真实 Windows PE 安装，也未在 Windows 上运行 WPF 专项程序。建议在可清空的虚拟磁盘上，重点验证关闭恢复分区后的分区表、系统启动与 `reagentc /info`；开启时应保留指定容量的恢复分区。自动生成与编译检查不替代这些运行验收。
 
-Based on formal V1.32. Release solution and WPF test-project compilation passed with zero warnings or errors. All 31,247 C# regression checks passed, including 85 recovery-option checks; 979 search-navigation checks and 12 Python tool tests passed. Both languages contain 3939 validated keys. The pinned vendor is unchanged. Actual Windows PE installation and Windows WPF execution were not performed for this release.
+Based on formal V1.32. Release solution and WPF test-project compilation passed with zero warnings or errors. All 31,247 C# regression checks passed, including 85 recovery-option checks; 979 search-navigation checks and 12 Python tool tests passed. Both languages contain 3939 validated keys. The pinned vendor is unchanged. Windows PE installation and WPF execution were outside the scope of the V1.33 checks.
 
 ### V1.33 搜索定位修正
 

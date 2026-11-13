@@ -16,7 +16,9 @@
 3. 使用“检查额外 XML”检查片段结构，然后勾选启用及核对确认。
 4. 使用“检查与预览”核对与当前生成内容的重复项，最后导出 XML 或 ISO。
 
-已有本地片段时，先选中目标组件和阶段相同的条目，再点击“导入 XML 片段”。程序新增一条停用草稿，保留原条目。未选中条目时使用 `Microsoft-Windows-Shell-Setup` 的 `specialize` 阶段。文件只应包含设置子元素，可有多个同级子元素，省去 XML 声明和应答文件包装。支持 UTF-8，以及带 BOM 的 UTF-16、UTF-32。
+点击“导入 XML 片段”，选取文件后选择组件和执行阶段。阶段列表只显示该组件支持的选项。窗口预选当前条目的组件和阶段，未选中条目时预选 `Microsoft-Windows-Shell-Setup` 和 `specialize`。确认后新增一条停用草稿。文件只应包含设置子元素，可有多个同级子元素，省去 XML 声明和应答文件包装。支持 UTF-8，以及带 BOM 的 UTF-16、UTF-32。
+
+选中条目后，可通过“另存 XML 片段”保存其中的设置子元素。文件使用 UTF-8，保留文本和换行。导入时选择与原片段匹配的组件和阶段。
 
 新增条目默认停用。最多 15 项，每项最多 131,072 个字符、64 层和 2,048 个元素。允许标准 `wcm` 和 `xsi` 命名空间属性；禁止 DTD、外部实体、处理指令及其他元素命名空间。
 
@@ -73,4 +75,6 @@ The Configuration page provides minimal and local-account starting points. The a
 
 Preview redacts custom XML. JSON saved without sensitive content omits fragments while retaining their enabled state, requiring re-entry before export. Own exported XML can restore editor entries through its intact configuration snapshot. Unknown third-party XML remains preserved through the existing import workflow.
 
-Use **Import XML fragment** to add a disabled draft for the selected entry's component and pass. Without a selected entry, the target is `Microsoft-Windows-Shell-Setup` in `specialize`. Save the child elements as UTF-8 or BOM-marked UTF-16 or UTF-32, omitting the XML declaration and answer-file wrappers.
+Choose a file with **Import XML fragment**, then select the component and one of its supported passes. The dialog starts with the selected entry’s target, or `Microsoft-Windows-Shell-Setup` and `specialize` when no entry is selected. Confirm to add a disabled draft. Save the child elements as UTF-8 or BOM-marked UTF-16 or UTF-32, omitting the XML declaration and answer-file wrappers.
+
+Use **Save XML fragment as** to save the selected entry’s child settings as a UTF-8 fragment. The file preserves text and line endings. Select the matching component and pass when importing it into another plan.
