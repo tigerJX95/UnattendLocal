@@ -37781,5 +37781,42 @@
     ],
     "RawArgs": [],
     "ProtectedTokens": []
+  },
+  "xml.saveDraft": {
+    "Source": "另存 XML 片段",
+    "SourceHash": "9b32f875ff37fe9d27276a75530d2605564aa1d865f576c3dd2b1b7eb0205efb",
+    "Contexts": [
+      "Desktop/MainWindow.xaml",
+      "Desktop/MainWindow.xaml.cs"
+    ],
+    "RawArgs": [],
+    "ProtectedTokens": []
+  },
+  "xml.saveDraftHelp": {
+    "Source": "将选中的设置子元素保存为 UTF-8 XML 片段，可在其他方案中导入。",
+    "SourceHash": "bf41a30fe1eb8709e87079d317bccd523876830d85d6a4fea35e5b36d0ba8a84",
+    "Contexts": [
+      "Desktop/MainWindow.xaml"
+    ],
+    "RawArgs": [],
+    "ProtectedTokens": []
+  },
+  "xml.draftSaved": {
+    "Source": "已保存 XML 片段。",
+    "SourceHash": "11961f358e8ecd18b8a8a6423573e3401af0c296a4e24f6063a2103c3099d8df",
+    "Contexts": [
+      "Desktop/MainWindow.xaml.cs"
+    ],
+    "RawArgs": [],
+    "ProtectedTokens": []
+  },
+  "xml.draftSaveFailed": {
+    "Source": "保存 XML 片段失败。",
+    "SourceHash": "007010b549cc682954a261fda5b496a116857bfe781095071f376a15baa6ccf1",
+    "Contexts": [
+      "Desktop/MainWindow.xaml.cs"
+    ],
+    "RawArgs": [],
+    "ProtectedTokens": []
   }
 }

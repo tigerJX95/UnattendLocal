@@ -3948,7 +3948,7 @@
     "v137.pagefile.help": "4510abd085feda7ef43acaaf745d03d35f408f80c1eb1a05ccee62b85a932681",
     "v137.pagefile.disabled": "6af8ee8c6b3c5f444428d25adbfdceeb0707b7b4814c64d4084da8c1e133c548",
     "xml.importDraft": "ff5dfd35b2f4adbddd9d28fa6dd4d94b2c78caf829edb835b76931fabe6e5eaf",
-    "xml.importDraftHelp": "311174586065cee6149962a711f4e7deee71b1e6a999be3d6c57aa081e3bb665",
+    "xml.importDraftHelp": "0cc71e6d1f40265bd61aa4f37a2ebc4d84531b68992b73c446e6474ca96eb829",
     "xml.draftFilter": "25533feee4d72877fc6412ce72cdd18efba5f857964d84cc4cb08c5e00701129",
     "xml.draftTooLarge": "6ab56fab240fc3e82bc5dd75e066d14f93790b0737814e180a68c7163ae5a078",
     "xml.draftImported": "67838c35593241655419d2f129ab7e4d69a0dec3f17244d7991f3b4446fc641a",
@@ -4006,6 +4006,10 @@
     "xml.oem.add": "426c05558b568569f39842333408deb01c26b7673a381319e0a734db64d0e9bd",
     "xml.oem.added": "b75488b275cb483051c9911da5a24d3540875431359e028d58881c3afa0788a8",
     "xml.oem.providerError": "5d7381e2083f7696c2df1c5ca60e6bbf7f780a688afdd526c74a5c32e7b3c4b9",
-    "xml.oem.websiteError": "92643a25d34292cc9cf56e6b03eb4e65dceab814027666462837b43e2a89da6a"
+    "xml.oem.websiteError": "92643a25d34292cc9cf56e6b03eb4e65dceab814027666462837b43e2a89da6a",
+    "xml.saveDraft": "9b32f875ff37fe9d27276a75530d2605564aa1d865f576c3dd2b1b7eb0205efb",
+    "xml.saveDraftHelp": "bf41a30fe1eb8709e87079d317bccd523876830d85d6a4fea35e5b36d0ba8a84",
+    "xml.draftSaved": "11961f358e8ecd18b8a8a6423573e3401af0c296a4e24f6063a2103c3099d8df",
+    "xml.draftSaveFailed": "007010b549cc682954a261fda5b496a116857bfe781095071f376a15baa6ccf1"
   }
 }

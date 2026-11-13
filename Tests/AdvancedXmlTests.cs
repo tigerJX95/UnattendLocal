@@ -139,6 +139,16 @@ static class AdvancedXmlTests
             string path = Path.Combine(directory.FullName, "fragment.xml");
             const string content = "<OEMInformation><SupportProvider>LOCAL-导入</SupportProvider></OEMInformation>";
             File.WriteAllText(path, content, Encoding.Unicode);
+            Check(AdditionalXmlSettings.PassesForComponent("Microsoft-Windows-Setup")
+                .Select(pass => pass.Id).SequenceEqual(new[] { "windowsPE" }) &&
+                AdditionalXmlSettings.PassesForComponent("unknown").Length == 0,
+                "import lists only supported phases");
+            var chosen = new XmlComponentEntry { Component = "Microsoft-Windows-Setup", Pass = "windowsPE" };
+            string setupFragment = Path.Combine(directory.FullName, "setup.xml");
+            File.WriteAllText(setupFragment, "<Diagnostics><OptIn>false</OptIn></Diagnostics>");
+            var independent = AdditionalXmlSettings.ReadDraft(setupFragment, chosen);
+            Check(independent.Component == chosen.Component && independent.Pass == chosen.Pass && !independent.Enabled,
+                "import uses the chosen target without enabling the draft");
             var defaults = AdditionalXmlSettings.ReadDraft(path);
             Check(!defaults.Enabled && defaults.Component == "Microsoft-Windows-Shell-Setup" &&
                 defaults.Pass == "specialize" && defaults.Content == content, "UTF-16 draft with default target");
@@ -149,9 +159,28 @@ static class AdvancedXmlTests
                 draft.Content == content && selected.Enabled && selected.Content == AdditionalXmlSettings.Example,
                 "draft copies only the selected target and preserves the selected entry");
 
+            string savedPath = Path.Combine(directory.FullName, "saved.xml");
+            draft.Content = "<OEMInformation>\r\n  <SupportProvider>LOCAL-导入</SupportProvider>\r\n</OEMInformation>\r\n<ShowWindowsLive>false</ShowWindowsLive>\r\n";
+            AdditionalXmlSettings.WriteDraft(savedPath, draft);
+            var savedDraft = AdditionalXmlSettings.ReadDraft(savedPath, selected);
+            Check(File.ReadAllBytes(savedPath).SequenceEqual(Encoding.UTF8.GetBytes(draft.Content)) &&
+                savedDraft.Content == draft.Content && savedDraft.Pass == selected.Pass && !savedDraft.Enabled,
+                "saved UTF-8 fragment keeps text, line endings and sibling elements");
+            var invalidDraft = new XmlComponentEntry { Content = "<OEMInformation>" };
+            try
+            {
+                AdditionalXmlSettings.WriteDraft(savedPath, invalidDraft);
+                throw new Exception("Invalid XML should not overwrite a fragment file.");
+            }
+            catch (ConfigurationValidationException)
+            {
+                Check(File.ReadAllText(savedPath) == draft.Content && !draft.Enabled,
+                    "invalid XML leaves the saved fragment and draft state intact");
+            }
             var plan = QuickPresets.Create(QuickPresets.Minimal);
             var vm = new MainViewModel { Plan = plan };
             plan.ConfirmAdditionalXml = true;
+            draft.Content = content;
             plan.XmlComponents.Add(draft);
             Check(!plan.ConfirmAdditionalXml && !Encoding.UTF8.GetString(generator.Generate(plan)).Contains("LOCAL-导入"),
                 "adding a draft invalidates consent and keeps the fragment out of export");

@@ -2,6 +2,12 @@
 
 [Back to the README](README_EN.md) · [简体中文](CHANGELOG.md)
 
+## V1.45 Save XML fragments · 2026-11-13
+
+- Under **Custom scripts → Additional XML**, save the selected entry as a UTF-8 XML fragment for reuse in other plans.
+- The tool validates the fragment before saving and preserves its text and line endings.
+- Choose the component and pass when importing a fragment. The pass list shows only the options supported by the selected component. Imported drafts start disabled.
+
 ## V1.44 OEM support information · 2026-11-12
 
 - Enter a support name and website under **Custom scripts → Additional XML** to generate Windows `OEMInformation`. The support name is optional and the website requires a full HTTP or HTTPS URL.

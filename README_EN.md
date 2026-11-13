@@ -7,7 +7,7 @@
 
 UnattendLocal is a Windows desktop tool with Simplified Chinese and English interfaces based on [Christoph Schneegans’ UnattendGenerator](https://github.com/cschneegans/unattend-generator). It lets you edit, check, and generate `autounattend.xml` for Windows 10 / 11 locally.
 
-Current version: **V1.44**. When PE script installation is enabled, image selection switches to **By image index** and requires an index from the installation image; the regular Windows Setup path retains all image selection modes. Includes static IPv4/IPv6 dual stack, subnet-mask input, settings search, setup driver directories, Dynamic Update, partitioning, OOBE and account settings, and existing XML import/editing.
+Current version: **V1.45**. When PE script installation is enabled, image selection switches to **By image index** and requires an index from the installation image; the regular Windows Setup path retains all image selection modes. Includes static IPv4/IPv6 dual stack, subnet-mask input, settings search, setup driver directories, Dynamic Update, partitioning, OOBE and account settings, and existing XML import/editing.
 
 ## 💡 Why this project exists
 
@@ -58,16 +58,17 @@ The displayed product key is a public generic installation key for selecting an 
 - Save and restore JSON plans; review summaries, recommended-setting differences, checks, redacted previews, and XML exports.
 - Import existing XML and edit supported settings while preserving unknown content. Export stops with an explanation when changes cannot be merged reliably.
 
-## V1.44 OEM support information · 2026-11-12
+## V1.45 Save XML fragments · 2026-11-13
 
-- Enter a support name and website under **Custom scripts → Additional XML** to generate Windows `OEMInformation`. The support name is optional and the website requires a full HTTP or HTTPS URL.
-- Generated entries start disabled. Review, enable, and confirm the entry to include it in the `specialize` pass of the exported answer file.
+- Under **Custom scripts → Additional XML**, save the selected entry as a UTF-8 XML fragment for reuse in other plans.
+- The tool validates the fragment before saving and preserves its text and line endings.
+- Choose the component and pass when importing a fragment. The pass list shows only the options supported by the selected component. Imported drafts start disabled.
 
 [Version history](CHANGELOG_EN.md)
 
 ## 📦 Download and usage
 
-Download and run the matching Windows x64 executable from the repository’s [**Releases**](https://github.com/tigerJX95/UnattendLocal/releases/latest) page: `UnattendLocal_V1.44_x64_SelfContained.exe` or `UnattendLocal_V1.44_x64_FrameworkDependent.exe`. Choose `UnattendLocal_V1.44_x64_SelfContained.exe` for a bundled .NET runtime, or `UnattendLocal_V1.44_x64_FrameworkDependent.exe` if .NET 10 Desktop Runtime x64 is already installed. Both have the same features. Use a virtual machine for initial testing.
+Download and run the matching Windows x64 executable from the repository’s [**Releases**](https://github.com/tigerJX95/UnattendLocal/releases/latest) page: `UnattendLocal_V1.45_x64_SelfContained.exe` or `UnattendLocal_V1.45_x64_FrameworkDependent.exe`. Choose `UnattendLocal_V1.45_x64_SelfContained.exe` for a bundled .NET runtime, or `UnattendLocal_V1.45_x64_FrameworkDependent.exe` if .NET 10 Desktop Runtime x64 is already installed. Both have the same features. Use a virtual machine for initial testing.
 
 1. Choose a recommended scenario or a custom configuration and enter the required account and image settings.
 2. Adjust system, appearance, and application removal options as needed.

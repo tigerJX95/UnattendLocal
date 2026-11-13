@@ -2146,4 +2146,4 @@ count+=PeRecoveryTests.Run(g);Console.WriteLine($"V1.33 final total: {count} tes
 count+=SearchPrerequisiteTests.Run();Console.WriteLine($"V1.33 navigation fix total: {count} tests passed.");
 count+=SecurityAuditFixTests.CheckScriptMergeBudget();Console.WriteLine($"V1.38 final total: {count} tests passed.");
 
-count+=Ipv4NamingTests.Run(g);Console.WriteLine($"V1.44 final total: {count} tests passed.");
+count+=Ipv4NamingTests.Run(g);Console.WriteLine($"V1.45 final total: {count} tests passed.");
