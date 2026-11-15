@@ -7,7 +7,7 @@
 
 UnattendLocal 是基于 [Christoph Schneegans 的 UnattendGenerator](https://github.com/cschneegans/unattend-generator) 开发的 Windows 桌面配置工具，支持简体中文与英语界面，用于在本地编辑、检查和生成 Windows 10 / 11 的 `autounattend.xml`。
 
-当前版本：**V1.45**。启用 PE 脚本安装后会自动切换为“按镜像索引”，须自行填写安装镜像中的实际索引；普通 Windows Setup 仍支持原有全部镜像选择方式。支持简体中文 / English 即时切换、独立语言包维护、静态 IPv4 / IPv6 双栈、子网掩码输入、设置搜索、安装驱动目录、动态更新、自动分区、OOBE 与账户配置，以及已有 XML 的导入编辑。
+当前版本：**V1.46**。启用 PE 脚本安装后会自动切换为“按镜像索引”，须自行填写安装镜像中的实际索引；普通 Windows Setup 仍支持原有全部镜像选择方式。支持简体中文 / English 即时切换、独立语言包维护、静态 IPv4 / IPv6 双栈、子网掩码输入、设置搜索、安装驱动目录、动态更新、自动分区、OOBE 与账户配置，以及已有 XML 的导入编辑。
 
 ## 💡 开发初衷
 
@@ -56,22 +56,22 @@ UnattendLocal 是基于 [Christoph Schneegans 的 UnattendGenerator](https://git
 - 保存和恢复 JSON 方案，提供配置摘要、推荐差异、检查、脱敏预览和 XML 导出。
 - 导入已有 XML 后编辑已支持设置，保留未知内容；遇到无法可靠合并的修改时停止导出并说明原因。
 
-## V1.45 另存 XML 片段 · 2026-11-13
+## V1.46 复制与整理 XML 片段 · 2026-11-15
 
-- 在“自定义脚本 → 额外 XML”中，可将选中条目的内容另存为 UTF-8 XML 片段，便于在其他方案中导入复用。
-- 保存前检查片段结构，保留原有文本和换行。
-- 导入 XML 片段时可直接选择组件和执行阶段，阶段列表仅显示所选组件支持的选项。导入的草稿默认停用。
+- 在“自定义脚本 → 额外 XML”可复制选中的条目。副本保留组件、执行阶段和 XML 原文，并紧跟原条目。
+- 副本默认停用，可独立编辑。
+- 可上移或下移选中的 XML 片段，保存方案时保留列表顺序。复制或调整顺序后，导出已启用的额外 XML 前需重新核对确认。
 
 [历史版本](CHANGELOG.md)
 
 ## 📦 下载与使用
 
-从仓库的 [**Releases**](https://github.com/tigerJX95/UnattendLocal/releases/latest) 页面下载并直接运行对应的 `UnattendLocal_V1.45_x64_SelfContained.exe` 或 `UnattendLocal_V1.45_x64_FrameworkDependent.exe`：
+从仓库的 [**Releases**](https://github.com/tigerJX95/UnattendLocal/releases/latest) 页面下载并直接运行对应的 `UnattendLocal_V1.46_x64_SelfContained.exe` 或 `UnattendLocal_V1.46_x64_FrameworkDependent.exe`：
 
 | 程序文件 | 运行要求 |
 | --- | --- |
-| `UnattendLocal_V1.45_x64_SelfContained.exe` | 集成 .NET 运行时，无需单独安装；通常选择此版。 |
-| `UnattendLocal_V1.45_x64_FrameworkDependent.exe` | 文件较小，需安装 .NET 10 Desktop Runtime x64。 |
+| `UnattendLocal_V1.46_x64_SelfContained.exe` | 集成 .NET 运行时，无需单独安装；通常选择此版。 |
+| `UnattendLocal_V1.46_x64_FrameworkDependent.exe` | 文件较小，需安装 .NET 10 Desktop Runtime x64。 |
 
 两版功能相同。首次安装测试建议使用虚拟机。
 

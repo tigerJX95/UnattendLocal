@@ -20,6 +20,10 @@
 
 选中条目后，可通过“另存 XML 片段”保存其中的设置子元素。文件使用 UTF-8，保留文本和换行。导入时选择与原片段匹配的组件和阶段。
 
+在同一方案中复用时，选中条目并点击“复制 XML 片段”。副本紧跟原条目，保留组件、执行阶段和 XML 原文，默认停用。编辑后可使用“检查额外 XML”，再按需启用并确认。
+
+使用“上移 XML 片段”和“下移 XML 片段”整理列表，保存方案时会保留顺序。移动条目后，导出已启用的额外 XML 前需重新核对确认。
+
 新增条目默认停用。最多 15 项，每项最多 131,072 个字符、64 层和 2,048 个元素。允许标准 `wcm` 和 `xsi` 命名空间属性；禁止 DTD、外部实体、处理指令及其他元素命名空间。
 
 组件及其阶段来自当前固定的原作者目录。选用某阶段不会自动触发 Sysprep、审核模式或脱机维护。每个参数是否受目标 Windows 版本、版本类型和架构支持，仍需查阅微软文档并用目标镜像在 Windows SIM 中核对。
@@ -78,3 +82,7 @@ Preview redacts custom XML. JSON saved without sensitive content omits fragments
 Choose a file with **Import XML fragment**, then select the component and one of its supported passes. The dialog starts with the selected entry’s target, or `Microsoft-Windows-Shell-Setup` and `specialize` when no entry is selected. Confirm to add a disabled draft. Save the child elements as UTF-8 or BOM-marked UTF-16 or UTF-32, omitting the XML declaration and answer-file wrappers.
 
 Use **Save XML fragment as** to save the selected entry’s child settings as a UTF-8 fragment. The file preserves text and line endings. Select the matching component and pass when importing it into another plan.
+
+To reuse an entry within the same plan, select it and choose **Duplicate XML fragment**. The disabled copy appears immediately after the original with the same component, pass, and XML text. After editing, use **Check additional XML**, then enable and confirm the copy if needed.
+
+Use **Move XML fragment up** and **Move XML fragment down** to organize the list. Saving the plan preserves the order. After moving an entry, confirm the enabled additional XML again before exporting.

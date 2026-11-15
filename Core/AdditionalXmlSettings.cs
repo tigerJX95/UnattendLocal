@@ -68,6 +68,24 @@ public static class AdditionalXmlSettings
         AtomicFile.WriteAllText(path, row.Content, new System.Text.UTF8Encoding(false));
     }
 
+    public static XmlComponentEntry Duplicate(InstallPlan plan, XmlComponentEntry source)
+    {
+        int index = plan.XmlComponents.IndexOf(source);
+        if (index < 0)
+            throw new ArgumentException(UiText.Source("text.d9c31bccd272"));
+        if (plan.XmlComponents.Count >= MaxCount)
+            throw new ArgumentException(UiText.Source("text.e0be0678cd02"));
+
+        var draft = new XmlComponentEntry
+        {
+            Component = source.Component,
+            Pass = source.Pass,
+            Content = source.Content
+        };
+        plan.XmlComponents.Insert(index + 1, draft);
+        return draft;
+    }
+
     public static XmlComponentEntry CreateOemSupportDraft(string provider, string website)
     {
         if (provider.Length > 256 || provider.Any(char.IsControl))

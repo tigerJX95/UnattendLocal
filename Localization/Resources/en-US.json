@@ -4009,5 +4009,10 @@
   "xml.saveDraft": "Save XML fragment as",
   "xml.saveDraftHelp": "Save the selected child settings as a UTF-8 XML fragment for reuse in another plan.",
   "xml.draftSaved": "XML fragment saved.",
-  "xml.draftSaveFailed": "Could not save the XML fragment."
+  "xml.draftSaveFailed": "Could not save the XML fragment.",
+  "xml.duplicateDraft": "Duplicate XML fragment",
+  "xml.duplicateDraftHelp": "Copy the selected component, pass, and XML text. The copy starts disabled.",
+  "xml.draftDuplicated": "XML fragment duplicated. The copy starts disabled.",
+  "xml.moveDraftUp": "Move XML fragment up",
+  "xml.moveDraftDown": "Move XML fragment down"
 }

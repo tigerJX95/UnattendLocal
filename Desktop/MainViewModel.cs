@@ -53,11 +53,54 @@ public class MainViewModel : Observable {
  public AdditionalXmlSettings.PhaseChoice[] XmlComponentPasses=>AdditionalXmlSettings.Passes;
  private readonly HashSet<XmlComponentEntry> observedXmlComponents=new();
  private XmlComponentEntry? selectedXmlComponent;
- public XmlComponentEntry? SelectedXmlComponent {get=>selectedXmlComponent;set{Set(ref selectedXmlComponent,value);Notify(nameof(HasSelectedXmlComponent));}}
+ public XmlComponentEntry? SelectedXmlComponent
+ {
+  get => selectedXmlComponent;
+  set
+  {
+   if (ReferenceEquals(selectedXmlComponent, value)) return;
+   Set(ref selectedXmlComponent, value);
+   Notify(nameof(HasSelectedXmlComponent));
+   NotifyXmlComponentMove();
+  }
+ }
  public bool HasSelectedXmlComponent=>SelectedXmlComponent!=null;
+ private int SelectedXmlComponentIndex => SelectedXmlComponent is {} row ? Plan.XmlComponents.IndexOf(row) : -1;
+ public bool CanMoveXmlComponentUp => SelectedXmlComponentIndex > 0;
+ public bool CanMoveXmlComponentDown
+ {
+  get
+  {
+   int index = SelectedXmlComponentIndex;
+   return index >= 0 && index < Plan.XmlComponents.Count - 1;
+  }
+ }
+
+ private void NotifyXmlComponentMove()
+ {
+  Notify(nameof(CanMoveXmlComponentUp));
+  Notify(nameof(CanMoveXmlComponentDown));
+ }
+
+ public void MoveSelectedXmlComponent(bool up)
+ {
+  int index = SelectedXmlComponentIndex;
+  int target = up ? index - 1 : index + 1;
+  if (index < 0 || target < 0 || target >= Plan.XmlComponents.Count) return;
+
+  var row = Plan.XmlComponents[index];
+  Plan.XmlComponents.Move(index, target);
+  SelectedXmlComponent = row;
+ }
+ public void DuplicateSelectedXmlComponent()
+ {
+  if (SelectedXmlComponent is not {} source) return;
+  SelectedXmlComponent = AdditionalXmlSettings.Duplicate(Plan, source);
+  Status = global::UnattendLocal.Localization.UiText.Source("xml.draftDuplicated");
+ }
  private void ObserveXmlComponents(){foreach(var row in observedXmlComponents.Where(row=>!Plan.XmlComponents.Contains(row)).ToArray()){row.PropertyChanged-=XmlComponentChanged;observedXmlComponents.Remove(row);}foreach(var row in Plan.XmlComponents)if(observedXmlComponents.Add(row))row.PropertyChanged+=XmlComponentChanged;}
  private void XmlComponentChanged(object? sender,System.ComponentModel.PropertyChangedEventArgs e){if(e.PropertyName==nameof(XmlComponentEntry.Label))return;Plan.ClearDiskConsent();RefreshAll();InvalidatePreview();}
- private void XmlComponentsChanged(object? sender,System.Collections.Specialized.NotifyCollectionChangedEventArgs e){ObserveXmlComponents();if(SelectedXmlComponent==null||!Plan.XmlComponents.Contains(SelectedXmlComponent))SelectedXmlComponent=Plan.XmlComponents.FirstOrDefault();Plan.ClearDiskConsent();RefreshAll();InvalidatePreview();}
+ private void XmlComponentsChanged(object? sender,System.Collections.Specialized.NotifyCollectionChangedEventArgs e){ObserveXmlComponents();if(SelectedXmlComponent==null||!Plan.XmlComponents.Contains(SelectedXmlComponent))SelectedXmlComponent=Plan.XmlComponents.FirstOrDefault();NotifyXmlComponentMove();Plan.ClearDiskConsent();RefreshAll();InvalidatePreview();}
  private bool updating;
  public bool IsLoadingPlan {get;private set;}
  public InstallPlan Plan {get=>plan;set{
@@ -71,7 +114,7 @@ public class MainViewModel : Observable {
   plan.PropertyChanged-=HelpSettingChanged;plan.Users.CollectionChanged-=UsersChanged;
   foreach(var user in observedUsers)user.PropertyChanged-=HelpSettingChanged;observedUsers.Clear();
   Set(ref plan,value);plan.PropertyChanged+=HelpSettingChanged;plan.Users.CollectionChanged+=UsersChanged;
-  plan.XmlComponents.CollectionChanged+=XmlComponentsChanged;ObserveXmlComponents();SelectedXmlComponent=plan.XmlComponents.FirstOrDefault();
+  plan.XmlComponents.CollectionChanged+=XmlComponentsChanged;ObserveXmlComponents();SelectedXmlComponent=plan.XmlComponents.FirstOrDefault();NotifyXmlComponentMove();
   plan.Scripts.CollectionChanged+=ScriptsChanged;ObserveScripts();SelectedScript=plan.Scripts.FirstOrDefault();Notify(nameof(HasSelectedScript));
   ObserveUsers();SelectedUser=plan.Users.FirstOrDefault();RefreshAll();InvalidatePreview();
   }finally{IsLoadingPlan=false;}

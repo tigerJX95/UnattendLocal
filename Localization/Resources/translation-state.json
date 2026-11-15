@@ -4010,6 +4010,11 @@
     "xml.saveDraft": "9b32f875ff37fe9d27276a75530d2605564aa1d865f576c3dd2b1b7eb0205efb",
     "xml.saveDraftHelp": "bf41a30fe1eb8709e87079d317bccd523876830d85d6a4fea35e5b36d0ba8a84",
     "xml.draftSaved": "11961f358e8ecd18b8a8a6423573e3401af0c296a4e24f6063a2103c3099d8df",
-    "xml.draftSaveFailed": "007010b549cc682954a261fda5b496a116857bfe781095071f376a15baa6ccf1"
+    "xml.draftSaveFailed": "007010b549cc682954a261fda5b496a116857bfe781095071f376a15baa6ccf1",
+    "xml.duplicateDraft": "6e25aeda3c1c7ac852cffc181a35946604af93c62cfea02e98914eefbb4a3de4",
+    "xml.duplicateDraftHelp": "2b036d1b635a2e4ea02670f1769f7334a645847dcdfe44db0639de9cd14ead22",
+    "xml.draftDuplicated": "fc43ab2a357b2de672716a8245587062ccf6cf4decc73542d9c8640e480bd9b5",
+    "xml.moveDraftUp": "96fb9e78a689e99c7aaa97de083a67d77c9065d363e6485fd972acb3963402a9",
+    "xml.moveDraftDown": "b7dd1d1ef7d84b5d0fb52181b92c165607d3c7f2e538c42cf63c6452525ea1a6"
   }
 }

@@ -71,6 +71,13 @@ public partial class MainWindow : Window {
  private void Load(InstallPlan p){var previous=loading;loading=true;try{vm.Plan=p;vm.SelectedUser=p.Users.FirstOrDefault();WifiPassword.Password=p.WifiPassword;BuiltinAdministratorPassword.Password=p.BuiltinAdministratorPassword;vm.Preview=global::UnattendLocal.Localization.UiText.Source("text.752e25c039af");vm.Status=p.XmlComponents.Any(row=>row.Enabled&&string.IsNullOrWhiteSpace(row.Content))?global::UnattendLocal.Localization.UiText.Source("text.e3f69b9966a6"):p.Scripts.Any(row=>row.IsRemovedType)?global::UnattendLocal.Localization.UiText.Source("text.e3dd9f9604bc"):global::UnattendLocal.Localization.UiText.Source("text.c8e08c93e59a");}finally{loading=previous;}}
  private void AddXmlComponentClick(object s,RoutedEventArgs e)=>Run(()=>{if(vm.Plan.XmlComponents.Count>=AdditionalXmlSettings.MaxCount)throw new ArgumentException(global::UnattendLocal.Localization.UiText.Source("text.e0be0678cd02"));var row=new XmlComponentEntry();vm.Plan.XmlComponents.Add(row);vm.SelectedXmlComponent=row;});
  private void RemoveXmlComponentClick(object s,RoutedEventArgs e){if(vm.SelectedXmlComponent is {} row)vm.Plan.XmlComponents.Remove(row);}
+ private void DuplicateXmlComponentClick(object sender, RoutedEventArgs e) =>
+  Run(vm.DuplicateSelectedXmlComponent);
+ private void MoveXmlComponentClick(object sender, RoutedEventArgs e)
+ {
+  if (sender is Button { Tag: string direction })
+   vm.MoveSelectedXmlComponent(up: direction == "up");
+ }
  private void ImportXmlComponentClick(object sender, RoutedEventArgs e) => Run(() =>
  {
   if (vm.Plan.XmlComponents.Count >= AdditionalXmlSettings.MaxCount)
