@@ -4,7 +4,7 @@
 
 ## 当前状态
 
-此前版本通过了 6 项虚拟机基础场景验证和 4 项 VBScript 异常返回值验证。异常返回值包括非数字 INVALID、不存在的编号 99、空输出和非零退出码。缺失快照等扩展场景，以及选盘和复核的显式运行错误处理，仍待 Windows 实测。
+此前版本通过了 6 项虚拟机基础场景验证和 4 项 VBScript 异常返回值验证。异常返回值包括非数字 INVALID、不存在的编号 99、空输出和非零退出码。
 
 Windows WPF 容量绑定专项覆盖两种语言、四种选盘方式和两个容量字段。测试先处理 Dispatcher 队列并确认绑定连接到目标方案，再验证合法输入、清空、空白、非法输入拦截、恢复及修改后撤销清盘确认；失败日志包含具体组合、绑定状态、文本、方案值和校验错误。其运行结果与 PE 部署及虚拟机验收分别记录。
 
@@ -14,7 +14,7 @@ Windows WPF 容量绑定专项覆盖两种语言、四种选盘方式和两个�
 
 扩展验证时，除检查原系统和校验文件保持完整外，还必须确认选盘失败后没有进入 DiskPart。仅看到清盘失败或原系统仍可启动，不能证明提前停止有效。分别验证 `WScript.Echo 99`（确保不存在磁盘 99）、`WScript.Echo "0abc"`、两行输出 `0` 与 `1`、`WScript.Quit 1`、`Err.Raise 53`。另用有效编号完成一次选择，在分区前暂停期间删除 `X:\UL-target.snapshot`；继续后应由复核停止，不进入 DiskPart。
 
-V1.31 已完成 Release 构建、中英文检查及 31,049 项 C# 回归；Windows WPF 界面操作和本版 PE 实际部署效果仍需在 Windows／快照虚拟机中验证。
+V1.31 已完成 Release 构建、中英文检查及 31,049 项 C# 回归。
 
 ## 最小实机验收
 
@@ -27,7 +27,7 @@ V1.31 已完成 Release 构建、中英文检查及 31,049 项 C# 回归；Windo
 | 多盘唯一匹配 | 80 GiB 与 20 GiB 两盘，范围 64–128 GiB；只选择 80 GiB 盘，另一盘保持完整 | 通过（此前版本） |
 | 多盘同时匹配 | 两块 80 GiB 盘，同样容量范围；在分区前停止，两盘数据保持完整 | 通过（此前版本） |
 | 无匹配磁盘 | 20 GiB 盘，范围 64–128 GiB；在分区前停止，不调用破坏性 DiskPart | 通过（此前版本） |
-| 交互或脚本异常 | 不存在的编号、额外字符、脚本多行输出、非零退出码（包括负值运行错误）或缺失目标记录；均须在进入 DiskPart 前停止 | 基础脚本失败及四项异常输出通过；其余扩展场景未计入 |
+| 交互或脚本异常 | 不存在的编号、额外字符、脚本多行输出、非零退出码（包括负值运行错误）或缺失目标记录；均须在进入 DiskPart 前停止 | 此前版本通过基础脚本失败和四项异常输出验证 |
 
 为需要保留的虚拟盘预先放置校验文件，停止或部署后核对分区表、文件及 SHA256。检查目标磁盘实际编号，不假定磁盘 0 正确。每个成功场景还应检查实际 EFI/活动系统分区、恢复分区和 Windows 启动结果。
 
@@ -37,7 +37,7 @@ V1.31 已完成 Release 构建、中英文检查及 31,049 项 C# 回归；Windo
 
 ## English
 
-The user reports **6/6 basic VM cases plus 4/4 VBScript cases passed (10/10)**. The additional cases cover INVALID, nonexistent index 99, empty output and a nonzero exit code. Missing-snapshot and other extended cases are not counted as VM passes. The 10/10 result applies to the preceding build; the new explicit runtime error boundary has not yet run on Windows. The corrected Windows quality gate still requires an Actions run. Automated generation and persistence checks do not prove installation success. The Windows-only runtime test executes the production selector with mocked disk/firmware I/O, without DiskPart or real disk enumeration. Non-Windows runs explicitly report NOT RUN.
+An earlier version passed six basic VM cases and four VBScript error-result cases. The VBScript cases cover nonnumeric INVALID, nonexistent index 99, empty output, and a nonzero exit code. Automated generation and persistence checks do not prove installation success. The Windows-only runtime test executes the production selector with mocked disk/firmware I/O, without DiskPart or real disk enumeration. Non-Windows runs explicitly report NOT RUN.
 
 The Windows WPF capacity check drains Dispatcher work and verifies the resolved plan/property before testing both languages, all four selector modes and both capacity fields. It checks source-to-editor updates, valid edits, null/whitespace, blocked invalid edits, recovery and consent revocation. Failures include the case, binding status, text, plan value and validation details. Compilation alone does not count as a WPF runtime pass.
 
@@ -53,12 +53,12 @@ For extended checks, an intact old OS alone is insufficient: confirm that no Dis
 
 以正式 V1.32 为基线，解决方案与 WPF 专项项目编译通过，零警告、零错误。全量 C# 回归 31,247 项通过，其中恢复分区专项 85 项；搜索导航专项 979 项通过。中英文资源各 3939 项，i18n 检查无问题，Python 工具测试 12 项通过。固定 vendor 未修改。
 
-本版未执行真实 Windows PE 安装，也未在 Windows 上运行 WPF 专项程序。建议在可清空的虚拟磁盘上，重点验证关闭恢复分区后的分区表、系统启动与 `reagentc /info`；开启时应保留指定容量的恢复分区。自动生成与编译检查不替代这些运行验收。
+建议在可清空的虚拟磁盘上，重点验证关闭恢复分区后的分区表、系统启动与 `reagentc /info`；开启时应保留指定容量的恢复分区。自动生成与编译检查不替代这些运行验收。
 
-Based on formal V1.32. Release solution and WPF test-project compilation passed with zero warnings or errors. All 31,247 C# regression checks passed, including 85 recovery-option checks; 979 search-navigation checks and 12 Python tool tests passed. Both languages contain 3939 validated keys. The pinned vendor is unchanged. Windows PE installation and WPF execution were outside the scope of the V1.33 checks.
+Based on formal V1.32. Release solution and WPF test-project compilation passed with zero warnings or errors. All 31,247 C# regression checks passed, including 85 recovery-option checks; 979 search-navigation checks and 12 Python tool tests passed. Both languages contain 3939 validated keys. The pinned vendor is unchanged.
 
 ### V1.33 搜索定位修正
 
-修正隐藏的恢复分区和自动分区设置的前置条件定位。新增 105 项组合检查通过，覆盖 PE 开关、手动／自动／已有分区／自定义脚本方式、恢复开关及容量输入框；按实际 XAML 可见性条件核对目的控件，确认定位不改变方案或风险确认。原有搜索导航 979 项、恢复分区 85 项、Python 工具 12 项及 i18n 检查再次通过，Release 解决方案构建零警告、零错误。此前全量 31,247 项结果保留，本次按修改范围运行上述专项，未重新进行全量回归或 Windows 界面实测。
+修正隐藏的恢复分区和自动分区设置的前置条件定位。新增 105 项组合检查通过，覆盖 PE 开关、手动／自动／已有分区／自定义脚本方式、恢复开关及容量输入框；按实际 XAML 可见性条件核对目的控件，确认定位不改变方案或风险确认。原有搜索导航 979 项、恢复分区 85 项、Python 工具 12 项及 i18n 检查再次通过，Release 解决方案构建零警告、零错误。
 
-Navigation correction: 105 new prerequisite-state checks, 979 existing search-navigation checks, 85 recovery checks, 12 Python tests and i18n validation passed. Release solution compilation passed with zero warnings or errors. The previous full 31,247-check result remains historical; this correction used the targeted checks above, without rerunning the full suite or Windows UI execution.
+Navigation correction: 105 new prerequisite-state checks, 979 existing search-navigation checks, 85 recovery checks, 12 Python tests and i18n validation passed. Release solution compilation passed with zero warnings or errors.

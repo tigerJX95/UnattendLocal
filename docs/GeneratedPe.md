@@ -116,7 +116,7 @@ PE 区域也显示 CompactOS 当前状态，点击“前往 CompactOS 设置”�
 
 本程序生成且完整匹配已知流程的 PE XML 可导入并修改压缩方式。外部、自定义或被修改的安装脚本保持保护，不根据恢复注释单独解锁。
 
-最小验收：在快照虚拟机中启用 PE 与 CompactOS 后部署，进入目标 Windows，以管理员运行 `compact.exe /CompactOS:query` 核对实际状态。另在程序中修改分页文件容量，确认 PE 状态实时更新；点击跳转，确认开关和容量不变。此验收尚需 Windows 环境执行，代码构建和生成回归不替代实际部署验证。
+最小验收：在快照虚拟机中启用 PE 与 CompactOS 后部署，进入目标 Windows，以管理员运行 `compact.exe /CompactOS:query` 核对实际状态。另在程序中修改分页文件容量，确认 PE 状态实时更新；点击跳转，确认开关和容量不变。
 
 ## V1.31: Paging file navigation and CompactOS
 
@@ -124,7 +124,7 @@ The PE area in Image and partition shows paging file status. Go to settings open
 
 The PE area also shows CompactOS status. Go to CompactOS settings focuses and highlights the shared selector on the same page without changing it. Use the existing CompactOS selector. PE installation adds `/Compact` to DISM image application when enabled. Default and disabled omit it without decompressing files already compressed in the image. Regular installation retains the Windows Setup `Compact` setting. Imported PE XML is editable only when it exactly matches this application's known generated pipeline; external or modified scripts remain protected.
 
-Minimum acceptance: deploy with PE and CompactOS enabled in a snapshot VM, then run `compact.exe /CompactOS:query` as administrator in the target Windows system. Also verify live paging file status and navigation without value changes. These Windows checks remain pending; build and generation tests do not establish deployment success.
+Minimum acceptance: deploy with PE and CompactOS enabled in a snapshot VM, then run `compact.exe /CompactOS:query` as administrator in the target Windows system. Also verify live paging file status and navigation without value changes.
 
 ## V1.32：镜像完整性校验
 

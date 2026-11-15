@@ -4009,5 +4009,10 @@
   "xml.saveDraft": "另存 XML 片段",
   "xml.saveDraftHelp": "将选中的设置子元素保存为 UTF-8 XML 片段，可在其他方案中导入。",
   "xml.draftSaved": "已保存 XML 片段。",
-  "xml.draftSaveFailed": "保存 XML 片段失败。"
+  "xml.draftSaveFailed": "保存 XML 片段失败。",
+  "xml.duplicateDraft": "复制 XML 片段",
+  "xml.duplicateDraftHelp": "复制选中条目的组件、阶段和 XML 原文。副本默认停用。",
+  "xml.draftDuplicated": "已复制 XML 片段，副本默认停用。",
+  "xml.moveDraftUp": "上移 XML 片段",
+  "xml.moveDraftDown": "下移 XML 片段"
 }

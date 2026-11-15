@@ -2,6 +2,12 @@
 
 [Back to the README](README_EN.md) · [简体中文](CHANGELOG.md)
 
+## V1.46 Duplicate and reorder XML fragments · 2026-11-15
+
+- Under **Custom scripts → Additional XML**, duplicate the selected entry. The copy appears immediately after the original and retains its component, pass, and XML text.
+- The copy starts disabled and can be edited independently.
+- Move the selected XML fragment up or down. Saving the plan preserves the list order. After duplication or reordering, confirm the enabled additional XML again before exporting.
+
 ## V1.45 Save XML fragments · 2026-11-13
 
 - Under **Custom scripts → Additional XML**, save the selected entry as a UTF-8 XML fragment for reuse in other plans.

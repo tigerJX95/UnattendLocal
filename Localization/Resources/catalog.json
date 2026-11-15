@@ -37818,5 +37818,60 @@
     ],
     "RawArgs": [],
     "ProtectedTokens": []
+  },
+  "xml.duplicateDraft": {
+    "Source": "复制 XML 片段",
+    "SourceHash": "6e25aeda3c1c7ac852cffc181a35946604af93c62cfea02e98914eefbb4a3de4",
+    "Contexts": [
+      "Desktop/MainWindow.xaml"
+    ],
+    "RawArgs": [],
+    "ProtectedTokens": [
+      "XML"
+    ]
+  },
+  "xml.duplicateDraftHelp": {
+    "Source": "复制选中条目的组件、阶段和 XML 原文。副本默认停用。",
+    "SourceHash": "2b036d1b635a2e4ea02670f1769f7334a645847dcdfe44db0639de9cd14ead22",
+    "Contexts": [
+      "Desktop/MainWindow.xaml"
+    ],
+    "RawArgs": [],
+    "ProtectedTokens": [
+      "XML"
+    ]
+  },
+  "xml.draftDuplicated": {
+    "Source": "已复制 XML 片段，副本默认停用。",
+    "SourceHash": "fc43ab2a357b2de672716a8245587062ccf6cf4decc73542d9c8640e480bd9b5",
+    "Contexts": [
+      "Desktop/MainViewModel.cs"
+    ],
+    "RawArgs": [],
+    "ProtectedTokens": [
+      "XML"
+    ]
+  },
+  "xml.moveDraftUp": {
+    "Source": "上移 XML 片段",
+    "SourceHash": "96fb9e78a689e99c7aaa97de083a67d77c9065d363e6485fd972acb3963402a9",
+    "Contexts": [
+      "Desktop/MainWindow.xaml"
+    ],
+    "RawArgs": [],
+    "ProtectedTokens": [
+      "XML"
+    ]
+  },
+  "xml.moveDraftDown": {
+    "Source": "下移 XML 片段",
+    "SourceHash": "b7dd1d1ef7d84b5d0fb52181b92c165607d3c7f2e538c42cf63c6452525ea1a6",
+    "Contexts": [
+      "Desktop/MainWindow.xaml"
+    ],
+    "RawArgs": [],
+    "ProtectedTokens": [
+      "XML"
+    ]
   }
 }

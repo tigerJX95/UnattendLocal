@@ -122,6 +122,70 @@ static class AdvancedXmlTests
         Reject(()=>AdditionalXmlSettings.Parse(new XmlComponentEntry{Content="<RegisteredOwner>Duplicate editor</RegisteredOwner>"}),"managed native field cannot have two editors");
         Check(ConfigurationErrorLocation.FromField(nameof(InstallPlan.XmlComponents))?.Setting.Target=="AdditionalXmlSection","validation navigates to advanced editor");
         count += CheckDraftFiles(generator);
+        var copyPlan = QuickPresets.Create(QuickPresets.Minimal);
+        var copyVm = new MainViewModel { Plan = copyPlan };
+        copyVm.DuplicateSelectedXmlComponent();
+        Check(copyPlan.XmlComponents.Count == 0, "duplicate without a selection leaves the plan alone");
+        var source = new XmlComponentEntry
+        {
+            Enabled = true,
+            Pass = "offlineServicing",
+            Content = "<OEMInformation>\r\n<SupportProvider>Original</SupportProvider>\r\n</OEMInformation>\r\n"
+        };
+        copyPlan.XmlComponents.Add(source);
+        copyPlan.XmlComponents.Add(new XmlComponentEntry { Content = "<unfinished" });
+        copyVm.SelectedXmlComponent = source;
+        copyPlan.ConfirmAdditionalXml = true;
+        copyVm.DuplicateSelectedXmlComponent();
+        var copy = copyPlan.XmlComponents[1];
+        Check(copyPlan.XmlComponents.Count == 3 && ReferenceEquals(copyVm.SelectedXmlComponent, copy) &&
+            !ReferenceEquals(source, copy) && source.Enabled && !copy.Enabled &&
+            copy.Component == source.Component && copy.Pass == source.Pass && copy.Content == source.Content,
+            "duplicate creates and selects a disabled independent entry directly after the source");
+        Check(!copyPlan.ConfirmAdditionalXml, "duplicate invalidates XML consent");
+        copy.Content = copy.Content.Replace("Original", "Copy");
+        Check(source.Content.Contains("Original"), "edits to a duplicate leave its source unchanged");
+        copyPlan.ConfirmAdditionalXml = true;
+        var copyAnswer = XmlMerge.Read(Encoding.UTF8.GetString(generator.Generate(copyPlan)));
+        Check(copyAnswer.SelectSingleNode("//*[local-name()='SupportProvider']")?.InnerText == "Original" &&
+            copyAnswer.SelectNodes("//*[local-name()='SupportProvider']")!.Count == 1,
+            "disabled copy is excluded from the exported component");
+        copyVm.SelectedXmlComponent = copyPlan.XmlComponents[2];
+        copyVm.DuplicateSelectedXmlComponent();
+        Check(copyPlan.XmlComponents[3].Content == "<unfinished" && !copyPlan.XmlComponents[3].Enabled,
+            "unfinished content can be duplicated for editing");
+        while (copyPlan.XmlComponents.Count < AdditionalXmlSettings.MaxCount)
+            copyPlan.XmlComponents.Add(new XmlComponentEntry());
+        Reject(() => copyVm.DuplicateSelectedXmlComponent(), "duplicating at the fragment limit");
+        Check(copyPlan.XmlComponents.Count == AdditionalXmlSettings.MaxCount &&
+            ReferenceEquals(copyVm.SelectedXmlComponent, copyPlan.XmlComponents[3]),
+            "duplicate at the limit preserves the list and selection");
+
+        var orderPlan = QuickPresets.Create(QuickPresets.Minimal);
+        var orderVm = new MainViewModel { Plan = orderPlan };
+        Check(!orderVm.CanMoveXmlComponentUp && !orderVm.CanMoveXmlComponentDown,
+            "empty XML list has no move actions");
+        var first = new XmlComponentEntry { Content = "<OEMInformation/>", Enabled = true };
+        var second = new XmlComponentEntry { Content = "<ShowWindowsLive>false</ShowWindowsLive>" };
+        orderPlan.XmlComponents.Add(first);
+        orderPlan.XmlComponents.Add(second);
+        Check(ReferenceEquals(orderVm.SelectedXmlComponent, first) && !orderVm.CanMoveXmlComponentUp &&
+            orderVm.CanMoveXmlComponentDown, "first XML entry can only move down");
+        orderPlan.ConfirmAdditionalXml = true;
+        orderVm.MoveSelectedXmlComponent(up: true);
+        Check(orderPlan.ConfirmAdditionalXml && ReferenceEquals(orderPlan.XmlComponents[0], first),
+            "moving past the list boundary leaves the XML confirmation and order alone");
+        orderVm.MoveSelectedXmlComponent(up: false);
+        Check(orderPlan.XmlComponents.SequenceEqual(new[] { second, first }) && first.Enabled && !second.Enabled &&
+            ReferenceEquals(orderVm.SelectedXmlComponent, first) && orderVm.CanMoveXmlComponentUp &&
+            !orderVm.CanMoveXmlComponentDown && !orderPlan.ConfirmAdditionalXml,
+            "reordering XML keeps the selection and enabled states and clears confirmation");
+        var reopenedOrder = PlanStore.Deserialize(PlanStore.Serialize(orderPlan, includeSecrets: true));
+        Check(reopenedOrder.XmlComponents.Select(row => row.Content).SequenceEqual(new[] { second.Content, first.Content }),
+            "XML order survives saving and reopening the plan");
+        orderVm.MoveSelectedXmlComponent(up: true);
+        Check(orderPlan.XmlComponents.SequenceEqual(new[] { first, second }) &&
+            ReferenceEquals(orderVm.SelectedXmlComponent, first), "XML entry can be moved back up");
         return count;
     }
 
