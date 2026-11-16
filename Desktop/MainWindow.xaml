@@ -127,6 +127,11 @@
               </StackPanel>
             </DockPanel>
           </StackPanel></Border>
+          <Border Style="{StaticResource Card}">
+            <Button Content="{loc:Source plan.compare.open}" Click="ComparePlanClick" HorizontalAlignment="Left">
+              <Button.ToolTip><ToolTip ContentTemplate="{x:Null}" Content="{loc:Text plan.compare.help}" /></Button.ToolTip>
+            </Button>
+          </Border>
           <Border Style="{StaticResource Card}" Visibility="{Binding HasImportedXml,Converter={StaticResource VisibleWhen}}"><StackPanel x:Name="SettingAnchor000">
             <TextBlock Text="{loc:Text text.64b5adb43bcf}" FontSize="20" FontWeight="SemiBold" Margin="0,0,0,16"/>
             <TextBlock Text="{loc:Display Value={Binding XmlImportSummary}}" FontWeight="SemiBold" TextWrapping="Wrap"><TextBlock.Style><Style TargetType="TextBlock"><Setter Property="Foreground" Value="{DynamicResource ForegroundBrush}"/><Style.Triggers><DataTrigger Binding="{Binding HasXmlImportErrors}" Value="True"><Setter Property="Foreground" Value="{DynamicResource ErrorBrush}"/></DataTrigger></Style.Triggers></Style></TextBlock.Style></TextBlock>
@@ -650,7 +655,7 @@
             <Border Style="{StaticResource Card}">
               <StackPanel IsEnabled="{Binding IsAutomaticAccounts}">
                 <TextBlock x:Name="SettingAnchor071" Text="{loc:Text text.9e1c063ae8aa}" FontSize="20" FontWeight="SemiBold" Margin="0,0,0,16" ToolTip="{Binding DataContext.HelpTips[user],RelativeSource={RelativeSource AncestorType=Window}}" />
-                <ListBox x:Name="LocalUsersList" ItemsSource="{Binding Plan.Users}" SelectedItem="{Binding SelectedUser}" DisplayMemberPath="Name" MinHeight="90" MaxHeight="150" ToolTip="{Binding DataContext.HelpTips[user],RelativeSource={RelativeSource AncestorType=Window}}" />
+                <ListBox x:Name="LocalUsersList" Style="{StaticResource LocalAccountsListStyle}" ItemsSource="{Binding Plan.Users}" SelectedItem="{Binding SelectedUser}" DisplayMemberPath="Name" MinHeight="90" MaxHeight="150" ToolTip="{Binding DataContext.HelpTips[user],RelativeSource={RelativeSource AncestorType=Window}}" />
                 <StackPanel Orientation="Horizontal">
                   <Button x:Name="AddUserButton" Content="{loc:Source text.1d3c7c25917e}" Click="AddUser" />
                   <Button Content="{loc:Source text.b487f606a41e}" Click="RemoveUser" />

@@ -8,7 +8,11 @@ public static class InstallationReview
     private sealed class ReviewCache { public ReviewCache() {} internal string? Source, Baseline; internal Target? Value; }
     private static readonly System.Runtime.CompilerServices.ConditionalWeakTable<ImportedXml,ReviewCache> Cache = new();
     public record Target(string Description, bool MayNeedSelection);
-    public record ExportReview(string Target, AppControlSettings.PolicyReview? AppLocker);
+    public record ExportReview(string Target, AppControlSettings.PolicyReview? AppLocker, string Phases)
+    {
+        public string Describe() => global::UnattendLocal.Localization.UiText.Join("\n\n",
+            AppLocker is {} policy ? [Target, Phases, policy.Message] : new[] { Target, Phases });
+    }
     private static Target Unspecified => new(global::UnattendLocal.Localization.UiText.Source("text.551f5c31a0e6"), true);
     public static Target FromXml(XmlDocument doc)
     {
@@ -79,6 +83,7 @@ public static class InstallationReview
     public static ExportReview ForExport(byte[] bytes)
     {
         var doc = XmlMerge.Read(System.Text.Encoding.UTF8.GetString(bytes));
-        return new(FromXml(doc).Description, AppControlSettings.ReviewEmbeddedPolicy(doc));
+        var policy = AppControlSettings.ReviewEmbeddedPolicy(doc);
+        return new(FromXml(doc).Description, policy, DeploymentPhaseReview.Describe(doc, policy != null));
     }
 }

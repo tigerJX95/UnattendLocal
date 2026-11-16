@@ -2,6 +2,12 @@
 
 “检查与导出”页提供两种格式，并可选择应答文件名称。
 
+## 执行阶段核对 / Review by configuration phase
+
+预览和导出前的确认窗口会按实际生成的 XML 汇总有配置的执行阶段，并提示镜像、驱动、配置集、日志目录及脚本依赖。磁盘操作和 AppLocker 的核对在同一个确认窗口中显示。摘要不展开路径、命令或凭据，目标介质、驱动和脚本的实际可用性请在安装环境核对。
+
+Preview and the export confirmation summarize populated phases from the generated XML, including image, driver, configuration set, log directory, and script dependencies. The same dialog includes any disk operation and AppLocker warnings. Check media, paths, and scripts in the installation environment.
+
 ## 文件名称
 
 - 默认 `autounattend.xml`：放在安装介质根目录后，Windows 安装程序可能自动读取。

@@ -36,6 +36,8 @@ public class MainViewModel : Observable {
   if(!confirm()){Status=global::UnattendLocal.Localization.UiText.Source("text.5e736d1a599c");return false;}
   Plan=candidate;Status=global::UnattendLocal.Localization.UiText.Source("text.33c8b312a91e");return true;
  }
+ public IReadOnlyList<string> CompareSavedPlan(string json) =>
+  PlanComparison.FindChangedFields(Plan, PlanStore.Deserialize(json));
  public bool ImportXml(string xml,Func<bool> confirm){
   InstallPlan candidate;try{candidate=XmlPlanImport.Import(xml,Service);PlanFileImport.ValidateForDisplay(candidate);}catch{Status=global::UnattendLocal.Localization.UiText.Source("text.96325785aa0d");throw;}
   if(!confirm()){Status=global::UnattendLocal.Localization.UiText.Source("text.90c07a228f7e");return false;}
@@ -137,9 +139,7 @@ public class MainViewModel : Observable {
  public string Preview {get=>englishXmlPreview is null?global::UnattendLocal.Localization.UiText.Translate(preview):global::UnattendLocal.Localization.UiText.IsEnglish?englishXmlPreview:preview;set{englishXmlPreview=null;Set(ref preview,value);}}
  public InstallationReview.ExportReview ShowXmlPreview(byte[] bytes){
   var review=InstallationReview.ForExport(bytes);
-  var summary=review.AppLocker is {} policy
-   ?global::UnattendLocal.Localization.UiText.Join("\n\n",new[]{review.Target,policy.Message})
-   :review.Target;
+  var summary=review.Describe();
   preview=summary+"\n\n"+GeneratorService.Preview(bytes,Plan);
   englishXmlPreview=global::UnattendLocal.Localization.UiText.EnglishText(summary)+"\n\n"+GeneratorService.Preview(bytes,Plan,english:true);
   Notify(nameof(Preview));

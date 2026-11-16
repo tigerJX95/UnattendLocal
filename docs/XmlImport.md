@@ -1,5 +1,11 @@
 # XML 导入 / XML import
 
+## 对比已保存的 JSON 方案 / Compare a saved JSON plan
+
+在“配置方案”点击“对比已保存的方案”，选择一份 JSON。结果列出不同的设置，账户、脚本和额外 XML 按条目组显示。对比不会载入另一份方案，也不会披露字段值。保存时省略的内容可能造成差异，脚本和额外 XML 的顺序也参与比较。
+
+In Plans, choose Compare with a saved plan and select a JSON file. The result lists changed settings and groups such as accounts, scripts, and additional XML. Comparison leaves the current plan in place and only displays field names. Omitted content and changes in script or additional XML order can appear as differences.
+
 ## V1.12.1 配置处理与兼容性修复 · 2026-10-21
 
 - 补齐原生同步命令 Credentials/Password 的预览遮蔽，并明确自定义脚本敏感内容需自行核对；实际安装导出仍保留所需凭据。

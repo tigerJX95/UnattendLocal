@@ -1,11 +1,14 @@
 using System.Globalization;
+using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Markup;
+using System.Windows.Media;
 using System.Windows.Threading;
 using System.Xml.Linq;
 using UnattendLocal.Core;
 using UnattendLocal.Desktop;
+using UnattendLocal.Localization;
 
 internal static class Program
 {
@@ -89,5 +92,45 @@ internal static class Program
             DrainDispatcher();
         }
         Console.WriteLine($"Optional capacity WPF bindings: {checks} checks passed.");
+        CheckLocalAccountsListTheme();
+    }
+
+    private static void CheckLocalAccountsListTheme()
+    {
+        var app = new App();
+        app.InitializeComponent();
+        var window = new MainWindow();
+        try
+        {
+            var list = (ListBox)window.FindName("LocalUsersList");
+            var accountMode = (ComboBox)window.FindName("SettingAnchor070");
+            var pages = (TabControl)window.FindName("Pages");
+            pages.SelectedItem = pages.Items.OfType<TabItem>()
+                .Single(page => Equals(page.Header, UiText.Source("text.4e21977cff0f")));
+            var plan = ((MainViewModel)window.DataContext).Plan;
+            var automatic = UiText.Source("text.cdaa9a6700f6");
+            var modes = accountMode.Items.Cast<ComboBoxItem>().Select(item => (string)item.Content).ToArray();
+            foreach (var theme in new[] { "Dark", "Light", "Dark" })
+            {
+                UiTheme.Apply(theme, save: false);
+                foreach (var mode in modes)
+                {
+                    plan.AccountMode = mode;
+                    DrainDispatcher();
+                    list.ApplyTemplate();
+                    var border = list.Template.FindName("ListBorder", list) as Border;
+                    var inputBrush = (SolidColorBrush)app.FindResource("InputBrush");
+                    if (list.IsEnabled != (mode == automatic)
+                        || border?.Background is not SolidColorBrush background
+                        || background.Color != inputBrush.Color)
+                        throw new Exception($"{theme}/{mode}: the account list must use the current theme in both enabled and disabled states.");
+                }
+            }
+            Console.WriteLine("PASS local account list theme across account modes and theme switches.");
+        }
+        finally
+        {
+            window.Close();
+        }
     }
 }

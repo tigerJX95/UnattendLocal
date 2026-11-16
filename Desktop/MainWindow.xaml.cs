@@ -286,31 +286,56 @@ public partial class MainWindow : Window {
  });
  private void ExportClick(object s,RoutedEventArgs e)=>ExportAnswerFile(false);
  private void ExportIsoClick(object s,RoutedEventArgs e)=>ExportAnswerFile(true);
+ private void ComparePlanClick(object sender, RoutedEventArgs e) => Run(() =>
+ {
+  var dialog = new OpenFileDialog
+  {
+   Title = UiText.Get("plan.compare.title"),
+   Filter = UiText.Get("text.7fba054e9c5b")
+  };
+  if (dialog.ShowLocalized(this) != true) return;
+  if (PlanFileImport.Kind(dialog.FileName) != PlanFileKind.JsonPlan)
+   throw new ArgumentException(UiText.Source("plan.compare.jsonOnly"));
+
+  var fields = vm.CompareSavedPlan(PlanFileImport.Read(dialog.FileName));
+  var lines = new List<string>
+  {
+   fields.Count == 0 ? UiText.Source("plan.compare.equal") : UiText.Format("plan.compare.count", UiText.Arg(fields.Count)),
+   UiText.Source("plan.compare.scope")
+  };
+  foreach (string field in fields)
+  {
+   var location = ConfigurationErrorLocation.FromField(field);
+   var label = location?.Path ?? Recommendations.FindSettingLabel(field) ?? field;
+   lines.Add(UiText.Concat(["• ", label], [true, false]));
+  }
+  LocalizedMessageBox.Show(this, UiText.Join("\n", lines), UiText.Source("plan.compare.title"));
+ });
+
  private void ExportAnswerFile(bool iso) => Run(() =>
  {
   var bytes = Generate();
   var review = InstallationReview.ForExport(bytes);
   bool diskRisk = InstallationSettings.Destructive(vm.Plan) || vm.HasImportedXmlRisk;
-  var policy = review.AppLocker is { HasWarnings: true } warning ? warning.Message : null;
-  if (diskRisk || policy != null)
+  bool policyRisk = review.AppLocker?.HasWarnings == true;
+  var sections = new List<string>();
+  if (diskRisk)
   {
-   var sections = new List<string>();
-   if (diskRisk)
-   {
-    sections.Add(UiText.Concat([review.Target, "\n", InstallationSettings.DiskSummary(vm.Plan),
-     vm.HasImportedXmlRisk ? UiText.Source("text.c4357e3b2c27") : ""], [false, false, false, false]));
-    sections.Add(DiskSafety.Risk);
-    sections.Add(DiskSafety.Preparation);
-    sections.Add(DiskSafety.Responsibility);
-   }
-   if (policy != null) sections.Add(policy);
-   if (!diskRisk) sections.Add(UiText.Source("applocker.export.confirm"));
-   var message = UiText.Join("\n\n", sections);
-   if (diskRisk) message = UiText.Concat([message, UiText.Source("text.52007b38f82f")], [false, false]);
-   var caption = UiText.Source(diskRisk ? "text.74dff760c77e" : "applocker.review.title");
-   if (LocalizedMessageBox.Show(this, message, caption,
-     MessageBoxButton.YesNo, MessageBoxImage.Warning, MessageBoxResult.No) != MessageBoxResult.Yes) return;
+   sections.Add(UiText.Concat([review.Target, "\n", InstallationSettings.DiskSummary(vm.Plan),
+    vm.HasImportedXmlRisk ? UiText.Source("text.c4357e3b2c27") : ""], [false, false, false, false]));
+   sections.Add(DiskSafety.Risk);
+   sections.Add(DiskSafety.Preparation);
+   sections.Add(DiskSafety.Responsibility);
   }
+  else sections.Add(review.Target);
+  if (review.AppLocker is {} policy) sections.Add(policy.Message);
+  sections.Add(review.Phases);
+  sections.Add(UiText.Source(diskRisk ? "text.52007b38f82f" :
+   policyRisk ? "applocker.export.confirm" : "review.phases.confirm"));
+  var caption = UiText.Source(diskRisk ? "text.74dff760c77e" : "review.phases.title");
+  var image = diskRisk || policyRisk ? MessageBoxImage.Warning : MessageBoxImage.Question;
+  if (LocalizedMessageBox.Show(this, UiText.Join("\n\n", sections), caption,
+    MessageBoxButton.YesNo, image, MessageBoxResult.No) != MessageBoxResult.Yes) return;
 
   bool manual = vm.Plan.ExportNonAutomaticFilename;
   var dialog = new SaveFileDialog
