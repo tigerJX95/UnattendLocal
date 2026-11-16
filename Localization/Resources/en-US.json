@@ -4014,5 +4014,11 @@
   "xml.duplicateDraftHelp": "Copy the selected component, pass, and XML text. The copy starts disabled.",
   "xml.draftDuplicated": "XML fragment duplicated. The copy starts disabled.",
   "xml.moveDraftUp": "Move XML fragment up",
-  "xml.moveDraftDown": "Move XML fragment down"
+  "xml.moveDraftDown": "Move XML fragment down",
+  "script.import.title": "Import custom script files",
+  "script.import.added": "Imported {0} script file(s). New entries start disabled. Review the System phase and content before enabling them.",
+  "script.import.capacity": "The script list allows up to 60 entries. Select only as many files as there are free slots.",
+  "script.import.fileError": "Could not import the script file “{0}”. {1}",
+  "script.import.help": "Import one or more script files as disabled entries.",
+  "xml.editorPassHelp": "Only passes supported by the selected component are shown. If the field is blank, choose a pass."
 }

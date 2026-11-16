@@ -4015,6 +4015,12 @@
     "xml.duplicateDraftHelp": "2b036d1b635a2e4ea02670f1769f7334a645847dcdfe44db0639de9cd14ead22",
     "xml.draftDuplicated": "fc43ab2a357b2de672716a8245587062ccf6cf4decc73542d9c8640e480bd9b5",
     "xml.moveDraftUp": "96fb9e78a689e99c7aaa97de083a67d77c9065d363e6485fd972acb3963402a9",
-    "xml.moveDraftDown": "b7dd1d1ef7d84b5d0fb52181b92c165607d3c7f2e538c42cf63c6452525ea1a6"
+    "xml.moveDraftDown": "b7dd1d1ef7d84b5d0fb52181b92c165607d3c7f2e538c42cf63c6452525ea1a6",
+    "script.import.title": "4483f0ca81fd20d092363e2783c979485f04c673527f540dfd17c6f67525f46a",
+    "script.import.added": "96be17b8ef77258957c26f78e722043e3e87d25eb6cee6ee077dacc60521ce6b",
+    "script.import.capacity": "d003bf1b455dfed69fef19ee67503e535308c244ed47af7930a412112ff90c5e",
+    "script.import.fileError": "e3fa103856b09612254af765bfbba2ffb4f358e8624132045d7156e32f649501",
+    "script.import.help": "b3db98e0a4456a34f6929f3373857838f6f725d4ca88b740f72246834362a3af",
+    "xml.editorPassHelp": "bc6574f973ebf8dad2ecae01c67f0d77490dae94f38330ed1167825b308f830e"
   }
 }

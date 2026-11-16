@@ -37873,5 +37873,66 @@
     "ProtectedTokens": [
       "XML"
     ]
+  },
+  "script.import.title": {
+    "Source": "导入自定义脚本文件",
+    "SourceHash": "4483f0ca81fd20d092363e2783c979485f04c673527f540dfd17c6f67525f46a",
+    "Contexts": [
+      "Desktop/MainWindow.xaml.cs"
+    ],
+    "RawArgs": [],
+    "ProtectedTokens": []
+  },
+  "script.import.added": {
+    "Source": "已导入 {0} 个脚本文件。新条目默认停用，请核对 System 阶段和内容后再启用。",
+    "SourceHash": "96be17b8ef77258957c26f78e722043e3e87d25eb6cee6ee077dacc60521ce6b",
+    "Contexts": [
+      "Desktop/MainWindow.xaml.cs"
+    ],
+    "RawArgs": [
+      false
+    ],
+    "ProtectedTokens": [
+      "System"
+    ]
+  },
+  "script.import.capacity": {
+    "Source": "脚本总数最多 60 条。请选择能放入剩余位置的文件。",
+    "SourceHash": "d003bf1b455dfed69fef19ee67503e535308c244ed47af7930a412112ff90c5e",
+    "Contexts": [
+      "Core/ScriptFiles.cs"
+    ],
+    "RawArgs": [],
+    "ProtectedTokens": []
+  },
+  "script.import.fileError": {
+    "Source": "无法导入脚本文件“{0}”。{1}",
+    "SourceHash": "e3fa103856b09612254af765bfbba2ffb4f358e8624132045d7156e32f649501",
+    "Contexts": [
+      "Core/ScriptFiles.cs"
+    ],
+    "RawArgs": [
+      true,
+      false
+    ],
+    "ProtectedTokens": []
+  },
+  "script.import.help": {
+    "Source": "可同时导入多个脚本文件，新条目默认停用。",
+    "SourceHash": "b3db98e0a4456a34f6929f3373857838f6f725d4ca88b740f72246834362a3af",
+    "Contexts": [
+      "Desktop/MainWindow.xaml"
+    ],
+    "RawArgs": [],
+    "ProtectedTokens": []
+  },
+  "xml.editorPassHelp": {
+    "Source": "仅显示所选组件支持的执行阶段。若此处为空，请重新选择阶段。",
+    "SourceHash": "bc6574f973ebf8dad2ecae01c67f0d77490dae94f38330ed1167825b308f830e",
+    "Contexts": [
+      "Desktop/MainWindow.xaml"
+    ],
+    "RawArgs": [],
+    "ProtectedTokens": []
   }
 }

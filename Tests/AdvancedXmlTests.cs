@@ -122,6 +122,22 @@ static class AdvancedXmlTests
         Reject(()=>AdditionalXmlSettings.Parse(new XmlComponentEntry{Content="<RegisteredOwner>Duplicate editor</RegisteredOwner>"}),"managed native field cannot have two editors");
         Check(ConfigurationErrorLocation.FromField(nameof(InstallPlan.XmlComponents))?.Setting.Target=="AdditionalXmlSection","validation navigates to advanced editor");
         count += CheckDraftFiles(generator);
+        var phaseDraft = new XmlComponentEntry { Pass = "specialize" };
+        Check(phaseDraft.EditorPass == "specialize" &&
+            phaseDraft.AvailablePasses.Any(phase => phase.Id == "specialize"), "editor displays a supported saved pass");
+        phaseDraft.Component = "Microsoft-Windows-Setup";
+        Check(phaseDraft.AvailablePasses.Select(phase => phase.Id).SequenceEqual(new[] { "windowsPE" }) &&
+            phaseDraft.EditorPass == null && phaseDraft.Pass == "specialize", "changing component filters the editor without assigning a new pass");
+        phaseDraft.EditorPass = null;
+        phaseDraft.EditorPass = "oobeSystem";
+        Check(phaseDraft.Pass == "specialize", "editor ignores transient selection clears and unsupported passes");
+        phaseDraft.Content = "<Diagnostics><OptIn>false</OptIn></Diagnostics>";
+        Reject(() => AdditionalXmlSettings.Parse(phaseDraft), "incompatible pass still fails validation");
+        phaseDraft.EditorPass = "windowsPE";
+        Check(phaseDraft.Pass == "windowsPE" && AdditionalXmlSettings.Parse(phaseDraft).DocumentElement != null,
+            "an explicit supported editor selection updates the real draft");
+        phaseDraft.Component = "Microsoft-Windows-International-Core-WinPE";
+        Check(phaseDraft.EditorPass == "windowsPE", "switching between components retains a shared pass");
         var copyPlan = QuickPresets.Create(QuickPresets.Minimal);
         var copyVm = new MainViewModel { Plan = copyPlan };
         copyVm.DuplicateSelectedXmlComponent();

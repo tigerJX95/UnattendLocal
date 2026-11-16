@@ -11,7 +11,7 @@
 
 入口位于“自定义脚本”页下方，也可搜索“额外 XML”“OEMInformation”。
 
-1. 点击“添加 XML 组件”，选择组件和对应执行阶段。
+1. 点击“添加 XML 组件”，选择组件和对应执行阶段。编辑器的阶段列表仅显示该组件支持的选项。更换组件后，如果原阶段仍受支持就保留，否则请重新选择。
 2. 填写组件内部的设置子元素，不包含 `unattend`、`settings` 或 `component` 包装。
 3. 使用“检查额外 XML”检查片段结构，然后勾选启用及核对确认。
 4. 使用“检查与预览”核对与当前生成内容的重复项，最后导出 XML 或 ISO。
@@ -86,3 +86,5 @@ Use **Save XML fragment as** to save the selected entry’s child settings as a 
 To reuse an entry within the same plan, select it and choose **Duplicate XML fragment**. The disabled copy appears immediately after the original with the same component, pass, and XML text. After editing, use **Check additional XML**, then enable and confirm the copy if needed.
 
 Use **Move XML fragment up** and **Move XML fragment down** to organize the list. Saving the plan preserves the order. After moving an entry, confirm the enabled additional XML again before exporting.
+
+The editor lists only the passes supported by the selected component. Changing the component keeps a compatible pass. If the pass field becomes blank, choose a supported pass before enabling or exporting the entry.

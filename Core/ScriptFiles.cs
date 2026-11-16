@@ -44,6 +44,27 @@ public static class ScriptFiles {
   // Clone so callers cannot mutate the candidate after committing it.
   var row=new ScriptEntry{Name=candidate.Name,Enabled=false,Phase="System",Type=candidate.Type,Content=candidate.Content};plan.Scripts.Add(row);return row;
  }
+ public static IReadOnlyList<ScriptEntry> Import(InstallPlan plan, IReadOnlyList<string> paths)
+ {
+  if (paths.Count > 60 - plan.Scripts.Count)
+   throw new ArgumentException(global::UnattendLocal.Localization.UiText.Source("script.import.capacity"));
+
+  var drafts = new List<ScriptEntry>(paths.Count);
+  foreach (string path in paths)
+  {
+   try
+   {
+    drafts.Add(Read(path));
+   }
+   catch (Exception error) when (error is ArgumentException or IOException or UnauthorizedAccessException)
+   {
+    throw new ArgumentException(global::UnattendLocal.Localization.UiText.Format(
+     "script.import.fileError", Path.GetFileName(path), global::UnattendLocal.Localization.UiText.DescribeError(error)), error);
+   }
+  }
+  foreach (var draft in drafts) plan.Scripts.Add(draft);
+  return drafts;
+ }
  public static byte[] Encode(ScriptEntry row,string destination){
   if(TypeForFile(destination)!=row.Type)throw new ArgumentException(global::UnattendLocal.Localization.UiText.Source("text.320f87732423"));
   ValidateContent(row.Content);string text=row.Content;

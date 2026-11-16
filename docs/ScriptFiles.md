@@ -1,6 +1,6 @@
 # 自定义脚本文件
 
-导入支持 `.ps1`、`.cmd`、`.reg`、`.vbs`，按扩展名选择格式，每次在列表末尾新增一条默认停用的 System 脚本并选中。请自行调整执行阶段和核对内容，再明确启用。不根据脚本内容推断权限或阶段，不执行文件；原有条目和顺序保持。文件路径不会加入方案。
+导入支持同时选取多个 `.ps1`、`.cmd`、`.reg`、`.vbs` 文件。按扩展名识别格式，全部文件通过检查后在列表末尾添加默认停用的 System 脚本，并选中首个新条目。任何文件读取或校验失败时，原有列表保持完整，提示会指出出错文件。请核对内容并按需调整执行阶段后再启用。文件路径不会加入方案。
 
 支持严格 UTF-8（有无 BOM 均可）以及带 BOM 的 UTF-16 LE / BE。无 BOM 的文件只按 UTF-8 读取；不猜测 ANSI、GBK 或 UTF-16，不使用替换字符掩盖解码错误。UTF-32 暂不支持。单条限 2 Mi 字符（UTF-16 代码单元），读取上限 8 MiB，空白与 XML 非法字符拒绝。合法代理对字符可正常保存和生成 XML。总列表最多 60 条；同阶段最多启用 15 条的原有限制保持。
 
@@ -21,7 +21,7 @@
 
 ## English
 
-Import appends one disabled System-phase script, selected for review, based on the PS1/CMD/REG/VBS extension. It never infers a stage or executes the file. Existing entries remain intact, and source paths are not stored.
+Select one or more PS1, CMD, REG, or VBS files. Once every file passes validation, import appends disabled System-phase entries and selects the first new entry. If reading or validating a file fails, the message identifies the file and leaves the list intact. Review the content and adjust the pass before enabling an entry. Source paths are not stored.
 
 Supported encodings are strict UTF-8, with or without BOM, and BOM-marked UTF-16 LE/BE. Convert ANSI/GBK or UTF-32 first. Limits: 2 Mi UTF-16 code units per script, 8 MiB input, 60 total entries and 15 enabled scripts per stage. Invalid text is rejected before changing the list.
 

@@ -11,9 +11,39 @@ public class XmlComponentEntry : Observable
     private bool enabled;
     public bool Enabled { get => enabled; set { Set(ref enabled, value); Notify(nameof(Label)); } }
     private string component = "Microsoft-Windows-Shell-Setup";
-    public string Component { get => component; set { Set(ref component, value); Notify(nameof(Label)); } }
+    public string Component
+    {
+        get => component;
+        set
+        {
+            if (component == value) return;
+            Set(ref component, value);
+            Notify(nameof(AvailablePasses));
+            Notify(nameof(EditorPass));
+            Notify(nameof(Label));
+        }
+    }
     private string pass = "specialize";
-    public string Pass { get => pass; set { Set(ref pass, value); Notify(nameof(Label)); } }
+    public string Pass
+    {
+        get => pass;
+        set
+        {
+            if (pass == value) return;
+            Set(ref pass, value);
+            Notify(nameof(EditorPass));
+            Notify(nameof(Label));
+        }
+    }
+    [JsonIgnore] public AdditionalXmlSettings.PhaseChoice[] AvailablePasses => AdditionalXmlSettings.PassesForComponent(Component);
+    [JsonIgnore] public string? EditorPass
+    {
+        get => AdditionalXmlSettings.SupportsPass(Component, Pass) ? Pass : null;
+        set
+        {
+            if (AdditionalXmlSettings.SupportsPass(Component, value)) Pass = value!;
+        }
+    }
     private string content = "";
     public string Content { get => content; set => Set(ref content, value); }
     [JsonIgnore] public string Label => global::UnattendLocal.Localization.UiText.Concat(new object?[] { global::UnattendLocal.Localization.UiText.Concat(new object?[] { (Enabled ? global::UnattendLocal.Localization.UiText.Source("text.ffb37c8f4af0") : global::UnattendLocal.Localization.UiText.Source("text.2737a5a13905")), Pass },new bool[] { false, false }), " · ", Component },new bool[]{false,false,false});
@@ -31,6 +61,10 @@ public static class AdditionalXmlSettings
         name != null && Catalog.Value.Components.TryGetValue(name, out var component)
             ? Passes.Where(choice => component.Passes.Any(pass => pass.ToString() == choice.Id)).ToArray()
             : [];
+
+    internal static bool SupportsPass(string? name, string? phase) =>
+        name != null && Catalog.Value.Components.TryGetValue(name, out var component) &&
+        Enum.TryParse<Pass>(phase, out var pass) && phase == pass.ToString() && component.Passes.Contains(pass);
 
     // These fields are parsed by existing UI controls, including after a snapshot import.
     // Letting fragments own them would create two editors for one setting on re-import.
@@ -114,8 +148,7 @@ public static class AdditionalXmlSettings
 
     public static XmlDocument Parse(XmlComponentEntry row)
     {
-        if (!Catalog.Value.Components.TryGetValue(row.Component ?? "", out var component) ||
-            !Enum.TryParse<Pass>(row.Pass, out var pass) || !Enum.IsDefined(pass) || row.Pass != pass.ToString() || !component.Passes.Contains(pass))
+        if (!SupportsPass(row.Component, row.Pass))
             throw new ConfigurationValidationException(nameof(InstallPlan.XmlComponents), global::UnattendLocal.Localization.UiText.Source("text.88472f8d1d84"));
         if (string.IsNullOrWhiteSpace(row.Content) || row.Content.Length > MaxLength)
             throw new ConfigurationValidationException(nameof(InstallPlan.XmlComponents), global::UnattendLocal.Localization.UiText.Source("text.e2e5b70a48cc"));
