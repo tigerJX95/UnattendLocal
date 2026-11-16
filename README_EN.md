@@ -7,7 +7,7 @@
 
 UnattendLocal is a Windows desktop tool with Simplified Chinese and English interfaces based on [Christoph Schneegans’ UnattendGenerator](https://github.com/cschneegans/unattend-generator). It lets you edit, check, and generate `autounattend.xml` for Windows 10 / 11 locally.
 
-Current version: **V1.46**. When PE script installation is enabled, image selection switches to **By image index** and requires an index from the installation image; the regular Windows Setup path retains all image selection modes. Includes static IPv4/IPv6 dual stack, subnet-mask input, settings search, setup driver directories, Dynamic Update, partitioning, OOBE and account settings, and existing XML import/editing.
+Current version: **V1.47**. When PE script installation is enabled, image selection switches to **By image index** and requires an index from the installation image; the regular Windows Setup path retains all image selection modes. Includes static IPv4/IPv6 dual stack, subnet-mask input, settings search, setup driver directories, Dynamic Update, partitioning, OOBE and account settings, and existing XML import/editing.
 
 ## 💡 Why this project exists
 
@@ -58,17 +58,16 @@ The displayed product key is a public generic installation key for selecting an 
 - Save and restore JSON plans; review summaries, recommended-setting differences, checks, redacted previews, and XML exports.
 - Import existing XML and edit supported settings while preserving unknown content. Export stops with an explanation when changes cannot be merged reliably.
 
-## V1.46 Duplicate and reorder XML fragments · 2026-11-15
+## V1.47 Batch script import and XML pass filtering · 2026-11-16
 
-- Under **Custom scripts → Additional XML**, duplicate the selected entry. The copy appears immediately after the original and retains its component, pass, and XML text.
-- The copy starts disabled and can be edited independently.
-- Move the selected XML fragment up or down. Saving the plan preserves the list order. After duplication or reordering, confirm the enabled additional XML again before exporting.
+- Import multiple PS1, CMD, REG, or VBS files in Custom scripts. The app adds disabled entries after validating every file. If a file fails, the app identifies it and leaves the list intact.
+- The Additional XML editor shows only passes supported by the selected component. Changing components preserves a compatible pass and leaves the field blank when a new pass must be selected.
 
 [Version history](CHANGELOG_EN.md)
 
 ## 📦 Download and usage
 
-Download and run the matching Windows x64 executable from the repository’s [**Releases**](https://github.com/tigerJX95/UnattendLocal/releases/latest) page: `UnattendLocal_V1.46_x64_SelfContained.exe` or `UnattendLocal_V1.46_x64_FrameworkDependent.exe`. Choose `UnattendLocal_V1.46_x64_SelfContained.exe` for a bundled .NET runtime, or `UnattendLocal_V1.46_x64_FrameworkDependent.exe` if .NET 10 Desktop Runtime x64 is already installed. Both have the same features. Use a virtual machine for initial testing.
+Download and run the matching Windows x64 executable from the repository’s [**Releases**](https://github.com/tigerJX95/UnattendLocal/releases/latest) page: `UnattendLocal_V1.47_x64_SelfContained.exe` or `UnattendLocal_V1.47_x64_FrameworkDependent.exe`. Choose `UnattendLocal_V1.47_x64_SelfContained.exe` for a bundled .NET runtime, or `UnattendLocal_V1.47_x64_FrameworkDependent.exe` if .NET 10 Desktop Runtime x64 is already installed. Both have the same features. Use a virtual machine for initial testing.
 
 1. Choose a recommended scenario or a custom configuration and enter the required account and image settings.
 2. Adjust system, appearance, and application removal options as needed.

@@ -216,9 +216,10 @@ public partial class MainWindow : Window {
  });
  private void ImportScriptFileClick(object s,RoutedEventArgs e){
   try{
-   var d=new OpenFileDialog{Title=global::UnattendLocal.Localization.UiText.Translate(global::UnattendLocal.Localization.UiText.Source("text.c724ee9da759")),Filter=global::UnattendLocal.Localization.UiText.Translate(global::UnattendLocal.Localization.UiText.Source("text.2eacfaccc5f3")),Multiselect=false};
+   var d=new OpenFileDialog{Title=UiText.Get("script.import.title"),Filter=UiText.Get("text.2eacfaccc5f3"),Multiselect=true};
    if(d.ShowLocalized(this)!=true){vm.Status=global::UnattendLocal.Localization.UiText.Source("text.0686968bdaaa");return;}
-   _=vm.ImportScriptFile(d.FileName);vm.Status=global::UnattendLocal.Localization.UiText.Source("text.f9097577f961");
+   var drafts = vm.ImportScriptFiles(d.FileNames);
+   vm.Status = UiText.Format("script.import.added", UiText.Arg(drafts.Count));
   }
   catch(Exception error){vm.Status=global::UnattendLocal.Localization.UiText.Source("text.cfe65a0b90d3");ErrorDialog.Show(this,error,global::UnattendLocal.Localization.UiText.Source("text.18c5568b93d5"),importing:true);}
  }

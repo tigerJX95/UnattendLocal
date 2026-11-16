@@ -4014,5 +4014,11 @@
   "xml.duplicateDraftHelp": "复制选中条目的组件、阶段和 XML 原文。副本默认停用。",
   "xml.draftDuplicated": "已复制 XML 片段，副本默认停用。",
   "xml.moveDraftUp": "上移 XML 片段",
-  "xml.moveDraftDown": "下移 XML 片段"
+  "xml.moveDraftDown": "下移 XML 片段",
+  "script.import.title": "导入自定义脚本文件",
+  "script.import.added": "已导入 {0} 个脚本文件。新条目默认停用，请核对 System 阶段和内容后再启用。",
+  "script.import.capacity": "脚本总数最多 60 条。请选择能放入剩余位置的文件。",
+  "script.import.fileError": "无法导入脚本文件“{0}”。{1}",
+  "script.import.help": "可同时导入多个脚本文件，新条目默认停用。",
+  "xml.editorPassHelp": "仅显示所选组件支持的执行阶段。若此处为空，请重新选择阶段。"
 }

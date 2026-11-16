@@ -2,6 +2,11 @@
 
 [Back to the README](README_EN.md) · [简体中文](CHANGELOG.md)
 
+## V1.47 Batch script import and XML pass filtering · 2026-11-16
+
+- Import multiple PS1, CMD, REG, or VBS files in Custom scripts. The app adds disabled entries after validating every file. If a file fails, the app identifies it and leaves the list intact.
+- The Additional XML editor shows only passes supported by the selected component. Changing components preserves a compatible pass and leaves the field blank when a new pass must be selected.
+
 ## V1.46 Duplicate and reorder XML fragments · 2026-11-15
 
 - Under **Custom scripts → Additional XML**, duplicate the selected entry. The copy appears immediately after the original and retains its component, pass, and XML text.

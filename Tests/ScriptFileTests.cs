@@ -34,6 +34,30 @@ static class ScriptFileTests {
    var vm=new MainViewModel();var existing=new ScriptEntry{Phase="FirstLogon",Content="Write-Output 'existing'"};vm.Plan.Scripts.Add(existing);vm.SelectedScript=existing;vm.Preview="old preview";
    var imported=vm.ImportScriptFile(path);Check(vm.Plan.Scripts.Count==2&&ReferenceEquals(vm.Plan.Scripts[0],existing)&&ReferenceEquals(vm.SelectedScript,imported)&&imported.Content==content&&!imported.Enabled&&vm.HasSelectedScript,"file import appends and selects without replacing existing row");
    Check(vm.Preview!="old preview","file import invalidates generated preview");var candidate=ScriptFiles.Read(path);var added=ScriptFiles.Append(vm.Plan,candidate);candidate.Content="changed";Check(added.Content==content&&!ReferenceEquals(added,candidate),"committed entry independent of candidate");
+   string secondPath=Path.Combine(folder,"verify.cmd");
+   File.WriteAllText(secondPath,"echo test");
+   var batch=vm.ImportScriptFiles([secondPath,path]);
+   Check(batch.Select(row=>row.Type).SequenceEqual(new[]{"Cmd","Ps1"}) &&
+    vm.Plan.Scripts.TakeLast(2).SequenceEqual(batch) && ReferenceEquals(vm.SelectedScript,batch[0]) &&
+    batch.All(row=>!row.Enabled&&row.Phase=="System"),"batch preserves input order, selects the first and leaves drafts disabled");
+   var beforeBatch=vm.Plan.Scripts.ToArray();
+   vm.Preview="keep batch preview";
+   string missing=Path.Combine(folder,"missing.cmd");
+   try
+   {
+    vm.ImportScriptFiles([path,missing]);
+    throw new Exception("Expected invalid batch to fail");
+   }
+   catch(ArgumentException error)
+   {
+    Check(error.Message.Contains("missing.cmd") && vm.Plan.Scripts.SequenceEqual(beforeBatch) &&
+     ReferenceEquals(vm.SelectedScript,batch[0]) && vm.Preview=="keep batch preview",
+     "failed batch names the invalid file and leaves the plan untouched");
+   }
+   var nearlyFull=new MainViewModel();
+   for(int i=0;i<59;i++) nearlyFull.Plan.Scripts.Add(new ScriptEntry());
+   Reject(()=>nearlyFull.ImportScriptFiles([path,secondPath]),"batch exceeding available slots is rejected");
+   Check(nearlyFull.Plan.Scripts.Count==59,"over-capacity batch adds nothing");
    foreach(string invalid in new[]{"bad encoding","empty","missing","wrong extension"}){
     string bad=Path.Combine(folder,"bad"+(invalid=="wrong extension"?".js":".ps1"));if(invalid=="bad encoding")File.WriteAllBytes(bad,[0xff]);else if(invalid=="empty")File.WriteAllText(bad,"");else if(invalid=="wrong extension")File.WriteAllText(bad,"test");else File.Delete(bad);
     var before=vm.Plan.Scripts.ToArray();var selected=vm.SelectedScript;vm.Preview="keep preview";

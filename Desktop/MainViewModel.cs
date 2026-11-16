@@ -46,11 +46,16 @@ public class MainViewModel : Observable {
  private readonly HashSet<ScriptEntry> observedScripts=new();
  private ScriptEntry? selectedScript;public ScriptEntry? SelectedScript {get=>selectedScript;set{Set(ref selectedScript,value);Notify(nameof(HasSelectedScript));}}
  public bool HasSelectedScript=>SelectedScript!=null;
- public ScriptEntry ImportScriptFile(string path){var row=ScriptFiles.Append(Plan,ScriptFiles.Read(path));SelectedScript=row;return row;}
+ public ScriptEntry ImportScriptFile(string path) => ImportScriptFiles([path])[0];
+ public IReadOnlyList<ScriptEntry> ImportScriptFiles(IReadOnlyList<string> paths)
+ {
+  var drafts = ScriptFiles.Import(Plan, paths);
+  if (drafts.Count > 0) SelectedScript = drafts[0];
+  return drafts;
+ }
  private void ObserveScripts(){foreach(var row in observedScripts.Where(s=>!Plan.Scripts.Contains(s)).ToArray()){row.PropertyChanged-=HelpSettingChanged;observedScripts.Remove(row);}foreach(var row in Plan.Scripts)if(observedScripts.Add(row))row.PropertyChanged+=HelpSettingChanged;}
  private void ScriptsChanged(object? sender,System.Collections.Specialized.NotifyCollectionChangedEventArgs e){ObserveScripts();if(SelectedScript==null||!Plan.Scripts.Contains(SelectedScript))SelectedScript=Plan.Scripts.FirstOrDefault();Notify(nameof(HasSelectedScript));RefreshAll();InvalidatePreview();}
  public IReadOnlyList<string> XmlComponentNames=>AdditionalXmlSettings.Components;
- public AdditionalXmlSettings.PhaseChoice[] XmlComponentPasses=>AdditionalXmlSettings.Passes;
  private readonly HashSet<XmlComponentEntry> observedXmlComponents=new();
  private XmlComponentEntry? selectedXmlComponent;
  public XmlComponentEntry? SelectedXmlComponent
@@ -99,7 +104,13 @@ public class MainViewModel : Observable {
   Status = global::UnattendLocal.Localization.UiText.Source("xml.draftDuplicated");
  }
  private void ObserveXmlComponents(){foreach(var row in observedXmlComponents.Where(row=>!Plan.XmlComponents.Contains(row)).ToArray()){row.PropertyChanged-=XmlComponentChanged;observedXmlComponents.Remove(row);}foreach(var row in Plan.XmlComponents)if(observedXmlComponents.Add(row))row.PropertyChanged+=XmlComponentChanged;}
- private void XmlComponentChanged(object? sender,System.ComponentModel.PropertyChangedEventArgs e){if(e.PropertyName==nameof(XmlComponentEntry.Label))return;Plan.ClearDiskConsent();RefreshAll();InvalidatePreview();}
+ private void XmlComponentChanged(object? sender,System.ComponentModel.PropertyChangedEventArgs e)
+ {
+  if (e.PropertyName is nameof(XmlComponentEntry.Label) or nameof(XmlComponentEntry.AvailablePasses) or nameof(XmlComponentEntry.EditorPass)) return;
+  Plan.ClearDiskConsent();
+  RefreshAll();
+  InvalidatePreview();
+ }
  private void XmlComponentsChanged(object? sender,System.Collections.Specialized.NotifyCollectionChangedEventArgs e){ObserveXmlComponents();if(SelectedXmlComponent==null||!Plan.XmlComponents.Contains(SelectedXmlComponent))SelectedXmlComponent=Plan.XmlComponents.FirstOrDefault();NotifyXmlComponentMove();Plan.ClearDiskConsent();RefreshAll();InvalidatePreview();}
  private bool updating;
  public bool IsLoadingPlan {get;private set;}
