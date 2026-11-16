@@ -58,6 +58,7 @@ static class AppLockerReviewTests
         Check(export.AppLocker is { HasWarnings: true } && export.AppLocker.Message.Contains("强制"),
             "export review detects enforcement in generated XML");
         Check(export.Target == InstallationReview.ExportSummary(bytes), "export review preserves the installation target summary");
+        Check(export.Phases.Contains("包含 AppLocker"), "phase review identifies the embedded AppLocker policy");
 
         var model = new MainViewModel { Plan = plan };
         string language = UiText.Language;

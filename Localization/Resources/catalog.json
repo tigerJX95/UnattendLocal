@@ -37934,5 +37934,236 @@
     ],
     "RawArgs": [],
     "ProtectedTokens": []
+  },
+  "plan.compare.open": {
+    "Source": "对比已保存的方案",
+    "SourceHash": "68e5641e5642ffc9dd38dd42d131083ad2f3321d091a0d490a046fef62b1bbb1",
+    "Contexts": [
+      "Desktop/MainWindow.xaml"
+    ],
+    "RawArgs": [],
+    "ProtectedTokens": []
+  },
+  "plan.compare.help": {
+    "Source": "选择 JSON 方案，查看与当前配置不同的项目。",
+    "SourceHash": "6b690f84e2a99146f6c11cd8de9a382990ec94c258ce368c9303a83e81bc84bc",
+    "Contexts": [
+      "Desktop/MainWindow.xaml"
+    ],
+    "RawArgs": [],
+    "ProtectedTokens": []
+  },
+  "plan.compare.title": {
+    "Source": "方案对比",
+    "SourceHash": "8a5c769567bb2faf5e265c2559268280b973b708279049eda702b901e8ec09f5",
+    "Contexts": [
+      "Desktop/MainWindow.xaml.cs"
+    ],
+    "RawArgs": [],
+    "ProtectedTokens": []
+  },
+  "plan.compare.equal": {
+    "Source": "在对比范围内未发现差异。",
+    "SourceHash": "151392d6c57bdf4feedaf2c686d7290bc39345d51865b22a919745381d3279a3",
+    "Contexts": [
+      "Desktop/MainWindow.xaml.cs"
+    ],
+    "RawArgs": [],
+    "ProtectedTokens": []
+  },
+  "plan.compare.count": {
+    "Source": "发现 {0} 项配置差异。",
+    "SourceHash": "bad91317253a5bf57c2a8786cb3c8a00a77fb203ba3aa14d6edf7f5fdc40d192",
+    "Contexts": [
+      "Desktop/MainWindow.xaml.cs"
+    ],
+    "RawArgs": [
+      true
+    ],
+    "ProtectedTokens": []
+  },
+  "plan.compare.scope": {
+    "Source": "列表只显示不同的设置和条目组。保存时省略的内容也可能产生差异。",
+    "SourceHash": "eb4710d934d20f90404e4b6eb9a000f826a8c1c9cb1b1fa9bf5326a15e670d63",
+    "Contexts": [
+      "Desktop/MainWindow.xaml.cs"
+    ],
+    "RawArgs": [],
+    "ProtectedTokens": []
+  },
+  "plan.compare.jsonOnly": {
+    "Source": "请选择 JSON 配置方案。",
+    "SourceHash": "2f5dffbc687969e894ca42cbbc5446d29027a1620f7f64f361066ca87bd09e51",
+    "Contexts": [
+      "Desktop/MainWindow.xaml.cs"
+    ],
+    "RawArgs": [],
+    "ProtectedTokens": []
+  },
+  "review.phases.title": {
+    "Source": "按阶段核对应答文件",
+    "SourceHash": "e1a619468a1b6beca0672da2b5e8f4817d9604c95e100cf25bc11801f9c47896",
+    "Contexts": [
+      "Core/DeploymentPhaseReview.cs"
+    ],
+    "RawArgs": [],
+    "ProtectedTokens": []
+  },
+  "review.phases.row": {
+    "Source": "{0}（{1}） · {2} 个组件",
+    "SourceHash": "7462edb79dc4ad1716b56606b21fd0caacf256c82848e4c034293a3f086def1a",
+    "Contexts": [
+      "Core/DeploymentPhaseReview.cs"
+    ],
+    "RawArgs": [
+      true,
+      false,
+      true
+    ],
+    "ProtectedTokens": []
+  },
+  "review.phases.empty": {
+    "Source": "应答文件中没有带组件的已知执行阶段。",
+    "SourceHash": "00e810fbc8340cfb3c51df01fb2364371cfcbfd92b8c37f124f267e64c50a1af",
+    "Contexts": [
+      "Core/DeploymentPhaseReview.cs"
+    ],
+    "RawArgs": [],
+    "ProtectedTokens": []
+  },
+  "review.phases.scope": {
+    "Source": "摘要基于生成的应答文件。请在安装环境中核对介质、路径和脚本。",
+    "SourceHash": "683de4f20ea16d4ec44055fdf7f54d3ee3454f692b0591669feb32bf9477adf6",
+    "Contexts": [
+      "Core/DeploymentPhaseReview.cs"
+    ],
+    "RawArgs": [],
+    "ProtectedTokens": []
+  },
+  "review.phases.peScript": {
+    "Source": "PE 脚本部署：核对实际镜像和目标磁盘",
+    "SourceHash": "cceccbac48a0eeb4afde7b2be501575c4cf44e3c90051abe3735c0b5e709ce1b",
+    "Contexts": [
+      "Core/DeploymentPhaseReview.cs"
+    ],
+    "RawArgs": [],
+    "ProtectedTokens": []
+  },
+  "review.phases.disk": {
+    "Source": "磁盘分区或格式化配置",
+    "SourceHash": "28bd3d7ceb54cf161af67a6d371c772ba952faf6ff502f1eb6546fa2ef3fa7da",
+    "Contexts": [
+      "Core/DeploymentPhaseReview.cs"
+    ],
+    "RawArgs": [],
+    "ProtectedTokens": []
+  },
+  "review.phases.image": {
+    "Source": "指定镜像：与安装介质核对",
+    "SourceHash": "8587fba528d2b0f31eaa043361cf954da5b6013c36b7efa8d6be4f41254cea81",
+    "Contexts": [
+      "Core/DeploymentPhaseReview.cs"
+    ],
+    "RawArgs": [],
+    "ProtectedTokens": []
+  },
+  "review.phases.imagePath": {
+    "Source": "指定镜像路径：安装时需可访问",
+    "SourceHash": "5fba7b0c700b97301b1242908c624d151983b340b3b6f0dae16a948ef3ceb693",
+    "Contexts": [
+      "Core/DeploymentPhaseReview.cs"
+    ],
+    "RawArgs": [],
+    "ProtectedTokens": []
+  },
+  "review.phases.peDrivers": {
+    "Source": "PE 驱动路径：安装时需可访问",
+    "SourceHash": "121add03d049a6628f369668480dee6bac63c4e99f73b213bef05ff95b5fec8c",
+    "Contexts": [
+      "Core/DeploymentPhaseReview.cs"
+    ],
+    "RawArgs": [],
+    "ProtectedTokens": []
+  },
+  "review.phases.configurationSet": {
+    "Source": "启用配置集：准备对应介质文件",
+    "SourceHash": "1b0118592fe87718d777243ceb8766e7c0dea7808f8da17108368c0d7bc336cb",
+    "Contexts": [
+      "Core/DeploymentPhaseReview.cs"
+    ],
+    "RawArgs": [],
+    "ProtectedTokens": []
+  },
+  "review.phases.dynamicUpdate": {
+    "Source": "启用动态更新：安装时需要网络",
+    "SourceHash": "9c3f8f1d2a2b374ce7feb210d9afe673b721b202b5398a2383614af0bc8c8363",
+    "Contexts": [
+      "Core/DeploymentPhaseReview.cs"
+    ],
+    "RawArgs": [],
+    "ProtectedTokens": []
+  },
+  "review.phases.logPath": {
+    "Source": "指定安装日志目录：安装时需可写",
+    "SourceHash": "81cd098920e05e200b4df04b419f1709d49bd21597c8ef06ba5413d0eea44a27",
+    "Contexts": [
+      "Core/DeploymentPhaseReview.cs"
+    ],
+    "RawArgs": [],
+    "ProtectedTokens": []
+  },
+  "review.phases.offlineDrivers": {
+    "Source": "目标系统驱动路径：安装时需可访问",
+    "SourceHash": "3ea128065a2ef14c914184d3113b3dcfd05fb798f97355ed481a03cc4652ad86",
+    "Contexts": [
+      "Core/DeploymentPhaseReview.cs"
+    ],
+    "RawArgs": [],
+    "ProtectedTokens": []
+  },
+  "review.phases.commands": {
+    "Source": "同步命令：核对脚本和外部依赖",
+    "SourceHash": "f69bf735b266fd8633317c783b2cdcca1b95c559a09261325e0b9ec09c995bd4",
+    "Contexts": [
+      "Core/DeploymentPhaseReview.cs"
+    ],
+    "RawArgs": [],
+    "ProtectedTokens": []
+  },
+  "review.phases.appLocker": {
+    "Source": "包含 AppLocker，请核对策略摘要",
+    "SourceHash": "412221e13bc08495e9632fd21fc083683402a6fffa614bc66837d2abc2ee96c0",
+    "Contexts": [
+      "Core/DeploymentPhaseReview.cs"
+    ],
+    "RawArgs": [],
+    "ProtectedTokens": []
+  },
+  "review.phases.localAccounts": {
+    "Source": "创建本地账户",
+    "SourceHash": "8209cb2fa656659aedff376e18df711ff32cd2a66ea96df037133ae693fd9af2",
+    "Contexts": [
+      "Core/DeploymentPhaseReview.cs"
+    ],
+    "RawArgs": [],
+    "ProtectedTokens": []
+  },
+  "review.phases.firstLogon": {
+    "Source": "首次登录命令：核对脚本和外部依赖",
+    "SourceHash": "11ae5244dbe5df033e5404c77de2a1091cc6ea928aec92fff8488c5aa21aff2d",
+    "Contexts": [
+      "Core/DeploymentPhaseReview.cs"
+    ],
+    "RawArgs": [],
+    "ProtectedTokens": []
+  },
+  "review.phases.confirm": {
+    "Source": "核对这些配置后继续导出？",
+    "SourceHash": "c2ca47015ba49a652db0a3875ff5387f575badceb7179186cbe763ab0d0cd10c",
+    "Contexts": [
+      "Desktop/MainWindow.xaml.cs"
+    ],
+    "RawArgs": [],
+    "ProtectedTokens": []
   }
 }

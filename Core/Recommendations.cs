@@ -58,7 +58,8 @@ public static class Recommendations {
   [nameof(InstallPlan.DesktopIconsMode)]=global::UnattendLocal.Localization.UiText.Source("text.d49ecddf530b"),[nameof(InstallPlan.StartFoldersMode)]=global::UnattendLocal.Localization.UiText.Source("text.aee448a5470c"),[nameof(InstallPlan.DeleteEdgeDesktopIcon)]=global::UnattendLocal.Localization.UiText.Source("text.d694db6e8c6a"),
   [nameof(InstallPlan.TimeZoneMode)]=global::UnattendLocal.Localization.UiText.Source("text.aa45e3c019c1"),[nameof(InstallPlan.InteractiveLanguage)]=global::UnattendLocal.Localization.UiText.Source("text.3360ef1a389c")};
  public static bool Known(string id)=>id is "wired" or "wifi";
- internal static string SettingLabel(string property)=>Fields.GetValueOrDefault(property,global::UnattendLocal.Localization.UiText.Source("text.21e969066e46"));
+ public static string? FindSettingLabel(string property) => Fields.GetValueOrDefault(property);
+ internal static string SettingLabel(string property) => FindSettingLabel(property) ?? global::UnattendLocal.Localization.UiText.Source("text.21e969066e46");
  public static string Name(string id)=>id=="wifi"?global::UnattendLocal.Localization.UiText.Source("text.c9bdb5792a47"):global::UnattendLocal.Localization.UiText.Source("text.4015da7497ad");
  private static InstallPlan Baseline(string id,string windows,bool preventDeviceEncryption=false){
   if(!Known(id))throw new ArgumentException(global::UnattendLocal.Localization.UiText.Source("text.9da014724757"));

@@ -156,6 +156,19 @@
     <Style.Triggers><Trigger Property="IsHighlighted" Value="True"><Setter Property="Background" Value="{DynamicResource HoverBrush}"/></Trigger><Trigger Property="IsSelected" Value="True"><Setter Property="Background" Value="{DynamicResource AccentTintBrush}"/><Setter Property="Foreground" Value="{DynamicResource AccentTextBrush}"/></Trigger><Trigger Property="IsEnabled" Value="False"><Setter Property="Foreground" Value="{DynamicResource DisabledBrush}"/></Trigger></Style.Triggers>
   </Style>
   <Style TargetType="ListBox"><Setter Property="Background" Value="{DynamicResource InputBrush}"/><Setter Property="Foreground" Value="{DynamicResource ForegroundBrush}"/><Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}"/></Style>
+  <Style x:Key="LocalAccountsListStyle" TargetType="ListBox" BasedOn="{StaticResource {x:Type ListBox}}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="ListBox">
+          <Border x:Name="ListBorder" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}">
+            <ScrollViewer Focusable="False" Padding="{TemplateBinding Padding}">
+              <ItemsPresenter SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}"/>
+            </ScrollViewer>
+          </Border>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
 
   <Style TargetType="TabControl">
     <Setter Property="Background" Value="{DynamicResource CanvasBrush}"/>
