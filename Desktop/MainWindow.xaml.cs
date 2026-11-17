@@ -131,6 +131,19 @@ public partial class MainWindow : Window {
   OemSupportForm.IsExpanded = false;
   vm.Status = UiText.Source("xml.oem.added");
  });
+ private void AddOfflineDriverClick(object sender, RoutedEventArgs e) => Run(() =>
+ {
+  if (vm.Plan.XmlComponents.Count >= AdditionalXmlSettings.MaxCount)
+   throw new ArgumentException(UiText.Source("text.e0be0678cd02"));
+  var draft = AdditionalXmlSettings.CreateOfflineDriverDraft(OfflineDriverPaths.Text);
+  vm.Plan.XmlComponents.Add(draft);
+  vm.SelectedXmlComponent = draft;
+  OfflineDriverPaths.Clear();
+  OfflineDriverForm.IsExpanded = false;
+  vm.Status = UiText.Source("xml.offlineDrivers.added");
+ });
+ private void SetupLogsClick(object sender, RoutedEventArgs e) =>
+  Run(() => new SetupLogWindow { Owner = this }.ShowDialog());
  private void CheckXmlComponentClick(object s,RoutedEventArgs e)=>Run(()=>{if(vm.SelectedXmlComponent is not {} row)throw new ArgumentException(global::UnattendLocal.Localization.UiText.Source("text.d9c31bccd272"));_=AdditionalXmlSettings.Parse(row);vm.Status=global::UnattendLocal.Localization.UiText.Source("text.57e53e8bea9e");});
  private void QuickPresetClick(object s,RoutedEventArgs e){
   if(s is not Button {Tag:string kind})return;

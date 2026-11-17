@@ -1,4 +1,5 @@
 using UnattendLocal.Core;
+using UnattendLocal.Localization;
 namespace UnattendLocal.Desktop;
 // Static labels only. Anchors correspond to named controls in MainWindow.xaml.
 public record SettingSearchResult(string Title, string Page, int PageIndex, string Target, string HelpId, string Aliases, string Description = "", string AppId = "")
@@ -272,6 +273,8 @@ public static class SettingsSearchCatalog
         new(global::UnattendLocal.Localization.UiText.Source("text.076e1ec9293b"), global::UnattendLocal.Localization.UiText.Source("text.2f8dd7280e0a"), 13, "SaveScriptFileButton", "scriptfiles", global::UnattendLocal.Localization.UiText.Source("text.e5bdde66309d")),
         new(global::UnattendLocal.Localization.UiText.Source("text.79f6bbb2a4b8"), global::UnattendLocal.Localization.UiText.Source("text.2f8dd7280e0a"), 13, "SettingAnchor231", "customscripts", global::UnattendLocal.Localization.UiText.Source("text.7470daa5a767")),
         new(global::UnattendLocal.Localization.UiText.Source("text.e581099b978e"), global::UnattendLocal.Localization.UiText.Source("text.2f8dd7280e0a"), 13, "SettingAnchor232", "", "RestartExplorerAfterScripts Restart Explorer After Scripts  "),
+        new(UiText.Source("xml.offlineDrivers.form"), UiText.Source("text.2f8dd7280e0a"), 13, "OfflineDriverForm", "", "offlineServicing DriverPaths PnpCustomizationsNonWinPE INF", UiText.Source("xml.offlineDrivers.help")),
+        new(UiText.Source("setupLogs.open"), UiText.Source("text.3228ab6ef3f1"), 14, "SetupLogsButton", "", "Panther setupact setuperr SetupAPI CBS", UiText.Source("setupLogs.hint")),
         new(global::UnattendLocal.Localization.UiText.Source("text.a78cc04ad5db"), global::UnattendLocal.Localization.UiText.Source("text.3228ab6ef3f1"), 14, "ExportManualFilename", "exportfilename", global::UnattendLocal.Localization.UiText.Source("text.18646a49a105")),
         new(global::UnattendLocal.Localization.UiText.Source("text.c6c90fe1aedd"), global::UnattendLocal.Localization.UiText.Source("text.3228ab6ef3f1"), 14, "ExportIsoButton", "exportiso", global::UnattendLocal.Localization.UiText.Source("text.7e8b1403f3e1")),
         new(global::UnattendLocal.Localization.UiText.Source("text.3228ab6ef3f1"), global::UnattendLocal.Localization.UiText.Source("text.3228ab6ef3f1"), 14, "SettingAnchor233", "", "   "),

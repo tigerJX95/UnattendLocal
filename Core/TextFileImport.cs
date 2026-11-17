@@ -20,20 +20,27 @@ public static class TextFileImport
             if (bytes.Length + read > maxBytes) throw new ArgumentException(sizeError);
             bytes.Write(buffer, 0, read);
         }
-        return Decode(bytes.GetBuffer().AsSpan(0, (int)bytes.Length));
+        var data = bytes.GetBuffer().AsSpan(0, (int)bytes.Length);
+        var encoding = DetectEncoding(data, out int skip);
+        return Decode(data[skip..], encoding);
     }
 
-    private static string Decode(ReadOnlySpan<byte> bytes)
+    internal static Encoding DetectEncoding(ReadOnlySpan<byte> bytes, out int skip)
     {
         Encoding encoding = new UTF8Encoding(false, true);
-        int skip = 0;
+        skip = 0;
         // UTF-32 LE must be checked before UTF-16 LE (same first two bytes).
         if (bytes.StartsWith(new byte[] { 0xff, 0xfe, 0, 0 })) { encoding = new UTF32Encoding(false, true, true); skip = 4; }
         else if (bytes.StartsWith(new byte[] { 0, 0, 0xfe, 0xff })) { encoding = new UTF32Encoding(true, true, true); skip = 4; }
         else if (bytes.StartsWith(new byte[] { 0xef, 0xbb, 0xbf })) skip = 3;
         else if (bytes.StartsWith(new byte[] { 0xff, 0xfe })) { encoding = new UnicodeEncoding(false, true, true); skip = 2; }
         else if (bytes.StartsWith(new byte[] { 0xfe, 0xff })) { encoding = new UnicodeEncoding(true, true, true); skip = 2; }
-        try { return encoding.GetString(bytes[skip..]); }
+        return encoding;
+    }
+
+    internal static string Decode(ReadOnlySpan<byte> bytes, Encoding encoding)
+    {
+        try { return encoding.GetString(bytes); }
         catch (DecoderFallbackException)
         {
             throw new ArgumentException(global::UnattendLocal.Localization.UiText.Source("text.9bebc69aa3a9"));

@@ -1,4 +1,5 @@
 using System.Text.Json.Serialization;
+using System.Globalization;
 using System.Xml;
 using System.Xml.Linq;
 using Schneegans.Unattend;
@@ -144,6 +145,24 @@ public static class AdditionalXmlSettings
             element.Add(new XElement("SupportProvider", provider.Trim()));
         element.Add(new XElement("SupportURL", website));
         return new XmlComponentEntry { Content = element.ToString() };
+    }
+
+    public static XmlComponentEntry CreateOfflineDriverDraft(string paths)
+    {
+        XNamespace wcm = "http://schemas.microsoft.com/WMIConfig/2002/State";
+        var directories = SetupDriverSettings.ReadPaths(paths);
+        var elements = new XElement("DriverPaths",
+            new XAttribute(XNamespace.Xmlns + "wcm", wcm.NamespaceName),
+            directories.Select((path, index) => new XElement("PathAndCredentials",
+                new XAttribute(wcm + "action", "add"),
+                new XAttribute(wcm + "keyValue", (index + 1).ToString(CultureInfo.InvariantCulture)),
+                new XElement("Path", path))));
+        return new XmlComponentEntry
+        {
+            Component = "Microsoft-Windows-PnpCustomizationsNonWinPE",
+            Pass = "offlineServicing",
+            Content = elements.ToString()
+        };
     }
 
     public static XmlDocument Parse(XmlComponentEntry row)

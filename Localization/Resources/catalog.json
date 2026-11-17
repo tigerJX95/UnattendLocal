@@ -38165,5 +38165,170 @@
     ],
     "RawArgs": [],
     "ProtectedTokens": []
+  },
+  "xml.offlineDrivers.form": {
+    "Source": "离线驱动目录",
+    "SourceHash": "91cf0bd7a439b6d207cf633f89c7285dfa52b0b1947de13fcdb152f5b9043b38",
+    "Contexts": [
+      "Desktop/MainWindow.xaml"
+    ],
+    "RawArgs": [],
+    "ProtectedTokens": []
+  },
+  "xml.offlineDrivers.help": {
+    "Source": "为常规 Windows Setup 生成 offlineServicing 阶段的驱动目录草稿。添加后请在额外 XML 列表中选择启用。目录须在安装时可访问，并包含已解压的 INF 驱动包。此设置适用于目标 Windows 的驱动，启动或识别安装磁盘所需的驱动请配置 windowsPE 安装驱动目录。PE 脚本安装不使用此草稿。",
+    "SourceHash": "dceb0f47add20e844c13efc9f4010c7c6dc8dd00955f1b0e9a3ebccd5b62f35c",
+    "Contexts": [
+      "Desktop/MainWindow.xaml"
+    ],
+    "RawArgs": [],
+    "ProtectedTokens": []
+  },
+  "xml.offlineDrivers.paths": {
+    "Source": "每行一个目录，最多 8 个",
+    "SourceHash": "2b8fd9d018b1f271580d9c1f68a4f360782cc78f704eb96810ef3982a00c9fc1",
+    "Contexts": [
+      "Desktop/MainWindow.xaml"
+    ],
+    "RawArgs": [],
+    "ProtectedTokens": []
+  },
+  "xml.offlineDrivers.add": {
+    "Source": "添加驱动目录草稿",
+    "SourceHash": "89cec639672ff6198af110a7f123d529794acd3c85371893f836afd15a20d5ef",
+    "Contexts": [
+      "Desktop/MainWindow.xaml"
+    ],
+    "RawArgs": [],
+    "ProtectedTokens": []
+  },
+  "xml.offlineDrivers.added": {
+    "Source": "已添加停用的离线驱动目录草稿。",
+    "SourceHash": "9cbe6caa5db46aa69c2ccf962cac3c17595e7f4eba4bbbbfeaccd40f149795ba",
+    "Contexts": [
+      "Desktop/MainWindow.xaml.cs"
+    ],
+    "RawArgs": [],
+    "ProtectedTokens": []
+  },
+  "setupLogs.open": {
+    "Source": "查看安装日志",
+    "SourceHash": "354c05d5648222600ad0e9ff1406575ec301a6461aad1d8422b2fd5158de3525",
+    "Contexts": [
+      "Desktop/MainWindow.xaml"
+    ],
+    "RawArgs": [],
+    "ProtectedTokens": []
+  },
+  "setupLogs.title": {
+    "Source": "Windows 安装日志",
+    "SourceHash": "cffc436d95f18cfe02bbf94aa1f9631885a69cfb29982030ecb5012254355751",
+    "Contexts": [
+      "Desktop/SetupLogWindow.xaml"
+    ],
+    "RawArgs": [],
+    "ProtectedTokens": []
+  },
+  "setupLogs.choose": {
+    "Source": "打开日志文件",
+    "SourceHash": "80d2d8145a503816b88c2bcfe7020fe7fc587405e3940b01800a3516a95dde3c",
+    "Contexts": [
+      "Desktop/SetupLogWindow.xaml"
+    ],
+    "RawArgs": [],
+    "ProtectedTokens": []
+  },
+  "setupLogs.hint": {
+    "Source": "选择 Windows Setup、SetupAPI 或无人值守组件服务日志。在此窗口中可按关键词筛选行。",
+    "SourceHash": "6126112c8660839bdc80851ed7dfc1df00b7190dc5ebfb8527fa17eefa5b4a99",
+    "Contexts": [
+      "Desktop/SetupLogWindow.xaml"
+    ],
+    "RawArgs": [],
+    "ProtectedTokens": []
+  },
+  "setupLogs.filter": {
+    "Source": "筛选关键词",
+    "SourceHash": "7a11353b9be9ddc466a0595c23654c39d7378b76d939b7e0abae7dcbd92e642b",
+    "Contexts": [
+      "Desktop/SetupLogWindow.xaml"
+    ],
+    "RawArgs": [],
+    "ProtectedTokens": []
+  },
+  "setupLogs.truncated": {
+    "Source": "显示日志末尾 256 KiB 内的内容。关键词筛选只作用于此范围。",
+    "SourceHash": "4267ce08cbf3261f7572a717929c3ce47533f39fb1b6f5ea512694ff6737eadb",
+    "Contexts": [
+      "Desktop/SetupLogWindow.xaml"
+    ],
+    "RawArgs": [],
+    "ProtectedTokens": []
+  },
+  "setupLogs.contents": {
+    "Source": "日志内容",
+    "SourceHash": "b97249cc8c2d1dd12d7e6a4a059f65c53656ca0ca6bf0c076b5fe4107f05925a",
+    "Contexts": [
+      "Desktop/SetupLogWindow.xaml"
+    ],
+    "RawArgs": [],
+    "ProtectedTokens": []
+  },
+  "setupLogs.fileFilter": {
+    "Source": "Windows 安装日志|setupact.log;setuperr.log;setupapi.dev.log;setupapi.offline.log;cbs_unattend.log",
+    "SourceHash": "f3e5d8316e4429b61d943ad5315c37150bc202167a8aeeb6994b98f3480f9fee",
+    "Contexts": [
+      "Desktop/SetupLogWindow.xaml.cs"
+    ],
+    "RawArgs": [],
+    "ProtectedTokens": [],
+    "FilterPatterns": [
+      "setupact.log;setuperr.log;setupapi.dev.log;setupapi.offline.log;cbs_unattend.log"
+    ]
+  },
+  "setupLogs.failed": {
+    "Source": "无法读取安装日志",
+    "SourceHash": "1f8595a930eaa419541c2c9b18462f46aeff804eb92afbb82f3ac27518c340bf",
+    "Contexts": [
+      "Desktop/SetupLogWindow.xaml.cs"
+    ],
+    "RawArgs": [],
+    "ProtectedTokens": []
+  },
+  "setupLogs.empty": {
+    "Source": "当前范围内没有可显示的日志内容。",
+    "SourceHash": "34a7739dff2a3ffb078da2645fde0bbafdd540b8f842452a6dd531b1f2631750",
+    "Contexts": [
+      "Desktop/SetupLogWindow.xaml.cs"
+    ],
+    "RawArgs": [],
+    "ProtectedTokens": []
+  },
+  "setupLogs.noMatches": {
+    "Source": "当前范围内没有匹配的日志行。",
+    "SourceHash": "0a4c19d65164a029de9d46a03a285dbf7b43a7cbad1b1a5cbbb53f4bc5f21c39",
+    "Contexts": [
+      "Desktop/SetupLogWindow.xaml.cs"
+    ],
+    "RawArgs": [],
+    "ProtectedTokens": []
+  },
+  "setupLogs.unsupported": {
+    "Source": "请选择受支持的 Windows 安装日志文件。",
+    "SourceHash": "4f09418e9edfca479f0ce41853f4e7e521aaee00e4183101d731ed9552e56088",
+    "Contexts": [
+      "Core/SetupLogPreview.cs"
+    ],
+    "RawArgs": [],
+    "ProtectedTokens": []
+  },
+  "setupLogs.invalidText": {
+    "Source": "文件包含无效的日志文本。",
+    "SourceHash": "d4acaf0ce0a40e7c2a720d33fe754b1475a30e903f3cca926d7ad2350d3752cf",
+    "Contexts": [
+      "Core/SetupLogPreview.cs"
+    ],
+    "RawArgs": [],
+    "ProtectedTokens": []
   }
 }
