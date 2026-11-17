@@ -23,6 +23,12 @@ XML 导入只编辑完整识别的本版原生结构：一个 windowsPE 组件�
 
 XML 结构检查不等于目标镜像兼容验证。请在 Windows SIM 中用对应镜像核对组件，再在一次性虚拟机或测试设备中确认驱动加载、安装和首次启动；本工具不探测驱动是否匹配或目录是否可达。
 
+## 离线驱动目录
+
+在“自定义脚本 → 额外 XML → 离线驱动目录”中，每行填写一个安装时可访问的绝对目录，最多 8 个。添加后会在额外 XML 列表中生成停用草稿。选中草稿、启用并确认额外 XML 后，导出的应答文件会将目录写入 `offlineServicing` 阶段的 `Microsoft-Windows-PnpCustomizationsNonWinPE/DriverPaths`。常规 Windows Setup 在部署目标 Windows 时使用这些路径。用于识别安装磁盘的引导关键驱动仍应在 `windowsPE` 阶段提供。
+
+驱动文件及配套文件需预先准备在目录中。已有同阶段驱动配置时，请在同一条 `DriverPaths` 中整理全部目录。可在“检查与导出”确认离线服务阶段的驱动目录项目。
+
 参考：
 
 - [Microsoft：安装期间添加驱动](https://learn.microsoft.com/en-us/windows-hardware/manufacture/desktop/add-device-drivers-to-windows-during-windows-setup)
@@ -41,3 +47,9 @@ Check drive letters in target PE and avoid directories on partitions that will b
 Complete recognized native XML can be edited. Credentials, additional fields, nonstandard keys, duplicate components or custom PE flows are preserved and kept read-only. The displayed defaults do not describe an unrecognized source. Preview masks native driver-access passwords; full XML retention/export preserves the original credentials. Older plans migrate only when source and baseline can be matched reliably, preserving pending edits when a reimport is required.
 
 Validate against the target image in Windows SIM and test installation/boot in a disposable environment. XML structure checks do not prove driver compatibility or path availability.
+
+### Offline driver directories
+
+Under **Custom scripts → Additional XML → Offline driver directories**, enter one absolute directory per line, up to eight. Add the draft, enable it in the Additional XML list, and confirm Additional XML to include its paths in `Microsoft-Windows-PnpCustomizationsNonWinPE/DriverPaths` in the `offlineServicing` pass. Regular Windows Setup uses these paths when deploying the target Windows installation. Supply boot-critical drivers needed to detect the installation disk in the `windowsPE` pass.
+
+Stage the complete driver packages in the configured directories. If a configuration already has driver paths in the same pass, keep the directories in a single `DriverPaths` setting. Check the offline servicing phase under **Check and export** to confirm the entry is present.

@@ -2,6 +2,11 @@
 
 [Back to the README](README_EN.md) · [简体中文](CHANGELOG.md)
 
+## V1.49 Offline driver directories and Setup logs · 2026-11-17
+
+- Under Custom scripts → Additional XML, create an `offlineServicing` draft from a list of driver directories for regular Windows Setup.
+- Under Check and export, open Windows Setup, driver, or unattended servicing logs and filter lines by keyword.
+
 ## V1.48 Plan comparison and export review · 2026-11-16
 
 - Under Plans, compare the current configuration with a saved JSON plan. See which settings, accounts, scripts, and additional XML differ without changing the current plan.

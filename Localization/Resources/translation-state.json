@@ -4046,6 +4046,24 @@
     "review.phases.appLocker": "412221e13bc08495e9632fd21fc083683402a6fffa614bc66837d2abc2ee96c0",
     "review.phases.localAccounts": "8209cb2fa656659aedff376e18df711ff32cd2a66ea96df037133ae693fd9af2",
     "review.phases.firstLogon": "11ae5244dbe5df033e5404c77de2a1091cc6ea928aec92fff8488c5aa21aff2d",
-    "review.phases.confirm": "c2ca47015ba49a652db0a3875ff5387f575badceb7179186cbe763ab0d0cd10c"
+    "review.phases.confirm": "c2ca47015ba49a652db0a3875ff5387f575badceb7179186cbe763ab0d0cd10c",
+    "xml.offlineDrivers.form": "91cf0bd7a439b6d207cf633f89c7285dfa52b0b1947de13fcdb152f5b9043b38",
+    "xml.offlineDrivers.help": "dceb0f47add20e844c13efc9f4010c7c6dc8dd00955f1b0e9a3ebccd5b62f35c",
+    "xml.offlineDrivers.paths": "2b8fd9d018b1f271580d9c1f68a4f360782cc78f704eb96810ef3982a00c9fc1",
+    "xml.offlineDrivers.add": "89cec639672ff6198af110a7f123d529794acd3c85371893f836afd15a20d5ef",
+    "xml.offlineDrivers.added": "9cbe6caa5db46aa69c2ccf962cac3c17595e7f4eba4bbbbfeaccd40f149795ba",
+    "setupLogs.open": "354c05d5648222600ad0e9ff1406575ec301a6461aad1d8422b2fd5158de3525",
+    "setupLogs.title": "cffc436d95f18cfe02bbf94aa1f9631885a69cfb29982030ecb5012254355751",
+    "setupLogs.choose": "80d2d8145a503816b88c2bcfe7020fe7fc587405e3940b01800a3516a95dde3c",
+    "setupLogs.hint": "6126112c8660839bdc80851ed7dfc1df00b7190dc5ebfb8527fa17eefa5b4a99",
+    "setupLogs.filter": "7a11353b9be9ddc466a0595c23654c39d7378b76d939b7e0abae7dcbd92e642b",
+    "setupLogs.truncated": "4267ce08cbf3261f7572a717929c3ce47533f39fb1b6f5ea512694ff6737eadb",
+    "setupLogs.contents": "b97249cc8c2d1dd12d7e6a4a059f65c53656ca0ca6bf0c076b5fe4107f05925a",
+    "setupLogs.fileFilter": "f3e5d8316e4429b61d943ad5315c37150bc202167a8aeeb6994b98f3480f9fee",
+    "setupLogs.failed": "1f8595a930eaa419541c2c9b18462f46aeff804eb92afbb82f3ac27518c340bf",
+    "setupLogs.empty": "34a7739dff2a3ffb078da2645fde0bbafdd540b8f842452a6dd531b1f2631750",
+    "setupLogs.noMatches": "0a4c19d65164a029de9d46a03a285dbf7b43a7cbad1b1a5cbbb53f4bc5f21c39",
+    "setupLogs.unsupported": "4f09418e9edfca479f0ce41853f4e7e521aaee00e4183101d731ed9552e56088",
+    "setupLogs.invalidText": "d4acaf0ce0a40e7c2a720d33fe754b1475a30e903f3cca926d7ad2350d3752cf"
   }
 }

@@ -2148,3 +2148,4 @@ count+=SearchPrerequisiteTests.Run();Console.WriteLine($"V1.33 navigation fix to
 count+=SecurityAuditFixTests.CheckScriptMergeBudget();Console.WriteLine($"V1.38 final total: {count} tests passed.");
 
 count+=Ipv4NamingTests.Run(g);count+=ConfigurationReviewTests.Run(g);Console.WriteLine($"V1.48 final total: {count} tests passed.");
+count+=SetupDiagnosticsTests.Run(g);Console.WriteLine($"V1.49 final total: {count} tests passed.");
