@@ -208,25 +208,55 @@
                     Background="{DynamicResource NavBrush}" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="0,0,1,0">
               <Grid>
                 <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="*"/></Grid.RowDefinitions>
-                <Button x:Name="SidebarToggleButton" HorizontalAlignment="Right" Margin="8,6,8,0" ContentTemplate="{x:Null}"
+                <Grid x:Name="NavigationHeader" Height="32" Margin="16,3,8,2">
+                  <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+                  <TextBlock Text="{loc:Text navigation.title}" FontSize="13" FontWeight="SemiBold"
+                             Foreground="{DynamicResource SecondaryBrush}" VerticalAlignment="Center" Margin="0,0,12,0"/>
+                <Button x:Name="SidebarToggleButton" Grid.Column="1" HorizontalAlignment="Right" VerticalAlignment="Center" ContentTemplate="{x:Null}"
                         AutomationProperties.Name="{loc:Display Value={Binding SidebarToggleText}}">
                   <Button.ToolTip><ToolTip ContentTemplate="{x:Null}" Content="{loc:Display Value={Binding SidebarToggleText}}"/></Button.ToolTip>
                   <Button.Style>
-                    <Style TargetType="Button" BasedOn="{StaticResource {x:Type Button}}">
-                      <Style.Triggers>
-                        <DataTrigger Binding="{Binding IsSidebarPinned}" Value="True">
-                          <Setter Property="BorderBrush" Value="{DynamicResource AccentBrush}"/>
-                        </DataTrigger>
-                      </Style.Triggers>
+                    <Style TargetType="Button">
+                      <Setter Property="Width" Value="28"/><Setter Property="Height" Value="28"/>
+                      <Setter Property="MinWidth" Value="28"/><Setter Property="MinHeight" Value="28"/>
+                      <Setter Property="Margin" Value="0"/><Setter Property="Padding" Value="0"/>
+                      <Setter Property="Background" Value="Transparent"/>
+                      <Setter Property="Foreground" Value="{DynamicResource SecondaryBrush}"/>
+                      <Setter Property="BorderBrush" Value="Transparent"/>
+                      <Setter Property="BorderThickness" Value="1"/>
+                      <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+                      <Setter Property="Template"><Setter.Value>
+                        <ControlTemplate TargetType="Button">
+                          <Border Background="{TemplateBinding Background}" CornerRadius="4"
+                                  BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                          </Border>
+                          <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                              <Setter Property="Background" Value="{DynamicResource NavHoverBrush}"/>
+                              <Setter Property="Foreground" Value="{DynamicResource ForegroundBrush}"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                              <Setter Property="Background" Value="{DynamicResource NavSelectedBrush}"/>
+                              <Setter Property="Foreground" Value="{DynamicResource NavSelectedTextBrush}"/>
+                            </Trigger>
+                            <Trigger Property="IsKeyboardFocused" Value="True">
+                              <Setter Property="BorderBrush" Value="{DynamicResource AccentBrush}"/>
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False"><Setter Property="Opacity" Value="0.4"/></Trigger>
+                          </ControlTemplate.Triggers>
+                        </ControlTemplate>
+                      </Setter.Value></Setter>
                     </Style>
                   </Button.Style>
-                  <Grid Width="20" Height="20">
+                  <Grid Width="18" Height="18">
                     <Rectangle Width="16" Height="14" RadiusX="2" RadiusY="2"
-                               Stroke="{DynamicResource AccentTextBrush}" StrokeThickness="1.4"/>
-                    <Line X1="7" Y1="3" X2="7" Y2="17"
-                          Stroke="{DynamicResource AccentTextBrush}" StrokeThickness="1.4"/>
+                               Stroke="{Binding Foreground,RelativeSource={RelativeSource AncestorType=Button}}" StrokeThickness="1.4"/>
+                    <Line X1="6" Y1="2" X2="6" Y2="16"
+                          Stroke="{Binding Foreground,RelativeSource={RelativeSource AncestorType=Button}}" StrokeThickness="1.4"/>
                   </Grid>
                 </Button>
+                </Grid>
                 <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled"
                               Focusable="False" CanContentScroll="False" Padding="8,6,8,12">
                   <ItemsPresenter/>

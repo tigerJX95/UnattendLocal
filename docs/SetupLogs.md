@@ -21,3 +21,5 @@ Supported files include `setupact.log`, `setuperr.log`, and `cbs_unattend.log` f
 The viewer opens files in read-only mode. It supports UTF-8 and BOM-marked UTF-16 and UTF-32. For larger files, the preview and keyword filter cover the final 256 KiB. Reopen the same file to refresh a log that Setup has appended to.
 
 [Microsoft Learn · Deployment Troubleshooting and Log Files](https://learn.microsoft.com/en-us/windows-hardware/manufacture/desktop/deployment-troubleshooting-and-log-files)
+
+AppLocker 事件 XML 的复核入口位于“OOBE → AppLocker”，详见[配置集目录与 AppLocker 事件复核](DeploymentReview.md)。

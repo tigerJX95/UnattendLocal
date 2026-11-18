@@ -457,6 +457,7 @@
             <CheckBox x:Name="SettingAnchor053" Content="{loc:Source text.53b7c79911a6}" IsChecked="{Binding Plan.UseConfigurationSet}" ToolTip="{Binding DataContext.HelpTips[configset],RelativeSource={RelativeSource AncestorType=Window}}"/>
             <TextBlock Style="{StaticResource ExplanationText}" Text="{loc:Text text.b33134545705}" Foreground="{DynamicResource SecondaryBrush}"/>
             <TextBlock Style="{StaticResource ExplanationText}" Text="{loc:Text text.459470c134f9}" Foreground="{DynamicResource WarningBrush}" Visibility="{Binding Plan.UseConfigurationSet,Converter={StaticResource VisibleWhen}}"/>
+            <Button x:Name="OemReviewButton" Content="{loc:Source oemReview.open}" Click="ConfigurationSetReviewClick" HorizontalAlignment="Left"/>
           </StackPanel></Border>
 
           <Border Style="{StaticResource Card}"><StackPanel>
@@ -1008,6 +1009,7 @@
                 <WrapPanel><Button Content="{loc:Source text.f4530970ae50}" Click="ImportAppLockerClick"/><Button Content="{loc:Source text.74dad00b4503}" Click="ValidateAppLockerClick"/><Button Content="{loc:Source text.aa5a57ef2cf1}" Click="AppLockerExampleClick"/></WrapPanel>
                 <TextBox x:Name="SettingAnchor107" Text="{Binding Plan.AppLockerPolicyXml,UpdateSourceTrigger=PropertyChanged}" AcceptsReturn="True" AcceptsTab="True" Height="220" FontFamily="Consolas" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto" SpellCheck.IsEnabled="False" ToolTip="{Binding DataContext.HelpTips[applocker],RelativeSource={RelativeSource AncestorType=Window}}"/>
               </StackPanel>
+              <Button x:Name="AppLockerEventsButton" Content="{loc:Source eventReview.open}" Click="AppLockerEventsClick" HorizontalAlignment="Left"/>
               <TextBlock Style="{StaticResource ExplanationText}" Text="{loc:Text text.6957395ac36f}" Foreground="{DynamicResource WarningBrush}" Visibility="{Binding Plan.UseAppLocker,Converter={StaticResource VisibleWhen}}"/>
             </StackPanel></Border>
             <Border Style="{StaticResource Card}"><StackPanel>

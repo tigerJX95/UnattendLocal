@@ -2,6 +2,13 @@
 
 [Back to the README](README_EN.md) · [简体中文](CHANGELOG.md)
 
+## V1.51 Deployment review and import fixes · 2026-11-18
+
+- Preview `$OEM$` file copy destinations under **Image and partitions**, distinguishing the system drive, Windows directory, explicit drive letters, and unmapped paths.
+- Review event XML under **OOBE → AppLocker**, with separate counts for allowed events, audit findings, actual blocks, and policy errors, plus event times and file paths.
+- Fixed imports treating `UseConfigurationSet` boolean values with valid surrounding whitespace as ambiguous.
+- Replaced the standalone sidebar toggle with a compact navigation header and a small outline icon, with hover and keyboard-focus feedback.
+
 ## V1.50 Import compatibility and interface improvements · 2026-11-18
 
 - Fixed XML import incorrectly reporting the supported core isolation parameter `CoreIsolationMode` as unrecognized.

@@ -38366,5 +38366,324 @@
     ],
     "RawArgs": [],
     "ProtectedTokens": []
+  },
+  "deploymentReview.contents": {
+    "Source": "复核结果",
+    "Contexts": [
+      "Desktop/DeploymentReviewWindow.xaml"
+    ],
+    "RawArgs": [],
+    "SourceHash": "6a87e24c7ec2421144e8b32a62bbbad47589805b02b36e5f1fe236975720f66a",
+    "ProtectedTokens": []
+  },
+  "deploymentReview.loading": {
+    "Source": "正在读取并复核，可关闭窗口取消。",
+    "Contexts": [
+      "Desktop/DeploymentReviewWindow.xaml"
+    ],
+    "RawArgs": [],
+    "SourceHash": "f88bd26fb41f5f7faf697cb7a9e7bd17616580ccfc478c4cad7c2110aa89895c",
+    "ProtectedTokens": []
+  },
+  "deploymentReview.complete": {
+    "Source": "复核完成，当前配置未变更。",
+    "Contexts": [
+      "Desktop/DeploymentReviewWindow.xaml"
+    ],
+    "RawArgs": [],
+    "SourceHash": "c7f5f4a0e291f0460fcc0b0fb2b2819b66b14cf04a738ce5592804de916ef1fd",
+    "ProtectedTokens": []
+  },
+  "deploymentReview.failed": {
+    "Source": "无法完成复核",
+    "Contexts": [
+      "Desktop/DeploymentReviewWindow.xaml"
+    ],
+    "RawArgs": [],
+    "SourceHash": "d0e25a6c745c1336d05e371fc7d6fc36c6585880f86a4acce820182423927bd5",
+    "ProtectedTokens": []
+  },
+  "oemReview.open": {
+    "Source": "预览 $OEM$ 复制目标",
+    "Contexts": [
+      "Core/ConfigurationSetReview.cs"
+    ],
+    "RawArgs": [],
+    "SourceHash": "1a8805a1d2675046891c640324987aff7e9a02ffe94ff28944f39e001dfbc479",
+    "ProtectedTokens": []
+  },
+  "oemReview.title": {
+    "Source": "$OEM$ 复制目标复核",
+    "Contexts": [
+      "Core/ConfigurationSetReview.cs"
+    ],
+    "RawArgs": [],
+    "SourceHash": "3511ae99dfedcfdbc91913f4e5120563c6e4776642822fce950847154c3debc0",
+    "ProtectedTokens": []
+  },
+  "oemReview.choose": {
+    "Source": "选择 $OEM$ 文件夹",
+    "Contexts": [
+      "Core/ConfigurationSetReview.cs"
+    ],
+    "RawArgs": [],
+    "SourceHash": "4e5cacc7aa8f5f08de130618a13d81472f7d109b5cf4b282a6e0f82cc9be7006",
+    "ProtectedTokens": []
+  },
+  "oemReview.hint": {
+    "Source": "选择已准备的 $OEM$ 文件夹，核对常规 Windows Setup 的文件目标。只读取目录信息，不复制文件，不启用配置集。自定义 PE 的复制范围取决于其脚本。",
+    "Contexts": [
+      "Core/ConfigurationSetReview.cs"
+    ],
+    "RawArgs": [],
+    "SourceHash": "7c1663b57aa3b457e83dd7c85e54410d07c0340a7ffde686b576065239c61efe",
+    "ProtectedTokens": []
+  },
+  "oemReview.invalidFolder": {
+    "Source": "请选择实际的 $OEM$ 文件夹，不能选择链接或目录联接。",
+    "Contexts": [
+      "Core/ConfigurationSetReview.cs"
+    ],
+    "RawArgs": [],
+    "SourceHash": "8027432075f61767b993388579b0e4b2c478888bc3d5308fa8731f0032da0866",
+    "ProtectedTokens": []
+  },
+  "oemReview.scope": {
+    "Source": "以下为常规 Windows Setup 的路径映射，不表示文件已复制，也不检查文件内容或目标文件是否存在。",
+    "Contexts": [
+      "Core/ConfigurationSetReview.cs"
+    ],
+    "RawArgs": [],
+    "SourceHash": "fd8789a66a6b5bc8745e8ab477e7f3ccce1a44c50483929ff8cd136e0bff645a",
+    "ProtectedTokens": []
+  },
+  "oemReview.mapping": {
+    "Source": "$1 → %SystemDrive%\n$$ → %WINDIR%\n单个英文字母目录 → 对应盘符根目录\n启用配置集可能复制应答文件所在介质根目录的全部内容；不要覆盖 Windows 系统文件。",
+    "Contexts": [
+      "Core/ConfigurationSetReview.cs"
+    ],
+    "RawArgs": [],
+    "SourceHash": "097b6a7cd295e47f88e8590aa788e4e218767f0c9a2a5d116f0f7e1e97ed2d72",
+    "ProtectedTokens": []
+  },
+  "oemReview.count": {
+    "Source": "已统计文件：{0}；已列出：{1}；已跳过条目或目录：{2}。",
+    "Contexts": [
+      "Core/ConfigurationSetReview.cs"
+    ],
+    "RawArgs": [
+      true,
+      true,
+      true
+    ],
+    "SourceHash": "836596633c499acbf0a474c74249a2bf0af8ecafb89245d472f6de977800b071",
+    "ProtectedTokens": []
+  },
+  "oemReview.partial": {
+    "Source": "结果不完整：最多扫描 2000 个条目、32 层子目录，列出 500 个文件；链接、不可访问或过深的目录会跳过。",
+    "Contexts": [
+      "Core/ConfigurationSetReview.cs"
+    ],
+    "RawArgs": [],
+    "SourceHash": "8f5f3ec026729e9463917277f2c5dde8d122a3f4ec4f18ba85d705deca0b0bbd",
+    "ProtectedTokens": []
+  },
+  "oemReview.empty": {
+    "Source": "扫描范围内没有可列出的文件。",
+    "Contexts": [
+      "Core/ConfigurationSetReview.cs"
+    ],
+    "RawArgs": [],
+    "SourceHash": "955bcb0bb3f2055e44882a12e8d7d67bc48f5d6573ca7a2bc3ca2aed6c6e3f62",
+    "ProtectedTokens": []
+  },
+  "oemReview.row": {
+    "Source": "{0} → {1}",
+    "Contexts": [
+      "Core/ConfigurationSetReview.cs"
+    ],
+    "RawArgs": [
+      true,
+      false
+    ],
+    "SourceHash": "f902df3c35163c5b8fe34a734abd26dded9734363762e392cbbf68dfbcc5f343",
+    "ProtectedTokens": []
+  },
+  "oemReview.unmapped": {
+    "Source": "未映射，请核对目录结构",
+    "Contexts": [
+      "Core/ConfigurationSetReview.cs"
+    ],
+    "RawArgs": [],
+    "SourceHash": "4f56f689d44253021f58310e2e32f76d57a4f9a0e8b1cde6bdf62a8530ae3f23",
+    "ProtectedTokens": []
+  },
+  "eventReview.open": {
+    "Source": "复核 AppLocker 事件",
+    "Contexts": [
+      "Core/AppLockerEventReview.cs"
+    ],
+    "RawArgs": [],
+    "SourceHash": "bdbbb1215a55eefdc3b4f8942a7d6aa77a4c1466db5833ff22fc18314d2a5d99",
+    "ProtectedTokens": []
+  },
+  "eventReview.title": {
+    "Source": "AppLocker 事件 XML 复核",
+    "Contexts": [
+      "Core/AppLockerEventReview.cs"
+    ],
+    "RawArgs": [],
+    "SourceHash": "6268447bea0a94a4f4ba688103ee5a8f54c60326c9fda11b26297d0c74bab436",
+    "ProtectedTokens": []
+  },
+  "eventReview.choose": {
+    "Source": "打开事件 XML",
+    "Contexts": [
+      "Core/AppLockerEventReview.cs"
+    ],
+    "RawArgs": [],
+    "SourceHash": "3807baaaf750fc234622bfb67c64f4f51688029d9f04216f48d67718a64eff86",
+    "ProtectedTokens": []
+  },
+  "eventReview.fileFilter": {
+    "Source": "事件 XML (*.xml)|*.xml",
+    "Contexts": [
+      "Core/AppLockerEventReview.cs"
+    ],
+    "RawArgs": [],
+    "SourceHash": "5dc33651311d65bc1601c4f5858333cb5e823aeeeda746fdb74d2a3334cfeabe",
+    "ProtectedTokens": [],
+    "FilterPatterns": [
+      "*.xml"
+    ]
+  },
+  "eventReview.hint": {
+    "Source": "打开从事件查看器另存的 AppLocker XML，支持单个 Event 或 Events 集合。不读取 EVTX，不执行命令，不更改当前策略。",
+    "Contexts": [
+      "Core/AppLockerEventReview.cs"
+    ],
+    "RawArgs": [],
+    "SourceHash": "75f949b15ea9356054e2f850cf82e34e71c89295fe784033a688fd3ed347d2db",
+    "ProtectedTokens": []
+  },
+  "eventReview.tooLarge": {
+    "Source": "事件 XML 不能超过 4 MiB。",
+    "Contexts": [
+      "Core/AppLockerEventReview.cs"
+    ],
+    "RawArgs": [],
+    "SourceHash": "aaa053f4002d64d24c9b78675edbc1eb547ab64f18cf5772a00126600a57fe56",
+    "ProtectedTokens": []
+  },
+  "eventReview.tooComplex": {
+    "Source": "事件 XML 结构过于复杂或事件过多；请缩小导出范围。",
+    "Contexts": [
+      "Core/AppLockerEventReview.cs"
+    ],
+    "RawArgs": [],
+    "SourceHash": "11fe07bec94b9afc20b2a841fb814622cff196f9bfa135e86b2952b55917686c",
+    "ProtectedTokens": []
+  },
+  "eventReview.invalidRoot": {
+    "Source": "请选择 Windows 事件 XML，根元素须为 Event 或 Events，事件须使用 Windows 事件命名空间。",
+    "Contexts": [
+      "Core/AppLockerEventReview.cs"
+    ],
+    "RawArgs": [],
+    "SourceHash": "9b44687a0bffb2e03e643191edd9640e9430db0e3250db2dda4007c9bfb621c8",
+    "ProtectedTokens": []
+  },
+  "eventReview.scope": {
+    "Source": "仅统计 Microsoft-Windows-AppLocker 提供程序的事件。审计命中表示本次已允许，但强制执行时可能阻止；实际阻止和策略错误单独列出。Config CI 等其他事件不据此归为 AppLocker 阻止。",
+    "Contexts": [
+      "Core/AppLockerEventReview.cs"
+    ],
+    "RawArgs": [],
+    "SourceHash": "692079bd5b9e49e39b1897523adb4e1cdff8a5667af88498ad0e1cace312c491",
+    "ProtectedTokens": []
+  },
+  "eventReview.count": {
+    "Source": "已允许：{0}；审计命中：{1}；已阻止：{2}；策略或环境错误：{3}；其他事件：{4}；已忽略：{5}。",
+    "Contexts": [
+      "Core/AppLockerEventReview.cs"
+    ],
+    "RawArgs": [
+      true,
+      true,
+      true,
+      true,
+      true,
+      true
+    ],
+    "SourceHash": "9a1c539c9a6a9465d351230cdfee5ed97736f7100006008e0d31c5ec02a7df6d",
+    "ProtectedTokens": []
+  },
+  "eventReview.audit": {
+    "Source": "审计命中（本次已允许）",
+    "Contexts": [
+      "Core/AppLockerEventReview.cs"
+    ],
+    "RawArgs": [],
+    "SourceHash": "3c618a754fc5041e855919cc83f8f58710ee68fa8ae1d33ba14df49dd98d8c6a",
+    "ProtectedTokens": []
+  },
+  "eventReview.blocked": {
+    "Source": "已阻止",
+    "Contexts": [
+      "Core/AppLockerEventReview.cs"
+    ],
+    "RawArgs": [],
+    "SourceHash": "399bb82e282c02ba03ad4dfde600e858b7e60ceef824cc34d3207c48043e1897",
+    "ProtectedTokens": []
+  },
+  "eventReview.error": {
+    "Source": "策略或环境错误",
+    "Contexts": [
+      "Core/AppLockerEventReview.cs"
+    ],
+    "RawArgs": [],
+    "SourceHash": "ccb9181f03907ae194b2eff0f2f7bc421b8422709970ef5339742efd73d55dfb",
+    "ProtectedTokens": []
+  },
+  "eventReview.partial": {
+    "Source": "计数覆盖已导入事件，仅列出前 500 条审计命中、阻止或错误事件。",
+    "Contexts": [
+      "Core/AppLockerEventReview.cs"
+    ],
+    "RawArgs": [],
+    "SourceHash": "14c75f9be12e8b5eae846ee55eef3d48d23f261055c5210749f66d9bda52deb4",
+    "ProtectedTokens": []
+  },
+  "eventReview.noFindings": {
+    "Source": "未发现可列出的审计命中、阻止或错误事件；不能据此认定策略已生效。",
+    "Contexts": [
+      "Core/AppLockerEventReview.cs"
+    ],
+    "RawArgs": [],
+    "SourceHash": "59cb31dc6af8fff691a959a701cb79f15109f3b056f4f2671f09d101a8cd30be",
+    "ProtectedTokens": []
+  },
+  "eventReview.row": {
+    "Source": "{0} | {1} | {2} | {3}",
+    "Contexts": [
+      "Core/AppLockerEventReview.cs"
+    ],
+    "RawArgs": [
+      true,
+      false,
+      true,
+      true
+    ],
+    "SourceHash": "41207716dc24d33b250b3c6199dde662f3ca85782bcbbec8b697fd2031b5a409",
+    "ProtectedTokens": []
+  },
+  "navigation.title": {
+    "Source": "导航",
+    "Contexts": [
+      "Desktop/Themes/Controls.xaml:NavigationHeader"
+    ],
+    "RawArgs": [],
+    "SourceHash": "e72622fe470d04bc588375b9a788202c36a9a133eba8701f2ce12ecdb8924e0d",
+    "ProtectedTokens": []
   }
 }

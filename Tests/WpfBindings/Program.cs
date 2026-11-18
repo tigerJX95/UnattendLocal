@@ -128,11 +128,56 @@ internal static class Program
             }
             Console.WriteLine("PASS local account list theme across account modes and theme switches.");
             CheckSidebarLayout(window);
+            CheckDeploymentReviewWindows(window);
         }
         finally
         {
             window.Close();
         }
+    }
+
+    private static void CheckDeploymentReviewWindows(MainWindow owner)
+    {
+        var vm = (MainViewModel)owner.DataContext;
+        var plan = vm.Plan;
+        string before = PlanStore.Serialize(plan, includeSecrets: true);
+        string language = UiText.Language;
+        if (!plan.UseAppLocker && !((Button)owner.FindName("AppLockerEventsButton")).IsEnabled)
+            throw new Exception("Event review must be available without enabling AppLocker in the plan.");
+        try
+        {
+            foreach (string culture in new[] { "zh-CN", "en-US" })
+            foreach (string theme in new[] { "Light", "Dark" })
+            foreach (var kind in Enum.GetValues<DeploymentReviewKind>())
+            {
+                UiText.SetLanguage(culture);
+                UiTheme.Apply(theme, save: false);
+                DrainDispatcher();
+                // Preview text is localized. Compare it within the same language and theme.
+                string preview = vm.Preview;
+                var review = new DeploymentReviewWindow(kind) { Owner = owner };
+                try
+                {
+                    review.Show();
+                    DrainDispatcher();
+                    var text = (TextBox)review.FindName("ReportText");
+                    var open = (Button)review.FindName("OpenButton");
+                    string prefix = kind == DeploymentReviewKind.ConfigurationSet ? "oemReview" : "eventReview";
+                    if (review.Title != UiText.Get(prefix + ".title") || !Equals(open.Content, UiText.Get(prefix + ".choose")) ||
+                        !text.IsReadOnly || text.FontSize != 16 || text.Background is not SolidColorBrush brush ||
+                        brush.Color != ((SolidColorBrush)Application.Current.FindResource("InputBrush")).Color)
+                        throw new Exception($"{culture}/{theme}/{kind}: review window localization, readability, or theme mismatch.");
+                }
+                finally { review.Close(); }
+                DrainDispatcher();
+                if (!ReferenceEquals(vm.Plan, plan) || PlanStore.Serialize(plan, includeSecrets: true) != before)
+                    throw new Exception($"{culture}/{theme}/{kind}: Opening and closing a review window must preserve the plan.");
+                if (vm.Preview != preview)
+                    throw new Exception($"{culture}/{theme}/{kind}: Opening and closing a review window must preserve the preview.");
+            }
+            Console.WriteLine("PASS deployment review window localization, themes, and unchanged configuration.");
+        }
+        finally { UiText.SetLanguage(language); }
     }
 
     private static void CheckSidebarLayout(MainWindow window)
