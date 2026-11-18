@@ -182,6 +182,101 @@
       </Grid>
     </ControlTemplate></Setter.Value></Setter>
   </Style>
+  <Style x:Key="CollapsibleNavigationTabs" TargetType="TabControl" BasedOn="{StaticResource {x:Type TabControl}}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="TabControl">
+          <Grid>
+            <Grid.ColumnDefinitions><ColumnDefinition Width="Auto"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+            <Border x:Name="NavigationSpace" Width="{Binding ActualWidth,ElementName=NavigationPane}"/>
+            <ContentPresenter x:Name="PART_SelectedContentHost" Grid.Column="1" ContentSource="SelectedContent"
+                              HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" VerticalAlignment="{TemplateBinding VerticalContentAlignment}"/>
+            <Button x:Name="SidebarRevealEdge" Grid.ColumnSpan="2" HorizontalAlignment="Left" Width="8"
+                    Height="Auto" Margin="0" Padding="0"
+                    Background="{DynamicResource NavBrush}" BorderBrush="{DynamicResource AccentBrush}"
+                    BorderThickness="2,0,0,0" Visibility="Collapsed"
+                    AutomationProperties.Name="{loc:Text navigation.showSidebar}">
+              <Button.ToolTip><ToolTip ContentTemplate="{x:Null}" Content="{loc:Text navigation.autoHideHelp}"/></Button.ToolTip>
+              <Button.Template>
+                <ControlTemplate TargetType="Button">
+                  <Border Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}"
+                          BorderThickness="{TemplateBinding BorderThickness}"/>
+                </ControlTemplate>
+              </Button.Template>
+            </Button>
+            <Border x:Name="NavigationPane" Grid.ColumnSpan="2" HorizontalAlignment="Left"
+                    Background="{DynamicResource NavBrush}" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="0,0,1,0">
+              <Grid>
+                <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="*"/></Grid.RowDefinitions>
+                <Grid x:Name="NavigationHeader" Height="32" Margin="16,3,8,2">
+                  <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+                  <TextBlock Text="{loc:Text navigation.title}" FontSize="13" FontWeight="SemiBold"
+                             Foreground="{DynamicResource SecondaryBrush}" VerticalAlignment="Center" Margin="0,0,12,0"/>
+                <Button x:Name="SidebarToggleButton" Grid.Column="1" HorizontalAlignment="Right" VerticalAlignment="Center" ContentTemplate="{x:Null}"
+                        AutomationProperties.Name="{loc:Display Value={Binding SidebarToggleText}}">
+                  <Button.ToolTip><ToolTip ContentTemplate="{x:Null}" Content="{loc:Display Value={Binding SidebarToggleText}}"/></Button.ToolTip>
+                  <Button.Style>
+                    <Style TargetType="Button">
+                      <Setter Property="Width" Value="28"/><Setter Property="Height" Value="28"/>
+                      <Setter Property="MinWidth" Value="28"/><Setter Property="MinHeight" Value="28"/>
+                      <Setter Property="Margin" Value="0"/><Setter Property="Padding" Value="0"/>
+                      <Setter Property="Background" Value="Transparent"/>
+                      <Setter Property="Foreground" Value="{DynamicResource SecondaryBrush}"/>
+                      <Setter Property="BorderBrush" Value="Transparent"/>
+                      <Setter Property="BorderThickness" Value="1"/>
+                      <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+                      <Setter Property="Template"><Setter.Value>
+                        <ControlTemplate TargetType="Button">
+                          <Border Background="{TemplateBinding Background}" CornerRadius="4"
+                                  BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                          </Border>
+                          <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                              <Setter Property="Background" Value="{DynamicResource NavHoverBrush}"/>
+                              <Setter Property="Foreground" Value="{DynamicResource ForegroundBrush}"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                              <Setter Property="Background" Value="{DynamicResource NavSelectedBrush}"/>
+                              <Setter Property="Foreground" Value="{DynamicResource NavSelectedTextBrush}"/>
+                            </Trigger>
+                            <Trigger Property="IsKeyboardFocused" Value="True">
+                              <Setter Property="BorderBrush" Value="{DynamicResource AccentBrush}"/>
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False"><Setter Property="Opacity" Value="0.4"/></Trigger>
+                          </ControlTemplate.Triggers>
+                        </ControlTemplate>
+                      </Setter.Value></Setter>
+                    </Style>
+                  </Button.Style>
+                  <Grid Width="18" Height="18">
+                    <Rectangle Width="16" Height="14" RadiusX="2" RadiusY="2"
+                               Stroke="{Binding Foreground,RelativeSource={RelativeSource AncestorType=Button}}" StrokeThickness="1.4"/>
+                    <Line X1="6" Y1="2" X2="6" Y2="16"
+                          Stroke="{Binding Foreground,RelativeSource={RelativeSource AncestorType=Button}}" StrokeThickness="1.4"/>
+                  </Grid>
+                </Button>
+                </Grid>
+                <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled"
+                              Focusable="False" CanContentScroll="False" Padding="8,6,8,12">
+                  <ItemsPresenter/>
+                </ScrollViewer>
+              </Grid>
+            </Border>
+          </Grid>
+          <ControlTemplate.Triggers>
+            <DataTrigger Binding="{Binding IsSidebarPinned}" Value="False">
+              <Setter TargetName="NavigationSpace" Property="Visibility" Value="Collapsed"/>
+            </DataTrigger>
+            <DataTrigger Binding="{Binding IsSidebarVisible}" Value="False">
+              <Setter TargetName="NavigationPane" Property="Visibility" Value="Collapsed"/>
+              <Setter TargetName="SidebarRevealEdge" Property="Visibility" Value="Visible"/>
+            </DataTrigger>
+          </ControlTemplate.Triggers>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
   <Style TargetType="TabItem">
     <Setter Property="Padding" Value="12,9"/><Setter Property="Margin" Value="0,2"/><Setter Property="Foreground" Value="{DynamicResource ForegroundBrush}"/><Setter Property="Background" Value="Transparent"/><Setter Property="HorizontalContentAlignment" Value="Stretch"/>
     <Setter Property="HeaderTemplate"><Setter.Value><DataTemplate>

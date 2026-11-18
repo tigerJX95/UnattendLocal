@@ -12,8 +12,9 @@ public static class ConfigurationSetSettings
     {
         var nodes = Nodes(doc);
         bool scripted = doc.InnerText.Contains("ROBOCOPY_ARGS", StringComparison.OrdinalIgnoreCase) || doc.InnerText.Contains("Copying contents of %OEM_FOLDER%", StringComparison.OrdinalIgnoreCase);
-        bool invalid = nodes.Length > 1 || nodes.Any(n => n.InnerText is not ("true" or "false" or "1" or "0"));
-        return new(!scripted && !invalid && nodes.SingleOrDefault()?.InnerText is "true" or "1", scripted || invalid);
+        string[] values = nodes.Select(n => n.InnerText.Trim(' ', '\t', '\r', '\n')).ToArray();
+        bool invalid = values.Length > 1 || values.Any(value => value is not ("true" or "false" or "1" or "0"));
+        return new(!scripted && !invalid && values.SingleOrDefault() is "true" or "1", scripted || invalid);
     }
     public static string Summary(InstallPlan p) => global::UnattendLocal.Localization.UiText.Concat(new object?[] { global::UnattendLocal.Localization.UiText.Source("text.8363127218d7"), (p.UseConfigurationSet ? global::UnattendLocal.Localization.UiText.Source("text.7bc6ecd70064") : global::UnattendLocal.Localization.UiText.Source("text.8093f86a4b0f")) },new bool[]{false,false});
     public static void ReadIntoPlan(XmlDocument doc, InstallPlan p, List<string> notes) { var state = Inspect(doc); p.UseConfigurationSet = state.Enabled; if (state.Ambiguous) notes.Add(global::UnattendLocal.Localization.UiText.Source("text.3dd4f1c36bc9")); }

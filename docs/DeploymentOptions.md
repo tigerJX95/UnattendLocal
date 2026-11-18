@@ -6,6 +6,8 @@
 
 工具不创建、打包、复制这些文件，不会自动安装其中的应用。复制可能覆盖同路径内容，实际行为由 Windows Setup 处理。自定义 PE 安装脚本可能自行实现复制，导入时保留原文，不通过此开关覆盖该流程。取消不删除已复制文件。
 
+可通过“预览 $OEM$ 复制目标”只读核对本地目录的路径映射。操作与范围见[部署复核说明](DeploymentReview.md)。
+
 ## AppLocker 策略
 
 默认关闭。导入完整 AppLockerPolicy XML，或载入审核示例后自行调整。使用固定核心的 AppLocker.xsd 结构检查；不支持 DTD、外部实体、处理指令、超过 2 Mi 字符或过深的 XML。结构有效不代表规则适合目标环境。
@@ -24,3 +26,5 @@ JSON 两种凭据模式均保留策略原文，可能包含路径、SID 和其�
 - [微软：UseConfigurationSet](https://learn.microsoft.com/en-us/windows-hardware/customize/desktop/unattend/microsoft-windows-setup-useconfigurationset)
 - [微软：Set-AppLockerPolicy](https://learn.microsoft.com/en-us/powershell/module/applocker/set-applockerpolicy)
 - [微软：AppLocker 规则集合与执行行为](https://learn.microsoft.com/en-us/windows/security/application-security/application-control/app-control-for-business/applocker/applocker-processes-and-interactions)
+
+“复核 AppLocker 事件”可单独打开事件 XML，区分审计命中、实际阻止与策略错误；无需启用当前方案中的 AppLocker。详见[事件复核说明](DeploymentReview.md#applocker-事件-xml)。

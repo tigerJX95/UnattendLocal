@@ -107,7 +107,7 @@
     <Border DockPanel.Dock="Bottom" Background="{DynamicResource SurfaceBrush}" Padding="24,10">
       <TextBlock Text="{loc:Display Value={Binding Status}}" Foreground="{DynamicResource StatusBrush}" FontWeight="SemiBold" TextWrapping="Wrap" />
     </Border>
-    <TabControl x:Name="Pages" TabStripPlacement="Left" Background="{DynamicResource CanvasBrush}" BorderThickness="0" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch">
+    <TabControl x:Name="Pages" Style="{StaticResource CollapsibleNavigationTabs}" TabStripPlacement="Left" Background="{DynamicResource CanvasBrush}" BorderThickness="0" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch">
       <TabItem Header="{loc:Source text.181996c542a1}" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch">
         <ScrollViewer VerticalScrollBarVisibility="Auto"><StackPanel Margin="24">
           <TextBlock Margin="0,0,0,12" Text="{loc:Text text.8c41e5a4e04d}" TextWrapping="Wrap" Foreground="{DynamicResource SecondaryBrush}"/>
@@ -457,6 +457,7 @@
             <CheckBox x:Name="SettingAnchor053" Content="{loc:Source text.53b7c79911a6}" IsChecked="{Binding Plan.UseConfigurationSet}" ToolTip="{Binding DataContext.HelpTips[configset],RelativeSource={RelativeSource AncestorType=Window}}"/>
             <TextBlock Style="{StaticResource ExplanationText}" Text="{loc:Text text.b33134545705}" Foreground="{DynamicResource SecondaryBrush}"/>
             <TextBlock Style="{StaticResource ExplanationText}" Text="{loc:Text text.459470c134f9}" Foreground="{DynamicResource WarningBrush}" Visibility="{Binding Plan.UseConfigurationSet,Converter={StaticResource VisibleWhen}}"/>
+            <Button x:Name="OemReviewButton" Content="{loc:Source oemReview.open}" Click="ConfigurationSetReviewClick" HorizontalAlignment="Left"/>
           </StackPanel></Border>
 
           <Border Style="{StaticResource Card}"><StackPanel>
@@ -1008,6 +1009,7 @@
                 <WrapPanel><Button Content="{loc:Source text.f4530970ae50}" Click="ImportAppLockerClick"/><Button Content="{loc:Source text.74dad00b4503}" Click="ValidateAppLockerClick"/><Button Content="{loc:Source text.aa5a57ef2cf1}" Click="AppLockerExampleClick"/></WrapPanel>
                 <TextBox x:Name="SettingAnchor107" Text="{Binding Plan.AppLockerPolicyXml,UpdateSourceTrigger=PropertyChanged}" AcceptsReturn="True" AcceptsTab="True" Height="220" FontFamily="Consolas" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto" SpellCheck.IsEnabled="False" ToolTip="{Binding DataContext.HelpTips[applocker],RelativeSource={RelativeSource AncestorType=Window}}"/>
               </StackPanel>
+              <Button x:Name="AppLockerEventsButton" Content="{loc:Source eventReview.open}" Click="AppLockerEventsClick" HorizontalAlignment="Left"/>
               <TextBlock Style="{StaticResource ExplanationText}" Text="{loc:Text text.6957395ac36f}" Foreground="{DynamicResource WarningBrush}" Visibility="{Binding Plan.UseAppLocker,Converter={StaticResource VisibleWhen}}"/>
             </StackPanel></Border>
             <Border Style="{StaticResource Card}"><StackPanel>
@@ -1499,7 +1501,7 @@
                 <TextBlock DockPanel.Dock="Right" Text="{loc:Display Value={Binding ElementName=ScriptExampleEditor,Path=(local:ExampleText.CopyStatus)}}" VerticalAlignment="Center" Margin="8,0" MaxWidth="220" TextWrapping="Wrap" Style="{StaticResource CopyFeedback}" local:ExampleText.HasCopyError="{Binding ElementName=ScriptExampleEditor,Path=(local:ExampleText.HasCopyError)}"/>
                 <TextBlock Text="{loc:Text text.35b4fca366d1}" VerticalAlignment="Center"/>
               </DockPanel>
-              <TextBox x:Name="ScriptExampleEditor" ToolTip="{Binding DataContext.HelpTips[scriptcontent],RelativeSource={RelativeSource AncestorType=Window}}" Text="{Binding Content,UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource ExampleEditor}" local:ExampleText.Value="{Binding Example}" AcceptsReturn="True" AcceptsTab="True" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto" Height="260" FontFamily="Consolas" FontSize="13" SpellCheck.IsEnabled="False"/>
+              <TextBox x:Name="ScriptExampleEditor" ToolTip="{Binding DataContext.HelpTips[scriptcontent],RelativeSource={RelativeSource AncestorType=Window}}" Text="{Binding Content,UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource ExampleEditor}" local:ExampleText.Value="{Binding Example}" AcceptsReturn="True" AcceptsTab="True" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto" Height="260" FontFamily="Consolas" FontSize="16" SpellCheck.IsEnabled="False"/>
             </StackPanel>
             <CheckBox x:Name="SettingAnchor232" Content="{loc:Source text.e581099b978e}" IsChecked="{Binding Plan.RestartExplorerAfterScripts}"/>
             <TextBlock Style="{StaticResource ExplanationText}" Text="{loc:Text text.6700fe71d3e2}" TextWrapping="Wrap" Foreground="{DynamicResource SecondaryBrush}"/>
@@ -1561,7 +1563,7 @@
                 <ComboBox.ItemTemplate><DataTemplate><TextBlock Text="{loc:Display Value={Binding Label}}" TextWrapping="Wrap"/></DataTemplate></ComboBox.ItemTemplate>
               </ComboBox>
               <TextBlock Text="{loc:Text text.3758565325a5}" Margin="0,8,0,0" />
-              <TextBox x:Name="AdditionalXmlEditor" ToolTip="{Binding DataContext.HelpTips[additionalxml],RelativeSource={RelativeSource AncestorType=Window}}" Text="{Binding Content,UpdateSourceTrigger=PropertyChanged}" AcceptsReturn="True" AcceptsTab="True" TextWrapping="NoWrap" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto" Height="250" FontFamily="Consolas" FontSize="13" SpellCheck.IsEnabled="False" />
+              <TextBox x:Name="AdditionalXmlEditor" ToolTip="{Binding DataContext.HelpTips[additionalxml],RelativeSource={RelativeSource AncestorType=Window}}" Text="{Binding Content,UpdateSourceTrigger=PropertyChanged}" AcceptsReturn="True" AcceptsTab="True" TextWrapping="NoWrap" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto" Height="250" FontFamily="Consolas" FontSize="16" SpellCheck.IsEnabled="False" />
             </StackPanel>
             <CheckBox Content="{loc:Source text.c87c7289a9c1}" IsChecked="{Binding Plan.ConfirmAdditionalXml}" />
             <TextBlock Style="{StaticResource ExplanationText}" Text="{loc:Text text.57c62c45e288}" Foreground="{DynamicResource WarningBrush}" />
