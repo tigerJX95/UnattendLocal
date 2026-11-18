@@ -141,7 +141,6 @@ internal static class Program
         var vm = (MainViewModel)owner.DataContext;
         var plan = vm.Plan;
         string before = PlanStore.Serialize(plan, includeSecrets: true);
-        string preview = vm.Preview;
         string language = UiText.Language;
         if (!plan.UseAppLocker && !((Button)owner.FindName("AppLockerEventsButton")).IsEnabled)
             throw new Exception("Event review must be available without enabling AppLocker in the plan.");
@@ -153,6 +152,9 @@ internal static class Program
             {
                 UiText.SetLanguage(culture);
                 UiTheme.Apply(theme, save: false);
+                DrainDispatcher();
+                // Preview text is localized. Compare it within the same language and theme.
+                string preview = vm.Preview;
                 var review = new DeploymentReviewWindow(kind) { Owner = owner };
                 try
                 {
@@ -167,9 +169,12 @@ internal static class Program
                         throw new Exception($"{culture}/{theme}/{kind}: review window localization, readability, or theme mismatch.");
                 }
                 finally { review.Close(); }
+                DrainDispatcher();
+                if (!ReferenceEquals(vm.Plan, plan) || PlanStore.Serialize(plan, includeSecrets: true) != before)
+                    throw new Exception($"{culture}/{theme}/{kind}: Opening and closing a review window must preserve the plan.");
+                if (vm.Preview != preview)
+                    throw new Exception($"{culture}/{theme}/{kind}: Opening and closing a review window must preserve the preview.");
             }
-            if (!ReferenceEquals(vm.Plan, plan) || PlanStore.Serialize(plan, includeSecrets: true) != before || vm.Preview != preview)
-                throw new Exception("Opening review windows must not alter the plan or preview.");
             Console.WriteLine("PASS deployment review window localization, themes, and unchanged configuration.");
         }
         finally { UiText.SetLanguage(language); }
