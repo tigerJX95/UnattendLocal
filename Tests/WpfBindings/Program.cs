@@ -127,10 +127,70 @@ internal static class Program
                 }
             }
             Console.WriteLine("PASS local account list theme across account modes and theme switches.");
+            CheckSidebarLayout(window);
         }
         finally
         {
             window.Close();
         }
+    }
+
+    private static void CheckSidebarLayout(MainWindow window)
+    {
+        var pages = (TabControl)window.FindName("Pages");
+        var viewModel = (MainViewModel)window.DataContext;
+        object selectedPage = pages.SelectedItem;
+        window.Show();
+        DrainDispatcher();
+        window.UpdateLayout();
+        string savedPlan = PlanStore.Serialize(viewModel.Plan, includeSecrets: true);
+        var pane = (Border)pages.Template.FindName("NavigationPane", pages);
+        var toggle = (Button)pages.Template.FindName("SidebarToggleButton", pages);
+        var edge = (Button)pages.Template.FindName("SidebarRevealEdge", pages);
+        var content = (ContentPresenter)pages.Template.FindName("PART_SelectedContentHost", pages);
+        foreach (var theme in new[] { "Light", "Dark" })
+        {
+            UiTheme.Apply(theme, save: false);
+            DrainDispatcher();
+            window.UpdateLayout();
+            double expandedWidth = content.ActualWidth;
+            if (!viewModel.IsSidebarPinned || !viewModel.IsSidebarVisible || !pane.IsVisible ||
+                pane.ActualWidth <= 0 || !toggle.IsDescendantOf(pane))
+                throw new Exception("The navigation sidebar must initially be visible.");
+
+            toggle.RaiseEvent(new RoutedEventArgs(Button.ClickEvent));
+            DrainDispatcher();
+            window.UpdateLayout();
+            if (viewModel.IsSidebarPinned || viewModel.IsSidebarVisible || pane.Visibility != Visibility.Collapsed ||
+                content.ActualWidth <= expandedWidth + 50 || toggle.IsVisible || !edge.IsVisible ||
+                !ReferenceEquals(selectedPage, pages.SelectedItem))
+                throw new Exception("Unpinning must widen the selected page and expose its left-edge reveal control.");
+
+            double hiddenWidth = content.ActualWidth;
+            edge.RaiseEvent(new RoutedEventArgs(Button.ClickEvent));
+            DrainDispatcher();
+            window.UpdateLayout();
+            if (viewModel.IsSidebarPinned || !viewModel.IsSidebarVisible || !pane.IsVisible ||
+                !toggle.IsVisible || Math.Abs(content.ActualWidth - hiddenWidth) > 1 ||
+                !ReferenceEquals(selectedPage, pages.SelectedItem))
+                throw new Exception("A temporary sidebar must overlay the content without changing its width.");
+
+            viewModel.HideSidebarPreview();
+            DrainDispatcher();
+            window.UpdateLayout();
+            if (pane.IsVisible || !edge.IsVisible || Math.Abs(content.ActualWidth - hiddenWidth) > 1)
+                throw new Exception("Dismissing a temporary sidebar must preserve the expanded content width.");
+            edge.RaiseEvent(new RoutedEventArgs(Button.ClickEvent));
+            toggle.RaiseEvent(new RoutedEventArgs(Button.ClickEvent));
+            DrainDispatcher();
+            window.UpdateLayout();
+            if (!viewModel.IsSidebarPinned || !viewModel.IsSidebarVisible || !pane.IsVisible ||
+                Math.Abs(content.ActualWidth - expandedWidth) > 1 ||
+                !ReferenceEquals(selectedPage, pages.SelectedItem))
+                throw new Exception("Restoring the sidebar must preserve the selected page and restore its width.");
+        }
+        if (PlanStore.Serialize(viewModel.Plan, includeSecrets: true) != savedPlan)
+            throw new Exception("Changing sidebar visibility must preserve the installation plan.");
+        Console.WriteLine("PASS fixed, hidden, and overlay sidebars preserve the plan and selected page in both themes.");
     }
 }

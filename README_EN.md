@@ -7,7 +7,7 @@
 
 UnattendLocal is a Windows desktop tool with Simplified Chinese and English interfaces based on [Christoph Schneegans’ UnattendGenerator](https://github.com/cschneegans/unattend-generator). It lets you edit, check, and generate `autounattend.xml` for Windows 10 / 11 locally.
 
-Current version: **V1.49**. When PE script installation is enabled, image selection switches to **By image index** and requires an index from the installation image; the regular Windows Setup path retains all image selection modes. Includes static IPv4/IPv6 dual stack, subnet-mask input, settings search, setup driver directories, Dynamic Update, partitioning, OOBE and account settings, and existing XML import/editing.
+Current version: **V1.50**. When PE script installation is enabled, image selection switches to **By image index** and requires an index from the installation image; the regular Windows Setup path retains all image selection modes. Includes static IPv4/IPv6 dual stack, subnet-mask input, settings search, setup driver directories, Dynamic Update, partitioning, OOBE and account settings, and existing XML import/editing.
 
 ## 💡 Why this project exists
 
@@ -58,10 +58,11 @@ The displayed product key is a public generic installation key for selecting an 
 - Save and restore JSON plans; review summaries, recommended-setting differences, checks, redacted previews, and XML exports.
 - Import existing XML and edit supported settings while preserving unknown content. Export stops with an explanation when changes cannot be merged reliably.
 
-## V1.49 Offline driver directories and Setup logs · 2026-11-17
+## V1.50 Import compatibility and interface improvements · 2026-11-18
 
-- Under Custom scripts → Additional XML, create an `offlineServicing` draft from a list of driver directories for regular Windows Setup.
-- Under Check and export, open Windows Setup, driver, or unattended servicing logs and filter lines by keyword.
+- Fixed XML import incorrectly reporting the supported core isolation parameter `CoreIsolationMode` as unrecognized.
+- Increased the font size of script content and Additional XML editors for easier reading.
+- Added pinned and auto-hide sidebar modes with a button at the top-right of the navigation pane. Reveal a hidden sidebar from the left window edge, then use the button to pin it.
 
 [Driver directories](docs/SetupDrivers.md) · [Setup log viewer](docs/SetupLogs.md)
 
@@ -69,7 +70,7 @@ The displayed product key is a public generic installation key for selecting an 
 
 ## 📦 Download and usage
 
-Download and run the matching Windows x64 executable from the repository’s [**Releases**](https://github.com/tigerJX95/UnattendLocal/releases/latest) page: `UnattendLocal_V1.49_x64_SelfContained.exe` or `UnattendLocal_V1.49_x64_FrameworkDependent.exe`. Choose `UnattendLocal_V1.49_x64_SelfContained.exe` for a bundled .NET runtime, or `UnattendLocal_V1.49_x64_FrameworkDependent.exe` if .NET 10 Desktop Runtime x64 is already installed. Both have the same features. Use a virtual machine for initial testing.
+Download and run the matching Windows x64 executable from the repository’s [**Releases**](https://github.com/tigerJX95/UnattendLocal/releases/latest) page: `UnattendLocal_V1.50_x64_SelfContained.exe` or `UnattendLocal_V1.50_x64_FrameworkDependent.exe`. Choose `UnattendLocal_V1.50_x64_SelfContained.exe` for a bundled .NET runtime, or `UnattendLocal_V1.50_x64_FrameworkDependent.exe` if .NET 10 Desktop Runtime x64 is already installed. Both have the same features. Use a virtual machine for initial testing.
 
 1. Choose a recommended scenario or a custom configuration and enter the required account and image settings.
 2. Adjust system, appearance, and application removal options as needed.

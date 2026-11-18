@@ -1,5 +1,7 @@
 using System.Text;using System.Xml;using UnattendLocal.Core;
 int count=0;var g=new GeneratorService();
+if(args.Contains("--sidebar-navigation-only")){Console.WriteLine($"Sidebar navigation: {SidebarNavigationTests.Run()} checks passed.");return;}
+if(args.Contains("--core-isolation-import-only")){Console.WriteLine($"Core isolation import: {CoreIsolationImportTests.Run(g)} checks passed.");return;}
 if(args.Contains("--configuration-review-only")){Console.WriteLine($"Configuration review: {ConfigurationReviewTests.Run(g)} checks passed.");return;}
 if(args.Contains("--ipv4-naming-only")){Console.WriteLine($"IPv4 naming: {Ipv4NamingTests.Run(g)} checks passed.");return;}
 if(args.Contains("--embedded-background-only")){Console.WriteLine($"Embedded backgrounds: {EmbeddedBackgroundTests.Run(g)} checks passed.");return;}
@@ -2149,3 +2151,4 @@ count+=SecurityAuditFixTests.CheckScriptMergeBudget();Console.WriteLine($"V1.38 
 
 count+=Ipv4NamingTests.Run(g);count+=ConfigurationReviewTests.Run(g);Console.WriteLine($"V1.48 final total: {count} tests passed.");
 count+=SetupDiagnosticsTests.Run(g);Console.WriteLine($"V1.49 final total: {count} tests passed.");
+count+=CoreIsolationImportTests.Run(g);count+=SidebarNavigationTests.Run();Console.WriteLine($"V1.50 final total: {count} tests passed.");

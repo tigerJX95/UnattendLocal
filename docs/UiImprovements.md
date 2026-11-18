@@ -1,5 +1,15 @@
 ﻿# 界面操作说明
 
+## 侧边栏自动隐藏 / Auto-hide sidebar
+
+侧边栏顶部右上角的分栏图标可在固定与自动隐藏之间切换。固定时分类导航常驻显示。收起后，左边缘保留一条窄提示条；鼠标在该处短暂悬停即可临时展开，也可点击提示条展开。
+
+临时展开的导航覆盖当前页面，移开鼠标后自动收起。点击导航右上角按钮可将其固定，右侧内容随后按固定导航的宽度布局。切换显示方式会保留当前页面和配置内容。
+
+The split-panel button at the upper-right of the sidebar switches between pinned and auto-hide modes. When hidden, a narrow strip remains at the left edge. Pause the pointer there to reveal the sidebar, or click the strip.
+
+A temporary sidebar overlays the current page and hides after the pointer leaves. Use its upper-right button to pin it and reserve space beside the page. The selected page and configuration are preserved.
+
 ## 📂 V1.12 文件拖放与导入详情 / File dropping and import details
 
 将一个 Windows 应答 XML 或本程序保存的 JSON 方案拖入主窗口，输入框和脚本编辑区同样支持。读取检查后确认替换；选择“否”显示取消，当前配置保留。多文件、目录、无效文件及其他 JSON／XML 不替换当前方案。原按钮继续可用，JSON 省略的凭据仍需填写。

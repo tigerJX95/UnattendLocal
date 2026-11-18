@@ -2,6 +2,12 @@
 
 [Back to the README](README_EN.md) · [简体中文](CHANGELOG.md)
 
+## V1.50 Import compatibility and interface improvements · 2026-11-18
+
+- Fixed XML import incorrectly reporting the supported core isolation parameter `CoreIsolationMode` as unrecognized.
+- Increased the font size of script content and Additional XML editors for easier reading.
+- Added pinned and auto-hide sidebar modes with a button at the top-right of the navigation pane. Reveal a hidden sidebar from the left window edge, then use the button to pin it.
+
 ## V1.49 Offline driver directories and Setup logs · 2026-11-17
 
 - Under Custom scripts → Additional XML, create an `offlineServicing` draft from a list of driver directories for regular Windows Setup.
