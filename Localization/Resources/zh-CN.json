@@ -4063,5 +4063,9 @@
   "setupLogs.empty": "当前范围内没有可显示的日志内容。",
   "setupLogs.noMatches": "当前范围内没有匹配的日志行。",
   "setupLogs.unsupported": "请选择受支持的 Windows 安装日志文件。",
-  "setupLogs.invalidText": "文件包含无效的日志文本。"
+  "setupLogs.invalidText": "文件包含无效的日志文本。",
+  "navigation.hideSidebar": "收起侧边栏",
+  "navigation.showSidebar": "展开侧边栏",
+  "navigation.pinSidebar": "固定侧边栏",
+  "navigation.autoHideHelp": "将鼠标移到窗口左侧边缘可展开侧边栏，点击侧边栏右上角按钮可固定。"
 }

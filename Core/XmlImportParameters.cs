@@ -24,6 +24,7 @@ public static class XmlImportParameters
     {
         ("LockKeysMode", "Skip" or "Default" or "Custom") => true,
         ("CompactOsMode", "Default" or "Always" or "Never") => true,
+        ("CoreIsolationMode", "Enabled" or "Disabled") => true,
         ("PartitionMode", "Interactive") => true,
         ("DiskAssertionMode", "Skip") => true,
         ("InstallFromMode", "Automatic") => true,

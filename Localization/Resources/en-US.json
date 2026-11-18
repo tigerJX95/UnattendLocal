@@ -4063,5 +4063,9 @@
   "setupLogs.empty": "There is no log content to display in the current range.",
   "setupLogs.noMatches": "No matching log lines in the current range.",
   "setupLogs.unsupported": "Choose a supported Windows Setup log file.",
-  "setupLogs.invalidText": "The file contains invalid log text."
+  "setupLogs.invalidText": "The file contains invalid log text.",
+  "navigation.hideSidebar": "Collapse sidebar",
+  "navigation.showSidebar": "Expand sidebar",
+  "navigation.pinSidebar": "Pin sidebar",
+  "navigation.autoHideHelp": "Move the pointer to the left edge to reveal the sidebar. Use its upper-right button to pin it."
 }

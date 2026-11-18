@@ -7,6 +7,32 @@ public class AppRemovalChoice(AppRemovalSettings.Item item, Func<InstallPlan> cu
  public void Refresh()=>Notify(nameof(IsSelected));
 }
 public class MainViewModel : Observable {
+ private bool isSidebarPinned = true;
+ private bool isSidebarPreviewVisible;
+ public bool IsSidebarPinned => isSidebarPinned;
+ public bool IsSidebarVisible => isSidebarPinned || isSidebarPreviewVisible;
+ public string SidebarToggleText => UnattendLocal.Localization.UiText.Source(
+  IsSidebarPinned ? "navigation.hideSidebar" : "navigation.pinSidebar");
+ public void ToggleSidebarPin()
+ {
+  isSidebarPinned = !isSidebarPinned;
+  isSidebarPreviewVisible = false;
+  Notify(nameof(IsSidebarPinned));
+  Notify(nameof(IsSidebarVisible));
+  Notify(nameof(SidebarToggleText));
+ }
+ public void ShowSidebarPreview()
+ {
+  if (isSidebarPinned || isSidebarPreviewVisible) return;
+  isSidebarPreviewVisible = true;
+  Notify(nameof(IsSidebarVisible));
+ }
+ public void HideSidebarPreview()
+ {
+  if (!isSidebarPreviewVisible) return;
+  isSidebarPreviewVisible = false;
+  Notify(nameof(IsSidebarVisible));
+ }
  private System.Collections.ObjectModel.ObservableCollection<string>? observedApps;
  public List<AppRemovalChoice> AppRemovalChoices {get;private set;}=new();
  private string appRemovalFilter="";public string AppRemovalFilter {get=>appRemovalFilter;set{Set(ref appRemovalFilter,value);Notify(nameof(FilteredAppRemovalChoices));Notify(nameof(AppRemovalFilterSummary));}}

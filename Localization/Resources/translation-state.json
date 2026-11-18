@@ -4064,6 +4064,10 @@
     "setupLogs.empty": "34a7739dff2a3ffb078da2645fde0bbafdd540b8f842452a6dd531b1f2631750",
     "setupLogs.noMatches": "0a4c19d65164a029de9d46a03a285dbf7b43a7cbad1b1a5cbbb53f4bc5f21c39",
     "setupLogs.unsupported": "4f09418e9edfca479f0ce41853f4e7e521aaee00e4183101d731ed9552e56088",
-    "setupLogs.invalidText": "d4acaf0ce0a40e7c2a720d33fe754b1475a30e903f3cca926d7ad2350d3752cf"
+    "setupLogs.invalidText": "d4acaf0ce0a40e7c2a720d33fe754b1475a30e903f3cca926d7ad2350d3752cf",
+    "navigation.hideSidebar": "ce1d67c2703c6d4393fe3702e70b740185df4b40377d3881d29967e6124c73af",
+    "navigation.showSidebar": "eea954b92548c5419a473f42e2d8cf510cc78d1dd520061d24ffb1667c16632a",
+    "navigation.pinSidebar": "cb209ae0cc05c7558178054588d4c54f4eedf961f0be1010f1d258bc4e42e016",
+    "navigation.autoHideHelp": "027ac6f545fa6be76bd315f6c1ecea9b80684d23be1d7f61246c0de8391483ac"
   }
 }

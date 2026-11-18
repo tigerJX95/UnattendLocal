@@ -11,7 +11,7 @@ using UnattendLocal.Localization;
 namespace UnattendLocal.Desktop;
 public partial class MainWindow : Window {
  private readonly MainViewModel vm=new(); private bool loading; 
- public MainWindow(){InitializeComponent();DataContext=vm;InitializeSettingsSearch();_ = new WindowScrollPosition(this,Pages);SourceInitialized+=(_,_)=>UiTheme.UpdateTitleBar(this);RefreshThemeIcon();InitializeConfigurationDrop();InitializeLanguageMenu();Language=System.Windows.Markup.XmlLanguage.GetLanguage(UnattendLocal.Localization.UiText.Language);if(App.LanguageWarning is string warning)vm.Status=UnattendLocal.Localization.UiText.Source(warning);}
+ public MainWindow(){InitializeComponent();DataContext=vm;InitializeSidebar();InitializeSettingsSearch();_ = new WindowScrollPosition(this,Pages);SourceInitialized+=(_,_)=>UiTheme.UpdateTitleBar(this);RefreshThemeIcon();InitializeConfigurationDrop();InitializeLanguageMenu();Language=System.Windows.Markup.XmlLanguage.GetLanguage(UnattendLocal.Localization.UiText.Language);if(App.LanguageWarning is string warning)vm.Status=UnattendLocal.Localization.UiText.Source(warning);}
  private void InitializeLanguageMenu(){
   LanguagePickerMenu.Items.Clear();
   foreach(var language in UnattendLocal.Localization.UiText.Languages){
