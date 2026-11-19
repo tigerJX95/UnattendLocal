@@ -11,6 +11,20 @@ public sealed record ConfigurationSetReview(IReadOnlyList<ConfigurationSetFile> 
     public const int MaxRows = 500;
     private const int MaxDepth = 32;
 
+    public static string PlanScope(InstallPlan plan)
+    {
+        if (plan.ImportedXml is not null)
+            return UiText.Source("oemReview.plan.imported");
+
+        return UiText.Source((plan.UseGeneratedPe, plan.UseConfigurationSet) switch
+        {
+            (true, true) => "oemReview.plan.peEnabled",
+            (true, false) => "oemReview.plan.peDisabled",
+            (false, true) => "oemReview.plan.setupEnabled",
+            _ => "oemReview.plan.setupDisabled"
+        });
+    }
+
     public static string? Destination(string relativePath)
     {
         var parts = relativePath.Replace('/', '\\').Split('\\');

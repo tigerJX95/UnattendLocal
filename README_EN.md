@@ -7,7 +7,7 @@
 
 UnattendLocal is a Windows desktop tool with Simplified Chinese and English interfaces based on [Christoph Schneegans’ UnattendGenerator](https://github.com/cschneegans/unattend-generator). It lets you edit, check, and generate `autounattend.xml` for Windows 10 / 11 locally.
 
-Current version: **V1.51**. When PE script installation is enabled, image selection switches to **By image index** and requires an index from the installation image; the regular Windows Setup path retains all image selection modes. Includes static IPv4/IPv6 dual stack, subnet-mask input, settings search, setup driver directories, Dynamic Update, partitioning, OOBE and account settings, and existing XML import/editing.
+Current version: **V1.52**. When PE script installation is enabled, image selection switches to **By image index** and requires an index from the installation image; the regular Windows Setup path retains all image selection modes. Includes static IPv4/IPv6 dual stack, subnet-mask input, settings search, setup driver directories, Dynamic Update, partitioning, OOBE and account settings, and existing XML import/editing.
 
 ## 💡 Why this project exists
 
@@ -58,12 +58,11 @@ The displayed product key is a public generic installation key for selecting an 
 - Save and restore JSON plans; review summaries, recommended-setting differences, checks, redacted previews, and XML exports.
 - Import existing XML and edit supported settings while preserving unknown content. Export stops with an explanation when changes cannot be merged reliably.
 
-## V1.51 Deployment review and import fixes · 2026-11-18
+## V1.52 Plan comparison and deployment guidance · 2026-11-19
 
-- Preview `$OEM$` file copy destinations under **Image and partitions**, distinguishing the system drive, Windows directory, explicit drive letters, and unmapped paths.
-- Review event XML under **OOBE → AppLocker**, with separate counts for allowed events, audit findings, actual blocks, and policy errors, plus event times and file paths.
-- Fixed imports treating `UseConfigurationSet` boolean values with valid surrounding whitespace as ambiguous.
-- Replaced the standalone sidebar toggle with a compact navigation header and a small outline icon, with hover and keyboard-focus feedback.
+- Move the labeled “Compare with a saved plan” button to the top of the plan page and remove its standalone icon card.
+- Show the current plan’s installation path and configuration-set state in the `$OEM$` folder review, distinguishing regular Windows Setup, a generated PE script, and an imported answer file.
+- Document Windows 11 classic context menu limitations and ADK selection for 24H2, 25H2, 26H2, and 26H1.
 
 [Deployment review guide](docs/DeploymentReview.md)
 
@@ -71,7 +70,7 @@ The displayed product key is a public generic installation key for selecting an 
 
 ## 📦 Download and usage
 
-Download and run the matching Windows x64 executable from the repository’s [**Releases**](https://github.com/tigerJX95/UnattendLocal/releases/latest) page: `UnattendLocal_V1.51_x64_SelfContained.exe` or `UnattendLocal_V1.51_x64_FrameworkDependent.exe`. Choose `UnattendLocal_V1.51_x64_SelfContained.exe` for a bundled .NET runtime, or `UnattendLocal_V1.51_x64_FrameworkDependent.exe` if .NET 10 Desktop Runtime x64 is already installed. Both have the same features. Use a virtual machine for initial testing.
+Download and run the matching Windows x64 executable from the repository’s [**Releases**](https://github.com/tigerJX95/UnattendLocal/releases/latest) page: `UnattendLocal_V1.52_x64_SelfContained.exe` or `UnattendLocal_V1.52_x64_FrameworkDependent.exe`. Choose `UnattendLocal_V1.52_x64_SelfContained.exe` for a bundled .NET runtime, or `UnattendLocal_V1.52_x64_FrameworkDependent.exe` if .NET 10 Desktop Runtime x64 is already installed. Both have the same features. Use a virtual machine for initial testing.
 
 1. Choose a recommended scenario or a custom configuration and enter the required account and image settings.
 2. Adjust system, appearance, and application removal options as needed.

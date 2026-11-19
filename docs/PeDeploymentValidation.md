@@ -18,6 +18,8 @@ V1.31 已完成 Release 构建、中英文检查及 31,049 项 C# 回归。
 
 ## 最小实机验收
 
+按目标 Windows 版本选用 ADK。微软列出的 ADK `10.1.26100.9457` 及配套 WinPE 加载项经最新补丁维护后支持 Windows 11 24H2、25H2 和 26H2。26H1 使用微软单列的 ADK `10.1.28000.3481` 系列。安装工具和 WinPE 加载项分别下载，按 [微软 ADK 说明](https://learn.microsoft.com/en-us/windows-hardware/get-started/adk-install) 核对当前维护更新。
+
 只使用带快照的临时虚拟机和可丢弃虚拟磁盘。Windows 安装 ISO 与应答文件 ISO 分开挂载，首次开启分区前及重启前暂停。镜像索引以实际介质为准，不在宿主机或有重要数据的磁盘上验证。
 
 | 场景 | 配置示例与预期 | 状态 |
@@ -36,6 +38,8 @@ V1.31 已完成 Release 构建、中英文检查及 31,049 项 C# 回归。
 记录目标系统/PE 版本、固件、虚拟磁盘布局、选择条件、实际选中编号、停止位置、返回结果及分区前后校验。失败时保留 PE 中的 `X:\pe.cmd`、`X:\target.vbs`、`X:\target.out`、`X:\UL-verify.out`、`X:\UL-imageinfo.txt`、`X:\UL-imagecheck.out` 和 DISM 输出，分享前脱敏；X: 为临时盘，重启后通常不保留。
 
 ## English
+
+Match the ADK to the target Windows version. Microsoft lists ADK `10.1.26100.9457` and its WinPE add-on, serviced with the latest patch, for Windows 11 24H2, 25H2 and 26H2. Microsoft lists the separate ADK `10.1.28000.3481` series for 26H1. The ADK and WinPE add-on are separate downloads. See [Microsoft's ADK support and downloads](https://learn.microsoft.com/en-us/windows-hardware/get-started/adk-install).
 
 An earlier version passed six basic VM cases and four VBScript error-result cases. The VBScript cases cover nonnumeric INVALID, nonexistent index 99, empty output, and a nonzero exit code. Automated generation and persistence checks do not prove installation success. The Windows-only runtime test executes the production selector with mocked disk/firmware I/O, without DiskPart or real disk enumeration. Non-Windows runs explicitly report NOT RUN.
 

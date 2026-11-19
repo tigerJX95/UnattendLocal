@@ -17,7 +17,7 @@ public partial class DeploymentReviewWindow : Window
     private CancellationTokenSource? pending;
     private bool closed;
 
-    public DeploymentReviewWindow(DeploymentReviewKind kind)
+    public DeploymentReviewWindow(DeploymentReviewKind kind, InstallPlan? plan = null)
     {
         this.kind = kind;
         InitializeComponent();
@@ -25,6 +25,8 @@ public partial class DeploymentReviewWindow : Window
         Title = UiText.Get(prefix + ".title");
         OpenButton.Content = UiText.Get(prefix + ".choose");
         ScopeText.Text = UiText.Get(prefix + ".hint");
+        if (kind == DeploymentReviewKind.ConfigurationSet && plan is not null)
+            ScopeText.Text += "\n" + UiText.Translate(ConfigurationSetReview.PlanScope(plan));
         SourceInitialized += (_, _) => UiTheme.UpdateTitleBar(this);
         Loaded += (_, _) => OpenButton.Focus();
         Closed += (_, _) => { closed = true; pending?.Cancel(); };

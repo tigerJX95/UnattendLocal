@@ -2,6 +2,12 @@
 
 [Back to the README](README_EN.md) · [简体中文](CHANGELOG.md)
 
+## V1.52 Plan comparison and deployment guidance · 2026-11-19
+
+- Move the labeled “Compare with a saved plan” button to the top of the plan page and remove its standalone icon card.
+- Show the current plan’s installation path and configuration-set state in the `$OEM$` folder review, distinguishing regular Windows Setup, a generated PE script, and an imported answer file.
+- Document Windows 11 classic context menu limitations and ADK selection for 24H2, 25H2, 26H2, and 26H1.
+
 ## V1.51 Deployment review and import fixes · 2026-11-18
 
 - Preview `$OEM$` file copy destinations under **Image and partitions**, distinguishing the system drive, Windows directory, explicit drive letters, and unmapped paths.

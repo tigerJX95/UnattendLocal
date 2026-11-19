@@ -2351,7 +2351,7 @@
   "text.99fa80f0314f": "Displays common hidden and protected system files; does not change attributes or access privileges.",
   "text.778d56de8a0e": "For example, the full file name \"Note.txt\" \"Procedure.exe\" is shown to facilitate the identification of the type of document.",
   "text.c5b5bf4be597": "New scheme uses the Windows default display behaviour. Show hidden files and display extensions as stand-alone settings.",
-  "text.69259114354e": "Reduces access to Show More Options; presentation is based on target Windows version.",
+  "text.69259114354e": "    This setting can reduce the need to open “Show more options.” The upstream generator reports that Windows 11 builds 26100.9974, 26200.9974, and 26300.9974 and later updates on those branches no longer honor it.",
   "text.cfc384b2020a": "This does not affect setting tips in this tool or disable system notifications.",
   "text.49adf53cb64f": "Use the default Windows \"Quick Access \" or \" Home Page \" for cancellation. No fixed items will be deleted or the default saving position changed.",
   "text.5263509a15ee": "Choose the search entry style",
@@ -4100,5 +4100,10 @@
   "eventReview.partial": "Counts cover imported events; only the first 500 audit findings, blocks, or errors are listed.",
   "eventReview.noFindings": "No audit findings, blocks, or errors to list. This does not establish that the policy is active.",
   "eventReview.row": "{0} | {1} | {2} | {3}",
-  "navigation.title": "Navigation"
+  "navigation.title": "Navigation",
+  "oemReview.plan.setupDisabled": "Current plan: Windows Setup configuration set is off. The preview is for checking the folder layout.",
+  "oemReview.plan.setupEnabled": "Current plan: Windows Setup configuration set is on. Actual copying depends on Windows Setup and the installation media.",
+  "oemReview.plan.peDisabled": "Current plan: the generated PE script has configuration-set copying off. The mapping below is a reference for regular Windows Setup.",
+  "oemReview.plan.peEnabled": "Current plan: the generated PE script handles the copy. The mapping below is a reference for regular Windows Setup.",
+  "oemReview.plan.imported": "Current plan includes an imported answer file. It may preserve custom copy logic. Please verify the final answer file and companion scripts."
 }

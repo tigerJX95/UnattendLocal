@@ -110,7 +110,20 @@
     <TabControl x:Name="Pages" Style="{StaticResource CollapsibleNavigationTabs}" TabStripPlacement="Left" Background="{DynamicResource CanvasBrush}" BorderThickness="0" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch">
       <TabItem Header="{loc:Source text.181996c542a1}" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch">
         <ScrollViewer VerticalScrollBarVisibility="Auto"><StackPanel Margin="24">
-          <TextBlock Margin="0,0,0,12" Text="{loc:Text text.8c41e5a4e04d}" TextWrapping="Wrap" Foreground="{DynamicResource SecondaryBrush}"/>
+          <Grid Margin="0,0,0,12">
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="*"/>
+              <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+            <TextBlock Text="{loc:Text text.8c41e5a4e04d}" TextWrapping="Wrap" VerticalAlignment="Center"
+                       Foreground="{DynamicResource SecondaryBrush}"/>
+            <Button Grid.Column="1" Content="{loc:Text plan.compare.open}" ContentTemplate="{x:Null}"
+                    AutomationProperties.Name="{loc:Text plan.compare.open}" Click="ComparePlanClick"
+                    Width="Auto" Height="Auto" MinHeight="36" Padding="12,6" Margin="16,0,0,0"
+                    VerticalAlignment="Center">
+              <Button.ToolTip><ToolTip ContentTemplate="{x:Null}" Content="{loc:Text plan.compare.help}"/></Button.ToolTip>
+            </Button>
+          </Grid>
           <Border Style="{StaticResource Card}"><StackPanel>
             <TextBlock Text="{loc:Text text.9189971a6258}" FontSize="20" FontWeight="SemiBold" Margin="0,0,0,12" />
             <DockPanel>
@@ -127,11 +140,6 @@
               </StackPanel>
             </DockPanel>
           </StackPanel></Border>
-          <Border Style="{StaticResource Card}">
-            <Button Content="{loc:Source plan.compare.open}" Click="ComparePlanClick" HorizontalAlignment="Left">
-              <Button.ToolTip><ToolTip ContentTemplate="{x:Null}" Content="{loc:Text plan.compare.help}" /></Button.ToolTip>
-            </Button>
-          </Border>
           <Border Style="{StaticResource Card}" Visibility="{Binding HasImportedXml,Converter={StaticResource VisibleWhen}}"><StackPanel x:Name="SettingAnchor000">
             <TextBlock Text="{loc:Text text.64b5adb43bcf}" FontSize="20" FontWeight="SemiBold" Margin="0,0,0,16"/>
             <TextBlock Text="{loc:Display Value={Binding XmlImportSummary}}" FontWeight="SemiBold" TextWrapping="Wrap"><TextBlock.Style><Style TargetType="TextBlock"><Setter Property="Foreground" Value="{DynamicResource ForegroundBrush}"/><Style.Triggers><DataTrigger Binding="{Binding HasXmlImportErrors}" Value="True"><Setter Property="Foreground" Value="{DynamicResource ErrorBrush}"/></DataTrigger></Style.Triggers></Style></TextBlock.Style></TextBlock>
