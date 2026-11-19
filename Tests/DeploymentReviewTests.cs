@@ -26,6 +26,23 @@ static class DeploymentReviewTests
         foreach (string unknown in new[] { "file.txt", @"Other\a.txt", @"$1\..\a.txt", @"$1\a:b", @"$1\\a", @"$1\.\a" })
             Check(ConfigurationSetReview.Destination(unknown) is null, "unmapped or unsafe relative path");
 
+        var plan = new InstallPlan();
+        Check(UiText.EnglishText(ConfigurationSetReview.PlanScope(plan)).Contains("Windows Setup configuration set is off"),
+            "a default plan does not imply that Setup will copy the reviewed folder");
+        plan.UseConfigurationSet = true;
+        Check(UiText.EnglishText(ConfigurationSetReview.PlanScope(plan)).Contains("Windows Setup configuration set is on"),
+            "Setup opt-in is reported");
+        plan.UseGeneratedPe = true;
+        Check(UiText.EnglishText(ConfigurationSetReview.PlanScope(plan)).Contains("generated PE script handles the copy"),
+            "generated PE opt-in identifies the script as the copy mechanism");
+        plan.UseConfigurationSet = false;
+        Check(UiText.EnglishText(ConfigurationSetReview.PlanScope(plan)).Contains("generated PE script has configuration-set copying off"),
+            "generated PE does not inherit upstream's unconditional copy");
+        plan.ImportedXml = new ImportedXml();
+        plan.UseConfigurationSet = true;
+        Check(UiText.EnglishText(ConfigurationSetReview.PlanScope(plan)).Contains("verify the final answer file"),
+            "imported plans defer to preserved content");
+
         string temporary = Path.Combine(Path.GetTempPath(), "ul151-" + Guid.NewGuid().ToString("N"));
         Directory.CreateDirectory(temporary);
         try

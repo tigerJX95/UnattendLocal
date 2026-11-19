@@ -155,7 +155,7 @@ internal static class Program
                 DrainDispatcher();
                 // Preview text is localized. Compare it within the same language and theme.
                 string preview = vm.Preview;
-                var review = new DeploymentReviewWindow(kind) { Owner = owner };
+                var review = new DeploymentReviewWindow(kind, plan) { Owner = owner };
                 try
                 {
                     review.Show();
@@ -167,6 +167,12 @@ internal static class Program
                         !text.IsReadOnly || text.FontSize != 16 || text.Background is not SolidColorBrush brush ||
                         brush.Color != ((SolidColorBrush)Application.Current.FindResource("InputBrush")).Color)
                         throw new Exception($"{culture}/{theme}/{kind}: review window localization, readability, or theme mismatch.");
+                    string scope = ((TextBlock)review.FindName("ScopeText")).Text;
+                    string expectedScope = UiText.Get(prefix + ".hint");
+                    if (kind == DeploymentReviewKind.ConfigurationSet)
+                        expectedScope += "\n" + UiText.Translate(ConfigurationSetReview.PlanScope(plan));
+                    if (scope != expectedScope)
+                        throw new Exception($"{culture}/{theme}/{kind}: unexpected plan scope.");
                 }
                 finally { review.Close(); }
                 DrainDispatcher();

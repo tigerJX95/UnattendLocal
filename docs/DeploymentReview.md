@@ -11,7 +11,9 @@
 | `D\Data\example.txt` | `D:\Data\example.txt` |
 | `Other\example.txt` | 未映射，需要核对目录结构 |
 
-预览不假定系统盘是 C 盘。它不检查目标是否已有同名文件，也不判断文件内容是否适合目标系统。不要通过配置集覆盖 Windows 系统文件。启用 `UseConfigurationSet` 后，应答文件所在介质根目录的其他内容也可能被复制，不能将预览中的 `$OEM$` 文件列表视为整个介质的完整复制清单。自定义 PE 脚本的复制行为由脚本决定。
+窗口顶部显示当前方案的安装路径和配置集状态。常规 Windows Setup 通过 `windowsPE` 阶段的 `UseConfigurationSet` 使用配置集。启用本工具生成的 PE 安装脚本时，由脚本处理复制，仍须打开配置集开关。原生成器新版的自定义 `pe.cmd` 可独立处理 `$OEM$`，导入这类应答文件后，应核对最终 XML 和配套脚本。
+
+预览不假定系统盘是 C 盘。它不检查目标是否已有同名文件，也不判断文件内容是否适合目标系统。不要通过配置集覆盖 Windows 系统文件。启用 `UseConfigurationSet` 后，应答文件所在介质根目录的其他内容也可能被复制，不能将预览中的 `$OEM$` 文件列表视为整个介质的完整复制清单。映射表以常规 Windows Setup 为准。
 
 最多扫描 2000 个条目和 32 层子目录，列出 500 个文件。符号链接、目录联接、不可访问或过深的子目录会跳过。遇到限制或跳过内容时，窗口明确标示结果不完整。关闭窗口可取消后台复核。
 
@@ -35,7 +37,9 @@
 
 ## English
 
-**Image and partitions → Installation media configuration set → Preview $OEM$ copy destinations** reads directory metadata and maps `$1` to `%SystemDrive%`, `$$` to `%WINDIR%`, and single-letter directories to their drive roots. Unknown layouts remain unmapped. It does not read payloads, copy files, enable a configuration set, or inspect existing destination files. Configuration sets can also copy other contents at the answer-file media root; this preview is not an inventory of that entire copy operation. Custom PE scripts control their own copy behavior.
+**Image and partitions → Installation media configuration set → Preview $OEM$ copy destinations** reads directory metadata and maps `$1` to `%SystemDrive%`, `$$` to `%WINDIR%`, and single-letter directories to their drive roots. Unknown layouts remain unmapped. It does not read payloads, copy files, enable a configuration set, or inspect existing destination files. Configuration sets can also copy other contents at the answer-file media root; this preview is not an inventory of that entire copy operation.
+
+The window identifies the current plan's configuration-set state and installation path. Regular Windows Setup reads `UseConfigurationSet` in the `windowsPE` pass. An UnattendLocal-generated PE script handles copying when the plan enables it. New upstream custom `pe.cmd` scripts can process `$OEM$` independently. For imported plans, verify the final XML and accompanying scripts.
 
 The scan is limited to 2000 entries and 32 subdirectory levels, with 500 file rows. Links, inaccessible directories, and deeper directories are skipped. Partial results are labeled. Close the window to cancel.
 
@@ -47,4 +51,5 @@ All imported events contribute to counts; only the first 500 findings, blocks, o
 
 - [Microsoft: Distribution Shares and Configuration Sets Overview](https://learn.microsoft.com/en-us/windows-hardware/customize/desktop/wsim/distribution-shares-and-configuration-sets-overview)
 - [Microsoft: UseConfigurationSet](https://learn.microsoft.com/en-us/windows-hardware/customize/desktop/unattend/microsoft-windows-setup-useconfigurationset)
+- [Upstream: configuration-set handling in Windows Setup and pe.cmd](https://github.com/cschneegans/unattend-generator/commit/8fdf1b99af95977ea38f4922662964dc6324b0df)
 - [Microsoft: Using Event Viewer with AppLocker](https://learn.microsoft.com/en-us/windows/security/application-security/application-control/app-control-for-business/applocker/using-event-viewer-with-applocker)

@@ -22686,12 +22686,12 @@
     "ProtectedTokens": []
   },
   "text.69259114354e": {
-    "Source": "　　减少进入“显示更多选项”的操作；具体表现以目标 Windows 版本为准。",
+    "Source": "　　此设置可减少进入“显示更多选项”的操作。原生成器记录，Windows 11 的 26100.9974、26200.9974 和 26300.9974 及各自分支的后续更新已不再响应此设置。",
     "Contexts": [
       "Desktop/MainWindow.xaml:Text"
     ],
     "RawArgs": [],
-    "SourceHash": "69259114354e192fd8562295fce50249c9d989033fd1d42be945506a8c73e601",
+    "SourceHash": "8a3a4186dda19c7c854f992abc7cd1cd969be3bfa238f717a0c334e582830e6c",
     "ProtectedTokens": []
   },
   "text.cfc384b2020a": {
@@ -38684,6 +38684,51 @@
     ],
     "RawArgs": [],
     "SourceHash": "e72622fe470d04bc588375b9a788202c36a9a133eba8701f2ce12ecdb8924e0d",
+    "ProtectedTokens": []
+  },
+  "oemReview.plan.setupDisabled": {
+    "Source": "当前方案：常规 Windows Setup 的配置集已关闭。下方预览仅供核对目录。",
+    "Contexts": [
+      "Core/ConfigurationSetReview.cs"
+    ],
+    "RawArgs": [],
+    "SourceHash": "4301dac475c9fb1092d4c78bb24602092a8bb067ddf0b92d4ab29cdcf88ace04",
+    "ProtectedTokens": []
+  },
+  "oemReview.plan.setupEnabled": {
+    "Source": "当前方案：常规 Windows Setup 的配置集已开启。实际复制范围由 Windows Setup 和安装介质决定。",
+    "Contexts": [
+      "Core/ConfigurationSetReview.cs"
+    ],
+    "RawArgs": [],
+    "SourceHash": "bc8e77a21b18b02395cea4cdd2359bac736d935f6f2127517d7bf5ea5a01377a",
+    "ProtectedTokens": []
+  },
+  "oemReview.plan.peDisabled": {
+    "Source": "当前方案：已选择 PE 脚本安装，生成的脚本未启用配置集复制。下方映射是常规 Windows Setup 的参考。",
+    "Contexts": [
+      "Core/ConfigurationSetReview.cs"
+    ],
+    "RawArgs": [],
+    "SourceHash": "908dbd13a05a31e35db49a33700742fd9528e1561df86e2aee08bddb58b419ad",
+    "ProtectedTokens": []
+  },
+  "oemReview.plan.peEnabled": {
+    "Source": "当前方案：已选择 PE 脚本安装并开启配置集，复制由生成的 PE 脚本处理。下方映射是常规 Windows Setup 的参考。",
+    "Contexts": [
+      "Core/ConfigurationSetReview.cs"
+    ],
+    "RawArgs": [],
+    "SourceHash": "5abc0397e5e503eaa592b841631f63a792706711b6851a1f83f0d69ee8f247ee",
+    "ProtectedTokens": []
+  },
+  "oemReview.plan.imported": {
+    "Source": "当前方案包含已导入的应答文件。原配置可能保留自定义复制流程，请核对最终应答文件和配套脚本。",
+    "Contexts": [
+      "Core/ConfigurationSetReview.cs"
+    ],
+    "RawArgs": [],
+    "SourceHash": "a0fdf47b75eb3caf650361f1d222eedcc0b28360c74e348bab2fabd129f36520",
     "ProtectedTokens": []
   }
 }

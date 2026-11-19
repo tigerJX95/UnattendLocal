@@ -2351,7 +2351,7 @@
   "text.99fa80f0314f": "显示普通隐藏文件和受保护的系统文件；\n不会改变属性或访问权限。",
   "text.778d56de8a0e": "例如显示完整文件名“说明.txt”“程序.exe”，便于确认文件类型。",
   "text.c5b5bf4be597": "　　新建方案沿用 Windows 默认显示行为。显示隐藏文件和显示扩展名是独立设置。",
-  "text.69259114354e": "减少进入“显示更多选项”的操作；具体表现以目标 Windows 版本为准。",
+  "text.69259114354e": "　　此设置可减少进入“显示更多选项”的操作。原生成器记录，Windows 11 的 26100.9974、26200.9974 和 26300.9974 及各自分支的后续更新已不再响应此设置。",
   "text.cfc384b2020a": "不影响本工具的设置提示，也不关闭系统通知。",
   "text.49adf53cb64f": "　　取消时使用 Windows 默认的“快速访问”或“主页”。不会删除固定项目或改变默认保存位置。",
   "text.5263509a15ee": "选择搜索入口的显示样式",
@@ -4100,5 +4100,10 @@
   "eventReview.partial": "计数覆盖已导入事件，仅列出前 500 条审计命中、阻止或错误事件。",
   "eventReview.noFindings": "未发现可列出的审计命中、阻止或错误事件；不能据此认定策略已生效。",
   "eventReview.row": "{0} | {1} | {2} | {3}",
-  "navigation.title": "导航"
+  "navigation.title": "导航",
+  "oemReview.plan.setupDisabled": "当前方案：常规 Windows Setup 的配置集已关闭。下方预览仅供核对目录。",
+  "oemReview.plan.setupEnabled": "当前方案：常规 Windows Setup 的配置集已开启。实际复制范围由 Windows Setup 和安装介质决定。",
+  "oemReview.plan.peDisabled": "当前方案：已选择 PE 脚本安装，生成的脚本未启用配置集复制。下方映射是常规 Windows Setup 的参考。",
+  "oemReview.plan.peEnabled": "当前方案：已选择 PE 脚本安装并开启配置集，复制由生成的 PE 脚本处理。下方映射是常规 Windows Setup 的参考。",
+  "oemReview.plan.imported": "当前方案包含已导入的应答文件。原配置可能保留自定义复制流程，请核对最终应答文件和配套脚本。"
 }
