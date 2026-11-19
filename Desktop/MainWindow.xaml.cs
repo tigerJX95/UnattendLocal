@@ -48,7 +48,13 @@ public partial class MainWindow : Window {
  }
  private void RefreshThemeIcon(){var dark=UiTheme.Current=="Dark";ThemeMoon.Visibility=dark?Visibility.Collapsed:Visibility.Visible;ThemeSun.Visibility=dark?Visibility.Visible:Visibility.Collapsed;var title=dark?global::UnattendLocal.Localization.UiText.Source("text.a52d332cfafb"):global::UnattendLocal.Localization.UiText.Source("text.a3538a688840");ThemeToggleTip.Content=UnattendLocal.Localization.UiText.Translate(title);System.Windows.Automation.AutomationProperties.SetName(ThemeToggleButton,UnattendLocal.Localization.UiText.Translate(title));}
  private void ThemeToggleClick(object s,RoutedEventArgs e){var saved=UiTheme.Apply(UiTheme.Current=="Dark"?"Light":"Dark");RefreshThemeIcon();if(!saved)vm.Status=global::UnattendLocal.Localization.UiText.Source("text.7e775a45f5e6");}
- private void AboutMenuClick(object s,RoutedEventArgs e){var menu=AboutMenuButton.ContextMenu;menu.PlacementTarget=AboutMenuButton;menu.Placement=System.Windows.Controls.Primitives.PlacementMode.Bottom;menu.IsOpen=true;}
+ private void OpenToolbarMenu(object sender, RoutedEventArgs e)
+ {
+  if (sender is not Button { ContextMenu: { } menu } button) return;
+  menu.PlacementTarget = button;
+  menu.Placement = System.Windows.Controls.Primitives.PlacementMode.Bottom;
+  menu.IsOpen = true;
+ }
  private void AboutSectionClick(object s,RoutedEventArgs e){if(s is MenuItem {Tag:string section}&&int.TryParse(section,out var index))Run(()=>new AboutWindow(index){Owner=this}.ShowDialog());}
  private void Run(Action action, bool locateConfiguration=false){try{action();}catch(Exception e){
   vm.Status=global::UnattendLocal.Localization.UiText.Source("text.63026f42b636");
@@ -146,7 +152,7 @@ public partial class MainWindow : Window {
   Run(() => new SetupLogWindow { Owner = this }.ShowDialog());
  private void CheckXmlComponentClick(object s,RoutedEventArgs e)=>Run(()=>{if(vm.SelectedXmlComponent is not {} row)throw new ArgumentException(global::UnattendLocal.Localization.UiText.Source("text.d9c31bccd272"));_=AdditionalXmlSettings.Parse(row);vm.Status=global::UnattendLocal.Localization.UiText.Source("text.57e53e8bea9e");});
  private void QuickPresetClick(object s,RoutedEventArgs e){
-  if(s is not Button {Tag:string kind})return;
+  if(s is not FrameworkElement {Tag:string kind})return;
   var plan=QuickPresets.Create(kind);
   string details=kind==QuickPresets.LocalAccount
    ? global::UnattendLocal.Localization.UiText.Source("text.c70dfacdd3e8")

@@ -17,8 +17,6 @@ public sealed class ActionIconConverter : IValueConverter
             foreach (var name in names.Split('|')) actions.Add(name, (geometry, body));
         }
         const string document = "M4,2 H13 L18,7 V20 H4 Z M13,2 V7 H18 ";
-        Add(global::UnattendLocal.Localization.UiText.Source("text.3df6c3d7eec2"), document+"M7,13 L10,16 L15,10", global::UnattendLocal.Localization.UiText.Source("text.5facbc61aa8c"));
-        Add(global::UnattendLocal.Localization.UiText.Source("text.d726fe88e3a1"), "M4,2 H13 L18,7 V10 M4,2 V20 H10 M13,2 V7 H18 M11,17 L17,11 L20,14 L14,20 H11 Z", global::UnattendLocal.Localization.UiText.Source("text.b5caca4c563e"));
         Add(global::UnattendLocal.Localization.UiText.Source("text.520eef7974df"), "M2,8 V4 H9 L12,7 H20 V10 M2,8 H21 L18,20 H2 Z", global::UnattendLocal.Localization.UiText.Source("text.f9b7d0a587d7"));
         Add(global::UnattendLocal.Localization.UiText.Source("text.a1de672a7e93"), document+"M1,12 H12 M8,8 L12,12 L8,16", global::UnattendLocal.Localization.UiText.Source("text.1de3f408ee67"));
         Add(global::UnattendLocal.Localization.UiText.Source("text.a6aa8cd3f498"), "M3,2 H17 L20,5 V20 H3 Z M7,2 V8 H16 V2 M7,20 V13 H16 V20", global::UnattendLocal.Localization.UiText.Source("text.1a5a9b1aaa8b"));

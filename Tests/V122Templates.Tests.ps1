@@ -1,4 +1,4 @@
-$ErrorActionPreference='Stop'
+﻿$ErrorActionPreference='Stop'
 $testRoot=Join-Path $PSScriptRoot '../Core/Resources/Templates'
 $results=@{Checks=0}
 function Assert-V122($value,$message) { if(-not $value){throw $message};$results.Checks++ }

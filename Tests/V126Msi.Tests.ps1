@@ -1,4 +1,4 @@
-# Simulate file operations and Windows Installer. Never install software.
+﻿# Simulate file operations and Windows Installer. Never install software.
 $ErrorActionPreference = 'Stop'
 $results = @{ Checks = 0 }
 function Assert-Msi($value, $message) { if (-not $value) { throw $message }; $results.Checks++ }

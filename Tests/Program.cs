@@ -2153,4 +2153,4 @@ count+=SecurityAuditFixTests.CheckScriptMergeBudget();Console.WriteLine($"V1.38 
 count+=Ipv4NamingTests.Run(g);count+=ConfigurationReviewTests.Run(g);Console.WriteLine($"V1.48 final total: {count} tests passed.");
 count+=SetupDiagnosticsTests.Run(g);Console.WriteLine($"V1.49 final total: {count} tests passed.");
 count+=CoreIsolationImportTests.Run(g);count+=SidebarNavigationTests.Run();Console.WriteLine($"V1.50 final total: {count} tests passed.");
-count+=DeploymentReviewTests.Run(g);Console.WriteLine($"V1.52 final total: {count} tests passed.");
+count+=DeploymentReviewTests.Run(g);Console.WriteLine($"V1.53 final total: {count} tests passed.");

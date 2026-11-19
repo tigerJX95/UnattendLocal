@@ -4034,7 +4034,7 @@
   "review.phases.scope": "This summary reflects the generated answer file. Check media, paths, and scripts in the installation environment.",
   "review.phases.peScript": "PE script deployment: check the actual image and target disk",
   "review.phases.disk": "Disk partitioning or formatting settings",
-  "review.phases.image": "Selected image: check against the installation media",
+  "review.phases.image": "Review the Windows image selection",
   "review.phases.imagePath": "Image path: must be accessible during installation",
   "review.phases.peDrivers": "PE driver paths: must be accessible during installation",
   "review.phases.configurationSet": "Configuration set enabled: prepare the required media files",
@@ -4105,5 +4105,13 @@
   "oemReview.plan.setupEnabled": "Current plan: Windows Setup configuration set is on. Actual copying depends on Windows Setup and the installation media.",
   "oemReview.plan.peDisabled": "Current plan: the generated PE script has configuration-set copying off. The mapping below is a reference for regular Windows Setup.",
   "oemReview.plan.peEnabled": "Current plan: the generated PE script handles the copy. The mapping below is a reference for regular Windows Setup.",
-  "oemReview.plan.imported": "Current plan includes an imported answer file. It may preserve custom copy logic. Please verify the final answer file and companion scripts."
+  "oemReview.plan.imported": "Current plan includes an imported answer file. It may preserve custom copy logic. Please verify the final answer file and companion scripts.",
+  "plan.new.menu": "New plan",
+  "review.phases.imageByIndex": "Select Windows image by index ({0})",
+  "review.phases.imageByName": "Select Windows image by name",
+  "review.phases.imageByDescription": "Select Windows image by description",
+  "review.phases.oobeNetwork": "Hide OOBE network page requested",
+  "review.phases.oobeSignIn": "Hide OOBE online sign-in page requested",
+  "import.imageSelection.preserved": "The answer file's image selection rule is read-only and will be retained on export.",
+  "import.imageSelection.conflict": "The original answer file contains a read-only image selection rule. Set image selection back to “Let Setup decide” to keep the original rule."
 }

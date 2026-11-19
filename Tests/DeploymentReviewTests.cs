@@ -25,6 +25,11 @@ static class DeploymentReviewTests
         Check(ConfigurationSetReview.Destination(@"d\Data\notes.txt") == @"D:\Data\notes.txt", "explicit drive mapping");
         foreach (string unknown in new[] { "file.txt", @"Other\a.txt", @"$1\..\a.txt", @"$1\a:b", @"$1\\a", @"$1\.\a" })
             Check(ConfigurationSetReview.Destination(unknown) is null, "unmapped or unsafe relative path");
+        foreach (string reserved in new[] { @"$1\CON\act.cmd", @"$$\Tasks\NUL.txt", @"D\COM¹.cfg",
+            @"$1\lpt9.txt.bak", @"$1\prn .txt", @"$$\Folder.\name.txt", @"$1\name.txt " })
+            Check(ConfigurationSetReview.Destination(reserved) is null, "invalid Win32 path is reported as unmapped");
+        Check(ConfigurationSetReview.Destination(@"$1\COM10\normal.txt") == @"%SystemDrive%\COM10\normal.txt",
+            "a regular path with a reserved-name prefix is still mapped");
 
         var plan = new InstallPlan();
         Check(UiText.EnglishText(ConfigurationSetReview.PlanScope(plan)).Contains("Windows Setup configuration set is off"),

@@ -138,7 +138,7 @@ public class GeneratorService {
  }
  public static string Preview(byte[] bytes,InstallPlan? plan=null,bool english=false) {
   string Label(string key)=>english?global::UnattendLocal.Localization.UiText.EnglishText(global::UnattendLocal.Localization.UiText.Source(key)):global::UnattendLocal.Localization.UiText.Source(key);
-  var doc=new XmlDocument();doc.LoadXml(Encoding.UTF8.GetString(bytes));
+  var doc=XmlMerge.Read(Encoding.UTF8.GetString(bytes));
   if(plan!=null)AdditionalXmlSettings.RedactPreview(doc,plan,english);
   foreach(XmlComment comment in doc.SelectNodes("//comment()")!.Cast<XmlComment>().ToArray())comment.ParentNode!.RemoveChild(comment);
   var ns=new XmlNamespaceManager(doc.NameTable);ns.AddNamespace("u","urn:schemas-microsoft-com:unattend");

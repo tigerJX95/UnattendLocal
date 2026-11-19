@@ -15,6 +15,8 @@
 
 预览不假定系统盘是 C 盘。它不检查目标是否已有同名文件，也不判断文件内容是否适合目标系统。不要通过配置集覆盖 Windows 系统文件。启用 `UseConfigurationSet` 后，应答文件所在介质根目录的其他内容也可能被复制，不能将预览中的 `$OEM$` 文件列表视为整个介质的完整复制清单。映射表以常规 Windows Setup 为准。
 
+路径中含 Windows 保留设备名、末尾空格或句点的文件和目录标为未映射。
+
 最多扫描 2000 个条目和 32 层子目录，列出 500 个文件。符号链接、目录联接、不可访问或过深的子目录会跳过。遇到限制或跳过内容时，窗口明确标示结果不完整。关闭窗口可取消后台复核。
 
 ## AppLocker 事件 XML
@@ -43,9 +45,25 @@ The window identifies the current plan's configuration-set state and installatio
 
 The scan is limited to 2000 entries and 32 subdirectory levels, with 500 file rows. Links, inaccessible directories, and deeper directories are skipped. Partial results are labeled. Close the window to cancel.
 
+Paths with reserved Windows device names or segments ending in a space or period are marked as unmapped.
+
 **OOBE → AppLocker → Review AppLocker events** accepts XML saved from Event Viewer, either one Windows `Event` or an `Events` collection. EVTX and PowerShell CLIXML are not supported. Only the `Microsoft-Windows-AppLocker` provider is counted. Audit findings (8003/8006/8021/8024), actual blocks (8004/8007/8022/8025), and policy/environment errors (8000/8008/8027) are separate. Allowed events (8002/8005/8020/8023) and other IDs have separate counts; Config CI IDs are not classified as AppLocker blocks.
 
 All imported events contribute to counts; only the first 500 findings, blocks, or errors are listed. No findings does not establish that the policy is active. Input is limited to 4 MiB and 20000 events, with XML complexity limits and no DTD or external entities. Review does not apply policy or change the current plan. Check paths for personal information before sharing results.
+
+## 导出阶段摘要 / Export phase summary
+
+“检查与导出”读取最终应答文件中的 `windowsPE` 镜像选择配置，区分按索引、名称和描述选择。按索引时显示编号，按名称或描述时只显示方式。遇到多个或无法识别的条件时提示核对。请用实际安装介质确认目标镜像。
+
+导入按描述选择或无法识别的选择规则后，程序保留原 XML，并提示该规则只读。若尝试在原规则之外指定索引或名称，导出会提示恢复“由安装程序决定”以保留原规则。
+
+`oobeSystem` 摘要列出隐藏网络页和在线登录页的请求，实际显示哪些页面取决于目标 Windows 和安装环境。
+
+**Checks and export** reads the final answer file's `windowsPE` image selection and distinguishes index, name, and description. It shows the index number and keeps custom names and descriptions out of the summary. Multiple or unrecognized selectors prompt a manual check against the installation media.
+
+On import, description-based or unrecognized selectors are preserved as read-only XML. A new index or name conflicts with the preserved selector. Set image selection to **Let Setup decide** to keep the original rule when exporting.
+
+The `oobeSystem` summary lists requests to hide the network and online sign-in pages. The pages shown depend on the target Windows version and installation environment.
 
 ## 参考 / References
 
@@ -53,3 +71,7 @@ All imported events contribute to counts; only the first 500 findings, blocks, o
 - [Microsoft: UseConfigurationSet](https://learn.microsoft.com/en-us/windows-hardware/customize/desktop/unattend/microsoft-windows-setup-useconfigurationset)
 - [Upstream: configuration-set handling in Windows Setup and pe.cmd](https://github.com/cschneegans/unattend-generator/commit/8fdf1b99af95977ea38f4922662964dc6324b0df)
 - [Microsoft: Using Event Viewer with AppLocker](https://learn.microsoft.com/en-us/windows/security/application-security/application-control/app-control-for-business/applocker/using-event-viewer-with-applocker)
+- [Microsoft Learn · OSImage/InstallFrom/MetaData](https://learn.microsoft.com/windows-hardware/customize/desktop/unattend/microsoft-windows-setup-imageinstall-osimage-installfrom-metadata)
+- [Microsoft Learn · Naming Files, Paths, and Namespaces](https://learn.microsoft.com/windows/win32/fileio/naming-a-file)
+- [Microsoft Learn · HideWirelessSetupInOOBE](https://learn.microsoft.com/windows-hardware/customize/desktop/unattend/microsoft-windows-shell-setup-oobe-hidewirelesssetupinoobe)
+- [Microsoft Learn · HideOnlineAccountScreens](https://learn.microsoft.com/windows-hardware/customize/desktop/unattend/microsoft-windows-shell-setup-oobe-hideonlineaccountscreens)

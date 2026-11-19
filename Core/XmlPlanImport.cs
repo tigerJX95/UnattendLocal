@@ -26,6 +26,17 @@ public static class XmlPlanImport {
   if(!snapshot){
    ReadForm(doc,p,notes);ReadBasic(doc,ns,p,service,notes);ReadGeneratedSettings(original,ns,p,notes);
   }
+  var image=ImageSelectionXml.Read(doc,ns);
+  if(!p.UseGeneratedPe&&(!snapshot||image.IsReadOnly)){
+   p.ImageSelection=image.Method switch {
+    ImageSelectionXml.Kind.Name=>global::UnattendLocal.Localization.UiText.Source("text.5965e61aee4c"),
+    ImageSelectionXml.Kind.Index=>global::UnattendLocal.Localization.UiText.Source("text.9cbbdbe44e5d"),
+    _=>global::UnattendLocal.Localization.UiText.Source("text.cc65b6582544")
+   };
+   p.ImageName=image.Name;
+   p.ImageIndex=image.Method==ImageSelectionXml.Kind.Index?image.Index:null;
+   if(image.IsReadOnly)notes.Add(global::UnattendLocal.Localization.UiText.Source("import.imageSelection.preserved"));
+  }
   // Recheck native flags even when an older reversible note is present.
   BooleanScriptSettings.ReadIntoPlan(original,p,notes);
   // Credentials come from actual XML, never from form comments or the reversible settings note.
@@ -121,8 +132,6 @@ public static class XmlPlanImport {
   p.BypassNetwork=doc.InnerText.Contains("BypassNRO",StringComparison.OrdinalIgnoreCase);
   foreach(var item in HardwareSettings.Items)typeof(InstallPlan).GetProperty(item.Property)!.SetValue(p,doc.InnerText.Contains(item.RegistryValue));
   p.BypassHardware=false;
-  var metadata=doc.SelectSingleNode("//u:ImageInstall/u:OSImage/u:InstallFrom/u:MetaData",ns);
-  if(metadata!=null){p.ImageSelection=Text(metadata,"u:Key",ns)=="/IMAGE/NAME"?global::UnattendLocal.Localization.UiText.Source("text.5965e61aee4c"):global::UnattendLocal.Localization.UiText.Source("text.9cbbdbe44e5d");p.ImageName=Text(metadata,"u:Value",ns)??"";if(int.TryParse(p.ImageName,out int index))p.ImageIndex=index;}
   var target=doc.SelectSingleNode("//u:ImageInstall/u:OSImage/u:InstallTo",ns);p.DiskMode=InstallationSettings.Manual;
   if(target!=null&&int.TryParse(Text(target,"u:DiskID",ns),out int disk)&&int.TryParse(Text(target,"u:PartitionID",ns),out int part)){
    p.DiskMode=InstallationSettings.Existing;p.TargetDiskId=disk;p.TargetPartitionId=part;
@@ -321,6 +330,9 @@ public static class XmlPlanImport {
   if(data.OriginalOmitted||data.SourceXml.Length==0||data.BaselineXml.Length==0)throw new ArgumentException(global::UnattendLocal.Localization.UiText.Source("text.76fd34fad718"));
   if(data.Blockers.Length>0)throw new ArgumentException(global::UnattendLocal.Localization.UiText.Join("\n", data.Blockers.Select(DescribeBlocker).Distinct(), false));
   var source=XmlImportPaths.Inspection(XmlMerge.Read(data.SourceXml));
+  if(p.ImageSelection!=global::UnattendLocal.Localization.UiText.Source("text.cc65b6582544") &&
+     ImageSelectionXml.Read(source,NamespaceManager(source)).IsReadOnly)
+   throw new ConfigurationValidationException(nameof(InstallPlan.ImageSelection),global::UnattendLocal.Localization.UiText.Source("import.imageSelection.conflict"));
   AutoPartitionSettings.ValidateImported(p,source);
   CompactOsSettings.ValidateImported(p,source);
   StaticIPv4Settings.ValidateImported(p,source);

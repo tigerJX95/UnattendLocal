@@ -14,7 +14,7 @@ public static class InstallationSettings {
   _=>InstallationReview.ForPlan(p).Description};
  public static void Validate(InstallPlan p){
   if(p.ImageSelection is not ("由安装程序决定" or "按镜像名称" or "按镜像索引"))throw new ConfigurationValidationException(nameof(p.ImageSelection),global::UnattendLocal.Localization.UiText.Source("text.952b481ef960"));
-  if(p.ImageSelection==global::UnattendLocal.Localization.UiText.Source("text.5965e61aee4c")&&(string.IsNullOrWhiteSpace(p.ImageName)||p.ImageName.Length>256||p.ImageName.Any(char.IsControl)))throw new ConfigurationValidationException(nameof(p.ImageName),global::UnattendLocal.Localization.UiText.Source("text.b5fc6be12e60"));
+  if(p.ImageSelection==global::UnattendLocal.Localization.UiText.Source("text.5965e61aee4c")&&!ImageSelectionXml.IsEditableName(p.ImageName))throw new ConfigurationValidationException(nameof(p.ImageName),global::UnattendLocal.Localization.UiText.Source("text.b5fc6be12e60"));
   if(p.ImageSelection==global::UnattendLocal.Localization.UiText.Source("text.9cbbdbe44e5d")&&(p.ImageIndex is null or <1))throw new ConfigurationValidationException(nameof(p.ImageIndex),global::UnattendLocal.Localization.UiText.Source("text.02ec7f74b065"));
   if(p.DiskMode is not (Manual or Existing or Wipe or DiskScriptSettings.Mode))throw new ConfigurationValidationException(nameof(p.DiskMode),global::UnattendLocal.Localization.UiText.Source("text.a99d66c2bc1b"));
   AutoPartitionSettings.Validate(p);

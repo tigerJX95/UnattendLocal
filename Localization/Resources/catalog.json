@@ -38059,8 +38059,8 @@
     "ProtectedTokens": []
   },
   "review.phases.image": {
-    "Source": "指定镜像：与安装介质核对",
-    "SourceHash": "8587fba528d2b0f31eaa043361cf954da5b6013c36b7efa8d6be4f41254cea81",
+    "Source": "请核对 Windows 镜像选择规则",
+    "SourceHash": "2daf8fe27f38f784ca492af2df2b8ba21e59b44c688b146708bd0f449dc51490",
     "Contexts": [
       "Core/DeploymentPhaseReview.cs"
     ],
@@ -38729,6 +38729,78 @@
     ],
     "RawArgs": [],
     "SourceHash": "a0fdf47b75eb3caf650361f1d222eedcc0b28360c74e348bab2fabd129f36520",
+    "ProtectedTokens": []
+  },
+  "plan.new.menu": {
+    "Source": "新建方案",
+    "SourceHash": "cc855497aba51cc6de7f751a1485143d3e3d5e8d72d5b27242277554541797a0",
+    "Contexts": [
+      "Desktop/MainWindow.xaml"
+    ],
+    "RawArgs": [],
+    "ProtectedTokens": []
+  },
+  "review.phases.imageByIndex": {
+    "Source": "按索引 {0} 选择 Windows 镜像",
+    "SourceHash": "80ad372406fb8200cbac34bc28495474a5c8772674cd4cb9635af27390454448",
+    "Contexts": [
+      "Core/DeploymentPhaseReview.cs"
+    ],
+    "RawArgs": [],
+    "ProtectedTokens": []
+  },
+  "review.phases.imageByName": {
+    "Source": "按名称选择 Windows 镜像",
+    "SourceHash": "27073c7178dc26e3431ea7729dcfddc86372ce6aaca1f15c492d653002bcabc2",
+    "Contexts": [
+      "Core/DeploymentPhaseReview.cs"
+    ],
+    "RawArgs": [],
+    "ProtectedTokens": []
+  },
+  "review.phases.imageByDescription": {
+    "Source": "按描述选择 Windows 镜像",
+    "SourceHash": "2e2e5a107a3e35eeee91ee90b381db7285dcd1e4ca456c36f1f230f63f309e9f",
+    "Contexts": [
+      "Core/DeploymentPhaseReview.cs"
+    ],
+    "RawArgs": [],
+    "ProtectedTokens": []
+  },
+  "review.phases.oobeNetwork": {
+    "Source": "请求隐藏 OOBE 网络页",
+    "SourceHash": "bbda5c91eb99c6800a415680b1fe273bd7481f7a0207d3c9c22b91dcb1ead1f0",
+    "Contexts": [
+      "Core/DeploymentPhaseReview.cs"
+    ],
+    "RawArgs": [],
+    "ProtectedTokens": []
+  },
+  "review.phases.oobeSignIn": {
+    "Source": "请求隐藏 OOBE 在线登录页",
+    "SourceHash": "2aa59ecaa4987f7bc1be3011ab32b20b83b4771c9157f6ae2a1630bf9dbc4627",
+    "Contexts": [
+      "Core/DeploymentPhaseReview.cs"
+    ],
+    "RawArgs": [],
+    "ProtectedTokens": []
+  },
+  "import.imageSelection.preserved": {
+    "Source": "应答文件中的镜像选择规则无法在界面编辑，导出时保留原规则。",
+    "SourceHash": "3d6e97fa900cc010b474484fb669321f26e7a72f35e8476a1dcd4ac86e21195a",
+    "Contexts": [
+      "Core/XmlPlanImport.cs"
+    ],
+    "RawArgs": [],
+    "ProtectedTokens": []
+  },
+  "import.imageSelection.conflict": {
+    "Source": "原应答文件保留了只读的镜像选择规则。请将镜像选择恢复为“由安装程序决定”以继续保留原规则。",
+    "SourceHash": "187eb2440f9ff1a70bc0769e1368c2c74ae6fcd5887136742fc2524cf7ca158f",
+    "Contexts": [
+      "Core/XmlPlanImport.cs"
+    ],
+    "RawArgs": [],
     "ProtectedTokens": []
   }
 }

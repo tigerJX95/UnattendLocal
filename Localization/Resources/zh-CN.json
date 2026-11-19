@@ -4034,7 +4034,7 @@
   "review.phases.scope": "摘要基于生成的应答文件。请在安装环境中核对介质、路径和脚本。",
   "review.phases.peScript": "PE 脚本部署：核对实际镜像和目标磁盘",
   "review.phases.disk": "磁盘分区或格式化配置",
-  "review.phases.image": "指定镜像：与安装介质核对",
+  "review.phases.image": "请核对 Windows 镜像选择规则",
   "review.phases.imagePath": "指定镜像路径：安装时需可访问",
   "review.phases.peDrivers": "PE 驱动路径：安装时需可访问",
   "review.phases.configurationSet": "启用配置集：准备对应介质文件",
@@ -4105,5 +4105,13 @@
   "oemReview.plan.setupEnabled": "当前方案：常规 Windows Setup 的配置集已开启。实际复制范围由 Windows Setup 和安装介质决定。",
   "oemReview.plan.peDisabled": "当前方案：已选择 PE 脚本安装，生成的脚本未启用配置集复制。下方映射是常规 Windows Setup 的参考。",
   "oemReview.plan.peEnabled": "当前方案：已选择 PE 脚本安装并开启配置集，复制由生成的 PE 脚本处理。下方映射是常规 Windows Setup 的参考。",
-  "oemReview.plan.imported": "当前方案包含已导入的应答文件。原配置可能保留自定义复制流程，请核对最终应答文件和配套脚本。"
+  "oemReview.plan.imported": "当前方案包含已导入的应答文件。原配置可能保留自定义复制流程，请核对最终应答文件和配套脚本。",
+  "plan.new.menu": "新建方案",
+  "review.phases.imageByIndex": "按索引 {0} 选择 Windows 镜像",
+  "review.phases.imageByName": "按名称选择 Windows 镜像",
+  "review.phases.imageByDescription": "按描述选择 Windows 镜像",
+  "review.phases.oobeNetwork": "请求隐藏 OOBE 网络页",
+  "review.phases.oobeSignIn": "请求隐藏 OOBE 在线登录页",
+  "import.imageSelection.preserved": "应答文件中的镜像选择规则无法在界面编辑，导出时保留原规则。",
+  "import.imageSelection.conflict": "原应答文件保留了只读的镜像选择规则。请将镜像选择恢复为“由安装程序决定”以继续保留原规则。"
 }
