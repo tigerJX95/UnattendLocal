@@ -7,7 +7,7 @@
 
 UnattendLocal 是基于 [Christoph Schneegans 的 UnattendGenerator](https://github.com/cschneegans/unattend-generator) 开发的 Windows 桌面配置工具，支持简体中文与英语界面，用于在本地编辑、检查和生成 Windows 10 / 11 的 `autounattend.xml`。
 
-当前版本：**V1.53**。启用 PE 脚本安装后会自动切换为“按镜像索引”，须自行填写安装镜像中的实际索引；普通 Windows Setup 仍支持原有全部镜像选择方式。支持简体中文 / English 即时切换、独立语言包维护、静态 IPv4 / IPv6 双栈、子网掩码输入、设置搜索、安装驱动目录、动态更新、自动分区、OOBE 与账户配置，以及已有 XML 的导入编辑。
+当前版本：**V1.53.1**。启用 PE 脚本安装后会自动切换为“按镜像索引”，须自行填写安装镜像中的实际索引；普通 Windows Setup 仍支持原有全部镜像选择方式。支持简体中文 / English 即时切换、独立语言包维护、静态 IPv4 / IPv6 双栈、子网掩码输入、设置搜索、安装驱动目录、动态更新、自动分区、OOBE 与账户配置，以及已有 XML 的导入编辑。
 
 ## 💡 开发初衷
 
@@ -56,15 +56,12 @@ UnattendLocal 是基于 [Christoph Schneegans 的 UnattendGenerator](https://git
 - 保存和恢复 JSON 方案，提供配置摘要、推荐差异、检查、脱敏预览和 XML 导出。
 - 导入已有 XML 后编辑已支持设置，保留未知内容；遇到无法可靠合并的修改时停止导出并说明原因。
 
-## V1.53 精简新建方案入口与部署核对
+## V1.53.1 界面与配置修复
 
-- 顶部工具栏将两个新建按钮合并为“新建方案”菜单，提供推荐配置、自定义配置与最小配置。
-- 移除配置方案页重复的自定义配置按钮，快捷预设保留“最小配置”和“仅创建本地账户”。
-- 导出阶段摘要区分 Windows Setup 按索引、名称和描述选择镜像。按索引时显示编号，遇到不明确的规则时提示核对。
-- 在导出阶段摘要显示 OOBE 隐藏网络页和在线登录页的请求。
-- 在载入应答 XML 前检查深度和元素数量，脱敏预览也使用同一套 XML 解析限制。
-- 导入按描述选镜像或无法识别的镜像规则时保留原文，避免误判为索引，并阻止在其上叠加另一条选择规则。
-- `$OEM$` 复制预览将含 Windows 保留名称或末尾空格、句点的路径标为未映射。
+- 修复「填写 OEM 支持信息」和「离线驱动目录」在深色主题下的标题、说明及字段标签颜色。
+- 修复 Windows 安装日志和部署复核窗口的深色背景。安装日志可通过右上角关闭按钮或 Esc 关闭。
+- 去除「检查与导出」说明文字的首行缩进。
+- 最小配置默认选择「安装时创建本地账户」，可在「用户与密码」中切换为微软账户。
 
 [部署复核](docs/DeploymentReview.md)
 
@@ -72,12 +69,12 @@ UnattendLocal 是基于 [Christoph Schneegans 的 UnattendGenerator](https://git
 
 ## 📦 下载与使用
 
-从仓库的 [**Releases**](https://github.com/tigerJX95/UnattendLocal/releases/latest) 页面下载并直接运行对应的 `UnattendLocal_V1.53_x64_SelfContained.exe` 或 `UnattendLocal_V1.53_x64_FrameworkDependent.exe`：
+从仓库的 [**Releases**](https://github.com/tigerJX95/UnattendLocal/releases/latest) 页面下载并直接运行对应的 `UnattendLocal_V1.53.1_x64_SelfContained.exe` 或 `UnattendLocal_V1.53.1_x64_FrameworkDependent.exe`：
 
 | 程序文件 | 运行要求 |
 | --- | --- |
-| `UnattendLocal_V1.53_x64_SelfContained.exe` | 集成 .NET 运行时，无需单独安装；通常选择此版。 |
-| `UnattendLocal_V1.53_x64_FrameworkDependent.exe` | 文件较小，需安装 .NET 10 Desktop Runtime x64。 |
+| `UnattendLocal_V1.53.1_x64_SelfContained.exe` | 集成 .NET 运行时，无需单独安装；通常选择此版。 |
+| `UnattendLocal_V1.53.1_x64_FrameworkDependent.exe` | 文件较小，需安装 .NET 10 Desktop Runtime x64。 |
 
 两版功能相同。首次安装测试建议使用虚拟机。
 

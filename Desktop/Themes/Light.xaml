@@ -3,6 +3,7 @@
   <SolidColorBrush x:Key="SurfaceBrush" Color="#FFFFFF" />
   <SolidColorBrush x:Key="CardBrush" Color="#FFFFFF" />
   <SolidColorBrush x:Key="ForegroundBrush" Color="#17212F" />
+  <SolidColorBrush x:Key="ExpanderTextBrush" Color="#000000" />
   <SolidColorBrush x:Key="SecondaryBrush" Color="#526276" />
   <SolidColorBrush x:Key="BorderBrush" Color="#C5CEDB" />
   <SolidColorBrush x:Key="InputBrush" Color="#FFFFFF" />

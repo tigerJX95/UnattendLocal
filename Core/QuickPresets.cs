@@ -1,6 +1,5 @@
 namespace UnattendLocal.Core;
 
-// Mirrors the website's Minimal and LocalUser starting points using the existing model.
 public static class QuickPresets
 {
     public const string Minimal = "最小配置";
@@ -15,11 +14,11 @@ public static class QuickPresets
             CustomStartingPoint = kind,
             InteractiveLanguage = true,
             TimeZoneMode = global::UnattendLocal.Localization.UiText.Source("text.499ff33c1078"),
-            AccountMode = global::UnattendLocal.Localization.UiText.Source("text.5f78e95b6bd9"),
+            AccountMode = global::UnattendLocal.Localization.UiText.Source("text.189b388c95be"),
             AutoLogon = false,
             PasswordExpiration = global::UnattendLocal.Localization.UiText.Source("text.1823400b7251"),
             PrivacyMode = global::UnattendLocal.Localization.UiText.Source("text.fd17c35ec3cc"),
-            HideOnlineAccount = false,
+            HideOnlineAccount = kind == Minimal,
             KeepSensitiveFiles = true,
             ObscurePasswords = false
         };

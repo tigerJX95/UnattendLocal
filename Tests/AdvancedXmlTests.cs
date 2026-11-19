@@ -56,12 +56,28 @@ static class AdvancedXmlTests
             Check(plan.InteractiveLanguage&&plan.TimeZoneMode=="由 Windows 决定","preset preserves installation choices");
             Check(plan.Users.Count==(kind==QuickPresets.Minimal?0:1),"account count matches preset");
             if(kind==QuickPresets.LocalAccount)Check(plan.Users[0].Name=="Example"&&plan.Users[0].Administrator&&plan.Users[0].AllowEmptyPassword&&plan.AutoLogon&&!plan.KeepSensitiveFiles,"upstream example account and logon behavior");
-            else Check(!plan.AutoLogon&&plan.KeepSensitiveFiles,"minimal preset avoids automatic logon and cleanup");
+            else
+            {
+                Check(!plan.AutoLogon && plan.KeepSensitiveFiles, "minimal preset avoids automatic logon and cleanup");
+                Check(plan.AccountMode == "安装时创建本地账户" && plan.HideOnlineAccount,
+                    "minimal preset asks the user to create a local account during setup");
+                var minimalAnswer = XmlMerge.Read(xml);
+                Check(minimalAnswer.SelectSingleNode("//*[local-name()='HideOnlineAccountScreens']")?.InnerText == "true"
+                    && minimalAnswer.SelectSingleNode("//*[local-name()='LocalAccount']") is null,
+                    "minimal answer requests local account creation without provisioning an account");
+            }
             var reloaded=PlanStore.Deserialize(PlanStore.Serialize(plan,true));
-            Check(reloaded.CustomStartingPoint==kind&&generator.Generate(reloaded).Length>0,"preset JSON roundtrip");
+            Check(reloaded.CustomStartingPoint==kind&&reloaded.AccountMode==plan.AccountMode&&generator.Generate(reloaded).Length>0,"preset JSON roundtrip");
             var imported=XmlPlanImport.Import(xml,generator);
-            Check(imported.ImportedXml!.Blockers.Length==0&&generator.Generate(imported).Length>0,"preset XML roundtrip");
+            Check(imported.ImportedXml!.Blockers.Length==0&&imported.AccountMode==plan.AccountMode&&generator.Generate(imported).Length>0,"preset XML roundtrip");
         }
+        var microsoftAccount = QuickPresets.Create(QuickPresets.Minimal);
+        var accountEditor = new MainViewModel { Plan = microsoftAccount };
+        accountEditor.Plan.AccountMode = "安装时添加微软账户";
+        var microsoftAnswer = XmlMerge.Read(Encoding.UTF8.GetString(generator.Generate(microsoftAccount)));
+        Check(!microsoftAccount.HideOnlineAccount
+            && microsoftAnswer.SelectSingleNode("//*[local-name()='HideOnlineAccountScreens']")?.InnerText == "false",
+            "switching the minimal preset to a Microsoft account restores the online account page");
         Reject(()=>QuickPresets.Create("unknown"),"unknown preset");
         foreach(var arch in new[]{"amd64","arm64","x86"})
         {

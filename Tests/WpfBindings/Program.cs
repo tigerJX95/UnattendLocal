@@ -1,7 +1,9 @@
 using System.Globalization;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Controls.Primitives;
 using System.Windows.Data;
+using System.Windows.Input;
 using System.Windows.Markup;
 using System.Windows.Media;
 using System.Windows.Threading;
@@ -128,12 +130,173 @@ internal static class Program
             }
             Console.WriteLine("PASS local account list theme across account modes and theme switches.");
             CheckSidebarLayout(window);
+            CheckAdvancedXmlFormThemes(window);
+            CheckSetupLogTheme(window);
             CheckDeploymentReviewWindows(window);
         }
         finally
         {
             window.Close();
         }
+    }
+
+    private static void CheckAdvancedXmlFormThemes(MainWindow window)
+    {
+        var pages = (TabControl)window.FindName("Pages");
+        object selectedPage = pages.SelectedItem;
+        string language = UiText.Language;
+        string themeBeforeTest = UiTheme.Current;
+        var section = (StackPanel)window.FindName("AdditionalXmlSection");
+        var card = (Border)section.Parent;
+        var forms = new[]
+        {
+            (Form: (Expander)window.FindName("OemSupportForm"), HeaderKey: "xml.oem.form", HelpKey: "xml.oem.help"),
+            (Form: (Expander)window.FindName("OfflineDriverForm"), HeaderKey: "xml.offlineDrivers.form", HelpKey: "xml.offlineDrivers.help")
+        };
+        try
+        {
+            pages.SelectedItem = pages.Items.OfType<TabItem>()
+                .Single(page => Equals(page.Header, UiText.Source("text.2f8dd7280e0a")));
+            foreach (string culture in new[] { "zh-CN", "en-US" })
+            {
+                UiText.SetLanguage(culture);
+                foreach (string theme in new[] { "Dark", "Light", "Dark" })
+                {
+                    UiTheme.Apply(theme, save: false);
+                    Color expectedText = theme == "Dark" ? Colors.White : Colors.Black;
+                    foreach (var (form, headerKey, helpKey) in forms)
+                    foreach (bool expanded in new[] { false, true })
+                    {
+                        string context = $"{culture}/{theme}/{form.Name}/{(expanded ? "expanded" : "collapsed")}";
+                        form.IsExpanded = expanded;
+                        DrainDispatcher();
+                        window.UpdateLayout();
+                        var toggle = VisualDescendants<ToggleButton>(form).FirstOrDefault();
+                        var body = (StackPanel)form.Content;
+                        if (toggle is null || !toggle.Focusable || !toggle.IsEnabled || toggle.IsChecked != expanded || body.IsVisible != expanded)
+                            throw new Exception($"{context}: the header toggle and form content must follow the expansion state.");
+
+                        CheckThemeText(toggle, UiText.Get(headerKey), card.Background, expectedText, context);
+                        if (!expanded) continue;
+
+                        CheckThemeText(body, UiText.Get(helpKey), card.Background, expectedText, context);
+                        foreach (var label in body.Children.OfType<Label>())
+                            CheckThemeText(label, (string)label.Content, card.Background, expectedText, context);
+                        foreach (var input in body.Children.OfType<TextBox>())
+                            CheckTextContrast(input.Foreground, input.Background, $"{context}/{input.Name}");
+                    }
+                }
+            }
+            Console.WriteLine("PASS advanced XML form text contrast and expansion in both languages and themes.");
+        }
+        finally
+        {
+            foreach (var (form, _, _) in forms) form.IsExpanded = false;
+            pages.SelectedItem = selectedPage;
+            UiText.SetLanguage(language);
+            UiTheme.Apply(themeBeforeTest, save: false);
+        }
+    }
+
+    private static void CheckThemeText(DependencyObject root, string expected, Brush background, Color expectedColor, string context)
+    {
+        var text = VisualDescendants<TextBlock>(root).FirstOrDefault(item => item.IsVisible && item.Text == expected);
+        if (text?.Foreground is not SolidColorBrush foreground || foreground.Color != expectedColor)
+            throw new Exception($"{context}: '{expected}' must render with the current theme text color {expectedColor}.");
+        CheckTextContrast(foreground, background, $"{context}/{expected}");
+    }
+
+    private static void CheckTextContrast(Brush foreground, Brush background, string context)
+    {
+        if (foreground is not SolidColorBrush text || background is not SolidColorBrush surface)
+            throw new Exception($"{context}: text contrast requires solid foreground and background colors.");
+
+        static double Luminance(Color color) => 0.2126 * color.ScR + 0.7152 * color.ScG + 0.0722 * color.ScB;
+        double first = Luminance(text.Color);
+        double second = Luminance(surface.Color);
+        double contrast = (Math.Max(first, second) + 0.05) / (Math.Min(first, second) + 0.05);
+        if (contrast < 4.5)
+            throw new Exception($"{context}: text contrast is {contrast:F2}:1, expected at least 4.5:1.");
+    }
+
+    private static IEnumerable<T> VisualDescendants<T>(DependencyObject root) where T : DependencyObject
+    {
+        for (int index = 0; index < VisualTreeHelper.GetChildrenCount(root); index++)
+        {
+            var child = VisualTreeHelper.GetChild(root, index);
+            if (child is T match) yield return match;
+            foreach (var descendant in VisualDescendants<T>(child)) yield return descendant;
+        }
+    }
+
+    private static void CheckSetupLogTheme(MainWindow owner)
+    {
+        string language = UiText.Language;
+        string themeBeforeTest = UiTheme.Current;
+        var log = new SetupLogWindow { Owner = owner };
+        log.Width = log.MinWidth;
+        try
+        {
+            log.Show();
+            var filterLabel = (Label)log.FindName("LogFilterLabel");
+            var logFilter = (TextBox)log.FindName("LogFilter");
+            var logText = (TextBox)log.FindName("LogText");
+            var status = (TextBlock)log.FindName("LogStatus");
+            var intro = (TextBlock)owner.FindName("ExportIntro");
+            var warning = (TextBlock)owner.FindName("ExportImportWarning");
+            foreach (string culture in new[] { "zh-CN", "en-US" })
+            {
+                UiText.SetLanguage(culture);
+                foreach (string theme in new[] { "Dark", "Light", "Dark" })
+                {
+                    UiTheme.Apply(theme, save: false);
+                    DrainDispatcher();
+                    log.UpdateLayout();
+                    string context = $"{culture}/{theme}/SetupLogWindow";
+                    CheckDialogTheme(log, context);
+                    CheckThemeText(filterLabel, UiText.Get("setupLogs.filter"), log.Background,
+                        ((SolidColorBrush)log.Foreground).Color, context);
+                    CheckTextContrast(status.Foreground, log.Background, $"{context}/footer");
+                    CheckTextContrast(logText.Foreground, logText.Background, $"{context}/contents");
+                    if (!logText.IsReadOnly || logFilter.IsEnabled || !ReferenceEquals(filterLabel.Target, logFilter))
+                        throw new Exception($"{context}: preview and keyword filtering must retain their initial state.");
+                    foreach (var paragraph in new[] { intro, warning, status })
+                        if (string.IsNullOrEmpty(paragraph.Text) || char.IsWhiteSpace(paragraph.Text[0])
+                            || paragraph.TextAlignment != TextAlignment.Left)
+                            throw new Exception($"{context}/{paragraph.Name}: the explanation must be left aligned without a first-line indent.");
+                }
+            }
+            if (VisualDescendants<Button>(log).Any(button => button.IsCancel)
+                || !log.InputBindings.OfType<KeyBinding>().Any(binding => binding.Key == Key.Escape && binding.Command == ApplicationCommands.Close))
+                throw new Exception("The setup log dialog must retain Escape without a second close button.");
+            ApplicationCommands.Close.Execute(null, log);
+            if (log.IsVisible)
+                throw new Exception("The setup log dialog's Escape command must close the window.");
+            Console.WriteLine("PASS Windows Setup log dialog themes, Escape, and unindented export instructions.");
+        }
+        finally
+        {
+            if (log.IsVisible) log.Close();
+            UiText.SetLanguage(language);
+            UiTheme.Apply(themeBeforeTest, save: false);
+        }
+    }
+
+    private static void CheckDialogTheme(Window dialog, string context)
+    {
+        Color expectedBackground = ((SolidColorBrush)dialog.FindResource("CanvasBrush")).Color;
+        Color expectedText = ((SolidColorBrush)dialog.FindResource("ForegroundBrush")).Color;
+        if (dialog.Background is not SolidColorBrush background || background.Color != expectedBackground
+            || dialog.Foreground is not SolidColorBrush foreground || foreground.Color != expectedText)
+            throw new Exception($"{context}: the entire dialog must use the active theme colors.");
+        CheckTextContrast(foreground, background, context);
+    }
+
+    private static void CheckDialogTextButton(Button button, string caption, string context)
+    {
+        if (!button.IsVisible || !Equals(button.Content, caption) || button.ActualWidth < 94)
+            throw new Exception($"{context}: the full '{caption}' button caption must fit in the dialog.");
+        CheckTextContrast(button.Foreground, button.Background, $"{context}/{caption}");
     }
 
     private static void CheckDeploymentReviewWindows(MainWindow owner)
@@ -160,9 +323,14 @@ internal static class Program
                 {
                     review.Show();
                     DrainDispatcher();
+                    string context = $"{culture}/{theme}/{kind}";
+                    CheckDialogTheme(review, context);
                     var text = (TextBox)review.FindName("ReportText");
                     var open = (Button)review.FindName("OpenButton");
+                    var close = (Button)review.FindName("CloseButton");
                     string prefix = kind == DeploymentReviewKind.ConfigurationSet ? "oemReview" : "eventReview";
+                    CheckDialogTextButton(open, UiText.Get(prefix + ".choose"), context);
+                    CheckDialogTextButton(close, UiText.Get("text.3fd47edce45b"), context);
                     if (review.Title != UiText.Get(prefix + ".title") || !Equals(open.Content, UiText.Get(prefix + ".choose")) ||
                         !text.IsReadOnly || text.FontSize != 16 || text.Background is not SolidColorBrush brush ||
                         brush.Color != ((SolidColorBrush)Application.Current.FindResource("InputBrush")).Color)

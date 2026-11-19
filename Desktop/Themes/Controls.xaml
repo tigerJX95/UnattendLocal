@@ -38,6 +38,20 @@
     <Setter Property="TextAlignment" Value="Left"/>
     <Setter Property="Margin" Value="0,8,0,10"/>
   </Style>
+  <Style x:Key="XmlFormExpander" TargetType="Expander">
+    <Setter Property="Foreground" Value="{DynamicResource ExpanderTextBrush}"/>
+    <Setter Property="HeaderTemplate">
+      <Setter.Value>
+        <DataTemplate>
+          <TextBlock Text="{Binding}" Foreground="{DynamicResource ExpanderTextBrush}" TextWrapping="Wrap"/>
+        </DataTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+  <Style x:Key="XmlFormLabel" TargetType="Label">
+    <Setter Property="Foreground" Value="{DynamicResource ExpanderTextBrush}"/>
+    <Setter Property="Padding" Value="0,4"/>
+  </Style>
   <ControlTemplate x:Key="InputValidationErrorTemplate"><Border BorderBrush="{DynamicResource ErrorBrush}" BorderThickness="1" CornerRadius="4"><AdornedElementPlaceholder/></Border></ControlTemplate>
   <Style x:Key="CopyFeedback" TargetType="TextBlock" BasedOn="{StaticResource {x:Type TextBlock}}"><Setter Property="Foreground" Value="{DynamicResource AccentTextBrush}"/><Style.Triggers><Trigger Property="local:ExampleText.HasCopyError" Value="True"><Setter Property="Foreground" Value="{DynamicResource ErrorBrush}"/></Trigger></Style.Triggers></Style>
   <Style x:Key="DiagnosticSummary" TargetType="TextBlock" BasedOn="{StaticResource ExplanationText}"><Setter Property="Foreground" Value="{DynamicResource AccentTextBrush}"/><Style.Triggers><DataTrigger Binding="{Binding Text,RelativeSource={RelativeSource Self},Converter={StaticResource DiagnosticError}}" Value="True"><Setter Property="Foreground" Value="{DynamicResource ErrorBrush}"/></DataTrigger></Style.Triggers></Style>

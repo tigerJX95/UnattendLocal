@@ -4,7 +4,7 @@
 
 “配置方案”页提供两个独立起点。新建前确认放弃未保存修改，之后仍可通过全部分类页调整。
 
-- **最小配置**：安装时交互选择语言、版本、分区及账户；不沿用有线或 Wi-Fi 推荐策略，不添加应用移除、硬件检查绕过等选项。默认保留安装隐私文件，以避免首次登录清理脚本；这些文件可能含凭据，可在 OOBE 页调整。此预设不是 XML 冗余清理，也不会删除原作者恢复信息。
+- **最小配置**：安装时交互选择语言、版本和分区，默认在安装时创建本地账户。可在「用户与密码」页切换为微软账户。默认保留安装隐私文件，以避免添加首次登录清理脚本。这些文件可能含凭据，可在 OOBE 页调整。
 - **仅创建本地账户**：创建名为 Example 的管理员账户，允许空密码并首次自动登录一次，之后按既有生成流程清理安装隐私文件。账户名、密码、权限均可修改；并非只创建账户而完全没有首次登录辅助逻辑。
 
 ## 额外 XML 组件
@@ -75,7 +75,7 @@ JSON 选择保存敏感内容时保留片段。选择不保存时清空片段，
 
 ## English
 
-The Configuration page provides minimal and local-account starting points. The advanced editor is below Custom scripts and accepts up to 15 component/pass XML fragments. New entries and the OEM example start disabled. Expand **Enter OEM support information**, provide an HTTP or HTTPS support website and an optional support name, then create and review the entry. Enabling and confirming it adds `OEMInformation` during `specialize`. It adds independent child settings and refuses duplicate top-level settings instead of replacing generated components. The catalog is pinned to the bundled upstream generator; Windows SIM and target-image installation checks remain necessary.
+The Configuration page provides minimal and local-account starting points. The minimal configuration defaults to creating a local account during Setup. To use a Microsoft account, change the account mode under Users and passwords. The advanced editor is below Custom scripts and accepts up to 15 component/pass XML fragments. New entries and the OEM example start disabled. Expand **Enter OEM support information**, provide an HTTP or HTTPS support website and an optional support name, then create and review the entry. Enabling and confirming it adds `OEMInformation` during `specialize`. It adds independent child settings and rejects duplicate top-level settings. The catalog reflects the bundled generator. Use Windows SIM and the target image to validate deployment.
 
 Preview redacts custom XML. JSON saved without sensitive content omits fragments while retaining their enabled state, requiring re-entry before export. Own exported XML can restore editor entries through its intact configuration snapshot. Unknown third-party XML remains preserved through the existing import workflow.
 

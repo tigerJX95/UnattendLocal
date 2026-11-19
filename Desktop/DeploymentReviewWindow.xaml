@@ -3,6 +3,7 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:loc="clr-namespace:UnattendLocal.Desktop"
         Width="920" Height="620" MinWidth="480" MinHeight="360"
+        Style="{StaticResource {x:Type Window}}"
         WindowStartupLocation="CenterOwner" ShowInTaskbar="False" FontFamily="Microsoft YaHei UI" FontSize="14">
   <Grid Margin="20">
     <Grid.RowDefinitions>
@@ -12,7 +13,8 @@
       <RowDefinition Height="Auto"/>
     </Grid.RowDefinitions>
     <DockPanel Margin="0,0,0,10">
-      <Button x:Name="OpenButton" DockPanel.Dock="Left" Click="OpenClick" Margin="0,0,12,0" ContentTemplate="{x:Null}"/>
+      <Button x:Name="OpenButton" DockPanel.Dock="Left" Click="OpenClick" Margin="0,0,12,0" ContentTemplate="{x:Null}"
+              Width="Auto" MinWidth="94" Padding="12,6"/>
       <TextBlock x:Name="SourceName" VerticalAlignment="Center" TextTrimming="CharacterEllipsis"/>
     </DockPanel>
     <TextBlock Grid.Row="1" x:Name="ScopeText" TextWrapping="Wrap" Margin="0,0,0,12"
@@ -21,7 +23,8 @@
              FontSize="16" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto"
              TextWrapping="NoWrap" AutomationProperties.Name="{loc:Text deploymentReview.contents}"/>
     <DockPanel Grid.Row="3" Margin="0,12,0,0">
-      <Button DockPanel.Dock="Right" Content="{loc:Text text.3fd47edce45b}" ContentTemplate="{x:Null}" IsCancel="True"/>
+      <Button x:Name="CloseButton" DockPanel.Dock="Right" Content="{loc:Text text.3fd47edce45b}" ContentTemplate="{x:Null}"
+              Width="Auto" MinWidth="94" Padding="12,6" IsCancel="True"/>
       <TextBlock x:Name="StatusText" TextWrapping="Wrap" VerticalAlignment="Center"
                  Foreground="{DynamicResource SecondaryBrush}"/>
     </DockPanel>
