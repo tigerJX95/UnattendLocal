@@ -24,6 +24,18 @@ static class V128SecurityTests
             "{\"SchemaVersion\":1,\"Users\":[{\"Password\":null}]}" }) Reject(json);
         var textPlan = PlanStore.Deserialize("{\"SchemaVersion\":1,\"PeTargetScript\":\"{\\\"a\\\":1,\\\"a\\\":2}\"}");
         Check(textPlan.PeTargetScript.Contains("\"a\":2"), "JSON-looking script text stays opaque");
+        const string root = "<unattend xmlns='urn:schemas-microsoft-com:unattend'>";
+        string AtDepth(int depth) => root + string.Concat(Enumerable.Repeat("<x>", depth - 1)) +
+            string.Concat(Enumerable.Repeat("</x>", depth - 1)) + "</unattend>";
+        Check(XmlMerge.Read(AtDepth(128)).DocumentElement != null, "XML depth at the existing limit is supported");
+        try { _ = XmlMerge.Read(AtDepth(129)); throw new Exception("XML depth above the limit was accepted"); }
+        catch (ArgumentException) { checks++; }
+        try
+        {
+            _ = GeneratorService.Preview(Encoding.UTF8.GetBytes("<!DOCTYPE unattend>" + root + "</unattend>"));
+            throw new Exception("Preview accepted an XML document with a DTD");
+        }
+        catch (XmlException) { checks++; }
         foreach (string newline in new[] { "\r", "\n", "\r\n" })
         {
             var p = new InstallPlan { PeTargetMode = "script", PeTargetScript = string.Join(newline, Enumerable.Repeat("'", 1025)) };

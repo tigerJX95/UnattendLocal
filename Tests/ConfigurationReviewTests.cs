@@ -1,4 +1,5 @@
 using System.Text;
+using System.Xml;
 using UnattendLocal.Core;
 using UnattendLocal.Desktop;
 using UnattendLocal.Localization;
@@ -83,11 +84,116 @@ static class ConfigurationReviewTests
             english.Contains("Target Windows driver paths") && english.Contains("Synchronous commands"),
             "phase review describes actual deployment operations and dependencies");
         Check(!english.Contains("PRIVATE_") && !review.Phases.Contains("PRIVATE_"), "phase summary hides paths and command text in both languages");
+        const string metadata = "<MetaData xmlns:wcm='http://schemas.microsoft.com/WMIConfig/2002/State' wcm:action='add'>";
+        string ReviewImage(string entries) => UiText.EnglishText(InstallationReview.ForExport(
+            Encoding.UTF8.GetBytes(xml.Replace("<MetaData />", entries))).Phases);
+        const string indexBody = "<Key>/IMAGE/INDEX</Key><Value> 6 </Value></MetaData>";
+        Check(ReviewImage(metadata + indexBody).Contains("Select Windows image by index (6)"),
+            "review shows the image index from the final XML");
+        foreach (string key in new[] { "NAME", "DESCRIPTION" })
+        {
+            string selection = ReviewImage(metadata + $"<Key>/IMAGE/{key}</Key><Value>PRIVATE_IMAGE_LABEL</Value></MetaData>");
+            Check(selection.Contains("Select Windows image by " + key.ToLowerInvariant()) && !selection.Contains("PRIVATE_"),
+                "review shows the selection method without copying a custom image label or path");
+        }
+        Check(!ReviewImage("").Contains("Select Windows image"), "missing metadata adds no image selection claim");
+        foreach (string entries in new[] { "<MetaData />", metadata + indexBody + metadata + indexBody,
+            metadata.Replace("'add'", "'remove'") + indexBody,
+            metadata + indexBody.Replace("> 6 <", ">2147483648<"),
+            metadata + indexBody.Replace("> 6 <", ">0<"),
+            metadata + indexBody.Replace("/IMAGE/INDEX", "/image/index"),
+            metadata + indexBody.Replace("</MetaData>", "<Value>PRIVATE_DUPLICATE</Value></MetaData>") })
+        {
+            string selection = ReviewImage(entries);
+            Check(selection.Contains("Review the Windows image selection") && !selection.Contains("by index") && !selection.Contains("PRIVATE_"),
+                "unrecognized or multiple rules prompt review without making a selection claim");
+        }
+
+        const string firstRun = """
+            <settings pass="oobeSystem">
+              <component name="Microsoft-Windows-Shell-Setup">
+                <OOBE>
+                  <HideWirelessSetupInOOBE> 1 </HideWirelessSetupInOOBE>
+                  <HideOnlineAccountScreens>true</HideOnlineAccountScreens>
+                </OOBE>
+              </component>
+            </settings>
+            """;
+        string ReviewWithPhase(string settings) => UiText.EnglishText(InstallationReview.ForExport(
+            Encoding.UTF8.GetBytes(xml.Replace("<settings pass=\"auditSystem\" />", settings))).Phases);
+        string withHiddenPages = ReviewWithPhase(firstRun);
+        Check(withHiddenPages.Contains("Hide OOBE network page requested") &&
+              withHiddenPages.Contains("Hide OOBE online sign-in page requested"), "review identifies OOBE page requests");
+        Check(!ReviewWithPhase(firstRun.Replace("> 1 <", "> 0 <").Replace(">true<", ">false<")).Contains("requested"),
+            "false OOBE values do not imply that a page will be hidden");
+        Check(!ReviewWithPhase(firstRun.Replace("oobeSystem", "auditUser")).Contains("requested"),
+            "OOBE page requests are only reported in the documented phase");
+
         var ordinary = QuickPresets.Create(QuickPresets.LocalAccount);
+        ordinary.ImageSelection = UiText.Source("text.9cbbdbe44e5d");
+        ordinary.ImageIndex = 4;
         var preview = new MainViewModel { Plan = ordinary };
-        var prepared = preview.ShowXmlPreview(generator.Generate(ordinary));
-        Check(prepared.Phases.Contains("oobeSystem") && preview.Preview.Contains(prepared.Phases),
-            "preview displays the same stage summary as export");
+        byte[] answer = generator.Generate(ordinary);
+        var exportedReview = InstallationReview.ForExport(answer);
+        string previousLanguage = UiText.Language;
+        try
+        {
+            UiText.SetLanguage("zh-CN");
+            var prepared = preview.ShowXmlPreview(answer);
+            Check(prepared.Phases == exportedReview.Phases && prepared.Phases.Contains("oobeSystem"),
+                "preview and export describe the same installation phases");
+            string chinese = UiText.Translate(exportedReview.Phases);
+            Check(chinese.Contains("按索引 4 选择 Windows 镜像"),
+                "Chinese export review includes the selected image index");
+            Check(preview.Preview.Contains(chinese),
+                "Chinese preview displays the exported phase review");
+
+            UiText.SetLanguage("en-US");
+            preview.RefreshPreviewLanguage();
+            string translated = UiText.Translate(exportedReview.Phases);
+            Check(translated.Contains("Select Windows image by index (4)"),
+                "English export review translates the only note in the Windows PE phase");
+            Check(preview.Preview.Contains(translated) && !preview.Preview.Contains("按索引 4 选择 Windows 镜像"),
+                "English preview displays the English export review after a language switch");
+        }
+        finally { UiText.SetLanguage(previousLanguage); }
+
+        var original = XmlMerge.Read(Encoding.UTF8.GetString(answer));
+        foreach (XmlNode comment in original.SelectNodes("//comment()")!.Cast<XmlNode>().ToArray())
+            comment.ParentNode!.RemoveChild(comment);
+        var ns = new XmlNamespaceManager(original.NameTable);
+        ns.AddNamespace("u", XmlMerge.Namespace);
+        var keyNode = original.SelectSingleNode("//u:InstallFrom/u:MetaData/u:Key", ns)!;
+        var valueNode = original.SelectSingleNode("//u:InstallFrom/u:MetaData/u:Value", ns)!;
+        Check(XmlPlanImport.Import(original.OuterXml, generator).ImageIndex == 4, "a recognized index remains editable");
+        keyNode.InnerText = "/IMAGE/NAME";
+        valueNode.InnerText = "Example image";
+        Check(XmlPlanImport.Import(original.OuterXml, generator).ImageName == valueNode.InnerText, "a recognized name remains editable");
+        keyNode.InnerText = "/IMAGE/DESCRIPTION";
+        valueNode.InnerText = "Example image description";
+        var imported = XmlPlanImport.Import(original.OuterXml, generator);
+        Check(imported.ImageIndex == null &&
+            imported.ImportedXml is { Blockers.Length: 0 } data &&
+            data.Notices.Contains(UiText.Source("import.imageSelection.preserved")),
+            "description is preserved separately from the supported editor fields");
+        var restored = PlanStore.Deserialize(PlanStore.Serialize(imported, includeSecrets: true));
+        var exported = XmlMerge.Read(Encoding.UTF8.GetString(generator.Generate(restored)));
+        var exportedNs = new XmlNamespaceManager(exported.NameTable);
+        exportedNs.AddNamespace("u", XmlMerge.Namespace);
+        Check(exported.SelectSingleNode("//u:InstallFrom/u:MetaData/u:Key", exportedNs)?.InnerText == "/IMAGE/DESCRIPTION" &&
+            exported.SelectSingleNode("//u:InstallFrom/u:MetaData/u:Value", exportedNs)?.InnerText == valueNode.InnerText,
+            "JSON round trip and re-export preserve the original selector");
+        restored.ImageSelection = UiText.Source("text.9cbbdbe44e5d");
+        restored.ImageIndex = 2;
+        try
+        {
+            _ = generator.Generate(restored);
+            throw new Exception("Export unexpectedly accepted a second selection rule");
+        }
+        catch (ConfigurationValidationException error) when (error.Field == nameof(InstallPlan.ImageSelection))
+        {
+            Check(error.Message == UiText.Source("import.imageSelection.conflict"), "conflicting selector is rejected at the image setting");
+        }
         return count;
     }
 }

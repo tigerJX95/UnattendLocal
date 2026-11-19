@@ -2,6 +2,16 @@
 
 [Back to the README](README_EN.md) · [简体中文](CHANGELOG.md)
 
+## V1.53 Plan creation and deployment review
+
+- Combine the two toolbar buttons into a New plan menu with recommended, custom, and minimal configurations.
+- Remove the duplicate custom-configuration button from the plan page. Keep the minimal configuration and local account quick presets.
+- The export phase summary reports whether Windows Setup selects the image by index, name, or description. It shows the index number and flags unclear selection rules for review.
+- The export phase summary shows requests to hide the OOBE network and online sign-in pages.
+- Check answer XML depth and element count before loading the document. Use the same XML parser limits for redacted previews.
+- Preserve imported image selection by description and unrecognized rules as read-only. Prevent an additional selector from conflicting with the original.
+- Mark `$OEM$` paths with reserved Windows names or trailing spaces or periods as unmapped.
+
 ## V1.52 Plan comparison and deployment guidance · 2026-11-19
 
 - Move the labeled “Compare with a saved plan” button to the top of the plan page and remove its standalone icon card.

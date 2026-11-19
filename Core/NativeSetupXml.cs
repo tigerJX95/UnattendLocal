@@ -6,6 +6,9 @@ internal static class NativeSetupXml
     internal static XmlElement[] Components(XmlDocument doc, string name) => doc.SelectNodes("//*[local-name()='component' and @name='" + name + "']")!.Cast<XmlElement>().ToArray();
     internal static bool NoAttributes(XmlElement node) => node.Attributes.Cast<XmlAttribute>().All(a => a.NamespaceURI == "http://www.w3.org/2000/xmlns/");
     internal static bool NoSignificantText(XmlElement node) => node.ChildNodes.Cast<XmlNode>().Where(n => n is not XmlElement and not XmlComment).All(n => string.IsNullOrWhiteSpace(n.Value));
+    internal static string? ReadScalar(XmlNodeList nodes) =>
+        nodes.Count == 1 && nodes[0] is XmlElement element &&
+        NoAttributes(element) && !element.ChildNodes.OfType<XmlElement>().Any() ? element.InnerText : null;
     internal static bool ValidComponent(XmlDocument doc, XmlElement c, string name, string pass)
     {
         if (c.NamespaceURI != XmlMerge.Namespace || c.ParentNode is not XmlElement s || s.LocalName != "settings" || s.NamespaceURI != XmlMerge.Namespace || s.ParentNode != doc.DocumentElement || s.GetAttribute("pass") != pass) return false;

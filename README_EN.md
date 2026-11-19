@@ -7,7 +7,7 @@
 
 UnattendLocal is a Windows desktop tool with Simplified Chinese and English interfaces based on [Christoph Schneegans’ UnattendGenerator](https://github.com/cschneegans/unattend-generator). It lets you edit, check, and generate `autounattend.xml` for Windows 10 / 11 locally.
 
-Current version: **V1.52**. When PE script installation is enabled, image selection switches to **By image index** and requires an index from the installation image; the regular Windows Setup path retains all image selection modes. Includes static IPv4/IPv6 dual stack, subnet-mask input, settings search, setup driver directories, Dynamic Update, partitioning, OOBE and account settings, and existing XML import/editing.
+Current version: **V1.53**. When PE script installation is enabled, image selection switches to **By image index** and requires an index from the installation image; the regular Windows Setup path retains all image selection modes. Includes static IPv4/IPv6 dual stack, subnet-mask input, settings search, setup driver directories, Dynamic Update, partitioning, OOBE and account settings, and existing XML import/editing.
 
 ## 💡 Why this project exists
 
@@ -58,19 +58,23 @@ The displayed product key is a public generic installation key for selecting an 
 - Save and restore JSON plans; review summaries, recommended-setting differences, checks, redacted previews, and XML exports.
 - Import existing XML and edit supported settings while preserving unknown content. Export stops with an explanation when changes cannot be merged reliably.
 
-## V1.52 Plan comparison and deployment guidance · 2026-11-19
+## V1.53 Plan creation and deployment review
 
-- Move the labeled “Compare with a saved plan” button to the top of the plan page and remove its standalone icon card.
-- Show the current plan’s installation path and configuration-set state in the `$OEM$` folder review, distinguishing regular Windows Setup, a generated PE script, and an imported answer file.
-- Document Windows 11 classic context menu limitations and ADK selection for 24H2, 25H2, 26H2, and 26H1.
+- Combine the two toolbar buttons into a New plan menu with recommended, custom, and minimal configurations.
+- Remove the duplicate custom-configuration button from the plan page. Keep the minimal configuration and local account quick presets.
+- The export phase summary reports whether Windows Setup selects the image by index, name, or description. It shows the index number and flags unclear selection rules for review.
+- The export phase summary shows requests to hide the OOBE network and online sign-in pages.
+- Check answer XML depth and element count before loading the document. Use the same XML parser limits for redacted previews.
+- Preserve imported image selection by description and unrecognized rules as read-only. Prevent an additional selector from conflicting with the original.
+- Mark `$OEM$` paths with reserved Windows names or trailing spaces or periods as unmapped.
 
-[Deployment review guide](docs/DeploymentReview.md)
+[Deployment review](docs/DeploymentReview.md)
 
 [Version history](CHANGELOG_EN.md)
 
 ## 📦 Download and usage
 
-Download and run the matching Windows x64 executable from the repository’s [**Releases**](https://github.com/tigerJX95/UnattendLocal/releases/latest) page: `UnattendLocal_V1.52_x64_SelfContained.exe` or `UnattendLocal_V1.52_x64_FrameworkDependent.exe`. Choose `UnattendLocal_V1.52_x64_SelfContained.exe` for a bundled .NET runtime, or `UnattendLocal_V1.52_x64_FrameworkDependent.exe` if .NET 10 Desktop Runtime x64 is already installed. Both have the same features. Use a virtual machine for initial testing.
+Download and run the matching Windows x64 executable from the repository’s [**Releases**](https://github.com/tigerJX95/UnattendLocal/releases/latest) page: `UnattendLocal_V1.53_x64_SelfContained.exe` or `UnattendLocal_V1.53_x64_FrameworkDependent.exe`. Choose `UnattendLocal_V1.53_x64_SelfContained.exe` for a bundled .NET runtime, or `UnattendLocal_V1.53_x64_FrameworkDependent.exe` if .NET 10 Desktop Runtime x64 is already installed. Both have the same features. Use a virtual machine for initial testing.
 
 1. Choose a recommended scenario or a custom configuration and enter the required account and image settings.
 2. Adjust system, appearance, and application removal options as needed.

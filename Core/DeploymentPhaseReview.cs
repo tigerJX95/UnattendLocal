@@ -5,7 +5,7 @@ namespace UnattendLocal.Core;
 
 internal static class DeploymentPhaseReview
 {
-    private const string Setup = "u:component[@name='Microsoft-Windows-Setup']";
+    private const string Setup = ImageSelectionXml.SetupComponent;
     private const string Shell = "u:component[@name='Microsoft-Windows-Shell-Setup']";
 
     public static string Describe(XmlDocument doc, bool hasAppLocker)
@@ -21,6 +21,8 @@ internal static class DeploymentPhaseReview
             if (count == 0) continue;
 
             bool Has(string path) => doc.SelectSingleNode(scope + path, ns) != null;
+            bool IsEnabled(string path) =>
+                NativeSetupXml.ReadScalar(doc.SelectNodes(scope + path, ns)!)?.Trim(' ', '\t', '\r', '\n') is "true" or "1";
             var notes = new List<string>();
             void Add(bool present, string key)
             {
@@ -33,12 +35,18 @@ internal static class DeploymentPhaseReview
                     "/u:unattend/s:Extensions/s:Build/s:PEScriptCopy[normalize-space(.) != '']", ns) != null;
                 Add(peScript, "review.phases.peScript");
                 Add(Has(Setup + "/u:DiskConfiguration") || (!peScript && AutoPartitionSettings.Inspect(doc).Known), "review.phases.disk");
-                Add(Has(Setup + "/u:ImageInstall/u:OSImage/u:InstallFrom/u:MetaData"), "review.phases.image");
-                Add(Has(Setup + "/u:ImageInstall/u:OSImage/u:InstallFrom/u:Path"), "review.phases.imagePath");
+                if (DescribeImageSelection(ImageSelectionXml.Read(doc, ns)) is string imageSelection)
+                    notes.Add(imageSelection);
+                Add(Has(ImageSelectionXml.OsImage + "/u:InstallFrom/u:Path"), "review.phases.imagePath");
                 Add(Has("u:component[@name='Microsoft-Windows-PnpCustomizationsWinPE']/u:DriverPaths/*"), "review.phases.peDrivers");
                 Add(Has(Setup + "/u:UseConfigurationSet[normalize-space(.)='true' or normalize-space(.)='1']"), "review.phases.configurationSet");
                 Add(Has(Setup + "/u:DynamicUpdate/u:Enable[normalize-space(.)='true' or normalize-space(.)='1']"), "review.phases.dynamicUpdate");
                 Add(Has(Setup + "/u:LogPath[normalize-space(.) != '']"), "review.phases.logPath");
+            }
+            if (phase.Id == "oobeSystem")
+            {
+                Add(IsEnabled(Shell + "/u:OOBE/u:HideWirelessSetupInOOBE"), "review.phases.oobeNetwork");
+                Add(IsEnabled(Shell + "/u:OOBE/u:HideOnlineAccountScreens"), "review.phases.oobeSignIn");
             }
             Add(Has("u:component[@name='Microsoft-Windows-PnpCustomizationsNonWinPE']/u:DriverPaths/*"), "review.phases.offlineDrivers");
             Add(Has("u:component/u:RunSynchronous/u:RunSynchronousCommand"), "review.phases.commands");
@@ -55,4 +63,13 @@ internal static class DeploymentPhaseReview
         lines.Add(UiText.Source("review.phases.scope"));
         return UiText.Join("\n", lines);
     }
+
+    private static string? DescribeImageSelection(ImageSelectionXml.Selection selection) => selection.Method switch
+    {
+        ImageSelectionXml.Kind.Missing => null,
+        ImageSelectionXml.Kind.Index => UiText.Format("review.phases.imageByIndex", UiText.Arg(selection.Index)),
+        ImageSelectionXml.Kind.Name => UiText.Source("review.phases.imageByName"),
+        ImageSelectionXml.Kind.Description => UiText.Source("review.phases.imageByDescription"),
+        _ => UiText.Source("review.phases.image")
+    };
 }

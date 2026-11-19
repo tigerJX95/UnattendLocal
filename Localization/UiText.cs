@@ -300,6 +300,8 @@ public static class UiText
     public static string Join<T>(string separator, IEnumerable<T> items, bool raw = false)
     {
         var values = items.Select(p => p?.ToString() ?? "").ToArray();
+        // A single translated item already owns its projection.
+        if (!raw && values.Length == 1) return values[0];
         var source = string.Join(separator, values);
         Remember(source, new(null, values, Enumerable.Repeat(raw, values.Length).ToArray(), separator)); return source;
     }

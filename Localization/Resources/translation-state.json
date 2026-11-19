@@ -4035,7 +4035,7 @@
     "review.phases.scope": "683de4f20ea16d4ec44055fdf7f54d3ee3454f692b0591669feb32bf9477adf6",
     "review.phases.peScript": "cceccbac48a0eeb4afde7b2be501575c4cf44e3c90051abe3735c0b5e709ce1b",
     "review.phases.disk": "28bd3d7ceb54cf161af67a6d371c772ba952faf6ff502f1eb6546fa2ef3fa7da",
-    "review.phases.image": "8587fba528d2b0f31eaa043361cf954da5b6013c36b7efa8d6be4f41254cea81",
+    "review.phases.image": "2daf8fe27f38f784ca492af2df2b8ba21e59b44c688b146708bd0f449dc51490",
     "review.phases.imagePath": "5fba7b0c700b97301b1242908c624d151983b340b3b6f0dae16a948ef3ceb693",
     "review.phases.peDrivers": "121add03d049a6628f369668480dee6bac63c4e99f73b213bef05ff95b5fec8c",
     "review.phases.configurationSet": "1b0118592fe87718d777243ceb8766e7c0dea7808f8da17108368c0d7bc336cb",
@@ -4106,6 +4106,14 @@
     "oemReview.plan.setupEnabled": "bc8e77a21b18b02395cea4cdd2359bac736d935f6f2127517d7bf5ea5a01377a",
     "oemReview.plan.peDisabled": "908dbd13a05a31e35db49a33700742fd9528e1561df86e2aee08bddb58b419ad",
     "oemReview.plan.peEnabled": "5abc0397e5e503eaa592b841631f63a792706711b6851a1f83f0d69ee8f247ee",
-    "oemReview.plan.imported": "a0fdf47b75eb3caf650361f1d222eedcc0b28360c74e348bab2fabd129f36520"
+    "oemReview.plan.imported": "a0fdf47b75eb3caf650361f1d222eedcc0b28360c74e348bab2fabd129f36520",
+    "plan.new.menu": "cc855497aba51cc6de7f751a1485143d3e3d5e8d72d5b27242277554541797a0",
+    "review.phases.imageByIndex": "80ad372406fb8200cbac34bc28495474a5c8772674cd4cb9635af27390454448",
+    "review.phases.imageByName": "27073c7178dc26e3431ea7729dcfddc86372ce6aaca1f15c492d653002bcabc2",
+    "review.phases.imageByDescription": "2e2e5a107a3e35eeee91ee90b381db7285dcd1e4ca456c36f1f230f63f309e9f",
+    "review.phases.oobeNetwork": "bbda5c91eb99c6800a415680b1fe273bd7481f7a0207d3c9c22b91dcb1ead1f0",
+    "review.phases.oobeSignIn": "2aa59ecaa4987f7bc1be3011ab32b20b83b4771c9157f6ae2a1630bf9dbc4627",
+    "import.imageSelection.preserved": "3d6e97fa900cc010b474484fb669321f26e7a72f35e8476a1dcd4ac86e21195a",
+    "import.imageSelection.conflict": "187eb2440f9ff1a70bc0769e1368c2c74ae6fcd5887136742fc2524cf7ca158f"
   }
 }

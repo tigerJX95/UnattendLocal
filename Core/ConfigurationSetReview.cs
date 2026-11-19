@@ -28,8 +28,7 @@ public sealed record ConfigurationSetReview(IReadOnlyList<ConfigurationSetFile> 
     public static string? Destination(string relativePath)
     {
         var parts = relativePath.Replace('/', '\\').Split('\\');
-        if (parts.Length < 2 || parts.Any(p => p.Length == 0 || p is "." or ".." ||
-            p.Any(c => c < ' ' || c is ':' or '*' or '?' or '"' or '<' or '>' or '|'))) return null;
+        if (parts.Length < 2 || parts.Skip(1).Any(InvalidWindowsName)) return null;
         string? root = parts[0] switch
         {
             "$1" => "%SystemDrive%",
@@ -38,6 +37,17 @@ public sealed record ConfigurationSetReview(IReadOnlyList<ConfigurationSetFile> 
             _ => null
         };
         return root is null ? null : root + "\\" + string.Join("\\", parts.Skip(1));
+    }
+
+    private static bool InvalidWindowsName(string part)
+    {
+        if (part.Length == 0 || part.EndsWith(' ') || part.EndsWith('.') ||
+            part.Any(c => c < ' ' || c is ':' or '*' or '?' or '"' or '<' or '>' or '|'))
+            return true;
+        int dot = part.IndexOf('.');
+        string stem = (dot < 0 ? part : part[..dot]).TrimEnd(' ').ToUpperInvariant();
+        return stem is "CON" or "PRN" or "AUX" or "NUL" or "CONIN$" or "CONOUT$" ||
+            stem.Length == 4 && stem[..3] is ("COM" or "LPT") && stem[3] is (>= '1' and <= '9' or '¹' or '²' or '³');
     }
 
     public static ConfigurationSetReview Read(string directory, CancellationToken cancellationToken = default)

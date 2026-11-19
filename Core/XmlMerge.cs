@@ -9,12 +9,19 @@ public static class XmlMerge {
  public const int MaxLength=16*1024*1024;
  public static XmlDocument Read(string text){
   if(string.IsNullOrWhiteSpace(text)||text.Length>MaxLength)throw new ArgumentException(global::UnattendLocal.Localization.UiText.Source("text.f7822795de82"));
+  var settings=new XmlReaderSettings{DtdProcessing=DtdProcessing.Prohibit,XmlResolver=null,MaxCharactersInDocument=MaxLength,MaxCharactersFromEntities=0};
+  // Enforce structural limits while streaming, before allocating the DOM.
+  using(var reader=XmlReader.Create(new StringReader(text),settings)){
+   int elements=0;
+   while(reader.Read()){
+    if(reader.NodeType==XmlNodeType.ProcessingInstruction)throw new ArgumentException(global::UnattendLocal.Localization.UiText.Source("text.e9ff59c64388"));
+    if(reader.NodeType==XmlNodeType.Element&&(reader.Depth>=128||++elements>50000))
+     throw new ArgumentException(global::UnattendLocal.Localization.UiText.Source("text.ae59f5f618b6"));
+   }
+  }
   var doc=new XmlDocument{XmlResolver=null};
-  using(var reader=XmlReader.Create(new StringReader(text),new XmlReaderSettings{DtdProcessing=DtdProcessing.Prohibit,XmlResolver=null,MaxCharactersInDocument=MaxLength,MaxCharactersFromEntities=0}))doc.Load(reader);
+  using(var reader=XmlReader.Create(new StringReader(text),settings))doc.Load(reader);
   if(doc.DocumentElement is not {} root||root.LocalName!="unattend"||root.NamespaceURI!=Namespace)throw new ArgumentException(global::UnattendLocal.Localization.UiText.Source("text.b5484829fe54"));
-  if(doc.SelectNodes("//processing-instruction()")!.Count>0)throw new ArgumentException(global::UnattendLocal.Localization.UiText.Source("text.e9ff59c64388"));
-  var pending=new Stack<(XmlElement Element,int Depth)>();pending.Push((root,1));int count=0;
-  while(pending.Count>0){var item=pending.Pop();if(item.Depth>128||++count>50000)throw new ArgumentException(global::UnattendLocal.Localization.UiText.Source("text.ae59f5f618b6"));foreach(var child in item.Element.ChildNodes.OfType<XmlElement>())pending.Push((child,item.Depth+1));}
   return doc;
  }
  public static string Identity(XmlElement e){
