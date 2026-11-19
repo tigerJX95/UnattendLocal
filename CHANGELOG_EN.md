@@ -2,6 +2,13 @@
 
 [Back to the README](README_EN.md) · [简体中文](CHANGELOG.md)
 
+## V1.53.1 Interface and configuration fixes
+
+- Fix dark-theme colors for headings, instructions, and field labels in OEM support information and offline driver directories.
+- Fix dark backgrounds in the Windows Setup log and deployment review windows. Close the Setup log window using its title-bar close button or Esc.
+- Remove first-line indentation from the Check and export instructions.
+- The minimal configuration defaults to creating a local account during Setup. You can switch to a Microsoft account under Users and passwords.
+
 ## V1.53 Plan creation and deployment review
 
 - Combine the two toolbar buttons into a New plan menu with recommended, custom, and minimal configurations.

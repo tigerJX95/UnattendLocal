@@ -1588,24 +1588,24 @@
               <Button Content="{loc:Source text.40f98094d525}" Click="XmlComponentExampleClick" />
               <Button Content="{loc:Source text.60c83758425f}" Click="CheckXmlComponentClick" IsEnabled="{Binding HasSelectedXmlComponent}" />
             </WrapPanel>
-            <Expander x:Name="OemSupportForm" Header="{loc:Text xml.oem.form}" Margin="0,6">
+            <Expander x:Name="OemSupportForm" Header="{loc:Text xml.oem.form}" Style="{StaticResource XmlFormExpander}" Margin="0,6">
               <StackPanel Margin="12,4,0,4">
                 <TextBlock Style="{StaticResource ExplanationText}" Text="{loc:Text xml.oem.help}" />
-                <Label Content="{loc:Text xml.oem.provider}" Target="{Binding ElementName=OemSupportProvider}" Padding="0,4" />
+                <Label Content="{loc:Text xml.oem.provider}" Target="{Binding ElementName=OemSupportProvider}" Style="{StaticResource XmlFormLabel}" />
                 <TextBox x:Name="OemSupportProvider">
                   <TextBox.ToolTip><ToolTip ContentTemplate="{x:Null}" Content="{loc:Text xml.oem.provider}" /></TextBox.ToolTip>
                 </TextBox>
-                <Label Content="{loc:Text xml.oem.website}" Target="{Binding ElementName=OemSupportWebsite}" Padding="0,4" />
+                <Label Content="{loc:Text xml.oem.website}" Target="{Binding ElementName=OemSupportWebsite}" Style="{StaticResource XmlFormLabel}" />
                 <TextBox x:Name="OemSupportWebsite">
                   <TextBox.ToolTip><ToolTip ContentTemplate="{x:Null}" Content="{loc:Text xml.oem.website}" /></TextBox.ToolTip>
                 </TextBox>
                 <Button Content="{loc:Source xml.oem.add}" Click="AddOemSupportClick" HorizontalAlignment="Left" />
               </StackPanel>
             </Expander>
-            <Expander x:Name="OfflineDriverForm" Header="{loc:Text xml.offlineDrivers.form}" Margin="0,6">
+            <Expander x:Name="OfflineDriverForm" Header="{loc:Text xml.offlineDrivers.form}" Style="{StaticResource XmlFormExpander}" Margin="0,6">
               <StackPanel Margin="12,4,0,4">
                 <TextBlock Style="{StaticResource ExplanationText}" Text="{loc:Text xml.offlineDrivers.help}" />
-                <Label Content="{loc:Text xml.offlineDrivers.paths}" Target="{Binding ElementName=OfflineDriverPaths}" Padding="0,4" />
+                <Label Content="{loc:Text xml.offlineDrivers.paths}" Target="{Binding ElementName=OfflineDriverPaths}" Style="{StaticResource XmlFormLabel}" />
                 <TextBox x:Name="OfflineDriverPaths" AcceptsReturn="True" Height="100" FontFamily="Consolas"
                          TextWrapping="NoWrap" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto" />
                 <Button Content="{loc:Source xml.offlineDrivers.add}" Click="AddOfflineDriverClick" HorizontalAlignment="Left" />
@@ -1635,12 +1635,12 @@
             <Border Style="{StaticResource Card}">
               <StackPanel x:Name="SettingAnchor233">
                 <TextBlock Text="{loc:Text text.3228ab6ef3f1}" FontSize="20" FontWeight="SemiBold" Margin="0,0,0,16" />
-                <TextBlock Style="{StaticResource ExplanationText}" Text="{loc:Text text.6bce12e6bad2}" TextWrapping="Wrap" />
+                <TextBlock x:Name="ExportIntro" Style="{StaticResource ExplanationText}" Text="{loc:Text text.6bce12e6bad2}" TextWrapping="Wrap" />
                 <Button x:Name="SetupLogsButton" Content="{loc:Source setupLogs.open}" Click="SetupLogsClick" HorizontalAlignment="Left">
                   <Button.ToolTip><ToolTip ContentTemplate="{x:Null}" Content="{loc:Text setupLogs.hint}" /></Button.ToolTip>
                 </Button>
                 <TextBlock Text="{loc:Display Value={Binding XmlImportSummary}}" Visibility="{Binding HasImportedXml,Converter={StaticResource VisibleWhen}}"><TextBlock.Style><Style TargetType="TextBlock" BasedOn="{StaticResource ExplanationText}"><Setter Property="Foreground" Value="{DynamicResource WarningBrush}"/><Style.Triggers><DataTrigger Binding="{Binding HasXmlImportErrors}" Value="True"><Setter Property="Foreground" Value="{DynamicResource ErrorBrush}"/></DataTrigger></Style.Triggers></Style></TextBlock.Style></TextBlock>
-                <TextBlock Style="{StaticResource ExplanationText}" Text="{loc:Text text.bc764c87e85b}" Visibility="{Binding HasImportedXmlRisk,Converter={StaticResource VisibleWhen}}" Foreground="{DynamicResource WarningBrush}"/>
+                <TextBlock x:Name="ExportImportWarning" Style="{StaticResource ExplanationText}" Text="{loc:Text text.bc764c87e85b}" Visibility="{Binding HasImportedXmlRisk,Converter={StaticResource VisibleWhen}}" Foreground="{DynamicResource WarningBrush}"/>
 
                 <local:ConfigurationSummaryView Summary="{Binding ConfigurationSummary}" ShowDetails="False" Margin="0,0,0,0"/>
                 <Border Margin="0,0,0,16">

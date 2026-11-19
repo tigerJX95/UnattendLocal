@@ -3,7 +3,14 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:loc="clr-namespace:UnattendLocal.Desktop"
         Title="{loc:Text setupLogs.title}" Width="880" Height="560" MinWidth="460" MinHeight="330"
+        Style="{StaticResource {x:Type Window}}"
         WindowStartupLocation="CenterOwner" ShowInTaskbar="False" FontFamily="Microsoft YaHei UI" FontSize="14">
+  <Window.CommandBindings>
+    <CommandBinding Command="ApplicationCommands.Close" Executed="CloseExecuted"/>
+  </Window.CommandBindings>
+  <Window.InputBindings>
+    <KeyBinding Key="Escape" Command="ApplicationCommands.Close"/>
+  </Window.InputBindings>
   <Grid Margin="20">
     <Grid.RowDefinitions>
       <RowDefinition Height="Auto"/>
@@ -19,7 +26,8 @@
       <TextBlock x:Name="LogName" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" />
     </DockPanel>
     <DockPanel Grid.Row="1" Margin="0,6,0,8">
-      <Label DockPanel.Dock="Left" Content="{loc:Text setupLogs.filter}" Target="{Binding ElementName=LogFilter}" Padding="0,7,10,7" />
+      <Label x:Name="LogFilterLabel" DockPanel.Dock="Left" Content="{loc:Text setupLogs.filter}"
+             Foreground="{DynamicResource ForegroundBrush}" Target="{Binding ElementName=LogFilter}" Padding="0,7,10,7" />
       <TextBox x:Name="LogFilter" IsEnabled="False" MaxLength="256" TextChanged="FilterChanged" />
     </DockPanel>
     <TextBlock Grid.Row="2" x:Name="TruncatedNotice" Text="{loc:Text setupLogs.truncated}" Visibility="Collapsed"
@@ -27,11 +35,7 @@
     <TextBox Grid.Row="3" x:Name="LogText" IsReadOnly="True" IsUndoEnabled="False" TextWrapping="NoWrap"
              FontFamily="Consolas" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto"
              AutomationProperties.Name="{loc:Text setupLogs.contents}" />
-    <DockPanel Grid.Row="4" Margin="0,8,0,0">
-      <Button DockPanel.Dock="Right" Content="{loc:Text text.3fd47edce45b}" ContentTemplate="{x:Null}"
-              IsCancel="True" Margin="12,0,0,0" />
-      <TextBlock x:Name="LogStatus" Text="{loc:Text setupLogs.hint}" Foreground="{DynamicResource SecondaryBrush}"
-                 TextWrapping="Wrap" VerticalAlignment="Center" />
-    </DockPanel>
+    <TextBlock Grid.Row="4" x:Name="LogStatus" Text="{loc:Text setupLogs.hint}" Foreground="{DynamicResource SecondaryBrush}"
+               TextWrapping="Wrap" VerticalAlignment="Center" Margin="0,8,0,0" />
   </Grid>
 </Window>

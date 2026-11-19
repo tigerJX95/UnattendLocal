@@ -15319,12 +15319,12 @@
     "ProtectedTokens": []
   },
   "text.89a00025649c": {
-    "Source": "此预设将语言、版本、分区和账户交由安装程序处理，不添加应用移除或系统优化。\n\n为避免首次登录清理脚本，默认保留安装隐私文件；可在 OOBE 页调整。",
+    "Source": "此预设在安装时选择语言、版本和分区，并默认创建本地账户。可在「用户与密码」页切换为微软账户。\n\n为避免首次登录清理脚本，默认保留安装隐私文件。可在 OOBE 页调整。",
     "Contexts": [
       "Desktop/MainWindow.xaml.cs:46"
     ],
     "RawArgs": [],
-    "SourceHash": "89a00025649c596bd3748c0acda6777b7149f1c12609576ab1e18fbdf2ac5b78",
+    "SourceHash": "1e96ce98bffe038f770a9e9fb3b391aca9d9b3feda830eef0d6b3e6262a0f9e7",
     "ProtectedTokens": []
   },
   "text.8066a4f44651": {
@@ -20596,12 +20596,12 @@
     "ProtectedTokens": []
   },
   "text.a2129fab3fdb": {
-    "Source": "语言、版本、分区与账户在安装时选择，其他常用设置保留 Windows 默认行为。",
+    "Source": "语言、版本和分区在安装时选择，默认在安装时创建本地账户。可在「用户与密码」页手动切换为微软账户。",
     "Contexts": [
       "Desktop/MainWindow.xaml:Text"
     ],
     "RawArgs": [],
-    "SourceHash": "a2129fab3fdb69dfea2beeadbb796211282635458108791eb97b185b2713f177",
+    "SourceHash": "ae1a077114499119b47ac8b4435dc9cde9cf672dcdfede9f5301415b2bb63a32",
     "ProtectedTokens": []
   },
   "text.68ce534e185e": {
@@ -23415,21 +23415,21 @@
     "ProtectedTokens": []
   },
   "text.6bce12e6bad2": {
-    "Source": "　　导出前重新检查当前配置。XML 可能包含账户及 Wi-Fi 凭据；预览默认遮蔽密码。",
+    "Source": "导出前重新检查当前配置。XML 可能包含账户及 Wi-Fi 凭据；预览默认遮蔽密码。",
     "Contexts": [
       "Desktop/MainWindow.xaml:Text"
     ],
     "RawArgs": [],
-    "SourceHash": "6bce12e6bad26b77bb12a10a2ff2f9c9c1a215a4d3dd3d941f4d6c0366971607",
+    "SourceHash": "4919c6c0c3529ba9f788c6f20d17fd5218563febea06654194214a75b75aad5f",
     "ProtectedTokens": []
   },
   "text.bc764c87e85b": {
-    "Source": "　　导入的原 XML 含磁盘配置或 Windows PE 命令；下方磁盘设置仅涵盖已还原的部分，请核对原文件的全部操作范围。",
+    "Source": "导入的原 XML 含磁盘配置或 Windows PE 命令；下方磁盘设置仅涵盖已还原的部分，请核对原文件的全部操作范围。",
     "Contexts": [
       "Desktop/MainWindow.xaml:Text"
     ],
     "RawArgs": [],
-    "SourceHash": "bc764c87e85bfec713aabf1874126dcca0d9c3ae37b62020cb4dd6d9a1ca071f",
+    "SourceHash": "0c4d62c7020fc27ca30b82731427b9ae0a646e643bb0bcf4d9db9a627675802f",
     "ProtectedTokens": []
   },
   "text.9900590a21cb": {

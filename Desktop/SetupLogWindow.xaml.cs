@@ -1,6 +1,7 @@
 using System.IO;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Input;
 using Microsoft.Win32;
 using UnattendLocal.Core;
 using UnattendLocal.Localization;
@@ -17,6 +18,8 @@ public partial class SetupLogWindow : Window
         SourceInitialized += (_, _) => UiTheme.UpdateTitleBar(this);
         Loaded += (_, _) => OpenButton.Focus();
     }
+
+    private void CloseExecuted(object sender, ExecutedRoutedEventArgs e) => Close();
 
     private void OpenClick(object sender, RoutedEventArgs e)
     {
