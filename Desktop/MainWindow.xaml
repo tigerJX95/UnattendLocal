@@ -46,11 +46,24 @@
   </Window.Resources>
   <DockPanel>
     <Border DockPanel.Dock="Top" Background="{DynamicResource SurfaceBrush}" Padding="24,16">
-      <Grid>
-        <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
-        <DockPanel>
-          <StackPanel DockPanel.Dock="Right" Orientation="Horizontal">
-          <Button x:Name="LanguagePickerButton" Click="LanguagePickerClick" ContentTemplate="{x:Null}" AutomationProperties.Name="{loc:Text text.3d13868593ae}">
+      <DockPanel>
+        <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" VerticalAlignment="Center">
+          <Button x:Name="NewPlanButton" Click="OpenToolbarMenu" Width="46" ContentTemplate="{x:Null}"
+                  AutomationProperties.Name="{loc:Text plan.new.menu}">
+            <Button.ToolTip><ToolTip ContentTemplate="{x:Null}" Content="{loc:Text plan.new.menu}"/></Button.ToolTip>
+            <Path Data="M2,2 H10 L14,6 V20 H2 Z M10,2 V6 H14 M5,12 H11 M8,9 V15 M18,10 L21,13 L24,10"
+                  Width="25" Height="20" Stretch="Uniform" Stroke="{Binding Foreground,RelativeSource={RelativeSource AncestorType=Button}}"
+                  StrokeThickness="1.6" StrokeStartLineCap="Round" StrokeEndLineCap="Round" StrokeLineJoin="Round"/>
+            <Button.ContextMenu>
+              <ContextMenu Style="{StaticResource ToolbarMenuStyle}">
+                <MenuItem Header="{loc:Text text.933c2fd10345}" Click="NewClick"/>
+                <MenuItem Header="{loc:Text text.cb1e0e22c7de}" Click="NewCustomClick"/>
+                <MenuItem Header="{loc:Text text.0c149d18a0e6}" Tag="{x:Static core:QuickPresets.Minimal}" Click="QuickPresetClick"/>
+              </ContextMenu>
+            </Button.ContextMenu>
+          </Button>
+          <Button Content="{loc:Source plan.open}" Click="OpenClick" />
+          <Button x:Name="LanguagePickerButton" Margin="12,4,4,4" Click="LanguagePickerClick" ContentTemplate="{x:Null}" AutomationProperties.Name="{loc:Text text.3d13868593ae}">
             <Button.ToolTip><ToolTip ContentTemplate="{x:Null}" Content="{loc:Text text.3d13868593ae}"/></Button.ToolTip>
             <Grid Width="20" Height="20">
               <Path Data="M10,1 A9,9 0 1 1 9.99,1 Z M1,10 H19 M10,1 C4,5 4,15 10,19 M10,1 C16,5 16,15 10,19 M10,1 V19"
@@ -129,32 +142,12 @@
               </ContextMenu>
             </Button.ContextMenu>
           </Button>
-          </StackPanel>
-        <StackPanel>
-          <TextBlock Text="{loc:Text text.702e22acf7a9}" FontSize="24" FontWeight="SemiBold" />
-          <TextBlock Text="{loc:Text text.30878425ee76}" Foreground="{DynamicResource SecondaryBrush}" />
         </StackPanel>
-        </DockPanel>
-        <WrapPanel Grid.Row="1" Margin="0,10,0,0">
-          <Button x:Name="NewPlanButton" Click="OpenToolbarMenu" Width="46" ContentTemplate="{x:Null}"
-                  AutomationProperties.Name="{loc:Text plan.new.menu}">
-            <Button.ToolTip><ToolTip ContentTemplate="{x:Null}" Content="{loc:Text plan.new.menu}"/></Button.ToolTip>
-            <Path Data="M2,2 H10 L14,6 V20 H2 Z M10,2 V6 H14 M5,12 H11 M8,9 V15 M18,10 L21,13 L24,10"
-                  Width="25" Height="20" Stretch="Uniform" Stroke="{Binding Foreground,RelativeSource={RelativeSource AncestorType=Button}}"
-                  StrokeThickness="1.6" StrokeStartLineCap="Round" StrokeEndLineCap="Round" StrokeLineJoin="Round"/>
-            <Button.ContextMenu>
-              <ContextMenu Style="{StaticResource ToolbarMenuStyle}">
-                <MenuItem Header="{loc:Text text.933c2fd10345}" Click="NewClick"/>
-                <MenuItem Header="{loc:Text text.cb1e0e22c7de}" Click="NewCustomClick"/>
-                <MenuItem Header="{loc:Text text.0c149d18a0e6}" Tag="{x:Static core:QuickPresets.Minimal}" Click="QuickPresetClick"/>
-              </ContextMenu>
-            </Button.ContextMenu>
-          </Button>
-          <Button Content="{loc:Source text.520eef7974df}" Click="OpenClick" />
-          <Button Content="{loc:Source text.a6aa8cd3f498}" Click="SaveClick" />
-          <Button Content="{loc:Source text.a1de672a7e93}" Click="ImportAnswerClick" />
-        </WrapPanel>
-      </Grid>
+        <StackPanel VerticalAlignment="Center">
+          <TextBlock Text="{loc:Text text.702e22acf7a9}" TextWrapping="Wrap" FontSize="24" FontWeight="SemiBold" />
+          <TextBlock Text="{loc:Text text.30878425ee76}" TextWrapping="Wrap" Foreground="{DynamicResource SecondaryBrush}" />
+        </StackPanel>
+      </DockPanel>
     </Border>
     <Border DockPanel.Dock="Bottom" Background="{DynamicResource SurfaceBrush}" Padding="24,10">
       <TextBlock Text="{loc:Display Value={Binding Status}}" Foreground="{DynamicResource StatusBrush}" FontWeight="SemiBold" TextWrapping="Wrap" />
@@ -167,13 +160,23 @@
               <ColumnDefinition Width="*"/>
               <ColumnDefinition Width="Auto"/>
             </Grid.ColumnDefinitions>
-            <TextBlock Text="{loc:Text text.8c41e5a4e04d}" TextWrapping="Wrap" VerticalAlignment="Center"
+            <TextBlock Text="{loc:Text plan.open.pageHint}" TextWrapping="Wrap" VerticalAlignment="Center"
                        Foreground="{DynamicResource SecondaryBrush}"/>
-            <Button Grid.Column="1" Content="{loc:Text plan.compare.open}" ContentTemplate="{x:Null}"
-                    AutomationProperties.Name="{loc:Text plan.compare.open}" Click="ComparePlanClick"
-                    Width="Auto" Height="Auto" MinHeight="36" Padding="12,6" Margin="16,0,0,0"
+            <Button Grid.Column="1" ContentTemplate="{x:Null}"
+                    AutomationProperties.Name="{loc:Text plan.tools.menu}" Click="OpenToolbarMenu"
+                    Margin="16,0,0,0"
                     VerticalAlignment="Center">
-              <Button.ToolTip><ToolTip ContentTemplate="{x:Null}" Content="{loc:Text plan.compare.help}"/></Button.ToolTip>
+              <Button.ToolTip><ToolTip ContentTemplate="{x:Null}" Content="{loc:Text plan.tools.help}"/></Button.ToolTip>
+              <Path Data="M2,2 H7 L10,5 V19 H2 Z M7,2 V5 H10 M13,2 H18 L21,5 V19 H13 Z M18,2 V5 H21 M4,10 H8 M4,14 H7 M15,10 H19 M15,14 H19"
+                    Width="20" Height="20" Stretch="Uniform" StrokeThickness="1.4"
+                    StrokeStartLineCap="Round" StrokeEndLineCap="Round" StrokeLineJoin="Round"
+                    Stroke="{Binding Foreground,RelativeSource={RelativeSource AncestorType=Button}}"/>
+              <Button.ContextMenu>
+                <ContextMenu Style="{StaticResource ToolbarMenuStyle}">
+                  <MenuItem Header="{loc:Text plan.saveJson}" Click="SaveClick"/>
+                  <MenuItem Header="{loc:Text plan.compare.open}" Click="ComparePlanClick"/>
+                </ContextMenu>
+              </Button.ContextMenu>
             </Button>
           </Grid>
           <Border Style="{StaticResource Card}"><StackPanel>

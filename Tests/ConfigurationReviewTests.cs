@@ -75,6 +75,32 @@ static class ConfigurationReviewTests
               <s:Extensions><s:Build><s:PEScriptCopy>PRIVATE_PE_SCRIPT</s:PEScriptCopy></s:Build></s:Extensions>
             </unattend>
             """;
+
+        string withComment = xml.Replace("<settings pass=\"auditSystem\" />",
+            "<!--UnattendLocal:editable snapshot--><settings pass=\"auditSystem\" />");
+        Check(PlanComparison.FindChangedAnswerSections(xml, withComment).Count == 0,
+            "XML comparison ignores comments containing editing metadata");
+        Check(PlanComparison.FindChangedAnswerSections(xml,
+            xml.Replace("PRIVATE_DRIVER_PATH", "DIFFERENT_DRIVER_PATH")
+                .Replace("PRIVATE_COMMAND", "DIFFERENT_COMMAND"))
+            .SequenceEqual(new[] { "offlineServicing", "specialize" }),
+            "XML comparison reports changed passes without exposing their values");
+        Check(PlanComparison.FindChangedAnswerSections(xml, xml.Replace("PRIVATE_PE_SCRIPT", "PE_SCRIPT_CHANGED"))
+            .SequenceEqual(new[] { UiText.Source("plan.compare.otherXml") }),
+            "XML comparison detects changes in embedded deployment extensions");
+        Check(PlanComparison.FindChangedAnswerSections(xml, xml.Replace("<settings pass=\"auditSystem\" />", ""))
+            .SequenceEqual(new[] { "auditSystem" }),
+            "XML comparison reports missing configuration passes");
+        try
+        {
+            _ = PlanComparison.FindChangedAnswerSections(xml, "<WLANProfile />");
+            throw new Exception("Expected a non-answer XML failure");
+        }
+        catch (ArgumentException)
+        {
+            Check(true, "XML comparison requires a Windows answer file");
+        }
+
         var review = InstallationReview.ForExport(Encoding.UTF8.GetBytes(xml));
         string english = UiText.EnglishText(review.Phases);
         Check(english.IndexOf("windowsPE", StringComparison.Ordinal) < english.IndexOf("offlineServicing", StringComparison.Ordinal) &&

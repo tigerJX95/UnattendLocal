@@ -7,7 +7,7 @@
 
 UnattendLocal 是基于 [Christoph Schneegans 的 UnattendGenerator](https://github.com/cschneegans/unattend-generator) 开发的 Windows 桌面配置工具，支持简体中文与英语界面，用于在本地编辑、检查和生成 Windows 10 / 11 的 `autounattend.xml`。
 
-当前版本：**V1.53.1**。启用 PE 脚本安装后会自动切换为“按镜像索引”，须自行填写安装镜像中的实际索引；普通 Windows Setup 仍支持原有全部镜像选择方式。支持简体中文 / English 即时切换、独立语言包维护、静态 IPv4 / IPv6 双栈、子网掩码输入、设置搜索、安装驱动目录、动态更新、自动分区、OOBE 与账户配置，以及已有 XML 的导入编辑。
+当前版本：**V1.54**。启用 PE 脚本安装后会自动切换为“按镜像索引”，须自行填写安装镜像中的实际索引；普通 Windows Setup 仍支持原有全部镜像选择方式。支持简体中文 / English 即时切换、独立语言包维护、静态 IPv4 / IPv6 双栈、子网掩码输入、设置搜索、安装驱动目录、动态更新、自动分区、OOBE 与账户配置，以及已有 XML 的导入编辑。
 
 ## 💡 开发初衷
 
@@ -56,12 +56,12 @@ UnattendLocal 是基于 [Christoph Schneegans 的 UnattendGenerator](https://git
 - 保存和恢复 JSON 方案，提供配置摘要、推荐差异、检查、脱敏预览和 XML 导出。
 - 导入已有 XML 后编辑已支持设置，保留未知内容；遇到无法可靠合并的修改时停止导出并说明原因。
 
-## V1.53.1 界面与配置修复
+## V1.54 统一配置入口与应答文件对比
 
-- 修复「填写 OEM 支持信息」和「离线驱动目录」在深色主题下的标题、说明及字段标签颜色。
-- 修复 Windows 安装日志和部署复核窗口的深色背景。安装日志可通过右上角关闭按钮或 Esc 关闭。
-- 去除「检查与导出」说明文字的首行缩进。
-- 最小配置默认选择「安装时创建本地账户」，可在「用户与密码」中切换为微软账户。
+- 「新建配置」和「打开配置」并入右上角工具栏。「打开配置」的同一文件筛选项同时显示 Windows 应答 XML 和 JSON 方案。
+- 放大侧栏「导航」标题和展开、收起图标。
+- 将 JSON 保存与配置对比收进「配置方案」页的双文档图标菜单。悬停说明随界面语言切换。
+- 「对比已保存的配置」支持应答 XML。对比当前配置生成的 XML，列出有差异的安装阶段和其他 XML 内容。
 
 [部署复核](docs/DeploymentReview.md)
 
@@ -69,21 +69,21 @@ UnattendLocal 是基于 [Christoph Schneegans 的 UnattendGenerator](https://git
 
 ## 📦 下载与使用
 
-从仓库的 [**Releases**](https://github.com/tigerJX95/UnattendLocal/releases/latest) 页面下载并直接运行对应的 `UnattendLocal_V1.53.1_x64_SelfContained.exe` 或 `UnattendLocal_V1.53.1_x64_FrameworkDependent.exe`：
+从仓库的 [**Releases**](https://github.com/tigerJX95/UnattendLocal/releases/latest) 页面下载并直接运行对应的 `UnattendLocal_V1.54_x64_SelfContained.exe` 或 `UnattendLocal_V1.54_x64_FrameworkDependent.exe`：
 
 | 程序文件 | 运行要求 |
 | --- | --- |
-| `UnattendLocal_V1.53.1_x64_SelfContained.exe` | 集成 .NET 运行时，无需单独安装；通常选择此版。 |
-| `UnattendLocal_V1.53.1_x64_FrameworkDependent.exe` | 文件较小，需安装 .NET 10 Desktop Runtime x64。 |
+| `UnattendLocal_V1.54_x64_SelfContained.exe` | 集成 .NET 运行时，无需单独安装；通常选择此版。 |
+| `UnattendLocal_V1.54_x64_FrameworkDependent.exe` | 文件较小，需安装 .NET 10 Desktop Runtime x64。 |
 
 两版功能相同。首次安装测试建议使用虚拟机。
 
-1. 选择推荐场景或自定义配置，填写账户、镜像等必要信息。
+1. 点击「新建配置」选择推荐、自定义或最小配置，或用「打开配置」继续编辑已有文件。
 2. 按需要选择系统、外观及应用移除设置。
 3. 点击“检查与预览”，核对摘要及待处理项，再导出实际 XML。
 4. 将 `autounattend.xml` 放在目标安装介质根目录；遮蔽后的预览不能代替实际 XML。
 
-可通过“打开方案”恢复 JSON，也可通过“导入应答 XML”继续编辑已有应答配置。方案省略凭据后，重新打开可能需要补填密码 / 密钥；导入原 XML 未保存时需要重新导入。
+「打开配置」支持 Windows 应答 XML 和 JSON 方案。已有的 XML 可直接打开编辑。要保存未完成的配置或停用的草稿，在「配置方案」页点击双文档图标，选择「保存编辑方案（JSON）」。省略凭据的方案重新打开后可能需要补填密码或密钥。详见 [配置文件的打开、保存和对比](docs/XmlImport.md)。
 
 ## 📖 使用说明
 

@@ -2,6 +2,13 @@
 
 [Back to the README](README_EN.md) · [简体中文](CHANGELOG.md)
 
+## V1.54 Unified configuration controls and answer file comparison
+
+- New configuration and Open configuration sit in the upper-right toolbar. Open configuration shows Windows answer XML and JSON plans under one file filter.
+- Increase the size of the Navigation heading and the sidebar toggle icon.
+- Save a JSON plan or compare configurations from the two-document icon on the Configuration plans page. The tooltip follows the interface language.
+- Compare with a saved configuration accepts answer XML and lists differing setup passes and other XML content against the answer file generated from the current configuration.
+
 ## V1.53.1 Interface and configuration fixes
 
 - Fix dark-theme colors for headings, instructions, and field labels in OEM support information and offline driver directories.
