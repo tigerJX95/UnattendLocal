@@ -177,14 +177,9 @@ public partial class MainWindow : Window {
   else{loading=true;try{vm.Plan.ConfigurationMode=global::UnattendLocal.Localization.UiText.Source("text.933c2fd10345");}finally{loading=false;}}
  }
  private void OpenClick(object s,RoutedEventArgs e)=>Run(()=>{
-  var dialog=new OpenFileDialog{Filter=global::UnattendLocal.Localization.UiText.Translate(global::UnattendLocal.Localization.UiText.Source("text.7fba054e9c5b")),Title=global::UnattendLocal.Localization.UiText.Translate(global::UnattendLocal.Localization.UiText.Source("text.b3b3ae93ff98"))};
+  var dialog=new OpenFileDialog{Filter=UiText.Get("plan.open.filter"),Title=UiText.Get("plan.open")};
   if(dialog.ShowLocalized(this)==true)ImportConfigurationFile(dialog.FileName);
-  else vm.Status=global::UnattendLocal.Localization.UiText.Source("text.2f558d0ef888");
- });
- private void ImportAnswerClick(object s,RoutedEventArgs e)=>Run(()=>{
-  var dialog=new OpenFileDialog{Filter=global::UnattendLocal.Localization.UiText.Translate(global::UnattendLocal.Localization.UiText.Source("text.8fb4efdfdbd7")),Title=global::UnattendLocal.Localization.UiText.Translate(global::UnattendLocal.Localization.UiText.Source("text.79ca8dae6c91"))};
-  if(dialog.ShowLocalized(this)==true)ImportConfigurationFile(dialog.FileName);
-  else vm.Status=global::UnattendLocal.Localization.UiText.Source("text.c22f829e67db");
+  else vm.Status=UiText.Source("plan.open.cancel");
  });
  private void ImportWifiProfileClick(object s,RoutedEventArgs e)=>Run(()=>{var d=new OpenFileDialog{Filter=global::UnattendLocal.Localization.UiText.Translate(global::UnattendLocal.Localization.UiText.Source("text.b05d59acd5ff")),Title=global::UnattendLocal.Localization.UiText.Translate(global::UnattendLocal.Localization.UiText.Source("text.83662e044811"))};if(d.ShowLocalized(this)!=true)return;var text=TextFileImport.Read(d.FileName,2L*1024*1024,global::UnattendLocal.Localization.UiText.Source("text.4d8c95c9efd6"));_=WifiSettings.ReadProfile(text);vm.Plan.WifiProfileXml=text;vm.Status=global::UnattendLocal.Localization.UiText.Source("text.21910a5ae514");});
  private void ValidateWifiProfileClick(object s,RoutedEventArgs e)=>Run(()=>{_=WifiSettings.ReadProfile(vm.Plan.WifiProfileXml);vm.Status=global::UnattendLocal.Localization.UiText.Source("text.2143ae1d0ce3");});
@@ -197,7 +192,16 @@ public partial class MainWindow : Window {
    image: review.HasWarnings ? MessageBoxImage.Warning : MessageBoxImage.Information);
  });
  private void AppLockerExampleClick(object s,RoutedEventArgs e)=>Run(()=>{if(!string.IsNullOrWhiteSpace(vm.Plan.AppLockerPolicyXml)&&LocalizedMessageBox.Show(this,global::UnattendLocal.Localization.UiText.Source("text.589d0d4463c8"),global::UnattendLocal.Localization.UiText.Source("text.f5ea8a3828c8"),MessageBoxButton.YesNo,MessageBoxImage.Question)!=MessageBoxResult.Yes)return;vm.Plan.AppLockerPolicyXml=AppControlSettings.Example;vm.Status=global::UnattendLocal.Localization.UiText.Source("text.f5864e089baf");});
- private void SaveClick(object s,RoutedEventArgs e)=>Run(()=>{var d=new SaveFileDialog{Title=UiText.Get("text.a6aa8cd3f498"),Filter=global::UnattendLocal.Localization.UiText.Translate(global::UnattendLocal.Localization.UiText.Source("text.7fba054e9c5b")),FileName=global::UnattendLocal.Localization.UiText.Source("text.8552e8eed1a1")};if(d.ShowLocalized(this)!=true)return;var answer=LocalizedMessageBox.Show(this,global::UnattendLocal.Localization.UiText.Source("text.8bacde0493a7"),global::UnattendLocal.Localization.UiText.Source("text.47c61ce5cda2"),MessageBoxButton.YesNoCancel,MessageBoxImage.Question,MessageBoxResult.No);if(answer==MessageBoxResult.Cancel)return;AtomicFile.WriteAllText(d.FileName,PlanStore.Serialize(vm.Plan,answer==MessageBoxResult.Yes),new UTF8Encoding(false));vm.Status=global::UnattendLocal.Localization.UiText.Source("text.9a986abbc474");});
+ private void SaveClick(object s,RoutedEventArgs e)=>Run(()=>{
+  var dialog=new SaveFileDialog{Title=UiText.Get("plan.saveJson"),Filter=UiText.Get("text.7fba054e9c5b"),
+   FileName=UiText.Source("text.8552e8eed1a1")};
+  if(dialog.ShowLocalized(this)!=true)return;
+  var answer=LocalizedMessageBox.Show(this,UiText.Source("text.8bacde0493a7"),UiText.Source("text.47c61ce5cda2"),
+   MessageBoxButton.YesNoCancel,MessageBoxImage.Question,MessageBoxResult.No);
+  if(answer==MessageBoxResult.Cancel)return;
+  AtomicFile.WriteAllText(dialog.FileName,PlanStore.Serialize(vm.Plan,answer==MessageBoxResult.Yes),new UTF8Encoding(false));
+  vm.Status=UiText.Source("text.9a986abbc474");
+ });
  private FrameworkElement? Invalid(DependencyObject root){
   if(root is UIElement element&&!element.IsEnabled)return null;
   if(root is FrameworkElement field&&System.Windows.Controls.Validation.GetHasError(root))return field;
@@ -310,13 +314,26 @@ public partial class MainWindow : Window {
   var dialog = new OpenFileDialog
   {
    Title = UiText.Get("plan.compare.title"),
-   Filter = UiText.Get("text.7fba054e9c5b")
+   Filter = UiText.Get("plan.open.filter")
   };
   if (dialog.ShowLocalized(this) != true) return;
-  if (PlanFileImport.Kind(dialog.FileName) != PlanFileKind.JsonPlan)
-   throw new ArgumentException(UiText.Source("plan.compare.jsonOnly"));
 
-  var fields = vm.CompareSavedPlan(PlanFileImport.Read(dialog.FileName));
+  var kind = PlanFileImport.Kind(dialog.FileName);
+  var reference = PlanFileImport.Read(dialog.FileName);
+  if (kind == PlanFileKind.AnswerXml)
+  {
+   var sections = PlanComparison.FindChangedAnswerSections(Encoding.UTF8.GetString(Generate()), reference);
+   var xmlLines = new List<string>
+   {
+    UiText.Source(sections.Count == 0 ? "plan.compare.equalXml" : "plan.compare.changedXml"),
+    UiText.Source("plan.compare.scopeXml")
+   };
+   foreach (var section in sections) xmlLines.Add(UiText.Concat(["• ", section], [true, false]));
+   LocalizedMessageBox.Show(this, UiText.Join("\n", xmlLines), UiText.Source("plan.compare.title"));
+   return;
+  }
+
+  var fields = vm.CompareSavedPlan(reference);
   var lines = new List<string>
   {
    fields.Count == 0 ? UiText.Source("plan.compare.equal") : UiText.Format("plan.compare.count", UiText.Arg(fields.Count)),
@@ -329,7 +346,7 @@ public partial class MainWindow : Window {
    lines.Add(UiText.Concat(["• ", label], [true, false]));
   }
   LocalizedMessageBox.Show(this, UiText.Join("\n", lines), UiText.Source("plan.compare.title"));
- });
+ }, locateConfiguration:true);
 
  private void ExportAnswerFile(bool iso) => Run(() =>
  {

@@ -38802,5 +38802,118 @@
     ],
     "RawArgs": [],
     "ProtectedTokens": []
+  },
+  "plan.open": {
+    "Source": "打开配置",
+    "Contexts": [
+      "Desktop/MainWindow.xaml:Content",
+      "Desktop/MainWindow.xaml.cs:Title"
+    ],
+    "RawArgs": [],
+    "SourceHash": "514d8331f14cfc8b9ee20fb0fc45e91c9af8336bf9525f1884a835c849181457",
+    "ProtectedTokens": []
+  },
+  "plan.open.help": {
+    "Source": "打开 Windows 应答 XML 或 JSON 方案，继续编辑已有配置。",
+    "Contexts": [
+      "Desktop/UiIcons.cs:Tooltip"
+    ],
+    "RawArgs": [],
+    "SourceHash": "e5fdad349f5934b3a306b32f31fc9c0678e80d097c09f774cf0dee7dc9bce40e",
+    "ProtectedTokens": []
+  },
+  "plan.open.pageHint": {
+    "Source": "点击「打开配置」或拖入文件，继续编辑 Windows 应答 XML 或 JSON 方案。",
+    "Contexts": [
+      "Desktop/MainWindow.xaml:Text"
+    ],
+    "RawArgs": [],
+    "SourceHash": "d82fd21f9f62a1ca87024357a94634c7ea6b616b5a2bc503bac49b09442f40bc",
+    "ProtectedTokens": []
+  },
+  "plan.open.filter": {
+    "Source": "配置文件 (*.xml;*.json)|*.xml;*.json",
+    "Contexts": [
+      "Desktop/MainWindow.xaml.cs:Filter"
+    ],
+    "RawArgs": [],
+    "SourceHash": "ef692932f9cdc3ee09cd34c136e98c0faaa61f1ab702d59b596d421adcf42ba3",
+    "ProtectedTokens": [],
+    "FilterPatterns": [
+      "*.xml;*.json"
+    ]
+  },
+  "plan.open.cancel": {
+    "Source": "已取消文件选择，当前配置未改变。",
+    "Contexts": [
+      "Desktop/MainWindow.xaml.cs:Status"
+    ],
+    "RawArgs": [],
+    "SourceHash": "ce605a17e5e67f7e86b9de1327f131a18362e341d848a2b8f0b1317c196f3072",
+    "ProtectedTokens": []
+  },
+  "plan.tools.menu": {
+    "Source": "方案工具",
+    "Contexts": [
+      "Desktop/MainWindow.xaml:AutomationProperties.Name"
+    ],
+    "RawArgs": [],
+    "SourceHash": "5dc0173207eca3ff7fd8df846f02dc68c01f359db93bb4a9e014d30d805448df",
+    "ProtectedTokens": []
+  },
+  "plan.saveJson": {
+    "Source": "保存编辑方案（JSON）",
+    "Contexts": [
+      "Desktop/MainWindow.xaml:Header",
+      "Desktop/MainWindow.xaml.cs:Title"
+    ],
+    "RawArgs": [],
+    "SourceHash": "a08b1b8016443a43f571360cbdec7ae2cbcdbe4eb5db704390d5d939bd657622",
+    "ProtectedTokens": []
+  },
+  "plan.compare.equalXml": {
+    "Source": "两个应答文件的安装内容一致。",
+    "Contexts": [
+      "Desktop/MainWindow.xaml.cs:ComparePlanClick"
+    ],
+    "RawArgs": [],
+    "SourceHash": "6ccd6f7f88a02117e5dc68b0ed86d3fb502bc8a6ea6d6df77fdd9e3dd1c378a8",
+    "ProtectedTokens": []
+  },
+  "plan.compare.changedXml": {
+    "Source": "以下安装阶段或 XML 内容存在差异。",
+    "Contexts": [
+      "Desktop/MainWindow.xaml.cs:ComparePlanClick"
+    ],
+    "RawArgs": [],
+    "SourceHash": "7ff2f0d493b8f8ebad0c979203c9cca2050fc74e56963fad02bd19bcdb7dda8a",
+    "ProtectedTokens": []
+  },
+  "plan.compare.scopeXml": {
+    "Source": "对比使用当前配置生成的应答 XML，忽略 XML 注释，只列出差异位置。",
+    "Contexts": [
+      "Desktop/MainWindow.xaml.cs:ComparePlanClick"
+    ],
+    "RawArgs": [],
+    "SourceHash": "79ed0496fdc9917456f68cc062ad0a513d62f170e351e8f8acf649ecd6ad6e0b",
+    "ProtectedTokens": []
+  },
+  "plan.compare.otherXml": {
+    "Source": "其他 XML 内容（如嵌入的脚本或扩展）",
+    "Contexts": [
+      "Core/PlanComparison.cs:FindChangedAnswerSections"
+    ],
+    "RawArgs": [],
+    "SourceHash": "76bb87c1d7ba1455ef217429848270ee06e09ee485845fccafe26dac8cb3660a",
+    "ProtectedTokens": []
+  },
+  "plan.tools.help": {
+    "Source": "方案工具。保存编辑方案，或对比已保存的 JSON 方案和应答 XML。",
+    "Contexts": [
+      "Desktop/MainWindow.xaml:Tooltip"
+    ],
+    "RawArgs": [],
+    "SourceHash": "55ae807cd475ccfc830943b58a25d7bb9aee5b305ab8c5d5dea5032692e28fcb",
+    "ProtectedTokens": []
   }
 }

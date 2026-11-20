@@ -1,4 +1,7 @@
 using System.Reflection;
+using System.Xml;
+using System.Xml.Linq;
+using UnattendLocal.Localization;
 
 namespace UnattendLocal.Core;
 
@@ -40,6 +43,36 @@ public static class PlanComparison
             fields.Add(nameof(InstallPlan.ImportedXml));
 
         return fields;
+    }
+
+    public static IReadOnlyList<string> FindChangedAnswerSections(string currentXml, string referenceXml)
+    {
+        XElement current = ReadAnswer(currentXml);
+        XElement reference = ReadAnswer(referenceXml);
+        XName settings = XName.Get("settings", XmlMerge.Namespace);
+        var sections = new List<string>();
+        foreach (var phase in AdditionalXmlSettings.Passes)
+        {
+            var currentSettings = current.Elements(settings).Where(node => (string?)node.Attribute("pass") == phase.Id).ToArray();
+            var referenceSettings = reference.Elements(settings).Where(node => (string?)node.Attribute("pass") == phase.Id).ToArray();
+            if (!currentSettings.SequenceEqual(referenceSettings, XNode.EqualityComparer))
+                sections.Add(phase.Id);
+            currentSettings.Remove();
+            referenceSettings.Remove();
+        }
+
+        if (!XNode.DeepEquals(current, reference))
+            sections.Add(UiText.Source("plan.compare.otherXml"));
+        return sections;
+    }
+
+    private static XElement ReadAnswer(string xml)
+    {
+        using var reader = new XmlNodeReader(XmlMerge.Read(xml));
+        var answer = XDocument.Load(reader).Root!;
+        // Editable snapshots are XML comments. Compare installation content only.
+        answer.DescendantNodes().OfType<XComment>().Remove();
+        return answer;
     }
 
     private static bool RowsEqual<T>(IReadOnlyList<T> left, IReadOnlyList<T> right)

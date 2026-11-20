@@ -7,7 +7,7 @@
 
 UnattendLocal is a Windows desktop tool with Simplified Chinese and English interfaces based on [Christoph Schneegans’ UnattendGenerator](https://github.com/cschneegans/unattend-generator). It lets you edit, check, and generate `autounattend.xml` for Windows 10 / 11 locally.
 
-Current version: **V1.53.1**. When PE script installation is enabled, image selection switches to **By image index** and requires an index from the installation image; the regular Windows Setup path retains all image selection modes. Includes static IPv4/IPv6 dual stack, subnet-mask input, settings search, setup driver directories, Dynamic Update, partitioning, OOBE and account settings, and existing XML import/editing.
+Current version: **V1.54**. When PE script installation is enabled, image selection switches to **By image index** and requires an index from the installation image; the regular Windows Setup path retains all image selection modes. Includes static IPv4/IPv6 dual stack, subnet-mask input, settings search, setup driver directories, Dynamic Update, partitioning, OOBE and account settings, and existing XML import/editing.
 
 ## 💡 Why this project exists
 
@@ -58,12 +58,12 @@ The displayed product key is a public generic installation key for selecting an 
 - Save and restore JSON plans; review summaries, recommended-setting differences, checks, redacted previews, and XML exports.
 - Import existing XML and edit supported settings while preserving unknown content. Export stops with an explanation when changes cannot be merged reliably.
 
-## V1.53.1 Interface and configuration fixes
+## V1.54 Unified configuration controls and answer file comparison
 
-- Fix dark-theme colors for headings, instructions, and field labels in OEM support information and offline driver directories.
-- Fix dark backgrounds in the Windows Setup log and deployment review windows. Close the Setup log window using its title-bar close button or Esc.
-- Remove first-line indentation from the Check and export instructions.
-- The minimal configuration defaults to creating a local account during Setup. You can switch to a Microsoft account under Users and passwords.
+- New configuration and Open configuration sit in the upper-right toolbar. Open configuration shows Windows answer XML and JSON plans under one file filter.
+- Increase the size of the Navigation heading and the sidebar toggle icon.
+- Save a JSON plan or compare configurations from the two-document icon on the Configuration plans page. The tooltip follows the interface language.
+- Compare with a saved configuration accepts answer XML and lists differing setup passes and other XML content against the answer file generated from the current configuration.
 
 [Deployment review](docs/DeploymentReview.md)
 
@@ -71,14 +71,14 @@ The displayed product key is a public generic installation key for selecting an 
 
 ## 📦 Download and usage
 
-Download and run the matching Windows x64 executable from the repository’s [**Releases**](https://github.com/tigerJX95/UnattendLocal/releases/latest) page: `UnattendLocal_V1.53.1_x64_SelfContained.exe` or `UnattendLocal_V1.53.1_x64_FrameworkDependent.exe`. Choose `UnattendLocal_V1.53.1_x64_SelfContained.exe` for a bundled .NET runtime, or `UnattendLocal_V1.53.1_x64_FrameworkDependent.exe` if .NET 10 Desktop Runtime x64 is already installed. Both have the same features. Use a virtual machine for initial testing.
+Download and run the matching Windows x64 executable from the repository’s [**Releases**](https://github.com/tigerJX95/UnattendLocal/releases/latest) page: `UnattendLocal_V1.54_x64_SelfContained.exe` or `UnattendLocal_V1.54_x64_FrameworkDependent.exe`. Choose `UnattendLocal_V1.54_x64_SelfContained.exe` for a bundled .NET runtime, or `UnattendLocal_V1.54_x64_FrameworkDependent.exe` if .NET 10 Desktop Runtime x64 is already installed. Both have the same features. Use a virtual machine for initial testing.
 
-1. Choose a recommended scenario or a custom configuration and enter the required account and image settings.
+1. Choose a recommended, custom, or minimal starting point from New configuration, or use Open configuration to continue editing an existing file.
 2. Adjust system, appearance, and application removal options as needed.
 3. Open checks and previews, review the summary and outstanding items, then export the actual XML.
 4. Place `autounattend.xml` in the root of the target installation media. A redacted preview cannot replace the actual XML.
 
-Open a JSON plan to restore saved settings, or import an answer XML to continue editing an existing configuration. Plans saved without credentials may require passwords or keys to be entered again. If the imported original XML was not saved with the plan, import it again.
+Open configuration accepts Windows answer XML and JSON plans. Open an answer XML directly to continue editing. To keep an unfinished configuration or disabled drafts, open the two-document icon on the Configuration plans page and choose Save plan (JSON). Plans saved without credentials may require passwords or keys to be entered again. See [opening, saving, and comparing configurations](docs/XmlImport.md).
 
 ## 📖 Scope and limitations
 

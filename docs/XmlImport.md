@@ -1,10 +1,26 @@
-# XML 导入 / XML import
+# 打开、保存和对比配置 / Open, save, and compare configurations
 
-## 对比已保存的 JSON 方案 / Compare a saved JSON plan
+## 打开和保存 / Open and save
 
-在“配置方案”点击“对比已保存的方案”，选择一份 JSON。结果列出不同的设置，账户、脚本和额外 XML 按条目组显示。对比不会载入另一份方案，也不会披露字段值。保存时省略的内容可能造成差异，脚本和额外 XML 的顺序也参与比较。
+- 右上角「打开配置」接受 Windows 应答 XML 和 JSON 方案，也可以拖入一个文件。校验通过后询问是否替换当前配置。
+- 配置完成后，从「检查与导出」生成 Windows 应答 XML。工具导出的 XML 可以重新打开，继续编辑其中的安装设置。
+- 要保存未完成的配置、停用的脚本或额外 XML 草稿，在「配置方案」页点击双文档图标，选择「保存编辑方案（JSON）」。如果保存时省略了导入的原始 XML，应保管原文件，以便需要时重新导入。
 
-In Plans, choose Compare with a saved plan and select a JSON file. The result lists changed settings and groups such as accounts, scripts, and additional XML. Comparison leaves the current plan in place and only displays field names. Omitted content and changes in script or additional XML order can appear as differences.
+- Use Open configuration in the upper-right toolbar or drop one Windows answer XML or JSON plan into the window. After validation, the app asks whether to replace the current configuration.
+- Generate a Windows answer XML from Check and export. Reopen the exported XML to continue editing its installation settings.
+- To keep an unfinished configuration, disabled scripts, or additional XML drafts, open the two-document icon on the Configuration plans page and choose Save plan (JSON). If the imported source XML was omitted from the saved plan, keep the original file so you can import it again.
+
+## 对比已保存的配置 / Compare a saved configuration
+
+在「配置方案」页点击双文档图标，选择「对比已保存的配置」。悬停时可查看「方案工具」说明。对比时继续保留当前配置，结果仅显示差异位置。
+
+- **JSON 方案**：列出不同的设置，账户、脚本和额外 XML 按条目组显示。保存时省略的内容及条目顺序可能带来差异。
+- **Windows 应答 XML**：使用当前配置生成的应答 XML 与所选文件对比，忽略注释，列出有差异的安装阶段和其他 XML 内容。当前配置需先通过生成检查。
+
+Open the two-document icon on the Configuration plans page and choose Compare with a saved configuration. Hover over the icon for a description of Plan tools. The comparison keeps the current configuration open and reports only where differences occur.
+
+- **JSON plans** list changed settings and groups such as accounts, scripts, and additional XML. Omitted content and changes in entry order can appear as differences.
+- **Windows answer XML** compares the selected file with the answer XML generated from the current configuration. It ignores comments and lists changed setup passes and other XML content. The current configuration must pass generation checks.
 
 ## V1.12.1 配置处理与兼容性修复 · 2026-10-21
 
@@ -20,7 +36,7 @@ In Plans, choose Compare with a saved plan and select a JSON file. The result li
 
 ### 文件类型与大小
 
-- 将一个 `.xml` 或 `.json` 文件拖入主窗口任意位置（包括输入框和脚本编辑区），或使用原有导入／打开按钮。
+- 将一个 `.xml` 或 `.json` 文件拖入主窗口任意位置（包括输入框和脚本编辑区），或使用「打开配置」。
 - XML 必须是 Windows 应答文件，JSON 必须具有本程序支持的方案结构；开始菜单 JSON、WLANProfile、AppLocker 或布局 XML 应使用各自设置页的导入入口。
 - 每次只支持一个文件，不导入文件夹或脚本文件。
 - 文件上限：XML 32 MiB、JSON 128 MiB；XML 文本仍受 16 Mi 字符及结构限制。
@@ -32,7 +48,7 @@ In Plans, choose Compare with a saved plan and select a JSON file. The result li
 - 两者均保留当前方案、填写值和预览。
 - JSON 中省略的密码和密钥仍须重新填写。
 - 拖入文件不会执行脚本或自动导出。
-- Windows 权限级别不同可能阻止资源管理器向程序拖放；可使用文件按钮完成导入。
+- Windows 权限级别不同可能阻止资源管理器向程序拖放。此时可使用「打开配置」。
 
 ### 等效脚本识别
 
@@ -57,7 +73,7 @@ In Plans, choose Compare with a saved plan and select a JSON file. The result li
 
 ### File types and limits
 
-- Drop one `.xml` or `.json` file anywhere in the main window, including text and script editors, or use the existing buttons.
+- Drop one `.xml` or `.json` file anywhere in the main window, including text and script editors, or use Open configuration.
 - XML must be a Windows answer file; JSON must have a supported application-plan structure.
 - Import Start-menu JSON, WLANProfile, AppLocker and layout XML through their own settings.
 - Folders, scripts and multiple files are not imported.
@@ -70,7 +86,7 @@ In Plans, choose Compare with a saved plan and select a JSON file. The result li
 - Both retain the current plan, entered values and preview.
 - Omitted JSON passwords and keys still require re-entry.
 - Dropping a file never runs scripts or exports automatically.
-- Windows may block Explorer drag-and-drop when the application runs at a higher privilege level; use the file buttons in that case.
+- Windows may block Explorer drag-and-drop when the application runs at a higher privilege level. Use Open configuration in that case.
 
 ### Equivalent scripts
 

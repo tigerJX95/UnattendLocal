@@ -17,9 +17,7 @@ public sealed class ActionIconConverter : IValueConverter
             foreach (var name in names.Split('|')) actions.Add(name, (geometry, body));
         }
         const string document = "M4,2 H13 L18,7 V20 H4 Z M13,2 V7 H18 ";
-        Add(global::UnattendLocal.Localization.UiText.Source("text.520eef7974df"), "M2,8 V4 H9 L12,7 H20 V10 M2,8 H21 L18,20 H2 Z", global::UnattendLocal.Localization.UiText.Source("text.f9b7d0a587d7"));
-        Add(global::UnattendLocal.Localization.UiText.Source("text.a1de672a7e93"), document+"M1,12 H12 M8,8 L12,12 L8,16", global::UnattendLocal.Localization.UiText.Source("text.1de3f408ee67"));
-        Add(global::UnattendLocal.Localization.UiText.Source("text.a6aa8cd3f498"), "M3,2 H17 L20,5 V20 H3 Z M7,2 V8 H16 V2 M7,20 V13 H16 V20", global::UnattendLocal.Localization.UiText.Source("text.1a5a9b1aaa8b"));
+        Add(global::UnattendLocal.Localization.UiText.Source("plan.open"), "M2,8 V4 H9 L12,7 H20 V10 M2,8 H21 L18,20 H2 Z", global::UnattendLocal.Localization.UiText.Source("plan.open.help"));
         Add(global::UnattendLocal.Localization.UiText.Source("text.ad9fd5bf109f"), "M4,8 A8,8 0 1 1 3,15 M4,8 V2 M4,8 H10 M8,12 H16 M12,8 V16", global::UnattendLocal.Localization.UiText.Source("text.b5c413d90407"));
         Add(global::UnattendLocal.Localization.UiText.Source("text.f0866be5e5a3"), document+"M7,12 H15 M7,16 H12", global::UnattendLocal.Localization.UiText.Source("text.2d0b28cf3383"));
         Add(global::UnattendLocal.Localization.UiText.Source("text.f3393a498bde"), "M4,8 A8,8 0 1 1 3,15 M4,8 V2 M4,8 H10", global::UnattendLocal.Localization.UiText.Source("text.f3393a498bde"));
