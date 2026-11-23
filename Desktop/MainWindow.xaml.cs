@@ -372,7 +372,7 @@ public partial class MainWindow : Window {
   var image = diskRisk || policyRisk ? MessageBoxImage.Warning : MessageBoxImage.Question;
   if (LocalizedMessageBox.Show(this, UiText.Join("\n\n", sections), caption,
     MessageBoxButton.YesNo, image, MessageBoxResult.No,
-    copySummary: () => InstallationReview.ShareableSummary(bytes, diskRisk, review.AppLocker != null)) != MessageBoxResult.Yes) return;
+    exportRedactedXml: owner => ExportRedactedAnswerFile(owner, bytes)) != MessageBoxResult.Yes) return;
 
   bool manual = vm.Plan.ExportNonAutomaticFilename;
   var dialog = new SaveFileDialog
@@ -389,4 +389,19 @@ public partial class MainWindow : Window {
   else AnswerFileExport.WriteXml(dialog.FileName, bytes, overwrite);
   vm.Status = UiText.Concat([UiText.Source(iso ? "text.c1b71c21eff7" : "text.bc67c530f6df"), review.Target], [false, false]);
  }, locateConfiguration: true);
+
+ private bool ExportRedactedAnswerFile(Window owner, byte[] bytes)
+ {
+  var dialog = new SaveFileDialog
+  {
+   Title = UiText.Source("review.diagnostic.export"),
+   Filter = UiText.Source("text.d5d85641e8a3"),
+   DefaultExt = ".xml",
+   AddExtension = true,
+   FileName = RedactedAnswerFile.FileName
+  };
+  if (dialog.ConfirmSave(owner) is not bool overwrite) return false;
+  AnswerFileExport.WriteXml(dialog.FileName, RedactedAnswerFile.Create(bytes, vm.Service), overwrite);
+  return true;
+ }
 }

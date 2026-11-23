@@ -65,11 +65,19 @@ On import, description-based or unrecognized selectors are preserved as read-onl
 
 The `oobeSystem` summary lists requests to hide the network and online sign-in pages. The pages shown depend on the target Windows version and installation environment.
 
-## 复制脱敏复核摘要 / Copy redacted summary
+## 导出脱敏 XML / Export redacted XML
 
-从「检查与导出」导出 XML 或 ISO 时，可在复核窗口点击「复制脱敏复核摘要」。摘要会复制到剪贴板，复核窗口继续打开，可以再选择是否导出。摘要保留安装阶段、目标选择方式、磁盘复核状态、本地账户数量、自动登录和安装命令数量等信息，省略凭据、网络地址、路径和脚本正文。导出文件使用完整配置。
+从「检查与导出」导出 XML 或 ISO 时，复核窗口按阶段显示最终应答文件中的配置。可查看安装目标、清盘和创建分区请求、同步或异步命令的条数、本地账户组别及配置的自动登录次数。专用化阶段设有两条同步命令时，该阶段会显示「同步命令 2 条」。
 
-When exporting XML or ISO from **Checks and export**, select **Copy redacted summary** in the deployment review dialog. The summary goes to the clipboard and the dialog stays open so you can decide whether to export. It includes setup passes, target selection, disk review status, local account and command counts, and automatic logon status. Credentials, addresses, paths, and script contents are omitted. Export uses the complete configuration.
+点击复核窗口里的「导出脱敏 XML」可另存 `unattend-diagnostic.xml`，再决定是否继续本次正式导出。排查文件使用独立的 XML 根元素，安装介质须使用正式导出的应答文件。脱敏文件保留常见安装阶段、组件、目标磁盘和分区、镜像索引、本地账户组别、自动登录指向和命令顺序。真实账户名和计算机名使用示例值，内嵌脚本、未知字段和原配置快照会被去除。命令、路径和私有产品密钥用 `[REDACTED]` 标记。
+
+可通过普通 XML 导入入口打开这个文件。示例账户的密码显示为待补填，可填写密码或明确允许空密码。含有 `[REDACTED]` 时，请在 XML 中补齐相关值或移除相应条目后重导入。若问题与脚本、嵌入资源或自定义字段有关，请附人工脱敏的最小片段。
+
+Before exporting XML or ISO from **Checks and export**, review the final answer file by setup pass. The details include the installation target, disk wipe and partition requests, synchronous and asynchronous command counts, local account groups, and the configured automatic sign-in count. For a specialize pass with two synchronous commands, the summary displays a count of two.
+
+Select **Export redacted XML** in the review dialog to save `unattend-diagnostic.xml`, then decide whether to continue the regular export. The diagnostic file uses a dedicated XML root. Use the regular answer file export for installation media. The sample retains common setup passes, components, disk and partition targets, image indexes, local account groups, sign-in references, and command order. It uses sample account and computer names, omits embedded scripts, unknown fields and the original configuration snapshot, and marks commands, paths and private product keys with `[REDACTED]`.
+
+Open the sample with the normal XML import. Enter a password for each sample account or explicitly allow an empty password. To resolve remaining `[REDACTED]` markers, fill in or remove those entries in the XML and import it again. For an issue involving scripts, embedded resources, or custom fields, attach a minimal snippet with private values removed.
 
 ## 参考 / References
 

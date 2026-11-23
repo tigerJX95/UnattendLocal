@@ -9,7 +9,7 @@ namespace UnattendLocal.Desktop;
 
 internal static class LocalizedMessageBox
 {
-    public static MessageBoxResult Show(Window owner, string text, string caption, MessageBoxButton buttons = MessageBoxButton.OK, MessageBoxImage image = MessageBoxImage.None, MessageBoxResult defaultResult = MessageBoxResult.None, Func<string>? copySummary = null)
+    public static MessageBoxResult Show(Window owner, string text, string caption, MessageBoxButton buttons = MessageBoxButton.OK, MessageBoxImage image = MessageBoxImage.None, MessageBoxResult defaultResult = MessageBoxResult.None, Func<Window, bool>? exportRedactedXml = null)
     {
         var choices = buttons switch
         {
@@ -28,33 +28,33 @@ internal static class LocalizedMessageBox
         if (image == MessageBoxImage.Warning || image == MessageBoxImage.Error) message.SetResourceReference(TextBlock.ForegroundProperty, "DangerBrush");
         panel.Children.Add(new ScrollViewer { Content = message, VerticalScrollBarVisibility = ScrollBarVisibility.Auto, MaxHeight = Math.Max(150, window.MaxHeight - 160) });
         var bar = new WrapPanel { HorizontalAlignment = HorizontalAlignment.Right, Margin = new Thickness(0, 20, 0, 0) };
-        if (copySummary != null)
+        if (exportRedactedXml != null)
         {
             var feedback = new TextBlock { TextWrapping = TextWrapping.Wrap, Margin = new Thickness(0, 8, 0, 0), Visibility = Visibility.Collapsed };
             feedback.SetResourceReference(TextBlock.ForegroundProperty, "SecondaryBrush");
             System.Windows.Automation.AutomationProperties.SetLiveSetting(feedback, System.Windows.Automation.AutomationLiveSetting.Polite);
-            var copy = new Button
+            var export = new Button
             {
-                Content = UiText.Get("review.share.copy"),
+                Content = UiText.Get("review.diagnostic.export"),
                 ContentTemplate = null,
                 Width = double.NaN,
                 Height = double.NaN,
                 Padding = new Thickness(16, 8, 16, 8)
             };
-            copy.Click += (_, _) =>
+            export.Click += (_, _) =>
             {
                 try
                 {
-                    Clipboard.SetText(UiText.Translate(copySummary()));
-                    feedback.Text = UiText.Get("review.share.copied");
+                    if (!exportRedactedXml(window)) return;
+                    feedback.Text = UiText.Get("review.diagnostic.saved");
                 }
-                catch (System.Runtime.InteropServices.ExternalException)
+                catch (Exception error) when (error is IOException or UnauthorizedAccessException or ArgumentException or System.Xml.XmlException)
                 {
-                    feedback.Text = UiText.Get("review.share.copyFailed");
+                    feedback.Text = UiText.Get("review.diagnostic.failed");
                 }
                 feedback.Visibility = Visibility.Visible;
             };
-            bar.Children.Add(copy);
+            bar.Children.Add(export);
             panel.Children.Add(feedback);
         }
         foreach (var choice in choices)

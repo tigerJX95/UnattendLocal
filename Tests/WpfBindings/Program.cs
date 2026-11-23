@@ -153,7 +153,7 @@ internal static class Program
             {
                 UiText.SetLanguage(culture);
                 foreach (string key in new[] { "text.b5141d3d19e9", "text.0c70665b6eb6", "text.fac2a67ad878",
-                    "text.2cd0f3be8738", "text.3fd47edce45b", "review.share.copy" })
+                    "text.2cd0f3be8738", "text.3fd47edce45b", "review.diagnostic.export" })
                 {
                     string label = UiText.Get(key);
                     var button = new Button { Style = style, Content = label, ContentTemplate = null };

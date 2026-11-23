@@ -7,7 +7,7 @@
 
 UnattendLocal 是基于 [Christoph Schneegans 的 UnattendGenerator](https://github.com/cschneegans/unattend-generator) 开发的 Windows 桌面配置工具，支持简体中文与英语界面，用于在本地编辑、检查和生成 Windows 10 / 11 的 `autounattend.xml`。
 
-当前版本：**V1.55**。启用 PE 脚本安装后会自动切换为“按镜像索引”，须自行填写安装镜像中的实际索引；普通 Windows Setup 仍支持原有全部镜像选择方式。支持简体中文 / English 即时切换、独立语言包维护、静态 IPv4 / IPv6 双栈、子网掩码输入、设置搜索、安装驱动目录、动态更新、自动分区、OOBE 与账户配置，以及已有 XML 的导入编辑。
+当前版本：**V1.55.1**。启用 PE 脚本安装后会自动切换为“按镜像索引”，须自行填写安装镜像中的实际索引；普通 Windows Setup 仍支持原有全部镜像选择方式。支持简体中文 / English 即时切换、独立语言包维护、静态 IPv4 / IPv6 双栈、子网掩码输入、设置搜索、安装驱动目录、动态更新、自动分区、OOBE 与账户配置，以及已有 XML 的导入编辑。
 
 ## 💡 开发初衷
 
@@ -56,18 +56,11 @@ UnattendLocal 是基于 [Christoph Schneegans 的 UnattendGenerator](https://git
 - 保存和恢复 JSON 方案，提供配置摘要、推荐差异、检查、脱敏预览和 XML 导出。
 - 导入已有 XML 后编辑已支持设置，保留未知内容；遇到无法可靠合并的修改时停止导出并说明原因。
 
-## V1.55 更新 Windows 时区并完善部署复核
+## V1.55.1 导出脱敏 XML 并细化部署复核
 
-- 应用移除新增 Windows 传真和扫描及 XPS 查看器，默认不勾选，仅在目标 Windows 已安装对应的可选功能时执行。
-- 确认、导入和错误窗口的文字按钮取消重复悬停提示。图标按钮的操作名称只显示一次。
-- 新建配置默认由 Windows 决定时区。手动指定时区时须选择具体值。
-- 新增不列颠哥伦比亚省、阿尔伯塔省和马尼托巴省的 Windows 时区，补充两个旧版时区条目，并更新巴拉圭、格陵兰等时区的显示。已保存配置继续使用原有时区 ID。
-- 时区下拉框可直接用 `UTC-7`、`UTC+5:30` 等写法筛选，也可按中英文名称或 Windows 时区 ID 查找。
-- 选择新增的加拿大时区时，提示确认目标 Windows 已包含相应时区更新。
-- 在 XML 或 ISO 的部署复核窗口中，可主动复制脱敏摘要。摘要列出安装阶段、磁盘复核状态、本地账户和脚本数量，省略凭据、网络地址、路径和脚本正文。
-- 导入应答 XML 时，以可识别的时区、普通 Windows Setup 镜像选择和 OOBE 设置为准，编辑记录不一致时提示。
-- 导入应答 XML 时保留无效凭据原值，并在检查时指出字段、阻止导出。导入的空账户密码须补填或明确允许空密码。
-- 保存为新文件时保护随后出现的同名文件。对比应答 XML 时忽略属性排列和等价的命名空间前缀，载入 JSON 时复用原始 XML 的解析结果。
+- XML 和 ISO 的部署复核窗口新增「导出脱敏 XML」。排查文件保留安装阶段、磁盘和分区、镜像索引及命令顺序，使用示例账号及计算机名，并去除密码、脚本正文和配置快照。
+- 脱敏 XML 可通过「打开配置」重新导入。导入后需核对示例值、处理占位项，并补填账户密码或明确允许空密码。安装介质使用正式导出文件。
+- 部署复核按阶段显示清盘和创建分区请求、同步和异步命令条数、本地账户组别及配置的自动登录次数。
 
 [部署复核](docs/DeploymentReview.md)
 
@@ -75,12 +68,12 @@ UnattendLocal 是基于 [Christoph Schneegans 的 UnattendGenerator](https://git
 
 ## 📦 下载与使用
 
-从仓库的 [**Releases**](https://github.com/tigerJX95/UnattendLocal/releases/latest) 页面下载并直接运行对应的 `UnattendLocal_V1.55_x64_SelfContained.exe` 或 `UnattendLocal_V1.55_x64_FrameworkDependent.exe`：
+从仓库的 [**Releases**](https://github.com/tigerJX95/UnattendLocal/releases/latest) 页面下载并直接运行对应的 `UnattendLocal_V1.55.1_x64_SelfContained.exe` 或 `UnattendLocal_V1.55.1_x64_FrameworkDependent.exe`：
 
 | 程序文件 | 运行要求 |
 | --- | --- |
-| `UnattendLocal_V1.55_x64_SelfContained.exe` | 集成 .NET 运行时，无需单独安装；通常选择此版。 |
-| `UnattendLocal_V1.55_x64_FrameworkDependent.exe` | 文件较小，需安装 .NET 10 Desktop Runtime x64。 |
+| `UnattendLocal_V1.55.1_x64_SelfContained.exe` | 集成 .NET 运行时，无需单独安装；通常选择此版。 |
+| `UnattendLocal_V1.55.1_x64_FrameworkDependent.exe` | 文件较小，需安装 .NET 10 Desktop Runtime x64。 |
 
 两版功能相同。首次安装测试建议使用虚拟机。
 

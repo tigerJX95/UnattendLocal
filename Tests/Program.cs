@@ -5,6 +5,7 @@ if(args.Contains("--sidebar-navigation-only")){Console.WriteLine($"Sidebar navig
 if(args.Contains("--time-zones-only")){Console.WriteLine($"Time zones: {TimeZoneTests.Run(g)} checks passed.");return;}
 if(args.Contains("--core-isolation-import-only")){Console.WriteLine($"Core isolation import: {CoreIsolationImportTests.Run(g)} checks passed.");return;}
 if(args.Contains("--configuration-review-only")){Console.WriteLine($"Configuration review: {ConfigurationReviewTests.Run(g)} checks passed.");return;}
+if(args.Contains("--imported-credentials-only")){Console.WriteLine($"Imported credentials: {ImportedCredentialTests.Run(g)} checks passed.");return;}
 if(args.Contains("--ipv4-naming-only")){Console.WriteLine($"IPv4 naming: {Ipv4NamingTests.Run(g)} checks passed.");return;}
 if(args.Contains("--embedded-background-only")){Console.WriteLine($"Embedded backgrounds: {EmbeddedBackgroundTests.Run(g)} checks passed.");return;}
 if(args.Contains("--popup-localization-only")){Console.WriteLine($"Popup localization: {PopupLocalizationTests.Run(g)} checks passed.");return;}
@@ -2198,4 +2199,4 @@ count+=Ipv4NamingTests.Run(g);count+=ConfigurationReviewTests.Run(g);Console.Wri
 count+=SetupDiagnosticsTests.Run(g);Console.WriteLine($"V1.49 final total: {count} tests passed.");
 count+=CoreIsolationImportTests.Run(g);count+=SidebarNavigationTests.Run();Console.WriteLine($"V1.50 final total: {count} tests passed.");
 count+=DeploymentReviewTests.Run(g);Console.WriteLine($"V1.53 final total: {count} tests passed.");
-count+=TimeZoneTests.Run(g);count+=ImportedCredentialTests.Run(g);Console.WriteLine($"V1.55 final total: {count} tests passed.");
+count+=TimeZoneTests.Run(g);count+=ImportedCredentialTests.Run(g);Console.WriteLine($"V1.55.1 final total: {count} tests passed.");

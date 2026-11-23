@@ -88,44 +88,4 @@ public static class InstallationReview
         return new(FromXml(doc).Description, policy, DeploymentPhaseReview.Describe(doc, policy != null));
     }
 
-    public static string ShareableSummary(byte[] bytes, bool diskRisk, bool hasAppLocker)
-    {
-        var doc = XmlMerge.Read(System.Text.Encoding.UTF8.GetString(bytes));
-        var ns = new XmlNamespaceManager(doc.NameTable);
-        ns.AddNamespace("u", XmlMerge.Namespace);
-        ns.AddNamespace("s", Schneegans.Unattend.Constants.MyNamespaceUri);
-
-        const string shell = "/u:unattend/u:settings/u:component[@name='Microsoft-Windows-Shell-Setup']";
-        int localAccounts = doc.SelectNodes(shell + "/u:UserAccounts/u:LocalAccounts/u:LocalAccount", ns)!.Count;
-        bool autoLogon = doc.SelectSingleNode(shell + "/u:AutoLogon/u:Enabled[normalize-space(.)='true' or normalize-space(.)='1']", ns) != null;
-        int commands = doc.SelectNodes("/u:unattend/u:settings/u:component/u:RunSynchronous/u:RunSynchronousCommand | " +
-            "/u:unattend/u:settings/u:component/u:RunAsynchronous/u:RunAsynchronousCommand | " +
-            shell + "/u:FirstLogonCommands/u:SynchronousCommand | " + shell + "/u:LogonCommands/u:AsynchronousCommand", ns)!.Count;
-        const string extensions = "/u:unattend/s:Extensions/";
-        int scripts = doc.SelectNodes(extensions + "s:ExtractScript | " + extensions + "s:Build/s:PEScriptCopy", ns)!.Count;
-        foreach (XmlElement file in doc.SelectNodes(extensions + "s:File", ns)!)
-        {
-            // File names classify the payload, but are never included in the result.
-            string path = file.GetAttribute("path");
-            if (path.EndsWith(".ps1", StringComparison.OrdinalIgnoreCase) ||
-                path.EndsWith(".cmd", StringComparison.OrdinalIgnoreCase) ||
-                path.EndsWith(".bat", StringComparison.OrdinalIgnoreCase) ||
-                path.EndsWith(".vbs", StringComparison.OrdinalIgnoreCase) ||
-                path.EndsWith(".reg", StringComparison.OrdinalIgnoreCase))
-                scripts++;
-        }
-
-        // Only localized labels and counts from the final XML may reach the clipboard.
-        return UiText.Join("\n\n", [
-            UiText.Source("review.share.title"),
-            UiText.Join("\n", [
-                FromXml(doc).Description,
-                UiText.Source(diskRisk ? "review.share.diskRisk" : "review.share.diskNormal"),
-                UiText.Format("review.share.localAccounts", UiText.Arg(localAccounts)),
-                UiText.Source(autoLogon ? "review.share.autoLogon" : "review.share.noAutoLogon"),
-                UiText.Format("review.share.scripts", UiText.Arg(scripts), UiText.Arg(commands)),
-            ], false),
-            DeploymentPhaseReview.Describe(doc, hasAppLocker)
-        ], false);
-    }
 }
