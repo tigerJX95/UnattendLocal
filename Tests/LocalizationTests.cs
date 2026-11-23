@@ -95,8 +95,8 @@ static class LocalizationTests
                 string path = UiText.Translate(location.Path);
                 Check(!Regex.IsMatch(path, "[\u4e00-\u9fff]") && path.Contains($"account {index + 1}"), "English indexed account destination: " + field + index);
                 Check(UiText.Translate(location.ActionText) == "Go to", "English compact navigation button");
-                string tip = UiText.Translate(UiText.Concat([UiText.Source("text.d8da6d237352"), location.Path], [false, false]));
-                Check(!Regex.IsMatch(tip, "[\u4e00-\u9fff]") && tip.Contains(path), "English navigation tooltip includes destination");
+                string position = UiText.Translate(UiText.Concat([UiText.Source("text.0871f0abbd53"), location.Path], [false, false]));
+                Check(!Regex.IsMatch(position, "[\u4e00-\u9fff]") && position.Contains(path), "English error dialog includes the navigation destination");
             }
             Check(UiText.Get("text.0871f0abbd53") == "Location: ", "English location label describes a destination");
             var helpModel = new MainViewModel();

@@ -48,6 +48,8 @@ static class V124SecurityAndNamingTests
         }
         foreach (string architecture in new[] { "amd64", "arm64", "x86" }) {
             var plan = QuickPresets.Create(QuickPresets.LocalAccount);plan.Architecture = architecture;plan.ComputerNameMode = ComputerNamingSettings.Mac;
+            plan.Users[0].Password = "FixturePassword!";
+            plan.Users[0].AllowEmptyPassword = false;
             string xml = Encoding.UTF8.GetString(generator.Generate(plan));
             Check(xml.Contains(ComputerNamingSettings.MacScript.Trim().Split('\n')[0]), "MAC getter exported " + architecture);
             Check(PlanStore.Deserialize(PlanStore.Serialize(plan,true)).ComputerNameMode == ComputerNamingSettings.Mac, "MAC mode JSON restoration " + architecture);

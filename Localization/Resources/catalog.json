@@ -13318,12 +13318,12 @@
     "ProtectedTokens": []
   },
   "text.a9427f33e641": {
-    "Source": "由 Windows 决定时不写入固定时区；指定时区时必须选择目标时区。自定义基础配置默认由 Windows 决定，推荐配置默认使用所选固定时区。",
+    "Source": "新建配置默认由 Windows 决定时区，应答文件不写入固定时区。选择指定时区后，须选定一个目标时区。",
     "Contexts": [
       "Desktop/HelpCatalog.cs:133"
     ],
     "RawArgs": [],
-    "SourceHash": "a9427f33e641f1cfce488d50956fc92278ae57a58786b5fb17985aafd7669c0c",
+    "SourceHash": "d7aaf2bfa24fd1215532cbbdb98e0c8873668b19e5de3fe97107cc6eb48ba29e",
     "ProtectedTokens": []
   },
   "text.8fc2e88a5fb8": {
@@ -34814,12 +34814,12 @@
     "ProtectedTokens": []
   },
   "text.f6cada1df043": {
-    "Source": "(UTC-04:00) 亚松森",
+    "Source": "(UTC-03:00) 亚松森",
     "Contexts": [
       "Core/Resources/ChoiceLabels.zh-CN.json:TimeOffset/Paraguay Standard Time"
     ],
     "RawArgs": [],
-    "SourceHash": "f6cada1df0434566a009ba0da11a241ca0d0bc3f52cc5af55066bdd09501c4fd",
+    "SourceHash": "631a3a97855c330bd16299d865b433c3b6c9380b945a19f1a503434d73cb52c8",
     "ProtectedTokens": []
   },
   "text.2c2600d97836": {
@@ -34913,12 +34913,12 @@
     "ProtectedTokens": []
   },
   "text.b4de1ce2ab59": {
-    "Source": "(UTC-03:00) 格陵兰",
+    "Source": "(UTC-02:00) 格陵兰",
     "Contexts": [
       "Core/Resources/ChoiceLabels.zh-CN.json:TimeOffset/Greenland Standard Time"
     ],
     "RawArgs": [],
-    "SourceHash": "b4de1ce2ab59dc2ebd328cc1d0ef4c00d5ca8a075554bc2e28004e07df54c267",
+    "SourceHash": "577fdd06c3aadbc17e49d498e2384cfc26587467ca781b2fcab6e6b1f37617f5",
     "ProtectedTokens": []
   },
   "text.da2e567f27e7": {
@@ -35021,12 +35021,12 @@
     "ProtectedTokens": []
   },
   "text.2d5df58e831b": {
-    "Source": "(UTC+01:00) 卡萨布兰卡",
+    "Source": "(UTC+00:00) 卡萨布兰卡",
     "Contexts": [
       "Core/Resources/ChoiceLabels.zh-CN.json:TimeOffset/Morocco Standard Time"
     ],
     "RawArgs": [],
-    "SourceHash": "2d5df58e831be76efeda65f95c8557810c863bc051f765aab9a93a818d52ae86",
+    "SourceHash": "e0b4c5c2fd516cdddec060e0a0e145b2434afbb3041d25c8d676fead39fc3537",
     "ProtectedTokens": []
   },
   "text.32570fb14e82": {
@@ -35111,12 +35111,12 @@
     "ProtectedTokens": []
   },
   "text.ca0be1c2b809": {
-    "Source": "(UTC+02:00) 大马士革",
+    "Source": "(UTC+03:00) 大马士革",
     "Contexts": [
       "Core/Resources/ChoiceLabels.zh-CN.json:TimeOffset/Syria Standard Time"
     ],
     "RawArgs": [],
-    "SourceHash": "ca0be1c2b809817a8aa764ba83887ea4573074076f312e86cddfdcaa998d2621",
+    "SourceHash": "bbc8760345d295a847af2c986fddb4e0e2b110d4bfa7fd39d259905351d4b7b1",
     "ProtectedTokens": []
   },
   "text.267e3720c2de": {
@@ -35390,12 +35390,12 @@
     "ProtectedTokens": []
   },
   "text.36ba21d3e09a": {
-    "Source": "(UTC+05:00) 克孜勒奥尔达",
+    "Source": "(UTC+05:00) 阿斯塔纳",
     "Contexts": [
       "Core/Resources/ChoiceLabels.zh-CN.json:TimeOffset/Qyzylorda Standard Time"
     ],
     "RawArgs": [],
-    "SourceHash": "36ba21d3e09aa40122a01aec52f7a0d4f0d76724be90660e260a09196f3502a1",
+    "SourceHash": "15e7aa76ce268f3f904a24d1c0f53e175826ea8afe8c702878da0ace2a0907ee",
     "ProtectedTokens": []
   },
   "text.41f6bd6bc852": {
@@ -35426,12 +35426,12 @@
     "ProtectedTokens": []
   },
   "text.87b377ef6602": {
-    "Source": "(UTC+06:00) 阿斯塔纳",
+    "Source": "(UTC+06:00) 比什凯克",
     "Contexts": [
       "Core/Resources/ChoiceLabels.zh-CN.json:TimeOffset/Central Asia Standard Time"
     ],
     "RawArgs": [],
-    "SourceHash": "87b377ef660213a1a9b610be348069efbfd0567b6be2aaebc10af0bb20054f05",
+    "SourceHash": "a2cb119dd4deec3e1b279e94788a82d3d154fed2163310ba3cf04b231637025a",
     "ProtectedTokens": []
   },
   "text.ed02eb9f05e2": {
@@ -38915,5 +38915,302 @@
     "RawArgs": [],
     "SourceHash": "55ae807cd475ccfc830943b58a25d7bb9aee5b305ab8c5d5dea5032692e28fcb",
     "ProtectedTokens": []
+  },
+  "text.98f7594c68b0": {
+    "Source": "(UTC-07:00) 太平洋时间（不列颠哥伦比亚省）",
+    "Contexts": [
+      "Core/Resources/ChoiceLabels.zh-CN.json:TimeOffset/British Columbia Standard Time"
+    ],
+    "RawArgs": [],
+    "SourceHash": "98f7594c68b0990ae19ce0147f592d0933f0e3f33ada7089a11a972221bc9ee4",
+    "ProtectedTokens": []
+  },
+  "text.6336f5827348": {
+    "Source": "(UTC-06:00) 山地时间（阿尔伯塔省）",
+    "Contexts": [
+      "Core/Resources/ChoiceLabels.zh-CN.json:TimeOffset/Alberta Standard Time"
+    ],
+    "RawArgs": [],
+    "SourceHash": "6336f5827348f655efb964d345e78e6ad8ad1fc50e6530694c0ff2a2fc2e9a5b",
+    "ProtectedTokens": []
+  },
+  "text.a1c3c49f8f48": {
+    "Source": "(UTC-05:00) 马尼托巴省",
+    "Contexts": [
+      "Core/Resources/ChoiceLabels.zh-CN.json:TimeOffset/Manitoba Standard Time"
+    ],
+    "RawArgs": [],
+    "SourceHash": "a1c3c49f8f48d4d187b21297339d0f4ee7342d7867b8b4059dc53efa04918fa0",
+    "ProtectedTokens": []
+  },
+  "text.505b0fdad038": {
+    "Source": "(UTC-02:00) 大西洋中部（旧版）",
+    "Contexts": [
+      "Core/Resources/ChoiceLabels.zh-CN.json:TimeOffset/Mid-Atlantic Standard Time"
+    ],
+    "RawArgs": [],
+    "SourceHash": "505b0fdad0386b947045238a3e5bdc12666180e9ec33e5e58d36e61908bb678f",
+    "ProtectedTokens": []
+  },
+  "text.ca06b28400ef": {
+    "Source": "(UTC+12:00) 堪察加彼得罗巴甫洛夫斯克（旧版）",
+    "Contexts": [
+      "Core/Resources/ChoiceLabels.zh-CN.json:TimeOffset/Kamchatka Standard Time"
+    ],
+    "RawArgs": [],
+    "SourceHash": "ca06b28400ef0443488802e9b0a1de15ff01951d406ae6096b12289778c26df9",
+    "ProtectedTokens": []
+  },
+  "timezone.canadaCompatibility": {
+    "Source": "此时区需要目标 Windows 安装相应的时区更新。使用较旧的安装映像时，请先确认目标版本支持此时区。",
+    "Contexts": [
+      "Desktop/MainWindow.xaml:Text"
+    ],
+    "RawArgs": [],
+    "SourceHash": "e69f9b6b50655fcf940061d48da459a3350f3362b141cc8178411547cdd61d94",
+    "ProtectedTokens": []
+  },
+  "review.share.title": {
+    "Source": "UnattendLocal 脱敏复核摘要",
+    "Contexts": [
+      "Core/InstallationReview.cs"
+    ],
+    "RawArgs": [],
+    "SourceHash": "4b087ac88110b0a8b982c95c25c3d5ad0a696279f30317e7a09a3a2c67a20f14",
+    "ProtectedTokens": []
+  },
+  "review.share.diskRisk": {
+    "Source": "磁盘操作需核对",
+    "Contexts": [
+      "Core/InstallationReview.cs"
+    ],
+    "RawArgs": [],
+    "SourceHash": "5c487cd55075b1c4556716aff21ac051727abb21cdefb616039ce6be1689b8eb",
+    "ProtectedTokens": []
+  },
+  "review.share.diskNormal": {
+    "Source": "未标记需核对的磁盘操作",
+    "Contexts": [
+      "Core/InstallationReview.cs"
+    ],
+    "RawArgs": [],
+    "SourceHash": "416babcc8afe652c987df3eed0e9e3796f5b1b0d44dfe9d53092c8a56d70b824",
+    "ProtectedTokens": []
+  },
+  "review.share.localAccounts": {
+    "Source": "应答文件中预建的本地账户：{0} 个",
+    "Contexts": [
+      "Core/InstallationReview.cs"
+    ],
+    "RawArgs": [
+      true
+    ],
+    "SourceHash": "3ee4053b4edfe0211588f589c646445d5f024e5b624cb634cacf9cb406a65826",
+    "ProtectedTokens": []
+  },
+  "review.share.autoLogon": {
+    "Source": "应答文件指定自动登录",
+    "Contexts": [
+      "Core/InstallationReview.cs"
+    ],
+    "RawArgs": [],
+    "SourceHash": "ba5bfda7ce484b29420e0e7d5c215856475ee9457ed4bbd627fd541fec2769f6",
+    "ProtectedTokens": []
+  },
+  "review.share.noAutoLogon": {
+    "Source": "应答文件未指定自动登录",
+    "Contexts": [
+      "Core/InstallationReview.cs"
+    ],
+    "RawArgs": [],
+    "SourceHash": "9be3b8289490e6f14fdf4111c607c4581d739c8df9463e3235840123fa2acbe2",
+    "ProtectedTokens": []
+  },
+  "review.share.scripts": {
+    "Source": "内嵌脚本：{0} 个 · 安装命令条目：{1} 个",
+    "Contexts": [
+      "Core/InstallationReview.cs"
+    ],
+    "RawArgs": [
+      true,
+      true
+    ],
+    "SourceHash": "20e3babfeddb77c46c6378634ddc4b9f7c702d88971a3b5ec06fa2082b098b53",
+    "ProtectedTokens": []
+  },
+  "review.share.copy": {
+    "Source": "复制脱敏复核摘要",
+    "Contexts": [
+      "Desktop/LocalizedDialogs.cs"
+    ],
+    "RawArgs": [],
+    "SourceHash": "5b71171551e46666f95f037020eaf30fb43b8016355e43cfe207aa6800359f1a",
+    "ProtectedTokens": []
+  },
+  "review.share.copied": {
+    "Source": "已复制脱敏复核摘要。",
+    "Contexts": [
+      "Desktop/LocalizedDialogs.cs"
+    ],
+    "RawArgs": [],
+    "SourceHash": "5282af6382cf7cb249ea46056758e4b567994ed51fee5d352e4c381ec4029b8e",
+    "ProtectedTokens": []
+  },
+  "review.share.copyFailed": {
+    "Source": "剪贴板暂不可用，请重试。",
+    "Contexts": [
+      "Desktop/LocalizedDialogs.cs"
+    ],
+    "RawArgs": [],
+    "SourceHash": "dd289d6462e68fcc1155a72999e41e63ebe1f43a4a986dca9cb27fcf4e4d7297",
+    "ProtectedTokens": []
+  },
+  "dialog.saveCollision": {
+    "Source": "该位置已出现同名文件，原文件已保留。请重新选择文件名或确认覆盖。",
+    "Contexts": [
+      "Core/AtomicFile.cs"
+    ],
+    "RawArgs": [],
+    "SourceHash": "f629ad8f1e810091b2f07871e4be7a3d83475526e871ec8da1144344bd66e898",
+    "ProtectedTokens": []
+  },
+  "xml.snapshot.nativeValues": {
+    "Source": "编辑记录与应答 XML 的部分设置不一致，已采用 XML 中可识别的值。",
+    "Contexts": [
+      "Core/XmlPlanImport.cs"
+    ],
+    "RawArgs": [],
+    "SourceHash": "e83450d96bae119e1b8c796818be1e41b85695f1ee1e7deba9efc950c0843d05",
+    "ProtectedTokens": []
+  },
+  "import.credentials.empty": {
+    "Source": "导入的账户密码为空。请在「用户与密码」中补填密码，或明确勾选允许空密码后再导出。",
+    "Contexts": [
+      "Core/XmlPlanImport.cs"
+    ],
+    "RawArgs": [],
+    "SourceHash": "ab6e74b33bbd4e641c5ab5c94cf8e1aa41950e6c40b40e51f6a878043a3d245c",
+    "ProtectedTokens": []
+  },
+  "import.credentials.local": {
+    "Source": "原 XML 的本地账户密码含遮蔽标记或无法解码。请修正原 XML 后重新导入。",
+    "Contexts": [
+      "Core/ImportedCredentialReview.cs"
+    ],
+    "RawArgs": [],
+    "SourceHash": "b155711fa537337d81b6fc928b4925285f6dd93304942f42290ece2701b97b46",
+    "ProtectedTokens": []
+  },
+  "import.credentials.administrator": {
+    "Source": "原 XML 的内置 Administrator 密码不可用。请修正原 XML 后重新导入。",
+    "Contexts": [
+      "Core/ImportedCredentialReview.cs"
+    ],
+    "RawArgs": [],
+    "SourceHash": "91695884cac3ea17f07b8df2370574dfa904e8a58e5eae295bd022568bd86fa0",
+    "ProtectedTokens": []
+  },
+  "import.credentials.autoLogon": {
+    "Source": "原 XML 的自动登录密码不可用。请修正原 XML 后重新导入。",
+    "Contexts": [
+      "Core/ImportedCredentialReview.cs"
+    ],
+    "RawArgs": [],
+    "SourceHash": "a9f82954000413cc30acc7f9371886c0130e954d74b122098c0d5448cf8808f4",
+    "ProtectedTokens": []
+  },
+  "import.credentials.domain": {
+    "Source": "原 XML 的域加入密码或预配数据为空或已遮蔽。请修正原 XML 后重新导入。",
+    "Contexts": [
+      "Core/ImportedCredentialReview.cs"
+    ],
+    "RawArgs": [],
+    "SourceHash": "d86b9d3a38561622b53133c527f6aaca5869eb1bd6e77492c2e09c526c59a4f5",
+    "ProtectedTokens": []
+  },
+  "import.credentials.driver": {
+    "Source": "原 XML 的安装驱动访问密码已遮蔽。请修正原 XML 后重新导入。",
+    "Contexts": [
+      "Core/ImportedCredentialReview.cs"
+    ],
+    "RawArgs": [],
+    "SourceHash": "45d96b7e7b5df0f2e474ec072805fc6bca5d7389f645eae4d9b4e3c815208d34",
+    "ProtectedTokens": []
+  },
+  "import.credentials.installKey": {
+    "Source": "原 XML 的安装产品密钥为空或格式有误。请修正原 XML 后重新导入。",
+    "Contexts": [
+      "Core/ImportedCredentialReview.cs"
+    ],
+    "RawArgs": [],
+    "SourceHash": "a9d8be8df92f5089c59f79005a1f9e585a313d38ae4a739d14e197082830fdda",
+    "ProtectedTokens": []
+  },
+  "import.credentials.activationKey": {
+    "Source": "原 XML 的激活产品密钥为空或格式有误。请修正原 XML 后重新导入。",
+    "Contexts": [
+      "Core/ImportedCredentialReview.cs"
+    ],
+    "RawArgs": [],
+    "SourceHash": "db95731ad8ee26d08e4d40691d2d16a6118c72ebc3189c5cd0de4e9fb69bc1f6",
+    "ProtectedTokens": []
+  },
+  "import.credentials.wifi": {
+    "Source": "原 XML 的 Wi-Fi 配置或密钥为空、已遮蔽或格式有误。请修正原 XML 后重新导入。",
+    "Contexts": [
+      "Core/ImportedCredentialReview.cs"
+    ],
+    "RawArgs": [],
+    "SourceHash": "cbd907b217f0a41d3ea30b2643cefa19c27c715785a4f865ebce4efe6a6cedf5",
+    "ProtectedTokens": []
+  },
+  "appRemoval.faxAndScan": {
+    "Source": "Windows 传真和扫描",
+    "Contexts": [
+      "Core/AppRemovalSettings.cs"
+    ],
+    "RawArgs": [],
+    "SourceHash": "0ee4ee3e8096d91aa1b7afa42bf9305f882421ea69f2f7762cc3e4230b0f08b0",
+    "ProtectedTokens": []
+  },
+  "appRemoval.xpsViewer": {
+    "Source": "XPS 查看器",
+    "Contexts": [
+      "Core/AppRemovalSettings.cs"
+    ],
+    "RawArgs": [],
+    "SourceHash": "f0c5c542656d80040103f94f30de7436faee923d5e00cd5de7f73da58e2dce87",
+    "ProtectedTokens": []
+  },
+  "appRemoval.optionalFeatures": {
+    "Source": "Windows 可选功能",
+    "Contexts": [
+      "Core/AppRemovalSettings.cs"
+    ],
+    "RawArgs": [],
+    "SourceHash": "3f79ba7155a7d4a973e7a716513b5aebc28b916a004d5f7fa95061e61bc14582",
+    "ProtectedTokens": []
+  },
+  "appRemoval.faxAndScanHelp": {
+    "Source": "移除用于收发传真和扫描文档的 Windows 传真和扫描。仅在目标 Windows 已安装此功能时执行。\n\n匹配项：\nPrint.Fax.Scan~~~~0.0.1.0",
+    "Contexts": [
+      "Core/AppRemovalSettings.cs"
+    ],
+    "RawArgs": [],
+    "SourceHash": "2cb6df911d0b635ba6f467aa2fed04ef1a1e6ae79a3db3db454323b36ebbab45",
+    "ProtectedTokens": [
+      "Print.Fax.Scan~~~~0.0.1.0"
+    ]
+  },
+  "appRemoval.xpsViewerHelp": {
+    "Source": "移除用于查看和打印 XPS 文档的 XPS 查看器。仅在目标 Windows 已安装此功能时执行。\n\n匹配项：\nXPS.Viewer~~~~0.0.1.0",
+    "Contexts": [
+      "Core/AppRemovalSettings.cs"
+    ],
+    "RawArgs": [],
+    "SourceHash": "77d51fc00ced2f9b364d45ffec747596b473c748b513327dd77a0cc5fb7e708e",
+    "ProtectedTokens": [
+      "XPS.Viewer~~~~0.0.1.0"
+    ]
   }
 }

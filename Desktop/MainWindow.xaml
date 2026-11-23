@@ -319,8 +319,9 @@
                 </StackPanel>
                 <TextBlock Text="{loc:Text text.aa45e3c019c1}" />
                 <ComboBox x:Name="SettingAnchor021" SelectedValue="{Binding Plan.TimeZoneMode}" SelectedValuePath="Content" ToolTip="{Binding DataContext.HelpTips[timezone],RelativeSource={RelativeSource AncestorType=Window}}"><ComboBoxItem Content="{loc:Source text.499ff33c1078}"/><ComboBoxItem Content="{loc:Source text.980f34c4425d}"/></ComboBox>
-                <TextBlock Text="{loc:Text text.b5d72c5c00f2}" Foreground="{DynamicResource SecondaryBrush}" ToolTip="{Binding DataContext.HelpTips[region],RelativeSource={RelativeSource AncestorType=Window}}" />
-                <ComboBox x:Name="SettingAnchor022" IsEnabled="{Binding IsFixedTimeZone}" ItemsSource="{Binding TimeZones}"  SelectedValuePath="Id" SelectedValue="{Binding Plan.TimeZone}" ToolTip="{Binding DataContext.HelpTips[region],RelativeSource={RelativeSource AncestorType=Window}}"  loc:LocalizedItems.DisplayPath="Label"><ComboBox.ItemTemplate><DataTemplate><TextBlock Text="{loc:Display Value={Binding Label}}" TextWrapping="Wrap"/></DataTemplate></ComboBox.ItemTemplate></ComboBox>
+                <TextBlock Text="{loc:Text text.b5d72c5c00f2}" Foreground="{DynamicResource SecondaryBrush}" ToolTip="{Binding DataContext.HelpTips[timezone],RelativeSource={RelativeSource AncestorType=Window}}" />
+                <ComboBox x:Name="SettingAnchor022" IsEnabled="{Binding IsFixedTimeZone}" ItemsSource="{Binding TimeZones}"  SelectedValuePath="Id" SelectedValue="{Binding Plan.TimeZone}" ToolTip="{Binding DataContext.HelpTips[timezone],RelativeSource={RelativeSource AncestorType=Window}}"  loc:LocalizedItems.DisplayPath="Label"><ComboBox.ItemTemplate><DataTemplate><TextBlock Text="{loc:Display Value={Binding Label}}" TextWrapping="Wrap"/></DataTemplate></ComboBox.ItemTemplate></ComboBox>
+                <TextBlock Style="{StaticResource ExplanationText}" Text="{loc:Text timezone.canadaCompatibility}" Foreground="{DynamicResource WarningBrush}" Visibility="{Binding ShowCanadianTimeZoneUpdateHint,Converter={StaticResource VisibleWhen}}"/>
               </StackPanel>
             </Border>
             <Border Style="{StaticResource Card}"><StackPanel>

@@ -9,6 +9,8 @@ static class PeSafetyTests
     private static InstallPlan Plan()
     {
         var p = QuickPresets.Create(QuickPresets.LocalAccount);
+        p.Users[0].Password = "FixturePassword!";
+        p.Users[0].AllowEmptyPassword = false;
         p.UseGeneratedPe = true; p.Architecture = "amd64"; p.KeepSensitiveFiles = true;
         p.DiskMode = InstallationSettings.Wipe; p.DiskLayout = "UEFI / GPT";
         p.TargetDiskId = 0; p.ImageSelection = "按镜像索引"; p.ImageIndex = 1;

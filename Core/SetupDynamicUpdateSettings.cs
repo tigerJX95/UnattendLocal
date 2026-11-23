@@ -68,9 +68,9 @@ public static class SetupDynamicUpdateSettings {
  public static Source ReadIntoPlan(XmlDocument doc,InstallPlan p,List<string> notes){var state=Inspect(doc);Assign(p,state);if(!state.Known)notes.Add(ReadOnlyNotice);return state;}
  public static void UpdateImportState(ImportedXml data,Source state){data.SetupDynamicUpdateReadOnly=!state.Known;data.SetupDynamicUpdateImportVersion=1;}
  public static void ValidateImported(InstallPlan p,XmlDocument source){if(Configured(p)&&!Inspect(source).Known)throw new ArgumentException(ReadOnlyNotice);}
- public static void NormalizeLoaded(InstallPlan p,JsonElement root){
+ public static void NormalizeLoaded(InstallPlan p,JsonElement root, XmlDocument? parsedSource = null){
   if(p.ImportedXml is not {OriginalOmitted:false} data||data.SourceXml.Length==0)return;
-  var source=XmlMerge.Read(data.SourceXml);var state=Inspect(source);
+  var source=parsedSource ?? XmlMerge.Read(data.SourceXml);var state=Inspect(source);
   if(data.SetupDynamicUpdateImportVersion<1&&state is {Present:true,Known:true}){
    bool missing=!root.TryGetProperty(nameof(InstallPlan.SetupDynamicUpdateMode),out _)&&!root.TryGetProperty(nameof(InstallPlan.SetupDynamicUpdateUi),out _);
    if(missing&&data.BaselineXml.Length>0&&Nodes(XmlMerge.Read(data.BaselineXml)).Length==0){

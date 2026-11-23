@@ -97,10 +97,10 @@ public static class AdditionalXmlSettings
         return row;
     }
 
-    public static void WriteDraft(string path, XmlComponentEntry row)
+    public static void WriteDraft(string path, XmlComponentEntry row, bool overwrite = true)
     {
         _ = Parse(row);
-        AtomicFile.WriteAllText(path, row.Content, new System.Text.UTF8Encoding(false));
+        AtomicFile.WriteAllText(path, row.Content, new System.Text.UTF8Encoding(false), overwrite);
     }
 
     public static XmlComponentEntry Duplicate(InstallPlan plan, XmlComponentEntry source)

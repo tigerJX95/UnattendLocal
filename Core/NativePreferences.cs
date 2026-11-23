@@ -117,10 +117,10 @@ public static class NativePreferences
         foreach (var s in All.Where(s=>Mode(p,s)==Default&&!ExtraOwns(p,s)&&Inspect(source,s) is {Known:true,Present:true})) foreach (var component in NativeSetupXml.Components(doc, s.Component))
             if (NativeSetupXml.ValidComponent(doc, component, s.Component, "specialize") && !component.ChildNodes.OfType<XmlElement>().Any() && !component.ChildNodes.OfType<XmlComment>().Any() && string.IsNullOrWhiteSpace(component.InnerText)) component.ParentNode!.RemoveChild(component);
     }
-    public static void NormalizeLoaded(InstallPlan p, JsonElement root)
+    public static void NormalizeLoaded(InstallPlan p, JsonElement root, XmlDocument? parsedSource = null)
     {
         if (p.ImportedXml is not { OriginalOmitted: false, SourceXml.Length: > 0 } data) return;
-        var source = XmlMerge.Read(data.SourceXml); var states = All.Select(s => Inspect(source, s)).ToArray();
+        var source = parsedSource ?? XmlMerge.Read(data.SourceXml); var states = All.Select(s => Inspect(source, s)).ToArray();
         if (data.NativePreferencesImportVersion < 1 && data.BaselineXml.Length > 0)
         {
             var baseline = XmlMerge.Read(data.BaselineXml);

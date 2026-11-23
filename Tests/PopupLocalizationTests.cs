@@ -30,7 +30,13 @@ static class PopupLocalizationTests
             throw new Exception("Expected validation to fail.");
         }
 
-        InstallPlan LocalUserPlan() => QuickPresets.Create(QuickPresets.LocalAccount);
+        InstallPlan LocalUserPlan()
+        {
+            var plan = QuickPresets.Create(QuickPresets.LocalAccount);
+            plan.Users[0].Password = "FixturePassword!";
+            plan.Users[0].AllowEmptyPassword = false;
+            return plan;
+        }
 
         string previous = UiText.Language;
         try

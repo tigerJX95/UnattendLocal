@@ -930,5 +930,35 @@
         ]
       }
     ]
+  },
+  {
+    "DisplayName": "Windows Fax and Scan",
+    "Token": "FaxAndScan",
+    "Steps": [
+      {
+        "$type": "Schneegans.Unattend.CapabilityBloatwareStep, UnattendGenerator",
+        "Selector": "Print.Fax.Scan~~~~0.0.1.0",
+        "InstalledOnly": true,
+        "AppliesTo": [
+          "Windows 10",
+          "Windows 11"
+        ]
+      }
+    ]
+  },
+  {
+    "DisplayName": "XPS Viewer",
+    "Token": "XpsViewer",
+    "Steps": [
+      {
+        "$type": "Schneegans.Unattend.CapabilityBloatwareStep, UnattendGenerator",
+        "Selector": "XPS.Viewer~~~~0.0.1.0",
+        "InstalledOnly": true,
+        "AppliesTo": [
+          "Windows 10",
+          "Windows 11"
+        ]
+      }
+    ]
   }
 ]

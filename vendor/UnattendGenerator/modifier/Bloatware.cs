@@ -77,9 +77,13 @@ class PackageRemover : Remover<PackageBloatwareStep>
   protected override string Type => "Package";
 }
 
-class CapabilityRemover : Remover<CapabilityBloatwareStep>
+class CapabilityRemover(bool installedOnly = false) : Remover<CapabilityBloatwareStep>
 {
-  protected override string GetCommand => """
+  protected override string GetCommand => installedOnly ? """
+    {
+      Get-WindowsCapability -Online | Where-Object -Property 'State' -EQ -Value 'Installed';
+    }
+    """ : """
     {
       Get-WindowsCapability -Online | Where-Object -Property 'State' -NotIn -Value @(
         'NotPresent';
@@ -88,7 +92,11 @@ class CapabilityRemover : Remover<CapabilityBloatwareStep>
     }
     """;
 
-  protected override string FilterCommand => """
+  protected override string FilterCommand => installedOnly ? """
+    {
+      $_.Name -eq $selector;
+    }
+    """ : """
     {
       ($_.Name -split '~')[0] -eq $selector;
     }
@@ -107,7 +115,7 @@ class CapabilityRemover : Remover<CapabilityBloatwareStep>
     }
     """;
 
-  protected override string Type => "Capability";
+  protected override string Type => installedOnly ? "InstalledCapability" : "Capability";
 }
 
 class FeatureRemover : Remover<OptionalFeatureBloatwareStep>
@@ -149,6 +157,7 @@ class BloatwareModifier(ModifierContext context) : Modifier(context)
   {
     var packageRemover = new PackageRemover();
     var capabilityRemover = new CapabilityRemover();
+    var installedCapabilityRemover = new CapabilityRemover(installedOnly: true);
     var featureRemover = new FeatureRemover();
 
     foreach (Bloatware bw in Configuration.Bloatwares.OrderBy(bw => bw.Id))
@@ -161,7 +170,7 @@ class BloatwareModifier(ModifierContext context) : Modifier(context)
             packageRemover.Add(package);
             break;
           case CapabilityBloatwareStep capability:
-            capabilityRemover.Add(capability);
+            (capability.InstalledOnly ? installedCapabilityRemover : capabilityRemover).Add(capability);
             break;
           case OptionalFeatureBloatwareStep feature:
             featureRemover.Add(feature);
@@ -231,5 +240,6 @@ class BloatwareModifier(ModifierContext context) : Modifier(context)
     packageRemover.Save(this);
     capabilityRemover.Save(this);
     featureRemover.Save(this);
+    installedCapabilityRemover.Save(this);
   }
 }

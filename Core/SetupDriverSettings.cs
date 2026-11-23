@@ -71,9 +71,9 @@ public static class SetupDriverSettings {
  public static Source ReadIntoPlan(XmlDocument doc,InstallPlan p,List<string> notes){var source=Inspect(doc);Assign(p,source);if(!source.Known)notes.Add(ReadOnlyNotice);return source;}
  public static void UpdateImportState(ImportedXml data,Source source){data.SetupDriversReadOnly=!source.Known;data.SetupDriversImportVersion=1;}
  public static void ValidateImported(InstallPlan p,XmlDocument source){if(p.UseSetupDrivers&&!Inspect(source).Known)throw new ArgumentException(ReadOnlyNotice);}
- public static void NormalizeLoaded(InstallPlan p,JsonElement root){
+ public static void NormalizeLoaded(InstallPlan p,JsonElement root, XmlDocument? parsedSource = null){
   if(p.ImportedXml is not {OriginalOmitted:false} data||data.SourceXml.Length==0)return;
-  var source=XmlMerge.Read(data.SourceXml);var state=Inspect(source);
+  var source=parsedSource ?? XmlMerge.Read(data.SourceXml);var state=Inspect(source);
   if(data.SetupDriversImportVersion<1&&state is {Present:true,Known:true}){
    bool missing=!root.TryGetProperty(nameof(InstallPlan.UseSetupDrivers),out _)&&!root.TryGetProperty(nameof(InstallPlan.SetupDriverPaths),out _);
    if(missing&&data.BaselineXml.Length>0&&Nodes(XmlMerge.Read(data.BaselineXml)).Length==0){

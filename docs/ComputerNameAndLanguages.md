@@ -35,3 +35,13 @@ Under Basic settings, select **Derive computer name from IPv4 address**. Setup u
 在指定语言与区域模式下，两组可以独立启用。生成顺序为第一组、已启用的第二组、已启用的第三组；系统与用户区域格式仍取自第一组，Windows 显示语言另行选择。多组输入配置不安装语言包，也不改变本程序中文界面。
 
 交互语言模式不生成固定配置，但保留方案中填写的附加组。恢复推荐会关闭附加组，不清空填写内容；命名方式作为身份设置保留。JSON 和带/不带本工具快照的 XML 均支持已识别配置的恢复；超过三组或无法识别的输入列表保留原文，不能不可靠覆盖。
+
+## 指定时区 / Select a time zone
+
+在「基础设置」选择「指定时区」。双击时区下拉框的文字区域或聚焦后输入，可按中英文名称、Windows 时区 ID 或 UTC 偏移筛选，例如 `UTC-7` 或 `UTC+5:30`。方案和应答 XML 保存的是 Windows 时区 ID。UTC 偏移是列表标签，实际时间规则由目标 Windows 应用。
+
+选择不列颠哥伦比亚省、阿尔伯塔省或马尼托巴省的新时区前，请确认目标 Windows 映像包含相应的时区更新。可在同一 Windows 版本及更新级别的环境中运行 `tzutil /l` 查看可用的时区 ID。参见 [Microsoft 的加拿大时区更新说明](https://support.microsoft.com/en-us/servicing/os/windows/docs/2026/10/canada-2026-time-zone-changes)。
+
+In Basic settings, choose **Specify time zone**. Double-click the text area of the list or focus it and type to filter by Chinese or English name, Windows time zone ID, or UTC offset, such as `UTC-7` or `UTC+5:30`. Plans and answer XML store the Windows time zone ID. The offset shown is a list label. The target Windows installation applies its own time zone rules.
+
+For the new British Columbia, Alberta, and Manitoba zones, make sure the target Windows image includes the relevant time zone update. Run `tzutil /l` on a system with the same Windows version and update level to check the available IDs. See [Microsoft's guidance on the Canadian time zone changes](https://support.microsoft.com/en-us/servicing/os/windows/docs/2026/10/canada-2026-time-zone-changes).

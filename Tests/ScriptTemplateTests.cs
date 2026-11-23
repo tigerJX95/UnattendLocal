@@ -18,6 +18,8 @@ static class ScriptTemplateTests
         foreach (var architecture in new[] { "amd64", "arm64", "x86" })
         {
             var plan = QuickPresets.Create(QuickPresets.LocalAccount); plan.Architecture = architecture;
+            plan.Users[0].Password = "FixturePassword!";
+            plan.Users[0].AllowEmptyPassword = false;
             var row = ScriptTemplates.Add(plan, template.Id);
             Check(!row.Enabled && row.Type == "Ps1" && row.Phase == template.Phase, "template added as disabled script at correct stage");
             Check(!Encoding.UTF8.GetString(generator.Generate(plan)).Contains(template.Content.Split('\n')[0]), "disabled template not embedded as executable file");
@@ -55,6 +57,8 @@ static class ScriptTemplateTests
             Check(!added.Enabled, "legacy template ID resolves safely: " + oldId);
         }
         var previous = QuickPresets.Create(QuickPresets.LocalAccount);
+        previous.Users[0].Password = "FixturePassword!";
+        previous.Users[0].AllowEmptyPassword = false;
         previous.Scripts.Add(new ScriptEntry { Name = "通过 WinGet 安装 Google Chrome", Enabled = true, Phase = "FirstLogon", Type = "Ps1", Content = "Write-Host 'saved legacy Chrome script';\n# user edits stay intact" });
         var oldContent = previous.Scripts[0].Content;
         var loaded = PlanStore.Deserialize(PlanStore.Serialize(previous, true));

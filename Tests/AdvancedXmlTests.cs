@@ -69,6 +69,12 @@ static class AdvancedXmlTests
             var reloaded=PlanStore.Deserialize(PlanStore.Serialize(plan,true));
             Check(reloaded.CustomStartingPoint==kind&&reloaded.AccountMode==plan.AccountMode&&generator.Generate(reloaded).Length>0,"preset JSON roundtrip");
             var imported=XmlPlanImport.Import(xml,generator);
+            if (kind == QuickPresets.LocalAccount)
+            {
+                Check(imported.Users[0].NeedsPassword && !imported.Users[0].AllowEmptyPassword, "XML preset import asks for empty password approval");
+                Reject(() => generator.Generate(imported), "XML preset requires explicit approval of an empty password");
+                imported.Users[0].AllowEmptyPassword = true;
+            }
             Check(imported.ImportedXml!.Blockers.Length==0&&imported.AccountMode==plan.AccountMode&&generator.Generate(imported).Length>0,"preset XML roundtrip");
         }
         var microsoftAccount = QuickPresets.Create(QuickPresets.Minimal);

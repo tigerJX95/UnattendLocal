@@ -72,6 +72,23 @@ public static class PlanComparison
         var answer = XDocument.Load(reader).Root!;
         // Editable snapshots are XML comments. Compare installation content only.
         answer.DescendantNodes().OfType<XComment>().Remove();
+        // Resolve QName values before removing declarations. Expanded element
+        // and attribute names in LINQ to XML already carry their namespace.
+        XName schemaType = XName.Get("type", "http://www.w3.org/2001/XMLSchema-instance");
+        foreach (var element in answer.DescendantsAndSelf())
+        {
+            if (element.Attribute(schemaType) is not {} type) continue;
+            string[] parts = type.Value.Trim().Split(':');
+            if (parts.Length == 1 && parts[0].Length > 0)
+                type.Value = "{" + element.GetDefaultNamespace().NamespaceName + "}" + parts[0];
+            else if (parts.Length == 2 && parts[0].Length > 0 && parts[1].Length > 0 &&
+                     element.GetNamespaceOfPrefix(parts[0]) is {} ns)
+                type.Value = "{" + ns.NamespaceName + "}" + parts[1];
+        }
+        foreach (var element in answer.DescendantsAndSelf())
+            element.ReplaceAttributes(element.Attributes().Where(attribute => !attribute.IsNamespaceDeclaration)
+                .OrderBy(attribute => attribute.Name.NamespaceName, StringComparer.Ordinal)
+                .ThenBy(attribute => attribute.Name.LocalName, StringComparer.Ordinal).ToArray());
         return answer;
     }
 

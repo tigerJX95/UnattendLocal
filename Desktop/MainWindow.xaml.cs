@@ -114,8 +114,8 @@ public partial class MainWindow : Window {
     OverwritePrompt = true,
     FileName = "fragment.xml"
    };
-   if (dialog.ShowLocalized(this) != true) return;
-   AdditionalXmlSettings.WriteDraft(dialog.FileName, row);
+   if (dialog.ConfirmSave(this) is not bool overwrite) return;
+   AdditionalXmlSettings.WriteDraft(dialog.FileName, row, overwrite);
    vm.Status = UiText.Source("xml.draftSaved");
   }
   catch (Exception error)
@@ -195,11 +195,11 @@ public partial class MainWindow : Window {
  private void SaveClick(object s,RoutedEventArgs e)=>Run(()=>{
   var dialog=new SaveFileDialog{Title=UiText.Get("plan.saveJson"),Filter=UiText.Get("text.7fba054e9c5b"),
    FileName=UiText.Source("text.8552e8eed1a1")};
-  if(dialog.ShowLocalized(this)!=true)return;
+  if(dialog.ConfirmSave(this) is not bool overwrite)return;
   var answer=LocalizedMessageBox.Show(this,UiText.Source("text.8bacde0493a7"),UiText.Source("text.47c61ce5cda2"),
    MessageBoxButton.YesNoCancel,MessageBoxImage.Question,MessageBoxResult.No);
   if(answer==MessageBoxResult.Cancel)return;
-  AtomicFile.WriteAllText(dialog.FileName,PlanStore.Serialize(vm.Plan,answer==MessageBoxResult.Yes),new UTF8Encoding(false));
+  AtomicFile.WriteAllText(dialog.FileName,PlanStore.Serialize(vm.Plan,answer==MessageBoxResult.Yes),new UTF8Encoding(false),overwrite);
   vm.Status=UiText.Source("text.9a986abbc474");
  });
  private FrameworkElement? Invalid(DependencyObject root){
@@ -251,8 +251,8 @@ public partial class MainWindow : Window {
   try{
    string ext=ScriptFiles.Extension(row.Type);
    var d=new SaveFileDialog{Title=global::UnattendLocal.Localization.UiText.Translate(global::UnattendLocal.Localization.UiText.Source("text.8d0e77ce53ba")),Filter=global::UnattendLocal.Localization.UiText.Translate(global::UnattendLocal.Localization.UiText.Format("message.c12ca29aaaf7", new string[] { global::UnattendLocal.Localization.UiText.Arg((ext), 0, null), global::UnattendLocal.Localization.UiText.Arg((ext), 0, null) })),DefaultExt=ext,AddExtension=true,OverwritePrompt=true,FileName="script"+ext};
-   if(d.ShowLocalized(this)!=true){vm.Status=global::UnattendLocal.Localization.UiText.Source("text.7349f02b9d4e");return;}
-   ScriptFiles.Write(row,d.FileName);
+   if(d.ConfirmSave(this) is not bool overwrite){vm.Status=global::UnattendLocal.Localization.UiText.Source("text.7349f02b9d4e");return;}
+   ScriptFiles.Write(row,d.FileName,overwrite);
    vm.Status=global::UnattendLocal.Localization.UiText.Concat(new object?[] { global::UnattendLocal.Localization.UiText.Source("text.245524589836"), ScriptFiles.EncodingHint(row.Type) },new bool[]{false,false});
   }catch(Exception error){vm.Status=global::UnattendLocal.Localization.UiText.Source("text.79a660a9296f");ErrorDialog.Show(this,error,global::UnattendLocal.Localization.UiText.Source("text.3fb76b0a450a"));}
  }
@@ -371,7 +371,8 @@ public partial class MainWindow : Window {
   var caption = UiText.Source(diskRisk ? "text.74dff760c77e" : "review.phases.title");
   var image = diskRisk || policyRisk ? MessageBoxImage.Warning : MessageBoxImage.Question;
   if (LocalizedMessageBox.Show(this, UiText.Join("\n\n", sections), caption,
-    MessageBoxButton.YesNo, image, MessageBoxResult.No) != MessageBoxResult.Yes) return;
+    MessageBoxButton.YesNo, image, MessageBoxResult.No,
+    copySummary: () => InstallationReview.ShareableSummary(bytes, diskRisk, review.AppLocker != null)) != MessageBoxResult.Yes) return;
 
   bool manual = vm.Plan.ExportNonAutomaticFilename;
   var dialog = new SaveFileDialog
@@ -383,9 +384,9 @@ public partial class MainWindow : Window {
    OverwritePrompt = true,
    FileName = iso ? AnswerFileExport.IsoName(manual) : AnswerFileExport.FileName(manual)
   };
-  if (dialog.ShowLocalized(this) != true) return;
-  if (iso) AnswerFileExport.WriteIso(dialog.FileName, bytes, manual);
-  else AnswerFileExport.WriteXml(dialog.FileName, bytes);
+  if (dialog.ConfirmSave(this) is not bool overwrite) return;
+  if (iso) AnswerFileExport.WriteIso(dialog.FileName, bytes, manual, overwrite);
+  else AnswerFileExport.WriteXml(dialog.FileName, bytes, overwrite);
   vm.Status = UiText.Concat([UiText.Source(iso ? "text.c1b71c21eff7" : "text.bc67c530f6df"), review.Target], [false, false]);
  }, locateConfiguration: true);
 }

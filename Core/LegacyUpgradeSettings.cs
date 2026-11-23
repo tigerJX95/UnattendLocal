@@ -31,9 +31,9 @@ public static class LegacyUpgradeSettings {
  public static void ValidateImported(InstallPlan p,XmlDocument source){
   if(Inspect(source).Ambiguous&&p.AllowUnsupportedUpgrade)throw new ArgumentException(global::UnattendLocal.Localization.UiText.Source("text.96b43f6459bf"));
  }
- public static void NormalizeLoaded(InstallPlan p,JsonElement json){
+ public static void NormalizeLoaded(InstallPlan p,JsonElement json, XmlDocument? parsedSource = null){
   if(p.ImportedXml is not {OriginalOmitted:false} data||data.SourceXml.Length==0||data.BaselineXml.Length==0)return;
-  var state=Inspect(XmlMerge.Read(data.SourceXml));data.LegacyUpgradeReadOnly=state.Ambiguous;
+  var state=Inspect(parsedSource ?? XmlMerge.Read(data.SourceXml));data.LegacyUpgradeReadOnly=state.Ambiguous;
   if(json.TryGetProperty(nameof(InstallPlan.AllowUnsupportedUpgrade),out _))return;
   if(!state.Enabled)return;
   var before=JsonSerializer.Deserialize<InstallPlan>(JsonSerializer.Serialize(p))!;

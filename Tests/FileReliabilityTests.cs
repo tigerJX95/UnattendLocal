@@ -67,6 +67,15 @@ static class FileReliabilityTests
             Check(!UiPreferences.Save("Dark", occupied), "failed rename reported");
             Check(File.ReadAllText(Path.Combine(occupied, "keep.txt")) == "keep", "failed replacement preserves destination");
             Check(!Directory.EnumerateFiles(folder, "*.tmp").Any(), "failed rename cleans staged file");
+
+            var export = Path.Combine(folder, "answer.xml");
+            AtomicFile.WriteAllText(export, "first save", Encoding.UTF8, overwrite: false);
+            Reject(() => AtomicFile.WriteAllText(export, "second save", Encoding.UTF8, overwrite: false),
+                "create-only export refuses an occupied filename");
+            Check(File.ReadAllText(export) == "first save", "the competing file is preserved");
+            Check(!Directory.EnumerateFiles(folder, "*.tmp").Any(), "a create-only collision cleans the staged file");
+            AtomicFile.WriteAllText(export, "confirmed replacement", Encoding.UTF8, overwrite: true);
+            Check(File.ReadAllText(export) == "confirmed replacement", "explicit replacement still works");
         }
         finally { Directory.Delete(folder, true); }
         Console.WriteLine($"File reliability: {count} checks passed.");

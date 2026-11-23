@@ -10,7 +10,8 @@ static class PePreflightTests
   void Check(bool ok,string name){if(!ok)throw new Exception("PE preflight: "+name);count++;}
   string Script(byte[] bytes)=>XmlMerge.Read(Encoding.UTF8.GetString(bytes)).SelectSingleNode("//*[local-name()='PEScriptCopy']")!.InnerText;
   foreach(string layout in new[]{"UEFI / GPT","BIOS / MBR",PeDiskSafety.AutomaticLayout}){
-   var p=QuickPresets.Create(QuickPresets.LocalAccount);p.UseGeneratedPe=true;p.Architecture="amd64";p.KeepSensitiveFiles=true;p.DiskMode=InstallationSettings.Wipe;p.DiskLayout=layout;p.TargetDiskId=0;p.ImageSelection="按镜像索引";p.ImageIndex=3;p.EditionMode=UiText.Source("text.5056d73b13ec");p.BypassHardware=p.BypassTPMCheck=p.BypassSecureBootCheck=p.BypassRAMCheck=false;p.PauseBeforeFormatting=true;p.ConfirmWipeDisk=true;
+   var p=QuickPresets.Create(QuickPresets.LocalAccount);p.UseGeneratedPe=true;p.Architecture="amd64";p.KeepSensitiveFiles=true;p.DiskMode=InstallationSettings.Wipe;p.DiskLayout=layout;p.TargetDiskId=0;p.ImageSelection="按镜像索引";
+   p.Users[0].Password="FixturePassword!";p.Users[0].AllowEmptyPassword=false;p.ImageIndex=3;p.EditionMode=UiText.Source("text.5056d73b13ec");p.BypassHardware=p.BypassTPMCheck=p.BypassSecureBootCheck=p.BypassRAMCheck=false;p.PauseBeforeFormatting=true;p.ConfirmWipeDisk=true;
    string locale=p.Locale,keyboard=p.Keyboard;
    var bytes=generator.Generate(p);var doc=XmlMerge.Read(Encoding.UTF8.GetString(bytes));string script=Script(bytes);
    Check(!script.Contains("findstr.exe",StringComparison.OrdinalIgnoreCase),"no findstr dependency");

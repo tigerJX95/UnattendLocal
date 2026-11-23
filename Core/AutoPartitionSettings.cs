@@ -63,9 +63,9 @@ public static class AutoPartitionSettings {
    if(p.DiskMode!=InstallationSettings.Wipe||p.TargetDiskId!=baseline.TargetDiskId||Command(p)!=Command(baseline))throw new ArgumentException(ReadOnlyNotice);
   }else if(p.DiskMode==InstallationSettings.Wipe)throw new ArgumentException(ReadOnlyNotice);
  }
- public static void NormalizeLoaded(InstallPlan p,JsonElement json){
+ public static void NormalizeLoaded(InstallPlan p,JsonElement json, XmlDocument? parsedSource = null){
   if(p.ImportedXml is not {OriginalOmitted:false} data||data.SourceXml.Length==0)return;
-  var state=Inspect(XmlMerge.Read(data.SourceXml));data.AutoPartitionReadOnly=state.Mentioned&&!state.Known;
+  var state=Inspect(parsedSource ?? XmlMerge.Read(data.SourceXml));data.AutoPartitionReadOnly=state.Mentioned&&!state.Known;
   if(state.RecoverySizeOutOfRange)data.Notices=data.Notices.Where(n=>n!=ReadOnlyNotice).ToArray();
   if(state.Notice is {} notice&&!data.Notices.Contains(notice))data.Notices=[..data.Notices,notice];
   if(state is not {Known:true,Values:{} values})return;

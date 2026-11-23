@@ -1,3 +1,4 @@
+using UnattendLocal.Core;
 using UnattendLocal.Desktop;
 
 static class SettingsSearchTests
@@ -20,7 +21,8 @@ static class SettingsSearchTests
         Check(SettingsSearchCatalog.Search("", -1).SequenceEqual(SettingsSearchCatalog.Search("")) && SettingsSearchCatalog.NormalizeCategory(999) == null, "invalid remembered category safely falls back to all");
         Check(SettingsSearchCatalog.Search("$OEM$", 3).Any(r => r.Aliases.Contains("UseConfigurationSet")) && SettingsSearchCatalog.Search("$OEM$", 4).All(r => r.PageIndex == 4), "matching does not escape the selected category");
         var appItems = SettingsSearchCatalog.Search("", 7).Where(r => r.AppId.Length > 0).ToArray();
-        Check(appItems.Length == 60 && appItems.Select(r => r.AppId).Distinct().Count() == 60, "app-removal category retains sixty individually navigable items");
+        Check(appItems.Select(r => r.AppId).Order().SequenceEqual(AppRemovalSettings.Items.Select(i => i.Id).Order()),
+            "every app-removal choice has a unique navigation result");
         Check(SettingsSearchCatalog.Search("BitLocker").Count > 0 && SettingsSearchCatalog.Search("BitLocker", 13).Count == 0, "scoped no-results does not fall back silently to global matches");
         Check(SearchTextMatcher.Exact("  Ｗｉｎｄｏｗｓ  ", "windows") && !SearchTextMatcher.Exact("Windows", "win"), "exact ranking uses the same width/case normalization as matching");
         foreach (var query in new[] { "Windows", " $OEM$ ", "PowerShell" })

@@ -80,6 +80,17 @@ static class ConfigurationReviewTests
             "<!--UnattendLocal:editable snapshot--><settings pass=\"auditSystem\" />");
         Check(PlanComparison.FindChangedAnswerSections(xml, withComment).Count == 0,
             "XML comparison ignores comments containing editing metadata");
+        const string ordered = """
+            <unattend xmlns="urn:schemas-microsoft-com:unattend" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:t="urn:test">
+              <settings pass="specialize"><component name="Example" processorArchitecture="amd64"><Test xsi:type="t:test">text</Test></component></settings>
+            </unattend>
+            """;
+        string reformatted = ordered.Replace("xmlns:t", "xmlns:types")
+            .Replace("t:test", "types:test").Replace("name=\"Example\" processorArchitecture=\"amd64\"", "processorArchitecture=\"amd64\" name=\"Example\"");
+        Check(PlanComparison.FindChangedAnswerSections(ordered, reformatted).Count == 0,
+            "XML comparison ignores equivalent prefix and attribute order changes");
+        Check(PlanComparison.FindChangedAnswerSections(ordered, reformatted.Replace("urn:test", "urn:other"))
+            .SequenceEqual(new[] { "specialize" }), "different namespaces for QName values remain meaningful");
         Check(PlanComparison.FindChangedAnswerSections(xml,
             xml.Replace("PRIVATE_DRIVER_PATH", "DIFFERENT_DRIVER_PATH")
                 .Replace("PRIVATE_COMMAND", "DIFFERENT_COMMAND"))
@@ -110,6 +121,29 @@ static class ConfigurationReviewTests
             english.Contains("Target Windows driver paths") && english.Contains("Synchronous commands"),
             "phase review describes actual deployment operations and dependencies");
         Check(!english.Contains("PRIVATE_") && !review.Phases.Contains("PRIVATE_"), "phase summary hides paths and command text in both languages");
+
+        string privateAnswer = xml.Replace("<settings pass=\"auditSystem\" />", """
+            <!--PRIVATE_EDIT_METADATA-->
+            <settings pass="oobeSystem">
+              <component name="Microsoft-Windows-Shell-Setup">
+                <ComputerName>PRIVATE_MACHINE</ComputerName>
+                <ProductKey>PRIVATE_KEY</ProductKey>
+                <UserAccounts><LocalAccounts><LocalAccount><Name>PRIVATE_USER</Name><Password><Value>PRIVATE_PASSWORD</Value></Password></LocalAccount></LocalAccounts></UserAccounts>
+                <AutoLogon><Enabled>true</Enabled><Username>PRIVATE_USER</Username></AutoLogon>
+              </component>
+            </settings>
+            <settings pass="specialize"><component name="PRIVATE_NETWORK">
+              <IpAddress>PRIVATE_ADDRESS</IpAddress>
+            </component></settings>
+            """).Replace("<s:Extensions>", "<s:Extensions><s:File path='PRIVATE_PATH.ps1'>PRIVATE_SCRIPT</s:File>");
+        byte[] privateBytes = Encoding.UTF8.GetBytes(privateAnswer);
+        string share = InstallationReview.ShareableSummary(privateBytes, diskRisk: true, hasAppLocker: true);
+        string sharedEnglish = UiText.EnglishText(share);
+        Check(sharedEnglish.Contains("Disk operations require review") && sharedEnglish.Contains("Embedded scripts: 2") &&
+            sharedEnglish.Contains("Local accounts defined in the answer file: 1") &&
+            sharedEnglish.Contains("Automatic logon is requested"), "shareable review contains deployment facts and counts");
+        Check(!share.Contains("PRIVATE_") && !sharedEnglish.Contains("PRIVATE_") &&
+            Encoding.UTF8.GetString(privateBytes) == privateAnswer, "shareable text omits all input values and preserves export bytes");
         const string metadata = "<MetaData xmlns:wcm='http://schemas.microsoft.com/WMIConfig/2002/State' wcm:action='add'>";
         string ReviewImage(string entries) => UiText.EnglishText(InstallationReview.ForExport(
             Encoding.UTF8.GetBytes(xml.Replace("<MetaData />", entries))).Phases);
@@ -156,6 +190,8 @@ static class ConfigurationReviewTests
             "OOBE page requests are only reported in the documented phase");
 
         var ordinary = QuickPresets.Create(QuickPresets.LocalAccount);
+        ordinary.Users[0].Password = "FixturePassword!";
+        ordinary.Users[0].AllowEmptyPassword = false;
         ordinary.ImageSelection = UiText.Source("text.9cbbdbe44e5d");
         ordinary.ImageIndex = 4;
         var preview = new MainViewModel { Plan = ordinary };

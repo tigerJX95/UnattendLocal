@@ -85,6 +85,34 @@ public static class WifiSettings
         }
         catch (XmlException) { return false; }
     }
+    internal static bool HasUnusableImportedKey(XmlElement file)
+    {
+        string text = file.InnerText;
+        if (text.Length > MaxProfileLength || !IsWlanProfile(text)) return false;
+        var document = new XmlDocument { XmlResolver = null };
+        try
+        {
+            using var reader = XmlReader.Create(new StringReader(text.TrimStart().TrimStart('\uFEFF')), new XmlReaderSettings
+            { DtdProcessing = DtdProcessing.Prohibit, XmlResolver = null, MaxCharactersInDocument = MaxProfileLength });
+            document.Load(reader);
+        }
+        catch (XmlException) { return file.GetAttribute("path").EndsWith("\\Wifi.xml", StringComparison.OrdinalIgnoreCase); }
+        var ns = WlanNs(document);
+        var security = document.SelectSingleNode("/w:WLANProfile/w:MSM/w:security", ns);
+        if (security == null) return false;
+        string? material = security.SelectSingleNode("w:sharedKey/w:keyMaterial", ns)?.InnerText;
+        if (material != null && ImportedCredentialReview.IsRedacted(material)) return true;
+        string? authentication = security.SelectSingleNode("w:authEncryption/w:authentication", ns)?.InnerText;
+        if (authentication is not ("WPAPSK" or "WPA2PSK" or "WPA3SAE")) return false;
+        if (string.IsNullOrWhiteSpace(material)) return true;
+        if (security.SelectSingleNode("w:sharedKey/w:protected", ns)?.InnerText is "true" or "1") return false;
+        return security.SelectSingleNode("w:sharedKey/w:keyType", ns)?.InnerText switch
+        {
+            "passPhrase" => material.Length is < 8 or > 63 || material.Any(c => c < 32 || c > 126),
+            "networkKey" => material.Length != 64 || !material.All(Uri.IsHexDigit),
+            _ => false
+        };
+    }
     private static XmlNamespaceManager WlanNs(XmlDocument doc) { var ns = new XmlNamespaceManager(doc.NameTable); ns.AddNamespace("w", WlanNamespace); return ns; }
     private static string Normal(string value) => global::UnattendLocal.Localization.UiText.Join('\n', value.Replace("\r\n", "\n").Split('\n').Select(l => l.Trim()).Where(l => l.Length > 0), true);
     private static bool Related(string line) => line.Contains("WlanSvc", StringComparison.OrdinalIgnoreCase) || Regex.IsMatch(line, @"netsh\.exe\s+wlan\s+(?:add\s+profile|connect)\b", RegexOptions.IgnoreCase, TimeSpan.FromSeconds(1));

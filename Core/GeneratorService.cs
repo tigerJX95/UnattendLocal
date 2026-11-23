@@ -5,7 +5,6 @@ using System.Text.RegularExpressions;
 using Schneegans.Unattend;
 namespace UnattendLocal.Core;
 public class GeneratorService {
- internal const string DomainCredentialPlaceholder="[域加入凭据已遮蔽]";
  private readonly UnattendGenerator generator=new();
  public record Choice(string Id,string Label);
  public List<Choice> Languages=>generator.ImageLanguages.Values.Select(x=>new Choice(x.Id,ChoiceLocalization.Get("ImageLanguage",x.Id,x.DisplayName))).ToList();
@@ -128,7 +127,12 @@ public class GeneratorService {
   PeLogSettings.Apply(doc,p);
   NativePreferences.Apply(doc,p);
   AdditionalXmlSettings.Apply(doc,p);
-  if(includeImport&&p.ImportedXml is {} imported){FirstLogonSettings.ValidateGenerated(p,doc);doc=AppRemovalSettings.MergeImported(p,doc);WorkgroupSettings.FinishImported(doc,p);NativePreferences.FinishImported(doc,p);}
+  if(includeImport&&p.ImportedXml!=null){
+   FirstLogonSettings.ValidateGenerated(p,doc);doc=AppRemovalSettings.MergeImported(p,doc);WorkgroupSettings.FinishImported(doc,p);NativePreferences.FinishImported(doc,p);
+   var finalNamespaces=new XmlNamespaceManager(doc.NameTable);finalNamespaces.AddNamespace("u",XmlMerge.Namespace);
+   var credentialErrors=ImportedCredentialReview.FindErrors(doc,finalNamespaces);
+   if(credentialErrors.Length>0)throw new ArgumentException(global::UnattendLocal.Localization.UiText.Join("\n",credentialErrors,false));
+  }
   using var schema=typeof(UnattendGenerator).Assembly.GetManifestResourceStream("Schneegans.Unattend.resource.autounattend.xsd")!;
   doc.Schemas.Add("urn:schemas-microsoft-com:unattend",XmlReader.Create(schema));
   doc.Validate((_,e)=>throw new ArgumentException(global::UnattendLocal.Localization.UiText.Concat(new object?[] { global::UnattendLocal.Localization.UiText.Source("text.f0a035a733c2"), global::UnattendLocal.Localization.UiText.DescribeError(e.Exception) },new bool[]{false,false}), e.Exception));
@@ -166,9 +170,10 @@ public class GeneratorService {
  };
  private static ProductKey ValidateProductKey(string? value,string label) {
   var key=value?.Trim().ToUpperInvariant()??"";
-  if(!Regex.IsMatch(key,@"\A[A-Z0-9]{5}(?:-[A-Z0-9]{5}){4}\z"))throw new ArgumentException(global::UnattendLocal.Localization.UiText.Format("message.2351af24006b", new string[] { global::UnattendLocal.Localization.UiText.Arg((label), 0, null) }));
+  if(!HasProductKeyFormat(key))throw new ArgumentException(global::UnattendLocal.Localization.UiText.Format("message.2351af24006b", new string[] { global::UnattendLocal.Localization.UiText.Arg((label), 0, null) }));
   return new ProductKey(key);
  }
+ internal static bool HasProductKeyFormat(string key)=>Regex.IsMatch(key,@"\A[A-Za-z0-9]{5}(?:-[A-Za-z0-9]{5}){4}\z");
  private static void SetOobe(XmlDocument doc,XmlNamespaceManager ns,XmlElement parent,string name,bool value) {var node=parent.SelectSingleNode("u:"+name,ns) as XmlElement;if(node==null){node=doc.CreateElement(name,"urn:schemas-microsoft-com:unattend");parent.AppendChild(node);}node.InnerText=value?"true":"false";}
  private static IAccountSettings CreateAccounts(InstallPlan p) {
   FirstLogonSettings.Validate(p);

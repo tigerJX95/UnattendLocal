@@ -12,15 +12,16 @@ public static class AnswerFileExport
         : global::UnattendLocal.Localization.UiText.Source("text.db75fd2bcffb");
     public static readonly string IsoDescription = global::UnattendLocal.Localization.UiText.Source("text.8d102d415bbe");
 
-    public static void WriteXml(string destination, byte[] validatedXml) => AtomicFile.WriteAllBytes(destination, validatedXml);
+    public static void WriteXml(string destination, byte[] validatedXml, bool overwrite = true) =>
+        AtomicFile.WriteAllBytes(destination, validatedXml, overwrite);
 
-    public static void WriteIso(string destination, byte[] validatedXml, bool manual)
+    public static void WriteIso(string destination, byte[] validatedXml, bool manual, bool overwrite = true)
     {
         ArgumentNullException.ThrowIfNull(validatedXml);
         // Joliet retains the full filename required by Windows Setup (beyond 8.3).
         var builder = new CDBuilder { UseJoliet = true, VolumeIdentifier = "UNATTENDLOCAL" };
         builder.AddFile(FileName(manual), validatedXml);
         using var image = builder.Build();
-        AtomicFile.Write(destination, stream => image.CopyTo(stream));
+        AtomicFile.Write(destination, stream => image.CopyTo(stream), overwrite);
     }
 }

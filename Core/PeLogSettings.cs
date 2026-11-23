@@ -51,10 +51,10 @@ public static class PeLogSettings
     public static Source ReadIntoPlan(XmlDocument d, InstallPlan p, List<string> notes) { var s = Inspect(d); Assign(p, s); if (!s.Known) notes.Add(ReadOnlyNotice); return s; }
     public static void UpdateImportState(ImportedXml data, Source s) { data.PeLogReadOnly = !s.Known; data.PeLogImportVersion = 1; }
     public static void ValidateImported(InstallPlan p, XmlDocument source) { if (p.UsePeLogPath && !Inspect(source).Known) throw new ArgumentException(ReadOnlyNotice); }
-    public static void NormalizeLoaded(InstallPlan p, JsonElement root)
+    public static void NormalizeLoaded(InstallPlan p, JsonElement root, XmlDocument? parsedSource = null)
     {
         if (p.ImportedXml is not { OriginalOmitted: false, SourceXml.Length: > 0 } data) return;
-        var state = Inspect(XmlMerge.Read(data.SourceXml));
+        var state = Inspect(parsedSource ?? XmlMerge.Read(data.SourceXml));
         if (data.PeLogImportVersion < 1 && state is { Present: true, Known: true })
         {
             bool missing = !root.TryGetProperty(nameof(p.UsePeLogPath), out _) && !root.TryGetProperty(nameof(p.PeLogPath), out _);

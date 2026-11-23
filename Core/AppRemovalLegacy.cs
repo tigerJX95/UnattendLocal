@@ -121,17 +121,20 @@ public static partial class AppRemovalSettings
         var source=StaticIPv4Settings.PrepareMergeSource(XmlMerge.Read(imported.SourceXml),baseline,updated);
         ComputerNamingSettings.UpgradeLegacyPrompt(source);
         ComputerNamingSettings.UpgradeLegacyPrompt(baseline);
+        bool retainedShell = RegisteredInformationSettings.RetainSpecializeContainer(baseline, updated, p.Architecture);
         var normalized=NormalizeLegacy(source, preserveOriginal: true);
-        if(normalized==null || InspectCurrent(XmlImportPaths.Inspection(normalized)).Selected.Order().SequenceEqual(p.RemovedApps.Order()))
-            return XmlMerge.Apply(source,baseline,updated);
-        return XmlMerge.Apply(normalized,baseline,updated,MergeRemovalBlocks);
+        var merged = normalized==null || InspectCurrent(XmlImportPaths.Inspection(normalized)).Selected.Order().SequenceEqual(p.RemovedApps.Order())
+            ? XmlMerge.Apply(source,baseline,updated)
+            : XmlMerge.Apply(normalized,baseline,updated,MergeRemovalBlocks);
+        if(retainedShell) RegisteredInformationSettings.RemoveEmptySpecializeContainer(merged, p.Architecture);
+        return merged;
     }
     private static string? MergeRemovalBlocks(string path,string source,string before,string after)
     {
         var stage=Stages.FirstOrDefault(s=>path.Equals(Root+s,StringComparison.OrdinalIgnoreCase));
         if(stage==null || Skeleton(source)!=wrappers[stage] || Skeleton(before)!=wrappers[stage] || Skeleton(after)!=wrappers[stage])return null;
         var owned=Templates.Value.Values.SelectMany(t=>t.Custom[stage]).ToHashSet();
-        if(stage=="Specialize.ps1")foreach(var pair in LegacyNames)owned.Add("& '"+Root+pair.Current+"';");
+        if(stage=="Specialize.ps1")foreach(var name in RemovalHelpers)owned.Add("& '"+Root+name+"';");
         var oldBlocks=RawBlocks(before);var nextBlocks=RawBlocks(after);
         string Key(Match m)=>Normal(m.Groups["body"].Value);
         var oldApps=oldBlocks.Where(m=>owned.Contains(Key(m))).ToArray();

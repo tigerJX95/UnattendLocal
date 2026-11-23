@@ -62,9 +62,9 @@ public static class CompactOsSettings {
   Validate(p);var state=Inspect(source);
   if(state.ScriptControlled&&!CanEdit(p)&&p.CompactOsMode!=state.Mode)throw new ArgumentException(global::UnattendLocal.Localization.UiText.Source("text.3d06300483e9"));
  }
- public static void NormalizeLoaded(InstallPlan p,bool fieldWasPresent){
+ public static void NormalizeLoaded(InstallPlan p,bool fieldWasPresent, XmlDocument? parsedSource = null){
   if(p.ImportedXml is not {} data||data.SourceXml.Length==0||data.OriginalOmitted)return;
-  var state=Inspect(XmlMerge.Read(data.SourceXml));UpdateImportState(data,state);
+  var state=Inspect(parsedSource ?? XmlMerge.Read(data.SourceXml));UpdateImportState(data,state);
   if(fieldWasPresent)return;
   // A pre40 JSON may contain an XML that pre39 retained without understanding CompactOS.
   p.CompactOsMode=state.Mode;

@@ -15,7 +15,7 @@ public static class PlanStore {
  public static InstallPlan Deserialize(string json) {
   using var input=JsonDocument.Parse(json);
   PlanFileImport.ValidateJsonPlan(input.RootElement);
-  var p=JsonSerializer.Deserialize<InstallPlan>(json,Options)??throw new ArgumentException(global::UnattendLocal.Localization.UiText.Source("text.1fe246685916"));
+  var p=input.RootElement.Deserialize<InstallPlan>(Options)??throw new ArgumentException(global::UnattendLocal.Localization.UiText.Source("text.1fe246685916"));
   if(p.SchemaVersion!=1)throw new ArgumentException(global::UnattendLocal.Localization.UiText.Source("text.b8956bfee619"));
   if(p.XmlComponents==null||p.XmlComponents.Count>AdditionalXmlSettings.MaxCount||p.XmlComponents.Any(row=>row==null))throw new ArgumentException(global::UnattendLocal.Localization.UiText.Source("text.c21c4601cc0d"));
   if(p.Users==null||p.Users.Any(u=>u==null))throw new ArgumentException(global::UnattendLocal.Localization.UiText.Source("text.29ec97c86b4a"));
@@ -29,7 +29,11 @@ public static class PlanStore {
   // Reuse the already validated parse instead of building another JSON tree.
   {
    var document=input;
-   CompactOsSettings.NormalizeLoaded(p,document.RootElement.TryGetProperty(nameof(InstallPlan.CompactOsMode),out _));
+   // These migrations inspect the same original document. Baselines remain separate
+   // because a migration can update the editable baseline for the next step.
+   var parsedSource=p.ImportedXml is {OriginalOmitted:false,SourceXml.Length:>0} original
+    ? XmlMerge.Read(original.SourceXml) : null;
+   CompactOsSettings.NormalizeLoaded(p,document.RootElement.TryGetProperty(nameof(InstallPlan.CompactOsMode),out _), parsedSource);
    CommonSystemSettings.NormalizeLoaded(p,document.RootElement);
    ImageBackgroundSettings.NormalizeLoaded(p,document.RootElement);
    AppRemovalSettings.NormalizeLoaded(p,document.RootElement);
@@ -48,15 +52,15 @@ public static class PlanStore {
    LanguagePreferences.NormalizeLoaded(p,document.RootElement);
    XmlImportParameters.RefreshLoaded(p);
    FirstLogonSettings.RefreshLoaded(p);
-   StaticIPv4Settings.NormalizeLoaded(p,document.RootElement);
-   AutoPartitionSettings.NormalizeLoaded(p,document.RootElement);
-   SetupDriverSettings.NormalizeLoaded(p,document.RootElement);
-   SetupDynamicUpdateSettings.NormalizeLoaded(p,document.RootElement);
-   RegisteredInformationSettings.NormalizeLoaded(p,document.RootElement);
-   WorkgroupSettings.NormalizeLoaded(p,document.RootElement);
-   PeLogSettings.NormalizeLoaded(p,document.RootElement);
-   NativePreferences.NormalizeLoaded(p,document.RootElement);
-   LegacyUpgradeSettings.NormalizeLoaded(p,document.RootElement);
+   StaticIPv4Settings.NormalizeLoaded(p,document.RootElement, parsedSource);
+   AutoPartitionSettings.NormalizeLoaded(p,document.RootElement, parsedSource);
+   SetupDriverSettings.NormalizeLoaded(p,document.RootElement, parsedSource);
+   SetupDynamicUpdateSettings.NormalizeLoaded(p,document.RootElement, parsedSource);
+   RegisteredInformationSettings.NormalizeLoaded(p,document.RootElement, parsedSource);
+   WorkgroupSettings.NormalizeLoaded(p,document.RootElement, parsedSource);
+   PeLogSettings.NormalizeLoaded(p,document.RootElement, parsedSource);
+   NativePreferences.NormalizeLoaded(p,document.RootElement, parsedSource);
+   LegacyUpgradeSettings.NormalizeLoaded(p,document.RootElement, parsedSource);
    XmlPlanImport.RefreshRemainder(p);
   }
   p.ClearDiskConsent();

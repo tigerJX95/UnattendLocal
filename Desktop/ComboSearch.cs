@@ -97,7 +97,7 @@ public static class ComboSearch {
   }
   private void Refresh(string query){
    options=combo.Items.Cast<object>().Select(Describe).ToList();
-   var matches=options.Where(o=>SearchTextMatcher.Matches(o.SearchText,query)).ToArray();
+   var matches=options.Where(o=>SearchTextMatcher.MatchesChoice(o.SearchText,o.Label,query)).ToArray();
    combo.SetValue(ResultsProperty,matches);combo.SetValue(NoMatchesProperty,matches.Length==0);
    if(list is not null){var preferred=editing?matches.FirstOrDefault(o=>o.Enabled):matches.FirstOrDefault(o=>ReferenceEquals(o.Item,combo.SelectedItem))??matches.FirstOrDefault(o=>o.Enabled);list.SelectedItem=preferred;if(preferred is not null)list.ScrollIntoView(preferred);}
   }

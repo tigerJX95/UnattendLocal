@@ -2,6 +2,19 @@
 
 [Back to the README](README_EN.md) · [简体中文](CHANGELOG.md)
 
+## V1.55 Updated Windows time zones and deployment review
+
+- Add Windows Fax and Scan and XPS Viewer to application removal. Both are unchecked by default and are removed only if the corresponding optional feature is installed on the target Windows system.
+- Remove redundant hover text from labeled buttons in confirmation, import, and error dialogs. Icon tooltips display each action name once.
+- New configurations let Windows choose the time zone by default. Choosing to specify a time zone requires an explicit selection.
+- Add Windows time zones for British Columbia, Alberta, Manitoba, and two legacy entries. Update labels for Paraguay, Greenland, and other zones. Existing configurations retain their time zone IDs.
+- Search time zones using offsets such as `UTC-7` and `UTC+5:30`, Chinese or English names, or Windows time zone IDs.
+- Show an update compatibility notice when one of the new Canadian time zones is selected.
+- Optionally copy a redacted summary in the XML or ISO deployment review dialog. It lists setup passes, disk review status, local accounts, and script counts, with credentials, addresses, paths, and script text omitted.
+- Restore recognized time zones, regular Windows Setup image selection, and OOBE settings from the answer XML, with a notice when editing metadata differs.
+- Keep invalid credentials in imported answer XML, report the affected fields, and block export. An imported empty account password requires entry or explicit approval.
+- Protect files that appear while saving under a new name. Ignore attribute order and equivalent namespace prefixes in answer XML comparisons. Reuse parsed source XML when loading JSON plans.
+
 ## V1.54 Unified configuration controls and answer file comparison
 
 - New configuration and Open configuration sit in the upper-right toolbar. Open configuration shows Windows answer XML and JSON plans under one file filter.

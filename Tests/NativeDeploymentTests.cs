@@ -117,7 +117,9 @@ static class NativeDeploymentTests
         var identification = Add(comp, "Identification"); Add(identification, "JoinDomain", "example.invalid"); Add(Add(identification, "Credentials"), "Password", "SyntheticDomainCredential17"); Add(identification, "MachinePassword", "SyntheticMachineCredential17"); Add(Add(identification, "Provisioning"), "AccountData", "SyntheticProvisioning17");
         var domainPlan = XmlPlanImport.Import(domainDoc.OuterXml, g); Check(domainPlan.ImportedXml!.WorkgroupReadOnly && Same(domainDoc.OuterXml, Xml(domainPlan)), "domain join is preserved without presenting an editable workgroup");
         string preview = GeneratorService.Preview(g.Generate(domainPlan)); Check(!preview.Contains("SyntheticDomainCredential17") && !preview.Contains("SyntheticMachineCredential17") && !preview.Contains("SyntheticProvisioning17") && preview.Contains("example.invalid"), "domain password, machine password and provisioning payload are redacted only in preview");
-        Reject(() => XmlPlanImport.Import(preview.Split('\n', 2)[1], g), "redacted domain preview cannot be imported as installable XML");
+        var redactedDomain = XmlPlanImport.Import(preview.Split('\n', 2)[1], g);
+        Check(redactedDomain.ImportedXml!.SourceXml.Contains("[域加入凭据已遮蔽]") && redactedDomain.ImportedXml.Blockers.Length > 0, "redacted domain credentials are retained for review");
+        Reject(() => g.Generate(redactedDomain), "redacted domain credentials cannot be exported");
         Check(!PlanStore.Serialize(domainPlan, false).Contains("SyntheticDomainCredential17") && Xml(domainPlan).Contains("SyntheticDomainCredential17"), "omit-secrets plan excludes original credentials while full export preserves them");
         return count;
     }
