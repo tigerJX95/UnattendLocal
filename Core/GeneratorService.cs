@@ -132,6 +132,7 @@ public class GeneratorService {
    var finalNamespaces=new XmlNamespaceManager(doc.NameTable);finalNamespaces.AddNamespace("u",XmlMerge.Namespace);
    var credentialErrors=ImportedCredentialReview.FindErrors(doc,finalNamespaces);
    if(credentialErrors.Length>0)throw new ArgumentException(global::UnattendLocal.Localization.UiText.Join("\n",credentialErrors,false));
+   RedactedAnswerFile.FinishDeployment(doc);
   }
   using var schema=typeof(UnattendGenerator).Assembly.GetManifestResourceStream("Schneegans.Unattend.resource.autounattend.xsd")!;
   doc.Schemas.Add("urn:schemas-microsoft-com:unattend",XmlReader.Create(schema));

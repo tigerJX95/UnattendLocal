@@ -14,7 +14,7 @@ public static class XmlPlanImport {
  private static string? Text(XmlNode node,string path,XmlNamespaceManager ns)=>node.SelectSingleNode(path,ns)?.InnerText;
  private static bool IsTrue(string? text)=>text is "true" or "1";
  public static InstallPlan Import(string xml,GeneratorService service){
-  var original=XmlMerge.Read(xml);var doc=XmlImportPaths.Inspection(original);var ns=new XmlNamespaceManager(doc.NameTable);ns.AddNamespace("u",XmlMerge.Namespace);
+  var original=RedactedAnswerFile.ReadForImport(xml);var doc=XmlImportPaths.Inspection(original);var ns=new XmlNamespaceManager(doc.NameTable);ns.AddNamespace("u",XmlMerge.Namespace);
   var arches=doc.SelectNodes("//u:component/@processorArchitecture",ns)!.Cast<XmlAttribute>().Select(a=>a.Value).Distinct().ToArray();
   if(arches.Length>1)throw new ArgumentException(global::UnattendLocal.Localization.UiText.Source("text.3c620e817ae8"));
   if(arches.Length==1&&arches[0] is not ("amd64" or "arm64" or "x86"))throw new ArgumentException(global::UnattendLocal.Localization.UiText.Source("text.d8a4acade665"));
@@ -76,6 +76,11 @@ public static class XmlPlanImport {
   p.Architecture=arches.FirstOrDefault()??"amd64";
   p.ConfigurationMode=global::UnattendLocal.Localization.UiText.Source("text.cb1e0e22c7de");p.CustomStartingPoint=global::UnattendLocal.Localization.UiText.Source("text.f0866be5e5a3");p.RecommendationId="";p.RecommendationVersion=0;p.RecommendationWindows="";
   p.ClearDiskConsent();
+  if(RedactedAnswerFile.IsDiagnostic(original)){
+   notes.Add(UnattendLocal.Localization.UiText.Source("review.diagnostic.imported"));
+   if(RedactedAnswerFile.HasPlaceholders(original))
+    blockers.Add(UnattendLocal.Localization.UiText.Source("review.diagnostic.placeholders"));
+  }
   var scripts=doc.SelectNodes("//*[local-name()='File']")!.Cast<XmlElement>();
   if(HasRemovedScript(doc)||p.Scripts.Any(s=>s.IsRemovedType))
    blockers.Add(global::UnattendLocal.Localization.UiText.Source("text.2ceb5ddfec91"));

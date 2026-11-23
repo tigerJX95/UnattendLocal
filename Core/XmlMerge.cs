@@ -7,7 +7,8 @@ namespace UnattendLocal.Core;
 public static class XmlMerge {
  public const string Namespace="urn:schemas-microsoft-com:unattend";
  public const int MaxLength=16*1024*1024;
- public static XmlDocument Read(string text){
+ public static XmlDocument Read(string text)=>RequireAnswerFile(Parse(text));
+ internal static XmlDocument Parse(string text){
   if(string.IsNullOrWhiteSpace(text)||text.Length>MaxLength)throw new ArgumentException(global::UnattendLocal.Localization.UiText.Source("text.f7822795de82"));
   var settings=new XmlReaderSettings{DtdProcessing=DtdProcessing.Prohibit,XmlResolver=null,MaxCharactersInDocument=MaxLength,MaxCharactersFromEntities=0};
   // Enforce structural limits while streaming, before allocating the DOM.
@@ -21,7 +22,11 @@ public static class XmlMerge {
   }
   var doc=new XmlDocument{XmlResolver=null};
   using(var reader=XmlReader.Create(new StringReader(text),settings))doc.Load(reader);
-  if(doc.DocumentElement is not {} root||root.LocalName!="unattend"||root.NamespaceURI!=Namespace)throw new ArgumentException(global::UnattendLocal.Localization.UiText.Source("text.b5484829fe54"));
+  return doc;
+ }
+ internal static bool IsAnswerFile(XmlElement? root)=>root is {LocalName:"unattend",NamespaceURI:Namespace};
+ internal static XmlDocument RequireAnswerFile(XmlDocument doc){
+  if(!IsAnswerFile(doc.DocumentElement))throw new ArgumentException(global::UnattendLocal.Localization.UiText.Source("text.b5484829fe54"));
   return doc;
  }
  public static string Identity(XmlElement e){

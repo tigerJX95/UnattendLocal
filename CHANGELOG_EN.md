@@ -2,6 +2,12 @@
 
 [Back to the README](README_EN.md) · [简体中文](CHANGELOG.md)
 
+## V1.55.1 Redacted XML export and detailed deployment review
+
+- Export redacted XML from the XML or ISO deployment review. The diagnostic file retains setup passes, disk and partition targets, image indexes, and command order. It uses sample account and computer names and removes passwords, script bodies, and the configuration snapshot.
+- Reimport redacted XML through Open configuration. Review the sample values, resolve placeholders, and set account passwords or explicitly allow empty passwords. Use the regular export for installation media.
+- Review disk wipe and partition creation requests, synchronous and asynchronous command counts, local account groups, and the configured automatic sign-in count by setup pass.
+
 ## V1.55 Updated Windows time zones and deployment review
 
 - Add Windows Fax and Scan and XPS Viewer to application removal. Both are unchecked by default and are removed only if the corresponding optional feature is installed on the target Windows system.

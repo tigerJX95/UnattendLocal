@@ -38122,12 +38122,14 @@
     "ProtectedTokens": []
   },
   "review.phases.commands": {
-    "Source": "同步命令：核对脚本和外部依赖",
-    "SourceHash": "f69bf735b266fd8633317c783b2cdcca1b95c559a09261325e0b9ec09c995bd4",
+    "Source": "同步命令 {0} 条",
+    "SourceHash": "6443643d3736d755a1c36c3971fee31b72fbba630ebd2bd5b2682e56e6060f33",
     "Contexts": [
       "Core/DeploymentPhaseReview.cs"
     ],
-    "RawArgs": [],
+    "RawArgs": [
+      true
+    ],
     "ProtectedTokens": []
   },
   "review.phases.appLocker": {
@@ -38140,21 +38142,28 @@
     "ProtectedTokens": []
   },
   "review.phases.localAccounts": {
-    "Source": "创建本地账户",
-    "SourceHash": "8209cb2fa656659aedff376e18df711ff32cd2a66ea96df037133ae693fd9af2",
+    "Source": "本地账户 {0} 个（管理员组 {1}，普通用户组 {2}，其他或未指定 {3}）",
+    "SourceHash": "efe6bd16692f261cd3853e627214eaf4b583e85ae31b7e6065672c98342c6bbf",
     "Contexts": [
       "Core/DeploymentPhaseReview.cs"
     ],
-    "RawArgs": [],
+    "RawArgs": [
+      true,
+      true,
+      true,
+      true
+    ],
     "ProtectedTokens": []
   },
   "review.phases.firstLogon": {
-    "Source": "首次登录命令：核对脚本和外部依赖",
-    "SourceHash": "11ae5244dbe5df033e5404c77de2a1091cc6ea928aec92fff8488c5aa21aff2d",
+    "Source": "首次登录命令 {0} 条",
+    "SourceHash": "1b69fd905153701d0b3bf7b0c1bfc5d67abd958e57eb5f32af0cc84a11dd15a4",
     "Contexts": [
       "Core/DeploymentPhaseReview.cs"
     ],
-    "RawArgs": [],
+    "RawArgs": [
+      true
+    ],
     "ProtectedTokens": []
   },
   "review.phases.confirm": {
@@ -38970,99 +38979,14 @@
     "SourceHash": "e69f9b6b50655fcf940061d48da459a3350f3362b141cc8178411547cdd61d94",
     "ProtectedTokens": []
   },
-  "review.share.title": {
-    "Source": "UnattendLocal 脱敏复核摘要",
-    "Contexts": [
-      "Core/InstallationReview.cs"
-    ],
-    "RawArgs": [],
-    "SourceHash": "4b087ac88110b0a8b982c95c25c3d5ad0a696279f30317e7a09a3a2c67a20f14",
-    "ProtectedTokens": []
-  },
-  "review.share.diskRisk": {
-    "Source": "磁盘操作需核对",
-    "Contexts": [
-      "Core/InstallationReview.cs"
-    ],
-    "RawArgs": [],
-    "SourceHash": "5c487cd55075b1c4556716aff21ac051727abb21cdefb616039ce6be1689b8eb",
-    "ProtectedTokens": []
-  },
-  "review.share.diskNormal": {
-    "Source": "未标记需核对的磁盘操作",
-    "Contexts": [
-      "Core/InstallationReview.cs"
-    ],
-    "RawArgs": [],
-    "SourceHash": "416babcc8afe652c987df3eed0e9e3796f5b1b0d44dfe9d53092c8a56d70b824",
-    "ProtectedTokens": []
-  },
-  "review.share.localAccounts": {
-    "Source": "应答文件中预建的本地账户：{0} 个",
-    "Contexts": [
-      "Core/InstallationReview.cs"
-    ],
-    "RawArgs": [
-      true
-    ],
-    "SourceHash": "3ee4053b4edfe0211588f589c646445d5f024e5b624cb634cacf9cb406a65826",
-    "ProtectedTokens": []
-  },
   "review.share.autoLogon": {
     "Source": "应答文件指定自动登录",
     "Contexts": [
-      "Core/InstallationReview.cs"
+      "Core/InstallationReview.cs",
+      "Core/DeploymentPhaseReview.cs"
     ],
     "RawArgs": [],
     "SourceHash": "ba5bfda7ce484b29420e0e7d5c215856475ee9457ed4bbd627fd541fec2769f6",
-    "ProtectedTokens": []
-  },
-  "review.share.noAutoLogon": {
-    "Source": "应答文件未指定自动登录",
-    "Contexts": [
-      "Core/InstallationReview.cs"
-    ],
-    "RawArgs": [],
-    "SourceHash": "9be3b8289490e6f14fdf4111c607c4581d739c8df9463e3235840123fa2acbe2",
-    "ProtectedTokens": []
-  },
-  "review.share.scripts": {
-    "Source": "内嵌脚本：{0} 个 · 安装命令条目：{1} 个",
-    "Contexts": [
-      "Core/InstallationReview.cs"
-    ],
-    "RawArgs": [
-      true,
-      true
-    ],
-    "SourceHash": "20e3babfeddb77c46c6378634ddc4b9f7c702d88971a3b5ec06fa2082b098b53",
-    "ProtectedTokens": []
-  },
-  "review.share.copy": {
-    "Source": "复制脱敏复核摘要",
-    "Contexts": [
-      "Desktop/LocalizedDialogs.cs"
-    ],
-    "RawArgs": [],
-    "SourceHash": "5b71171551e46666f95f037020eaf30fb43b8016355e43cfe207aa6800359f1a",
-    "ProtectedTokens": []
-  },
-  "review.share.copied": {
-    "Source": "已复制脱敏复核摘要。",
-    "Contexts": [
-      "Desktop/LocalizedDialogs.cs"
-    ],
-    "RawArgs": [],
-    "SourceHash": "5282af6382cf7cb249ea46056758e4b567994ed51fee5d352e4c381ec4029b8e",
-    "ProtectedTokens": []
-  },
-  "review.share.copyFailed": {
-    "Source": "剪贴板暂不可用，请重试。",
-    "Contexts": [
-      "Desktop/LocalizedDialogs.cs"
-    ],
-    "RawArgs": [],
-    "SourceHash": "dd289d6462e68fcc1155a72999e41e63ebe1f43a4a986dca9cb27fcf4e4d7297",
     "ProtectedTokens": []
   },
   "dialog.saveCollision": {
@@ -39211,6 +39135,125 @@
     "SourceHash": "77d51fc00ced2f9b364d45ffec747596b473c748b513327dd77a0cc5fb7e708e",
     "ProtectedTokens": [
       "XPS.Viewer~~~~0.0.1.0"
+    ]
+  },
+  "review.phases.wipeRequested": {
+    "Source": "应答文件请求清空磁盘",
+    "SourceHash": "1070fbb3eb55be356f4a2e089323acae5c2990739d948bc26c32e6e51e5b2cad",
+    "Contexts": [
+      "Core/DeploymentPhaseReview.cs"
+    ],
+    "RawArgs": [],
+    "ProtectedTokens": []
+  },
+  "review.phases.createPartitions": {
+    "Source": "创建分区条目 {0} 个",
+    "SourceHash": "8f80564d11fe536c0df801c031c3ff3799033f5c4a28f05aea1b322d1411ba3e",
+    "Contexts": [
+      "Core/DeploymentPhaseReview.cs"
+    ],
+    "RawArgs": [
+      true
+    ],
+    "ProtectedTokens": []
+  },
+  "review.phases.asyncCommands": {
+    "Source": "异步命令 {0} 条",
+    "SourceHash": "46bb88cb9350e3e8bfd7e7147714751524ca1a32f5846a2241e5b9dcfc09f8c1",
+    "Contexts": [
+      "Core/DeploymentPhaseReview.cs"
+    ],
+    "RawArgs": [
+      true
+    ],
+    "ProtectedTokens": []
+  },
+  "review.phases.computerName": {
+    "Source": "已指定计算机名",
+    "SourceHash": "abf24019d3b84e1db1bd91f90b986e8da627a8eca908ac55dd3f9343dd8b6753",
+    "Contexts": [
+      "Core/DeploymentPhaseReview.cs"
+    ],
+    "RawArgs": [],
+    "ProtectedTokens": []
+  },
+  "review.phases.timeZone": {
+    "Source": "已指定时区",
+    "SourceHash": "7c17a70173fadb128dac5762fbcbb2ebebc1fb643f77ead421d3bef39ce27b32",
+    "Contexts": [
+      "Core/DeploymentPhaseReview.cs"
+    ],
+    "RawArgs": [],
+    "ProtectedTokens": []
+  },
+  "review.phases.autoLogonCount": {
+    "Source": "自动登录次数设为 {0}",
+    "SourceHash": "ca63fd614b667547e9d960891516273d0e7d51b16f8d578258bfbb808cb36dc9",
+    "Contexts": [
+      "Core/DeploymentPhaseReview.cs"
+    ],
+    "RawArgs": [
+      true
+    ],
+    "ProtectedTokens": []
+  },
+  "review.phases.logonCommands": {
+    "Source": "异步登录命令 {0} 条",
+    "SourceHash": "683e7121635656bfd17644d4d83342434b41b8a383cd7dd7955e06499c1e65ae",
+    "Contexts": [
+      "Core/DeploymentPhaseReview.cs"
+    ],
+    "RawArgs": [
+      true
+    ],
+    "ProtectedTokens": []
+  },
+  "review.diagnostic.export": {
+    "Source": "导出脱敏 XML",
+    "SourceHash": "3149a2d5ee5815d01244e26bf76b81432edb038a5771bc2de9568fd75f52fcce",
+    "Contexts": [
+      "Desktop/LocalizedDialogs.cs",
+      "Desktop/MainWindow.xaml.cs"
+    ],
+    "RawArgs": [],
+    "ProtectedTokens": []
+  },
+  "review.diagnostic.saved": {
+    "Source": "已保存脱敏 XML。可导入程序或附到问题报告。安装介质请使用正式导出的 XML 或 ISO。",
+    "SourceHash": "513efddc48eaa2ca29776e0d13f4d5d228a79138d1f40aceb231781e3cf7e576",
+    "Contexts": [
+      "Desktop/LocalizedDialogs.cs"
+    ],
+    "RawArgs": [],
+    "ProtectedTokens": []
+  },
+  "review.diagnostic.failed": {
+    "Source": "无法保存脱敏 XML。请检查保存位置后重试。",
+    "SourceHash": "0bbb2cfbab31cd32b4d101bf59780ec1512b779f9e97a912d7fc13991b7f8b5a",
+    "Contexts": [
+      "Desktop/LocalizedDialogs.cs"
+    ],
+    "RawArgs": [],
+    "ProtectedTokens": []
+  },
+  "review.diagnostic.imported": {
+    "Source": "已导入脱敏排查 XML。请核对示例账号、待补填的密码和其他脱敏字段。",
+    "SourceHash": "7b210660543d6a0756c9f81f6bfd4aa453f40c7df851998bf9176783ac59195c",
+    "Contexts": [
+      "Core/XmlPlanImport.cs"
+    ],
+    "RawArgs": [],
+    "ProtectedTokens": []
+  },
+  "review.diagnostic.placeholders": {
+    "Source": "此排查 XML 包含 [REDACTED] 占位项。请在 XML 中补齐相关值或移除对应条目后重新导入。",
+    "SourceHash": "47ce15d8678c77d3daf76ad3fd10ecd619ec6271eea5c693df2343a130c44467",
+    "Contexts": [
+      "Core/XmlPlanImport.cs"
+    ],
+    "RawArgs": [],
+    "ProtectedTokens": [
+      "[REDACTED]"
     ]
   }
 }

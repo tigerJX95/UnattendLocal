@@ -127,23 +127,38 @@ static class ConfigurationReviewTests
             <settings pass="oobeSystem">
               <component name="Microsoft-Windows-Shell-Setup">
                 <ComputerName>PRIVATE_MACHINE</ComputerName>
+                <TimeZone>PRIVATE_TIME_ZONE</TimeZone>
                 <ProductKey>PRIVATE_KEY</ProductKey>
-                <UserAccounts><LocalAccounts><LocalAccount><Name>PRIVATE_USER</Name><Password><Value>PRIVATE_PASSWORD</Value></Password></LocalAccount></LocalAccounts></UserAccounts>
-                <AutoLogon><Enabled>true</Enabled><Username>PRIVATE_USER</Username></AutoLogon>
+                <UserAccounts><LocalAccounts>
+                  <LocalAccount><Name>PRIVATE_ADMIN</Name><Group>Administrators</Group><Password><Value>PRIVATE_PASSWORD</Value></Password></LocalAccount>
+                  <LocalAccount><Name>PRIVATE_USER</Name><Group>Users</Group></LocalAccount>
+                  <LocalAccount><Name>PRIVATE_OTHER</Name><Group>PRIVATE_CUSTOM_GROUP</Group></LocalAccount>
+                </LocalAccounts></UserAccounts>
+                <AutoLogon><Enabled>true</Enabled><Username>PRIVATE_USER</Username><LogonCount>2</LogonCount></AutoLogon>
+                <FirstLogonCommands><SynchronousCommand><CommandLine>PRIVATE_LOGON_COMMAND</CommandLine></SynchronousCommand></FirstLogonCommands>
+                <LogonCommands><AsynchronousCommand><CommandLine>PRIVATE_ASYNC_LOGON</CommandLine></AsynchronousCommand></LogonCommands>
               </component>
             </settings>
             <settings pass="specialize"><component name="PRIVATE_NETWORK">
               <IpAddress>PRIVATE_ADDRESS</IpAddress>
+              <RunAsynchronous><RunAsynchronousCommand><Path>PRIVATE_ASYNC_COMMAND</Path></RunAsynchronousCommand></RunAsynchronous>
             </component></settings>
-            """).Replace("<s:Extensions>", "<s:Extensions><s:File path='PRIVATE_PATH.ps1'>PRIVATE_SCRIPT</s:File>");
+            """).Replace("<s:Extensions>", "<s:Extensions><s:File path='PRIVATE_PATH.ps1'>PRIVATE_SCRIPT</s:File>")
+            .Replace("<DiskConfiguration />", "<DiskConfiguration><Disk><WillWipeDisk>1</WillWipeDisk><CreatePartitions><CreatePartition><Order>1</Order></CreatePartition></CreatePartitions></Disk></DiskConfiguration>")
+            .Replace("<component ", "<component processorArchitecture=\"amd64\" ");
         byte[] privateBytes = Encoding.UTF8.GetBytes(privateAnswer);
-        string share = InstallationReview.ShareableSummary(privateBytes, diskRisk: true, hasAppLocker: true);
-        string sharedEnglish = UiText.EnglishText(share);
-        Check(sharedEnglish.Contains("Disk operations require review") && sharedEnglish.Contains("Embedded scripts: 2") &&
-            sharedEnglish.Contains("Local accounts defined in the answer file: 1") &&
-            sharedEnglish.Contains("Automatic logon is requested"), "shareable review contains deployment facts and counts");
-        Check(!share.Contains("PRIVATE_") && !sharedEnglish.Contains("PRIVATE_") &&
-            Encoding.UTF8.GetString(privateBytes) == privateAnswer, "shareable text omits all input values and preserves export bytes");
+        string[] details = ["requests a disk wipe", "Create-partition entries: 1", "Synchronous commands: 1",
+            "Asynchronous commands: 1", "First-logon commands: 1", "Asynchronous logon commands: 1",
+            "Local accounts: 3 (Administrators: 1, Users: 1, other or unspecified: 1)",
+            "Automatic logon count: 2", "Computer name specified", "Time zone specified"];
+        string screen = InstallationReview.ForExport(privateBytes).Phases;
+        Check(details.All(UiText.EnglishText(screen).Contains), "the dialog reviews structured details");
+        string diagnostic = Encoding.UTF8.GetString(RedactedAnswerFile.Create(privateBytes, generator));
+        Check(!diagnostic.Contains("PRIVATE_") && !screen.Contains("PRIVATE_") &&
+            !UiText.EnglishText(screen).Contains("PRIVATE_") &&
+            Encoding.UTF8.GetString(privateBytes) == privateAnswer, "the diagnostic XML and dialog omit private values");
+        Check(diagnostic.Contains("<WillWipeDisk>true</WillWipeDisk>") && diagnostic.Contains("<AsynchronousCommand>") &&
+            diagnostic.Contains("<CommandLine>[REDACTED]</CommandLine>"), "the diagnostic XML retains deployment structure");
         const string metadata = "<MetaData xmlns:wcm='http://schemas.microsoft.com/WMIConfig/2002/State' wcm:action='add'>";
         string ReviewImage(string entries) => UiText.EnglishText(InstallationReview.ForExport(
             Encoding.UTF8.GetBytes(xml.Replace("<MetaData />", entries))).Phases);

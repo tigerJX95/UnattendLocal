@@ -1,3 +1,4 @@
+using System.Globalization;
 using System.Xml;
 using UnattendLocal.Localization;
 
@@ -7,6 +8,8 @@ internal static class DeploymentPhaseReview
 {
     private const string Setup = ImageSelectionXml.SetupComponent;
     private const string Shell = "u:component[@name='Microsoft-Windows-Shell-Setup']";
+    private const string LocalAccounts = Shell + "/u:UserAccounts/u:LocalAccounts/u:LocalAccount";
+    private const string AutoLogon = Shell + "/u:AutoLogon";
 
     public static string Describe(XmlDocument doc, bool hasAppLocker)
     {
@@ -21,12 +24,18 @@ internal static class DeploymentPhaseReview
             if (count == 0) continue;
 
             bool Has(string path) => doc.SelectSingleNode(scope + path, ns) != null;
+            XmlNodeList Read(string path) => doc.SelectNodes(scope + path, ns)!;
             bool IsEnabled(string path) =>
-                NativeSetupXml.ReadScalar(doc.SelectNodes(scope + path, ns)!)?.Trim(' ', '\t', '\r', '\n') is "true" or "1";
+                NativeSetupXml.ReadScalar(Read(path))?.Trim(' ', '\t', '\r', '\n') is "true" or "1";
             var notes = new List<string>();
             void Add(bool present, string key)
             {
                 if (present) notes.Add(UiText.Source(key));
+            }
+            void AddCount(string path, string key)
+            {
+                int entries = Read(path).Count;
+                if (entries > 0) notes.Add(UiText.Format(key, UiText.Arg(entries)));
             }
 
             if (phase.Id == "windowsPE")
@@ -35,6 +44,8 @@ internal static class DeploymentPhaseReview
                     "/u:unattend/s:Extensions/s:Build/s:PEScriptCopy[normalize-space(.) != '']", ns) != null;
                 Add(peScript, "review.phases.peScript");
                 Add(Has(Setup + "/u:DiskConfiguration") || (!peScript && AutoPartitionSettings.Inspect(doc).Known), "review.phases.disk");
+                Add(Has(Setup + "/u:DiskConfiguration/u:Disk/u:WillWipeDisk[normalize-space(.)='true' or normalize-space(.)='1']"), "review.phases.wipeRequested");
+                AddCount(Setup + "/u:DiskConfiguration/u:Disk/u:CreatePartitions/u:CreatePartition", "review.phases.createPartitions");
                 if (DescribeImageSelection(ImageSelectionXml.Read(doc, ns)) is string imageSelection)
                     notes.Add(imageSelection);
                 Add(Has(ImageSelectionXml.OsImage + "/u:InstallFrom/u:Path"), "review.phases.imagePath");
@@ -49,10 +60,34 @@ internal static class DeploymentPhaseReview
                 Add(IsEnabled(Shell + "/u:OOBE/u:HideOnlineAccountScreens"), "review.phases.oobeSignIn");
             }
             Add(Has("u:component[@name='Microsoft-Windows-PnpCustomizationsNonWinPE']/u:DriverPaths/*"), "review.phases.offlineDrivers");
-            Add(Has("u:component/u:RunSynchronous/u:RunSynchronousCommand"), "review.phases.commands");
+            AddCount("u:component/u:RunSynchronous/u:RunSynchronousCommand", "review.phases.commands");
+            AddCount("u:component/u:RunAsynchronous/u:RunAsynchronousCommand", "review.phases.asyncCommands");
             Add(phase.Id == "specialize" && hasAppLocker, "review.phases.appLocker");
-            Add(Has(Shell + "/u:UserAccounts/u:LocalAccounts/u:LocalAccount"), "review.phases.localAccounts");
-            Add(Has(Shell + "/u:FirstLogonCommands/u:SynchronousCommand"), "review.phases.firstLogon");
+            Add(Has(Shell + "/u:ComputerName[normalize-space(.) != '' and normalize-space(.) != '*']"), "review.phases.computerName");
+            Add(Has(Shell + "/u:TimeZone[normalize-space(.) != '']"), "review.phases.timeZone");
+            var accounts = Read(LocalAccounts);
+            if (accounts.Count > 0)
+            {
+                int administrators = 0, users = 0;
+                foreach (XmlElement account in accounts)
+                {
+                    // Recognize Windows group values without copying imported group names.
+                    string? group = NativeSetupXml.ReadScalar(account.SelectNodes("u:Group", ns)!)?.Trim();
+                    if (string.Equals(group, "Administrators", StringComparison.OrdinalIgnoreCase)) administrators++;
+                    if (string.Equals(group, "Users", StringComparison.OrdinalIgnoreCase)) users++;
+                }
+                notes.Add(UiText.Format("review.phases.localAccounts", UiText.Arg(accounts.Count), UiText.Arg(administrators),
+                    UiText.Arg(users), UiText.Arg(accounts.Count - administrators - users)));
+            }
+            if (IsEnabled(AutoLogon + "/u:Enabled"))
+            {
+                string? total = NativeSetupXml.ReadScalar(Read(AutoLogon + "/u:LogonCount"))?.Trim();
+                notes.Add(int.TryParse(total, NumberStyles.None, CultureInfo.InvariantCulture, out int logons)
+                    ? UiText.Format("review.phases.autoLogonCount", UiText.Arg(logons))
+                    : UiText.Source("review.share.autoLogon"));
+            }
+            AddCount(Shell + "/u:FirstLogonCommands/u:SynchronousCommand", "review.phases.firstLogon");
+            AddCount(Shell + "/u:LogonCommands/u:AsynchronousCommand", "review.phases.logonCommands");
 
             var row = UiText.Format("review.phases.row", phase.Id, phase.Label, UiText.Arg(count));
             if (notes.Count > 0)
