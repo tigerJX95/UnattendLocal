@@ -1,3 +1,4 @@
+using UnattendLocal.Core;
 using UnattendLocal.Desktop;
 
 static class ColorPickerHotfixTests
@@ -36,7 +37,7 @@ static class ColorPickerHotfixTests
         draft.SelectHuePosition(2d/3);
         Check(new[]{"Hue","HueHex","ColorHex","Hex","Red","Green","Blue","Saturation","Brightness","CanAccept"}.All(changes.Contains),"spectrum notifies preview, plane, marker and editor bindings");
         var vm=new MainViewModel();
-        Check(vm.FilteredAppRemovalChoices.Count()==60&&vm.FilteredAppRemovalChoices.All(c=>!string.IsNullOrWhiteSpace(c.Description)),"all removal items have actual description text for tooltips");
+        Check(vm.FilteredAppRemovalChoices.Count()==AppRemovalSettings.Items.Count&&vm.FilteredAppRemovalChoices.All(c=>!string.IsNullOrWhiteSpace(c.Description)),"all removal items have actual description text for tooltips");
         return count;
     }
 }

@@ -54,6 +54,8 @@ static class EmbeddedBackgroundTests
             File.Delete(jpegPath);
 
             var plan = QuickPresets.Create(QuickPresets.LocalAccount);
+            plan.Users[0].Password = "FixturePassword!";
+            plan.Users[0].AllowEmptyPassword = false;
             plan.WallpaperMode = WallpaperSettings.Script;
             plan.WallpaperImageScript = wallpaper;
             plan.LockScreenMode = ImageBackgroundSettings.LockScript;

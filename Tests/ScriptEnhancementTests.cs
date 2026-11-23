@@ -16,6 +16,8 @@ static class ScriptEnhancementTests
         foreach (var template in ScriptTemplates.All)
         {
             var plan = QuickPresets.Create(QuickPresets.LocalAccount);
+            plan.Users[0].Password = "FixturePassword!";
+            plan.Users[0].AllowEmptyPassword = false;
             var row = ScriptTemplates.Add(plan, template.Id);
             Check(row.Name == template.Name && row.Label.StartsWith(template.Name), "template name identifies list entry");
             row.Enabled = true;

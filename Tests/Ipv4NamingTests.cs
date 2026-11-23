@@ -16,6 +16,8 @@ static class Ipv4NamingTests
         foreach (bool hidden in new[] { false, true })
         {
             var plan = QuickPresets.Create(QuickPresets.LocalAccount);
+            plan.Users[0].Password = "FixturePassword!";
+            plan.Users[0].AllowEmptyPassword = false;
             plan.Architecture = architecture;
             plan.HidePowerShellWindows = hidden;
             plan.ComputerNameMode = ComputerNamingSettings.Ipv4;
@@ -42,6 +44,8 @@ static class Ipv4NamingTests
         foreach (bool hidden in new[] { false, true })
         {
             var plan = QuickPresets.Create(QuickPresets.LocalAccount);
+            plan.Users[0].Password = "FixturePassword!";
+            plan.Users[0].AllowEmptyPassword = false;
             plan.ComputerNameMode = mode;
             plan.ComputerNameScript = ComputerNamingSettings.Example;
             plan.HidePowerShellWindows = hidden;
@@ -53,6 +57,8 @@ static class Ipv4NamingTests
                 "other dynamic modes can switch back to a fixed name without metadata");
         }
         var custom = QuickPresets.Create(QuickPresets.LocalAccount);
+        custom.Users[0].Password = "FixturePassword!";
+        custom.Users[0].AllowEmptyPassword = false;
         custom.ComputerNameMode = ComputerNamingSettings.Script;
         custom.ComputerNameScript = ComputerNamingSettings.Ipv4Script + "\n# Keep this custom command";
         var restored = XmlPlanImport.Import(Encoding.UTF8.GetString(generator.Generate(custom)), generator);

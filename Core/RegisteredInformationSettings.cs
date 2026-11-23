@@ -46,6 +46,20 @@ public static class RegisteredInformationSettings {
   foreach(var pair in new Dictionary<string,string>{{"name",Component},{"processorArchitecture",arch},{"publicKeyToken","31bf3856ad364e35"},{"language","neutral"},{"versionScope","nonSxS"}})component.SetAttribute(pair.Key,pair.Value);
   group.AppendChild(component);return component;
  }
+ private static XmlElement? SpecializeComponent(XmlDocument doc,string architecture)=>
+  NativeSetupXml.Components(doc,Component).FirstOrDefault(c=>c.GetAttribute("processorArchitecture")==architecture&&
+   NativeSetupXml.ValidComponent(doc,c,Component,"specialize"));
+ internal static bool RetainSpecializeContainer(XmlDocument baseline,XmlDocument updated,string architecture){
+  if(SpecializeComponent(baseline,architecture)==null||SpecializeComponent(updated,architecture)!=null)return false;
+  // A time zone or registration value can be the last generated setting in this component.
+  // Keep its container through the merge so the original siblings are preserved.
+  _=GetComponent(updated,"specialize",architecture);return true;
+ }
+ internal static void RemoveEmptySpecializeContainer(XmlDocument doc,string architecture){
+  var component=SpecializeComponent(doc,architecture);
+  if(component!=null&&!component.ChildNodes.OfType<XmlElement>().Any()&&!component.ChildNodes.OfType<XmlComment>().Any()&&
+   NativeSetupXml.NoSignificantText(component))component.ParentNode!.RemoveChild(component);
+ }
  public static void Apply(XmlDocument doc,InstallPlan p){
   Validate(p);
   // Retain imported non-default phase containers so removing one known field
@@ -85,9 +99,9 @@ public static class RegisteredInformationSettings {
  }
  public static void UpdateImportState(ImportedXml data,Source state){data.RegisteredInformationImportVersion=1;data.RegisteredInformationReadOnly=!state.Known;}
  public static void ValidateImported(InstallPlan p,XmlDocument source){if(Configured(p)&&!Inspect(source).Known)throw new ArgumentException(ReadOnlyNotice);}
- public static void NormalizeLoaded(InstallPlan p,JsonElement root){
+ public static void NormalizeLoaded(InstallPlan p,JsonElement root, XmlDocument? parsedSource = null){
   if(p.ImportedXml is not {OriginalOmitted:false} data||data.SourceXml.Length==0)return;
-  var source=XmlMerge.Read(data.SourceXml);var state=Inspect(source);
+  var source=parsedSource ?? XmlMerge.Read(data.SourceXml);var state=Inspect(source);
   if(data.RegisteredInformationImportVersion<1&&state is {Present:true,Known:true}){
    string[] fields=[nameof(InstallPlan.UseRegisteredOwner),nameof(InstallPlan.RegisteredOwner),nameof(InstallPlan.RegisteredOwnerPass),nameof(InstallPlan.UseRegisteredOrganization),nameof(InstallPlan.RegisteredOrganization),nameof(InstallPlan.RegisteredOrganizationPass)];
    bool missing=fields.All(f=>!root.TryGetProperty(f,out _));

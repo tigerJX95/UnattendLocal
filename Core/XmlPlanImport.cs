@@ -15,7 +15,6 @@ public static class XmlPlanImport {
  private static bool IsTrue(string? text)=>text is "true" or "1";
  public static InstallPlan Import(string xml,GeneratorService service){
   var original=XmlMerge.Read(xml);var doc=XmlImportPaths.Inspection(original);var ns=new XmlNamespaceManager(doc.NameTable);ns.AddNamespace("u",XmlMerge.Namespace);
-  if(doc.SelectNodes("//u:component[@name='Microsoft-Windows-UnattendedJoin']//u:Credentials/u:Password | //u:component[@name='Microsoft-Windows-UnattendedJoin']//u:MachinePassword | //u:component[@name='Microsoft-Windows-UnattendedJoin']//u:Provisioning/u:AccountData",ns)!.Cast<XmlElement>().Any(n=>n.InnerText==GeneratorService.DomainCredentialPlaceholder || n.InnerText==global::UnattendLocal.Localization.UiText.EnglishResources["text.b8de0a664760"] || n.InnerText==global::UnattendLocal.Localization.UiText.EnglishText(GeneratorService.DomainCredentialPlaceholder)))throw new ArgumentException(global::UnattendLocal.Localization.UiText.Source("text.4fe17c3916ca"));
   var arches=doc.SelectNodes("//u:component/@processorArchitecture",ns)!.Cast<XmlAttribute>().Select(a=>a.Value).Distinct().ToArray();
   if(arches.Length>1)throw new ArgumentException(global::UnattendLocal.Localization.UiText.Source("text.3c620e817ae8"));
   if(arches.Length==1&&arches[0] is not ("amd64" or "arm64" or "x86"))throw new ArgumentException(global::UnattendLocal.Localization.UiText.Source("text.d8a4acade665"));
@@ -27,16 +26,22 @@ public static class XmlPlanImport {
    ReadForm(doc,p,notes);ReadBasic(doc,ns,p,service,notes);ReadGeneratedSettings(original,ns,p,notes);
   }
   var image=ImageSelectionXml.Read(doc,ns);
-  if(!p.UseGeneratedPe&&(!snapshot||image.IsReadOnly)){
-   p.ImageSelection=image.Method switch {
+  if(!p.UseGeneratedPe){
+   string imageMode=image.Method switch {
     ImageSelectionXml.Kind.Name=>global::UnattendLocal.Localization.UiText.Source("text.5965e61aee4c"),
     ImageSelectionXml.Kind.Index=>global::UnattendLocal.Localization.UiText.Source("text.9cbbdbe44e5d"),
     _=>global::UnattendLocal.Localization.UiText.Source("text.cc65b6582544")
    };
-   p.ImageName=image.Name;
-   p.ImageIndex=image.Method==ImageSelectionXml.Kind.Index?image.Index:null;
+   int? imageIndex=image.Method==ImageSelectionXml.Kind.Index?image.Index:null;
+   if(snapshot&&(p.ImageSelection!=imageMode || image.Method==ImageSelectionXml.Kind.Name&&p.ImageName!=image.Name ||
+                 image.Method==ImageSelectionXml.Kind.Index&&p.ImageIndex!=imageIndex))
+    notes.Add(UnattendLocal.Localization.UiText.Source("xml.snapshot.nativeValues"));
+   p.ImageSelection=imageMode;
+   if(!snapshot||image.Method==ImageSelectionXml.Kind.Name)p.ImageName=image.Name;
+   if(!snapshot||image.Method==ImageSelectionXml.Kind.Index)p.ImageIndex=imageIndex;
    if(image.IsReadOnly)notes.Add(global::UnattendLocal.Localization.UiText.Source("import.imageSelection.preserved"));
   }
+  if(snapshot)ReconcileNativeSnapshot(doc,ns,p,notes);
   // Recheck native flags even when an older reversible note is present.
   BooleanScriptSettings.ReadIntoPlan(original,p,notes);
   // Credentials come from actual XML, never from form comments or the reversible settings note.
@@ -74,14 +79,25 @@ public static class XmlPlanImport {
   var scripts=doc.SelectNodes("//*[local-name()='File']")!.Cast<XmlElement>();
   if(HasRemovedScript(doc)||p.Scripts.Any(s=>s.IsRemovedType))
    blockers.Add(global::UnattendLocal.Localization.UiText.Source("text.2ceb5ddfec91"));
+  var credentialErrors=ImportedCredentialReview.FindErrors(doc,ns);
+  blockers.AddRange(credentialErrors);
+  if(p.Users.Any(u=>u.NeedsPassword)||p.NeedsBuiltinAdministratorPassword)
+   notes.Add(UnattendLocal.Localization.UiText.Source("import.credentials.empty"));
   bool disk=NeedsDiskReview(doc);
   // Generate an editable baseline without granting the user's risk consent.
   var clone=PlanStore.Deserialize(PlanStore.Serialize(p,true));clone.ImportedXml=null;
   clone.ConfirmWipeDisk=true;clone.ConfirmFormatPartition=true;clone.ConfirmDiskScript=true;
   string baseline="";
-  try{baseline=Encoding.UTF8.GetString(service.GenerateImportBaseline(clone));var seed=XmlMerge.Read(baseline);NativePreferences.SeedBaseline(seed,doc,p);baseline=seed.OuterXml;}
+  try{
+   foreach(var user in clone.Users.Where(u=>u.NeedsPassword))user.AllowEmptyPassword=true;
+   if(clone.NeedsBuiltinAdministratorPassword)clone.AllowEmptyBuiltinAdministratorPassword=true;
+   var seed=XmlMerge.Read(Encoding.UTF8.GetString(service.GenerateImportBaseline(clone)));
+   ImportedCredentialReview.SeedEmptyPasswords(seed,doc,p,ns);
+   NativePreferences.SeedBaseline(seed,doc,p);baseline=seed.OuterXml;
+  }
   catch(Exception e)when(e is ArgumentException or ConfigurationException or XmlException){
-   blockers.Add(global::UnattendLocal.Localization.UiText.Concat(new object?[] { global::UnattendLocal.Localization.UiText.Source("text.7ce37087b03b"), SafeReason(global::UnattendLocal.Localization.UiText.DescribeError(e)) },new bool[]{false,false}));
+   if(credentialErrors.Length==0)
+    blockers.Add(global::UnattendLocal.Localization.UiText.Concat(new object?[] { global::UnattendLocal.Localization.UiText.Source("text.7ce37087b03b"), SafeReason(global::UnattendLocal.Localization.UiText.DescribeError(e)) },new bool[]{false,false}));
   }
   XmlImportParameters.Reconcile(doc,p,appRemovalState,notes);
   if(baseline.Length>0)DescribeRemainder(doc,XmlMerge.Read(baseline),notes);
@@ -103,6 +119,34 @@ public static class XmlPlanImport {
  }
  private static string DescribeBlocker(string message)=>global::UnattendLocal.Localization.UiText.IsKnownSource(message)?message:global::UnattendLocal.Localization.UiText.Source("text.b80caac11032");
  private static string SafeReason(string message)=>message.Contains("'")?global::UnattendLocal.Localization.UiText.Source("text.b80caac11032"):message;
+ internal static void ReconcileNativeSnapshot(XmlDocument doc,XmlNamespaceManager ns,InstallPlan p,List<string> notes){
+  const string shell="/u:unattend/u:settings";
+  const string component="/u:component[@name='Microsoft-Windows-Shell-Setup']";
+  var zones=doc.SelectNodes(shell+"[@pass='specialize']"+component+"/u:TimeZone",ns)!;
+  string? zone=NativeSetupXml.ReadScalar(zones);
+  bool changed=false;
+  if(zones.Count==0||!string.IsNullOrWhiteSpace(zone)){
+   string mode=UnattendLocal.Localization.UiText.Source(zone==null?"text.499ff33c1078":"text.980f34c4425d");
+   changed=p.TimeZoneMode!=mode||zone!=null&&p.TimeZone!=zone;
+   p.TimeZoneMode=mode;
+   if(zone!=null)p.TimeZone=zone;
+  }
+  bool FromOobe(string name,bool current){
+   var nodes=doc.SelectNodes(shell+"[@pass='oobeSystem']"+component+"/u:OOBE/u:"+name,ns)!;
+   string? value=NativeSetupXml.ReadScalar(nodes)?.Trim();
+   if(value is not ("true" or "false" or "1" or "0"))return current;
+   bool actual=IsTrue(value);
+   changed|=actual!=current;
+   return actual;
+  }
+  p.HideEula=FromOobe("HideEULAPage",p.HideEula);
+  p.HideOEMRegistration=FromOobe("HideOEMRegistrationScreen",p.HideOEMRegistration);
+  // A Microsoft-account plan always emits false here, even if it retains
+  // an inactive preference from its previous account mode.
+  if(p.AccountMode!=UnattendLocal.Localization.UiText.Source("text.5f78e95b6bd9"))
+   p.HideOnlineAccount=FromOobe("HideOnlineAccountScreens",p.HideOnlineAccount);
+  if(changed)notes.Add(UnattendLocal.Localization.UiText.Source("xml.snapshot.nativeValues"));
+ }
  private static void ReadBasic(XmlDocument doc,XmlNamespaceManager ns,InstallPlan p,GeneratorService service,List<string> notes){
   var computer=Text(doc,"//u:settings[@pass='specialize']/u:component[@name='Microsoft-Windows-Shell-Setup']/u:ComputerName",ns);p.ComputerName=computer is null or "*"?"":computer;
   var language=Text(doc,"//u:component[@name='Microsoft-Windows-International-Core']/u:UILanguage",ns);p.InteractiveLanguage=language==null;
@@ -146,16 +190,13 @@ public static class XmlPlanImport {
   if(p.AccountMode==global::UnattendLocal.Localization.UiText.Source("text.cdaa9a6700f6")){
    var users=new ObservableCollection<UserEntry>();
    foreach(XmlElement user in doc.SelectNodes("//u:LocalAccount",ns)!) {
-    string name=Text(user,"u:Name",ns)??"";string value=Text(user,"u:Password/u:Value",ns)??"";bool plain=IsTrue(Text(user,"u:Password/u:PlainText",ns));
-    if(!plain&&value.Length>0){
-     try{value=new UnicodeEncoding(false,false,true).GetString(Convert.FromBase64String(value));if(!value.EndsWith("Password",StringComparison.Ordinal))throw new FormatException();value=value[..^8];}
-     catch(Exception e)when(e is FormatException or DecoderFallbackException){throw new ArgumentException(global::UnattendLocal.Localization.UiText.Source("text.b939de06a603"));}
-    }
-    if(value.Contains(global::UnattendLocal.Localization.UiText.Source("text.069d51fb67fa")))throw new ArgumentException(global::UnattendLocal.Localization.UiText.Source("text.842bb7781370"));
+    string name=Text(user,"u:Name",ns)??"";
+    var password=user.SelectSingleNode("u:Password",ns) as XmlElement;
+    bool readable=ImportedCredentialReview.ReadPassword(password,ns,out string value,out bool obscure);
     string group=Text(user,"u:Group",ns)??"";
     if(group is not ("Administrators" or "Users"))notes.Add(global::UnattendLocal.Localization.UiText.Source("text.78b76660e6a5"));
-    users.Add(new UserEntry{Name=name,DisplayName=Text(user,"u:DisplayName",ns)??"",Administrator=group=="Administrators",Password=value,AllowEmptyPassword=value.Length==0,NeedsPassword=false});
-    p.ObscurePasswords=!plain;
+    users.Add(new UserEntry{Name=name,DisplayName=Text(user,"u:DisplayName",ns)??"",Administrator=group=="Administrators",Password=value,AllowEmptyPassword=false,NeedsPassword=readable&&value.Length==0});
+    if(password!=null)p.ObscurePasswords=obscure;
    }
    p.Users=users;
   }else p.Users.Clear();
@@ -327,8 +368,9 @@ public static class XmlPlanImport {
  public static string Summary(InstallPlan p)=>p.ImportedXml is not {} data?global::UnattendLocal.Localization.UiText.Source("text.b1b7a712ae60"):data.OriginalOmitted?global::UnattendLocal.Localization.UiText.Source("text.ef4099095cee"):data.Blockers.Length>0?global::UnattendLocal.Localization.UiText.Source("text.c82661157026"):data.Notices.Length>0?global::UnattendLocal.Localization.UiText.Source("text.f064ecdd0c81"):global::UnattendLocal.Localization.UiText.Source("text.efa080329876");
  public static void ValidateImported(InstallPlan p){
   if(p.ImportedXml is not {} data)return;
-  if(data.OriginalOmitted||data.SourceXml.Length==0||data.BaselineXml.Length==0)throw new ArgumentException(global::UnattendLocal.Localization.UiText.Source("text.76fd34fad718"));
+  if(data.OriginalOmitted||data.SourceXml.Length==0)throw new ArgumentException(global::UnattendLocal.Localization.UiText.Source("text.76fd34fad718"));
   if(data.Blockers.Length>0)throw new ArgumentException(global::UnattendLocal.Localization.UiText.Join("\n", data.Blockers.Select(DescribeBlocker).Distinct(), false));
+  if(data.BaselineXml.Length==0)throw new ArgumentException(global::UnattendLocal.Localization.UiText.Source("text.76fd34fad718"));
   var source=XmlImportPaths.Inspection(XmlMerge.Read(data.SourceXml));
   if(p.ImageSelection!=global::UnattendLocal.Localization.UiText.Source("text.cc65b6582544") &&
      ImageSelectionXml.Read(source,NamespaceManager(source)).IsReadOnly)

@@ -347,10 +347,10 @@ public static class StaticIPv4Settings
     {
         if (!Inspect(source).Known && (p.UseStaticIPv4||p.UseStaticIPv6)) throw new ArgumentException(ReadOnlyNotice);
     }
-    public static void NormalizeLoaded(InstallPlan p, JsonElement root)
+    public static void NormalizeLoaded(InstallPlan p, JsonElement root, XmlDocument? parsedSource = null)
     {
         if (p.ImportedXml is not { OriginalOmitted: false } data || data.SourceXml.Length == 0) return;
-        var state = Inspect(XmlMerge.Read(data.SourceXml));
+        var state = Inspect(parsedSource ?? XmlMerge.Read(data.SourceXml));
         if (data.StaticIPv4ImportVersion < 3 && state.Present && state.Known && data.BaselineXml.Length > 0 && Nodes(XmlMerge.Read(data.BaselineXml)).Length == 0) {
             if (!root.TryGetProperty(nameof(InstallPlan.UseStaticIPv4), out _) || data.StaticIPv4ReadOnly && !p.UseStaticIPv4 && !p.UseStaticIPv6) {
                 Assign(p, state); var baseline = XmlMerge.Read(data.BaselineXml); Apply(baseline, Ns(baseline), p); data.BaselineXml = baseline.OuterXml;

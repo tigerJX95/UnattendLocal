@@ -1,4 +1,3 @@
-using System.Text;
 using System.Xml;
 using Schneegans.Unattend;
 namespace UnattendLocal.Core;
@@ -26,21 +25,14 @@ public static class FirstLogonSettings
     private static XmlNamespaceManager Ns(XmlDocument doc){var ns=new XmlNamespaceManager(doc.NameTable);ns.AddNamespace("u",XmlMerge.Namespace);return ns;}
     private static XmlElement[] Nodes(XmlDocument doc,string path)=>doc.SelectNodes(path,Ns(doc))!.Cast<XmlElement>().ToArray();
     private static string? Text(XmlElement? node,string name)=>node?.ChildNodes.OfType<XmlElement>().SingleOrDefault(n=>n.LocalName==name)?.InnerText;
-    private static (string Value,bool Obscure)? Password(XmlElement? parent,string name)
+    private static (string Value,bool Obscure)? Password(XmlElement? parent,string name, XmlNamespaceManager ns)
     {
         var elements=parent?.ChildNodes.OfType<XmlElement>().Where(n=>n.LocalName==name).ToArray();
         if(elements is not {Length:1})return null;
         var node=elements[0];var children=node.ChildNodes.OfType<XmlElement>().ToArray();
         if(children.Length!=2||children.Count(n=>n.LocalName=="Value")!=1||children.Count(n=>n.LocalName=="PlainText")!=1)return null;
-        string value=Text(node,"Value")!;string plain=Text(node,"PlainText")!;
-        if(value.Contains(global::UnattendLocal.Localization.UiText.Source("text.069d51fb67fa"),StringComparison.Ordinal))throw new ArgumentException(global::UnattendLocal.Localization.UiText.Source("text.e2d66c4e5993"));
-        if(plain is not ("true" or "false"))return null;
-        if(plain=="false")
-        {
-            try{value=new UnicodeEncoding(false,false,true).GetString(Convert.FromBase64String(value));if(!value.EndsWith(name,StringComparison.Ordinal))throw new FormatException();value=value[..^name.Length];}
-            catch(Exception e)when(e is FormatException or DecoderFallbackException){throw new ArgumentException(global::UnattendLocal.Localization.UiText.Source("text.29525bed0491"));}
-        }
-        return(value,plain=="false");
+        if(Text(node,"PlainText") is not ("true" or "false"))return null;
+        return ImportedCredentialReview.ReadPassword(node,ns,out string value,out bool obscure)?(value,obscure):null;
     }
     public static Source Inspect(XmlDocument doc)
     {
@@ -49,8 +41,9 @@ public static class FirstLogonSettings
         bool mentioned=Nodes(doc,"//u:AdministratorPassword").Length>0||auto.Any(n=>n.ChildNodes.OfType<XmlElement>().Any(c=>c.LocalName=="Username"&&c.InnerText.Equals("Administrator",StringComparison.OrdinalIgnoreCase)));
         if(!mentioned)return new(false,false,"",true);
         // Read actual password fields even when the surrounding flow is unsupported.
-        var loginPassword=auto.Length==1?Password(auto[0],"Password"):null;
-        var adminPassword=accounts.Length==1?Password(accounts[0],"AdministratorPassword"):null;
+        var ns=Ns(doc);
+        var loginPassword=auto.Length==1?Password(auto[0],"Password",ns):null;
+        var adminPassword=accounts.Length==1?Password(accounts[0],"AdministratorPassword",ns):null;
         bool known=auto.Length==1&&accounts.Length==1&&Nodes(doc,"//u:settings[@pass='oobeSystem']/u:component[@name='Microsoft-Windows-Shell-Setup']/u:AutoLogon").Length==1&&Nodes(doc,"//u:settings[@pass='oobeSystem']/u:component[@name='Microsoft-Windows-Shell-Setup']/u:UserAccounts/u:AdministratorPassword").Length==1;
         if(known)
         {
@@ -66,7 +59,7 @@ public static class FirstLogonSettings
         var source=Inspect(doc);p.UseBuiltinAdministrator=false;p.BuiltinAdministratorPassword="";p.AllowEmptyBuiltinAdministratorPassword=false;p.NeedsBuiltinAdministratorPassword=false;
         if(source.Known)
         {
-            p.AccountMode=global::UnattendLocal.Localization.UiText.Source("text.cdaa9a6700f6");p.AutoLogon=true;p.UseBuiltinAdministrator=true;p.BuiltinAdministratorPassword=source.Password;p.AllowEmptyBuiltinAdministratorPassword=source.Password.Length==0;p.ObscurePasswords=source.Obscure;
+            p.AccountMode=global::UnattendLocal.Localization.UiText.Source("text.cdaa9a6700f6");p.AutoLogon=true;p.UseBuiltinAdministrator=true;p.BuiltinAdministratorPassword=source.Password;p.NeedsBuiltinAdministratorPassword=source.Password.Length==0;p.ObscurePasswords=source.Obscure;
         }
         else if(source.Mentioned)notes.Add(ReadOnlyDescription);
         return source;

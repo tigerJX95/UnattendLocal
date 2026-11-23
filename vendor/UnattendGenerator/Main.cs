@@ -583,7 +583,10 @@ public class PackageBloatwareStep(
 public class CapabilityBloatwareStep(
   string[] appliesTo,
   string selector
-) : SelectorBloatwareStep(appliesTo, selector);
+) : SelectorBloatwareStep(appliesTo, selector)
+{
+  public bool InstalledOnly { get; init; }
+}
 
 public class OptionalFeatureBloatwareStep(
   string[] appliesTo,

@@ -72,6 +72,8 @@ public static partial class AppRemovalSettings
         new("RemoveOneSync",global::UnattendLocal.Localization.UiText.Source("text.f8acd91f5b29"),global::UnattendLocal.Localization.UiText.Source("text.f74218924583"),global::UnattendLocal.Localization.UiText.Source("text.4cc7e58b34b0")),
         new("RemoveGameAssist",global::UnattendLocal.Localization.UiText.Source("text.fe1e79485a8a"),global::UnattendLocal.Localization.UiText.Source("text.b41719c11e9d"),global::UnattendLocal.Localization.UiText.Source("text.a1e7c5e981b4")),
         new("RemoveStore","Microsoft Store",global::UnattendLocal.Localization.UiText.Source("text.da1ce496d4f7"),global::UnattendLocal.Localization.UiText.Source("text.40086dce285e")),
+        new("RemoveFaxAndScan",global::UnattendLocal.Localization.UiText.Source("appRemoval.faxAndScan"),global::UnattendLocal.Localization.UiText.Source("appRemoval.optionalFeatures"),global::UnattendLocal.Localization.UiText.Source("appRemoval.faxAndScanHelp")),
+        new("RemoveXpsViewer",global::UnattendLocal.Localization.UiText.Source("appRemoval.xpsViewer"),global::UnattendLocal.Localization.UiText.Source("appRemoval.optionalFeatures"),global::UnattendLocal.Localization.UiText.Source("appRemoval.xpsViewerHelp")),
     };
     public static void Validate(InstallPlan p)
     {
@@ -87,6 +89,7 @@ public static partial class AppRemovalSettings
     public static string Summary(InstallPlan p) => global::UnattendLocal.Localization.UiText.Concat(new object?[] { global::UnattendLocal.Localization.UiText.Source("text.1ecc9cbc5019"), Selection(p) },new bool[]{false,false});
     private const string Root = @"C:\Windows\Setup\Scripts\";
     private static readonly string[] Stages = ["Specialize.ps1", "DefaultUser.ps1", "UserOnce.ps1"];
+    private static readonly string[] RemovalHelpers = ["RemovePackage.ps1", "RemoveCapability.ps1", "RemoveFeature.ps1", "RemoveInstalledCapability.ps1"];
     private static string Normal(string s) => global::UnattendLocal.Localization.UiText.Join('\n', s.Replace("\r\n", "\n").Split('\n').Select(l => l.Trim()).Where(l => l.Length > 0), false);
     private static XmlElement[] Files(XmlDocument d, string name) => d.SelectNodes("//*[local-name()='File']")!.Cast<XmlElement>().Where(f => f.GetAttribute("path").Equals(Root + name, StringComparison.OrdinalIgnoreCase)).ToArray();
     private static List<string> Blocks(string body) => Regex.Matches(body.Replace("\r\n", "\n"), @"(?m)^\t\{\n(?<body>(?:\t\t[^\n]*\n)*)\t\};\n", RegexOptions.None, TimeSpan.FromSeconds(1)).Select(m => Normal(m.Groups["body"].Value)).ToList();
@@ -112,9 +115,9 @@ public static partial class AppRemovalSettings
         {
             var bw = g.Lookup<Bloatware>(item.Id); var doc = Make([bw]);
             var helpers = new Dictionary<string,string>(); var selectors = new Dictionary<string,string[]>();
-            foreach (string type in new[]{"Package", "Capability", "Feature"})
+            foreach (string name in RemovalHelpers)
             {
-                string name = "Remove" + type + ".ps1"; var f = Files(doc,name);
+                var f = Files(doc,name);
                 if (f.Length == 0) continue;
                 var match = Regex.Match(f[0].InnerText.Replace("\r\n","\n"), @"\A\s*\$selectors = @\(\n(?<values>(?:\t'[^'\n]+';\n)+)\);\n(?<tail>[\s\S]+)\z", RegexOptions.None, TimeSpan.FromSeconds(1));
                 if (!match.Success) throw new InvalidOperationException(global::UnattendLocal.Localization.UiText.Source("text.0145b94ada40"));
@@ -154,7 +157,7 @@ public static partial class AppRemovalSettings
             }
             else if(blocks["DefaultUser.ps1"].Count(runOnceCommands.Contains)!=1)blocks[stage]=[];
         }
-        foreach (string name in new[]{"RemovePackage.ps1","RemoveCapability.ps1","RemoveFeature.ps1"})
+        foreach (string name in RemovalHelpers)
         {
             var files = Files(doc,name); string call = "& '" + Root + name + "';";
             bool mentioned = files.Length > 0 || Files(doc,"Specialize.ps1").Any(f=>f.InnerText.Contains(Root+name,StringComparison.OrdinalIgnoreCase));

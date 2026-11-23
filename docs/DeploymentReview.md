@@ -65,6 +65,12 @@ On import, description-based or unrecognized selectors are preserved as read-onl
 
 The `oobeSystem` summary lists requests to hide the network and online sign-in pages. The pages shown depend on the target Windows version and installation environment.
 
+## 复制脱敏复核摘要 / Copy redacted summary
+
+从「检查与导出」导出 XML 或 ISO 时，可在复核窗口点击「复制脱敏复核摘要」。摘要会复制到剪贴板，复核窗口继续打开，可以再选择是否导出。摘要保留安装阶段、目标选择方式、磁盘复核状态、本地账户数量、自动登录和安装命令数量等信息，省略凭据、网络地址、路径和脚本正文。导出文件使用完整配置。
+
+When exporting XML or ISO from **Checks and export**, select **Copy redacted summary** in the deployment review dialog. The summary goes to the clipboard and the dialog stays open so you can decide whether to export. It includes setup passes, target selection, disk review status, local account and command counts, and automatic logon status. Credentials, addresses, paths, and script contents are omitted. Export uses the complete configuration.
+
 ## 参考 / References
 
 - [Microsoft: Distribution Shares and Configuration Sets Overview](https://learn.microsoft.com/en-us/windows-hardware/customize/desktop/wsim/distribution-shares-and-configuration-sets-overview)
@@ -75,3 +81,9 @@ The `oobeSystem` summary lists requests to hide the network and online sign-in p
 - [Microsoft Learn · Naming Files, Paths, and Namespaces](https://learn.microsoft.com/windows/win32/fileio/naming-a-file)
 - [Microsoft Learn · HideWirelessSetupInOOBE](https://learn.microsoft.com/windows-hardware/customize/desktop/unattend/microsoft-windows-shell-setup-oobe-hidewirelesssetupinoobe)
 - [Microsoft Learn · HideOnlineAccountScreens](https://learn.microsoft.com/windows-hardware/customize/desktop/unattend/microsoft-windows-shell-setup-oobe-hideonlineaccountscreens)
+
+## 导入凭据检查 / Imported credential checks
+
+导入应答 XML 时，账户密码留空或已删去时会保留为空。补填密码或在「用户与密码」明确允许空密码后，可以重新检查并导出。含已知遮蔽标记、无法解码的密码或格式错误的密钥时，相关内容保留在导入的 XML 中，并在「已导入的 XML」指出字段。修正原 XML 并重新导入后可以再次检查。符合格式的占位值需要自己核对。
+
+If an imported account password is empty or missing, the field stays empty. Enter a password or explicitly allow an empty one in **Users and passwords** before checking and exporting. Known redaction markers, undecodable passwords, and malformed keys stay in the imported XML. **Imported XML** identifies the affected fields. Correct the original XML and import it again to recheck it. Review any placeholders that have a valid format.

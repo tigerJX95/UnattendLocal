@@ -41,25 +41,25 @@ static class ImportCompatibilityTests {
    Check(p.Users.Count==1&&p.Users[0].Name==seed.Users[0].Name&&p.Users[0].Password==seed.Users[0].Password&&p.Users[0].DisplayName==seed.Users[0].DisplayName&&p.Users[0].Administrator,"account and encoded password restored "+label);
    Check(p.CompactOsMode==CompactOsSettings.Enabled&&p.TaskbarSearch=="隐藏"&&p.TaskbarIconsMode=="移除全部固定图标","native CompactOS/search/taskbar restored "+label);
    Check(p.StartTilesMode==ShellSettings.CustomXml&&SameLayout(p.StartTilesXml,seed.StartTilesXml)&&JsonNode.DeepEquals(JsonNode.Parse(p.StartPinsJson),JsonNode.Parse(seed.StartPinsJson)),"start layouts restored from payload "+label);
-   Check(p.RemovedApps.Count==60&&p.ImportedXml is {AppRemovalReadOnly:false},"all actual removals recognized without URL comment "+label);
+   Check(p.RemovedApps.Count==AppRemovalSettings.Items.Count&&p.ImportedXml is {AppRemovalReadOnly:false},"all actual removals recognized without URL comment "+label);
    Check(p.DisableWpbt&&p.DisableSystemRestore&&p.DisableSac&&p.DisableSmartScreen,"other feature pipelines recognized "+label);
    Check(p.Scripts.Count==2&&p.Scripts.Select(s=>s.Phase).SequenceEqual(new[]{"System","DefaultUser"})&&p.Scripts.Zip(seed.Scripts).All(t=>t.First.Content==t.Second.Content),"custom commands/phases and escaped payloads preserved "+label);
    Check(p.ImportedXml!.Blockers.Length==0&&XmlMerge.Equal(XmlMerge.Read(source).DocumentElement,XmlMerge.Read(Xml(p)).DocumentElement),"unchanged import/export preserves original XML "+label);
-   p=PlanStore.Deserialize(PlanStore.Serialize(p,true));Check(p.Users[0].Password==seed.Users[0].Password&&p.RemovedApps.Count==60&&p.Scripts.Count==2&&XmlMerge.Equal(XmlMerge.Read(source).DocumentElement,XmlMerge.Read(Xml(p)).DocumentElement),"saved plan reload preserves imported settings and source "+label);
+   p=PlanStore.Deserialize(PlanStore.Serialize(p,true));Check(p.Users[0].Password==seed.Users[0].Password&&p.RemovedApps.Count==AppRemovalSettings.Items.Count&&p.Scripts.Count==2&&XmlMerge.Equal(XmlMerge.Read(source).DocumentElement,XmlMerge.Read(Xml(p)).DocumentElement),"saved plan reload preserves imported settings and source "+label);
   }
   string original=Fixture(Seed(),true,true);
   foreach(string edit in new[]{"computer","account","compact","search","script","remove-app","disable-feature"}){
    var p=XmlPlanImport.Import(original,g);
    switch(edit){case "computer":p.ComputerName="IMPORTEDFIX";break;case "account":p.Users[0].DisplayName="Edited fixture";break;case "compact":p.CompactOsMode=CompactOsSettings.Disabled;break;case "search":p.TaskbarSearch="仅图标";break;case "script":p.Scripts[0].Content="Write-Output 'Edited synthetic script';";break;case "remove-app":p.RemovedApps.Remove("RemoveCalculator");break;case "disable-feature":p.DisableSac=false;break;}
    var output=Xml(p);var again=XmlPlanImport.Import(output,g);
-   Check(edit switch{"computer"=>again.ComputerName==p.ComputerName,"account"=>again.Users[0].DisplayName==p.Users[0].DisplayName,"compact"=>again.CompactOsMode==p.CompactOsMode,"search"=>again.TaskbarSearch==p.TaskbarSearch,"script"=>again.Scripts[0].Content==p.Scripts[0].Content,"remove-app"=>!again.RemovedApps.Contains("RemoveCalculator")&&again.RemovedApps.Count==59,_=>!again.DisableSac},"recognized edit survives export/reimport: "+edit);
+   Check(edit switch{"computer"=>again.ComputerName==p.ComputerName,"account"=>again.Users[0].DisplayName==p.Users[0].DisplayName,"compact"=>again.CompactOsMode==p.CompactOsMode,"search"=>again.TaskbarSearch==p.TaskbarSearch,"script"=>again.Scripts[0].Content==p.Scripts[0].Content,"remove-app"=>!again.RemovedApps.Contains("RemoveCalculator")&&again.RemovedApps.Count==AppRemovalSettings.Items.Count-1,_=>!again.DisableSac},"recognized edit survives export/reimport: "+edit);
    Check(again.Scripts[1].Content==Seed().Scripts[1].Content&&again.Users[0].Password==Seed().Users[0].Password,"unrelated credential/REG payload survives: "+edit);
   }
   var unknown=XmlMerge.Read(original);var stage=FileNode(unknown,"Specialize.ps1");stage.InnerText=stage.InnerText.Replace("$max = 100;","$max = 101;");var ro=XmlPlanImport.Import(unknown.OuterXml,g);
   Check(ro.ImportedXml is {AppRemovalReadOnly:true},"altered wrapper stays read-only");ro.ComputerName="KEEPUNKNOWN";var unchanged=XmlMerge.Read(Xml(ro));Check(FileNode(unchanged,"Specialize.ps1").InnerText==stage.InnerText,"unknown wrapper retained under unrelated edit");
   var vm=new MainViewModel();int prompts=0,notifications=0;vm.PropertyChanged+=(_,e)=>{if(e.PropertyName==nameof(MainViewModel.Plan)){notifications++;if(!vm.IsLoadingPlan)prompts++;}};
   Check(vm.ImportXml(original,()=>true)&&notifications==1&&prompts==0&&!vm.IsLoadingPlan,"plan notification runs inside load guard and does not request reset");
-  Check(vm.Plan.Users.Count==1&&vm.SelectedUser==vm.Plan.Users[0]&&vm.SelectedScript==vm.Plan.Scripts[0]&&vm.AppRemovalChoices.Count(c=>c.IsSelected)==60&&vm.IsGenericEdition&&vm.SelectedEditionKey.Length==29,"loaded UI selection/app checks/key summary match imported plan");
+  Check(vm.Plan.Users.Count==1&&vm.SelectedUser==vm.Plan.Users[0]&&vm.SelectedScript==vm.Plan.Scripts[0]&&vm.AppRemovalChoices.Count(c=>c.IsSelected)==AppRemovalSettings.Items.Count&&vm.IsGenericEdition&&vm.SelectedEditionKey.Length==29,"loaded UI selection/app checks/key summary match imported plan");
   var current=vm.Plan;Check(!vm.ImportXml(original,()=>false)&&ReferenceEquals(vm.Plan,current)&&!vm.IsLoadingPlan,"cancel import retains current object and values");
   try{vm.ImportXml("<invalid/>",()=>true);Check(false,"invalid XML");}catch(ArgumentException){Check(ReferenceEquals(vm.Plan,current)&&!vm.IsLoadingPlan,"failed import retains current object and guard state");}
   var next=Seed();vm.Plan=next;Check(ReferenceEquals(vm.Plan,next)&&notifications==2&&prompts==0&&vm.SelectedUser==next.Users[0],"opening another plan uses the same guarded replacement");

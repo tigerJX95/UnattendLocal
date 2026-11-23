@@ -1,5 +1,6 @@
 using System.Globalization;
 using System.Windows;
+using System.Windows.Automation;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
 using System.Windows.Data;
@@ -130,6 +131,8 @@ internal static class Program
             }
             Console.WriteLine("PASS local account list theme across account modes and theme switches.");
             CheckSidebarLayout(window);
+            CheckButtonToolTips(window);
+            CheckTimeZoneBindings(window);
             CheckAdvancedXmlFormThemes(window);
             CheckSetupLogTheme(window);
             CheckDeploymentReviewWindows(window);
@@ -137,6 +140,86 @@ internal static class Program
         finally
         {
             window.Close();
+        }
+    }
+
+    private static void CheckButtonToolTips(MainWindow window)
+    {
+        var style = (Style)window.FindResource(typeof(Button));
+        string previousLanguage = UiText.Language;
+        try
+        {
+            foreach (string culture in new[] { "zh-CN", "en-US" })
+            {
+                UiText.SetLanguage(culture);
+                foreach (string key in new[] { "text.b5141d3d19e9", "text.0c70665b6eb6", "text.fac2a67ad878",
+                    "text.2cd0f3be8738", "text.3fd47edce45b", "review.share.copy" })
+                {
+                    string label = UiText.Get(key);
+                    var button = new Button { Style = style, Content = label, ContentTemplate = null };
+                    DrainDispatcher();
+                    if (button.ToolTip != null || AutomationProperties.GetName(button) != label)
+                        throw new Exception($"{culture}/{key}: text buttons must keep their accessible name without an automatic tooltip.");
+                }
+
+                var helpButton = new Button { Style = style, Content = UiText.Source("plan.open") };
+                var titleOnlyButton = new Button { Style = style, Content = UiText.Source("v122.copyScriptContent") };
+                var explicitTip = new ToolTip { Content = UiText.Get("plan.open.help") };
+                var textWithHelp = new Button { Style = style, Content = UiText.Get("plan.open"), ContentTemplate = null, ToolTip = explicitTip };
+                DrainDispatcher();
+                if (helpButton.ToolTip is not HelpTopic { Sections.Count: > 0 } help || UiText.Translate(help.Title) != UiText.Get("plan.open"))
+                    throw new Exception($"{culture}: the icon button must retain its translated name and instructions.");
+                if (titleOnlyButton.ToolTip is not HelpTopic { Sections.Count: 0 } titleOnly || UiText.Translate(titleOnly.Title) != UiText.Get("v122.copyScriptContent"))
+                    throw new Exception($"{culture}: icon help that only names an action must display the name once.");
+                if (!ReferenceEquals(textWithHelp.ToolTip, explicitTip))
+                    throw new Exception($"{culture}: an explicit explanatory tooltip must override the text-button default.");
+            }
+            Console.WriteLine("Button tooltip WPF bindings passed in both interface languages.");
+        }
+        finally { UiText.SetLanguage(previousLanguage); }
+    }
+
+    private static void CheckTimeZoneBindings(MainWindow window)
+    {
+        var pages = (TabControl)window.FindName("Pages");
+        var viewModel = (MainViewModel)window.DataContext;
+        var mode = (ComboBox)window.FindName("SettingAnchor021");
+        var zone = (ComboBox)window.FindName("SettingAnchor022");
+        var originalPlan = viewModel.Plan;
+        var originalPage = pages.SelectedItem;
+        string language = UiText.Language;
+        string automatic = UiText.Source("text.499ff33c1078");
+        string specified = UiText.Source("text.980f34c4425d");
+        try
+        {
+            pages.SelectedItem = pages.Items.OfType<TabItem>()
+                .Single(page => Equals(page.Header, UiText.Source("text.692873ddd8f4")));
+            foreach (string culture in new[] { "en-US", "zh-CN" })
+            {
+                UiText.SetLanguage(culture);
+                viewModel.Plan = InstallPlan.New();
+                DrainDispatcher();
+                if (!Equals(mode.SelectedValue, automatic) || zone.IsEnabled || zone.SelectedIndex != -1)
+                    throw new Exception($"{culture}: new plans must show automatic time zone with no active selection.");
+                mode.SetCurrentValue(Selector.SelectedValueProperty, specified);
+                DrainDispatcher();
+                if (!zone.IsEnabled || viewModel.Plan.TimeZoneMode != specified)
+                    throw new Exception($"{culture}: choosing an explicit mode must enable the time zone picker.");
+                zone.SetCurrentValue(Selector.SelectedValueProperty, "India Standard Time");
+                UiText.SetLanguage(culture == "en-US" ? "zh-CN" : "en-US");
+                DrainDispatcher();
+                if (!Equals(mode.SelectedValue, specified) || !Equals(zone.SelectedValue, "India Standard Time") ||
+                    viewModel.Plan.TimeZone != "India Standard Time")
+                    throw new Exception($"{culture}: changing language must preserve an explicit time zone.");
+            }
+            Console.WriteLine("Time zone WPF bindings passed in both interface languages.");
+        }
+        finally
+        {
+            UiText.SetLanguage(language);
+            viewModel.Plan = originalPlan;
+            pages.SelectedItem = originalPage;
+            DrainDispatcher();
         }
     }
 

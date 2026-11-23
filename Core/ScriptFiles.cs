@@ -73,8 +73,8 @@ public static class ScriptFiles {
   Encoding encoding=row.Type switch {"Reg" or "Vbs"=>new UnicodeEncoding(false,true,true),"Ps1"=>new UTF8Encoding(true,true),_=>Utf8};
   return [..encoding.GetPreamble(),..encoding.GetBytes(text)];
  }
- public static void Write(ScriptEntry row,string destination){
-  AtomicFile.WriteAllBytes(destination,Encode(row,destination));
+ public static void Write(ScriptEntry row,string destination,bool overwrite=true){
+  AtomicFile.WriteAllBytes(destination,Encode(row,destination),overwrite);
  }
  public static string EncodingHint(string type)=>type switch {"Cmd"=>global::UnattendLocal.Localization.UiText.Source("text.d9746ee69618"),"Reg"=>global::UnattendLocal.Localization.UiText.Source("text.8dbfc788e3b3"),"Vbs"=>global::UnattendLocal.Localization.UiText.Source("text.eff0f766b82e"),"Ps1"=>global::UnattendLocal.Localization.UiText.Source("text.3f635552ca60"),_=>global::UnattendLocal.Localization.UiText.Source("text.d5d96b3cf5bf")};
 }

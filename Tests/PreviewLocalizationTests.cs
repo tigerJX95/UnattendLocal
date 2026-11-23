@@ -35,7 +35,9 @@ static class PreviewLocalizationTests
     Check(english.Contains("中文用户内容")&&english.Contains("中文用户脚本"),"raw user text and script remain unchanged");
     Check(!Regex.IsMatch(english.Replace("中文用户内容","").Replace("中文用户脚本",""),"[\u4e00-\u9fff]"),"English authored preview text has no Chinese");
     Check(GeneratorService.Preview(bytes).Contains("[密码已遮蔽]"),"canonical preview remains compatible");
-    try{XmlPlanImport.Import(english[english.IndexOf("<unattend",StringComparison.Ordinal)..],generator);throw new Exception("accepted redacted domain XML");}catch(ArgumentException){count++;}
+    var imported=XmlPlanImport.Import(english[english.IndexOf("<unattend",StringComparison.Ordinal)..],generator);
+    Check(imported.ImportedXml!.Blockers.Contains(UiText.Source("import.credentials.domain"))&&imported.ImportedXml.SourceXml.Contains("[Domain join credentials redacted]"),"English domain marker retained with a credential diagnostic in either UI language");
+    try{generator.Generate(imported);throw new Exception("exported redacted domain XML");}catch(ArgumentException){count++;}
    }
    var model=new MainViewModel();model.Plan.Users[0].Password="PreviewTest123!";
    var exported=generator.Generate(model.Plan);string before=Convert.ToHexString(exported);

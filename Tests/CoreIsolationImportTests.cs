@@ -17,6 +17,8 @@ static class CoreIsolationImportTests
         string Source(bool disabled, string mode)
         {
             var plan = QuickPresets.Create(QuickPresets.LocalAccount);
+            plan.Users[0].Password = "FixturePassword!";
+            plan.Users[0].AllowEmptyPassword = false;
             plan.DisableCoreIsolation = disabled;
             var doc = XmlMerge.Read(Encoding.UTF8.GetString(generator.GenerateStandalone(plan)));
             doc.DocumentElement!.PrependChild(doc.CreateComment(

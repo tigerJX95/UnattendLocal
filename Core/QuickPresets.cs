@@ -14,6 +14,7 @@ public static class QuickPresets
             CustomStartingPoint = kind,
             InteractiveLanguage = true,
             TimeZoneMode = global::UnattendLocal.Localization.UiText.Source("text.499ff33c1078"),
+            TimeZone = "",
             AccountMode = global::UnattendLocal.Localization.UiText.Source("text.189b388c95be"),
             AutoLogon = false,
             PasswordExpiration = global::UnattendLocal.Localization.UiText.Source("text.1823400b7251"),

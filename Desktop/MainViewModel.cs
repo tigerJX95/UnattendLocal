@@ -36,7 +36,7 @@ public class MainViewModel : Observable {
  private System.Collections.ObjectModel.ObservableCollection<string>? observedApps;
  public List<AppRemovalChoice> AppRemovalChoices {get;private set;}=new();
  private string appRemovalFilter="";public string AppRemovalFilter {get=>appRemovalFilter;set{Set(ref appRemovalFilter,value);Notify(nameof(FilteredAppRemovalChoices));Notify(nameof(AppRemovalFilterSummary));}}
- public List<AppRemovalChoice> FilteredAppRemovalChoices=>AppRemovalChoices.Where(i=>SearchTextMatcher.Matches(i.Label+" "+i.Id+" "+i.Group+" "+i.Description+" "+UnattendLocal.Localization.UiText.EnglishText(i.Label)+" "+UnattendLocal.Localization.UiText.EnglishText(i.Description),AppRemovalFilter)).ToList();
+ public List<AppRemovalChoice> FilteredAppRemovalChoices=>AppRemovalChoices.Where(i=>SearchTextMatcher.Matches(i.Label+" "+i.Id+" "+i.Group+" "+i.Description+" "+UnattendLocal.Localization.UiText.EnglishText(i.Label)+" "+UnattendLocal.Localization.UiText.EnglishText(i.Group)+" "+UnattendLocal.Localization.UiText.EnglishText(i.Description),AppRemovalFilter)).ToList();
  public string AppRemovalFilterSummary=>global::UnattendLocal.Localization.UiText.Format("message.f9d13e1e985e", new string[] { global::UnattendLocal.Localization.UiText.Arg((FilteredAppRemovalChoices.Count), 0, null), global::UnattendLocal.Localization.UiText.Arg((AppRemovalChoices.Count), 0, null) });
  public IReadOnlyList<string> FirstLogonModes=>HasReadonlyFirstLogon?[FirstLogonSettings.Summary(Plan)]:FirstLogonSettings.Modes;
  public string SelectedFirstLogon {get=>HasReadonlyFirstLogon?FirstLogonSettings.Summary(Plan):FirstLogonSettings.Mode(Plan);set{if(updating||!CanEditFirstLogon||!FirstLogonSettings.Modes.Contains(value)||SelectedFirstLogon==value)return;updating=true;try{Plan.UseBuiltinAdministrator=value==FirstLogonSettings.Builtin;Plan.AutoLogon=value!=FirstLogonSettings.None;}finally{updating=false;}RefreshAll();InvalidatePreview();}}
@@ -295,7 +295,7 @@ public class MainViewModel : Observable {
   }finally{updating=false;}
   RefreshAll();InvalidatePreview();
  }
- private void RefreshAll(){foreach(var name in new[]{nameof(IsFixedComputerName),nameof(IsPromptComputerName),nameof(IsScriptComputerName),nameof(IsMacComputerName),nameof(IsIpv4ComputerName),nameof(ComputerNameSummary),nameof(LanguagePreferencesSummary),nameof(IsSecondLanguage),nameof(IsThirdLanguage)})Notify(name);Notify(nameof(IsAuditCommandLine));RefreshRecommendations();RefreshEdition();RefreshNetwork();RefreshShell();RefreshDesktop();RefreshVisualEffects();RefreshColors();RefreshWallpaper();RefreshLockKeys();RefreshStickyKeys();RefreshAccountLockout();RefreshXmlImport();RefreshCompactOs();RefreshHelp();}
+ private void RefreshAll(){foreach(var name in new[]{nameof(IsFixedComputerName),nameof(IsPromptComputerName),nameof(IsScriptComputerName),nameof(IsMacComputerName),nameof(IsIpv4ComputerName),nameof(ComputerNameSummary),nameof(LanguagePreferencesSummary),nameof(IsSecondLanguage),nameof(IsThirdLanguage)})Notify(name);Notify(nameof(IsAuditCommandLine));RefreshRecommendations();Notify(nameof(ShowCanadianTimeZoneUpdateHint));RefreshEdition();RefreshNetwork();RefreshShell();RefreshDesktop();RefreshVisualEffects();RefreshColors();RefreshWallpaper();RefreshLockKeys();RefreshStickyKeys();RefreshAccountLockout();RefreshXmlImport();RefreshCompactOs();RefreshHelp();}
  public bool IsCustomAccountLockout=>Plan.AccountLockoutMode==AccountLockoutPolicy.Custom;
  public bool IsAccountLockoutDisabled=>AccountLockoutPolicy.IsDisabled(Plan);
  public string AccountLockoutSummary=>AccountLockoutPolicy.ModeSummary(Plan);
@@ -375,6 +375,8 @@ public class MainViewModel : Observable {
  public bool IsCustomConfiguration {get=>isCustomConfiguration;private set=>Set(ref isCustomConfiguration,value);}
  public bool IsFixedLanguage {get=>isFixedLanguage;private set=>Set(ref isFixedLanguage,value);}
  public bool IsFixedTimeZone {get=>isFixedTimeZone;private set=>Set(ref isFixedTimeZone,value);}
+ public bool ShowCanadianTimeZoneUpdateHint => IsFixedTimeZone &&
+  Plan.TimeZone is "British Columbia Standard Time" or "Alberta Standard Time" or "Manitoba Standard Time";
  private bool isScriptDisk,isPartitionTarget;
  public bool IsScriptDisk {get=>isScriptDisk;private set=>Set(ref isScriptDisk,value);} public bool IsPartitionTarget {get=>isPartitionTarget;private set=>Set(ref isPartitionTarget,value);}
  private bool isImageName,isImageIndex,isTargetDisk,isExistingDisk,isWipeDisk,isFormatDisk,isDestructiveDisk;

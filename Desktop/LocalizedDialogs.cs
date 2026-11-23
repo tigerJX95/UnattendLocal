@@ -9,7 +9,7 @@ namespace UnattendLocal.Desktop;
 
 internal static class LocalizedMessageBox
 {
-    public static MessageBoxResult Show(Window owner, string text, string caption, MessageBoxButton buttons = MessageBoxButton.OK, MessageBoxImage image = MessageBoxImage.None, MessageBoxResult defaultResult = MessageBoxResult.None)
+    public static MessageBoxResult Show(Window owner, string text, string caption, MessageBoxButton buttons = MessageBoxButton.OK, MessageBoxImage image = MessageBoxImage.None, MessageBoxResult defaultResult = MessageBoxResult.None, Func<string>? copySummary = null)
     {
         var choices = buttons switch
         {
@@ -28,6 +28,35 @@ internal static class LocalizedMessageBox
         if (image == MessageBoxImage.Warning || image == MessageBoxImage.Error) message.SetResourceReference(TextBlock.ForegroundProperty, "DangerBrush");
         panel.Children.Add(new ScrollViewer { Content = message, VerticalScrollBarVisibility = ScrollBarVisibility.Auto, MaxHeight = Math.Max(150, window.MaxHeight - 160) });
         var bar = new WrapPanel { HorizontalAlignment = HorizontalAlignment.Right, Margin = new Thickness(0, 20, 0, 0) };
+        if (copySummary != null)
+        {
+            var feedback = new TextBlock { TextWrapping = TextWrapping.Wrap, Margin = new Thickness(0, 8, 0, 0), Visibility = Visibility.Collapsed };
+            feedback.SetResourceReference(TextBlock.ForegroundProperty, "SecondaryBrush");
+            System.Windows.Automation.AutomationProperties.SetLiveSetting(feedback, System.Windows.Automation.AutomationLiveSetting.Polite);
+            var copy = new Button
+            {
+                Content = UiText.Get("review.share.copy"),
+                ContentTemplate = null,
+                Width = double.NaN,
+                Height = double.NaN,
+                Padding = new Thickness(16, 8, 16, 8)
+            };
+            copy.Click += (_, _) =>
+            {
+                try
+                {
+                    Clipboard.SetText(UiText.Translate(copySummary()));
+                    feedback.Text = UiText.Get("review.share.copied");
+                }
+                catch (System.Runtime.InteropServices.ExternalException)
+                {
+                    feedback.Text = UiText.Get("review.share.copyFailed");
+                }
+                feedback.Visibility = Visibility.Visible;
+            };
+            bar.Children.Add(copy);
+            panel.Children.Add(feedback);
+        }
         foreach (var choice in choices)
         {
             string key = choice switch { MessageBoxResult.Yes => "text.b5141d3d19e9", MessageBoxResult.No => "text.0c70665b6eb6", MessageBoxResult.Cancel => "text.2cd0f3be8738", _ => "text.fac2a67ad878" };
@@ -41,29 +70,34 @@ internal static class LocalizedMessageBox
 }
 internal static class LocalizedFileDialog
 {
-    public static bool? ShowLocalized(this FileDialog dialog, Window owner)
+    public static bool? ShowLocalized(this OpenFileDialog dialog, Window owner)
     {
         dialog.Title = UiText.Translate(dialog.Title); dialog.Filter = UiText.Translate(dialog.Filter);
-        if (dialog is not SaveFileDialog { OverwritePrompt: true } save) return dialog.ShowDialog(owner);
+        return dialog.ShowDialog(owner);
+    }
 
+    // null means cancelled, false means create only, and true authorizes replacement.
+    public static bool? ConfirmSave(this SaveFileDialog save, Window owner)
+    {
+        save.Title = UiText.Translate(save.Title); save.Filter = UiText.Translate(save.Filter);
         // Confirm after the native picker closes so the prompt uses the app language.
+        bool originalPrompt = save.OverwritePrompt;
         save.OverwritePrompt = false;
         try
         {
-            bool? result;
-            while ((result = save.ShowDialog(owner)) == true)
+            while (save.ShowDialog(owner) == true)
             {
                 try { _ = File.GetAttributes(save.FileName); }
-                catch (FileNotFoundException) { return true; }
-                catch (DirectoryNotFoundException) { return true; }
+                catch (FileNotFoundException) { return false; }
+                catch (DirectoryNotFoundException) { return false; }
 
                 if (LocalizedMessageBox.Show(owner, UiText.Format("dialog.overwriteFile", save.SafeFileName),
                     UiText.Source("dialog.overwriteTitle"), MessageBoxButton.YesNo, MessageBoxImage.Warning, MessageBoxResult.No) == MessageBoxResult.Yes)
                     return true;
             }
-            return result;
+            return null;
         }
-        finally { save.OverwritePrompt = true; }
+        finally { save.OverwritePrompt = originalPrompt; }
     }
 }
 public static class LocalizedItems

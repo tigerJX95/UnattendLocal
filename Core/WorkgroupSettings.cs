@@ -62,10 +62,10 @@ public static class WorkgroupSettings
     public static Source ReadIntoPlan(XmlDocument doc, InstallPlan p, List<string> notes) { var s = Inspect(doc); Assign(p, s); if (!s.Known) notes.Add(ReadOnlyNotice); return s; }
     public static void UpdateImportState(ImportedXml data, Source s) { data.WorkgroupReadOnly = !s.Known; data.WorkgroupImportVersion = 1; }
     public static void ValidateImported(InstallPlan p, XmlDocument source) { if (p.UseWorkgroup && !Inspect(source).Known) throw new ArgumentException(ReadOnlyNotice); }
-    public static void NormalizeLoaded(InstallPlan p, JsonElement root)
+    public static void NormalizeLoaded(InstallPlan p, JsonElement root, XmlDocument? parsedSource = null)
     {
         if (p.ImportedXml is not { OriginalOmitted: false, SourceXml.Length: > 0 } data) return;
-        var state = Inspect(XmlMerge.Read(data.SourceXml));
+        var state = Inspect(parsedSource ?? XmlMerge.Read(data.SourceXml));
         if (data.WorkgroupImportVersion < 1 && state is { Present: true, Known: true })
         {
             bool missing = !root.TryGetProperty(nameof(p.UseWorkgroup), out _) && !root.TryGetProperty(nameof(p.WorkgroupName), out _);

@@ -7,7 +7,7 @@
 
 UnattendLocal is a Windows desktop tool with Simplified Chinese and English interfaces based on [Christoph Schneegans’ UnattendGenerator](https://github.com/cschneegans/unattend-generator). It lets you edit, check, and generate `autounattend.xml` for Windows 10 / 11 locally.
 
-Current version: **V1.54**. When PE script installation is enabled, image selection switches to **By image index** and requires an index from the installation image; the regular Windows Setup path retains all image selection modes. Includes static IPv4/IPv6 dual stack, subnet-mask input, settings search, setup driver directories, Dynamic Update, partitioning, OOBE and account settings, and existing XML import/editing.
+Current version: **V1.55**. When PE script installation is enabled, image selection switches to **By image index** and requires an index from the installation image; the regular Windows Setup path retains all image selection modes. Includes static IPv4/IPv6 dual stack, subnet-mask input, settings search, setup driver directories, Dynamic Update, partitioning, OOBE and account settings, and existing XML import/editing.
 
 ## 💡 Why this project exists
 
@@ -49,7 +49,7 @@ The displayed product key is a public generic installation key for selecting an 
 - Configure installation-stage Dynamic Update and UI behavior, plus INF driver directories accessible from target Windows PE.
 - Configure local accounts, passwords, initial sign-in, password expiration and lockout policies, Wi-Fi, offline installation, and OOBE.
 - Configure File Explorer, the Start menu, taskbar, desktop icons, visual effects, colors, backgrounds, and lock-screen images.
-- Select among 60 application and system capability removal items, with localized impact descriptions, keyword search, and a selection summary. Items are unchecked by default.
+- Select among 62 application and system capability removal items, with localized impact descriptions, keyword search, and a selection summary. Items are unchecked by default.
 - Configure `$OEM$` media configuration sets and AppLocker policy XML, with policy editing and structural validation.
 - Configure Narrator-assisted setup, the Edge uninstall option, and system protection on drive C:. All three are unchecked by default.
 - Configure guest tool installation for VMware, VirtualBox, KVM / QEMU (VirtIO), and Parallels, with media requirements and scope descriptions.
@@ -58,12 +58,18 @@ The displayed product key is a public generic installation key for selecting an 
 - Save and restore JSON plans; review summaries, recommended-setting differences, checks, redacted previews, and XML exports.
 - Import existing XML and edit supported settings while preserving unknown content. Export stops with an explanation when changes cannot be merged reliably.
 
-## V1.54 Unified configuration controls and answer file comparison
+## V1.55 Updated Windows time zones and deployment review
 
-- New configuration and Open configuration sit in the upper-right toolbar. Open configuration shows Windows answer XML and JSON plans under one file filter.
-- Increase the size of the Navigation heading and the sidebar toggle icon.
-- Save a JSON plan or compare configurations from the two-document icon on the Configuration plans page. The tooltip follows the interface language.
-- Compare with a saved configuration accepts answer XML and lists differing setup passes and other XML content against the answer file generated from the current configuration.
+- Add Windows Fax and Scan and XPS Viewer to application removal. Both are unchecked by default and are removed only if the corresponding optional feature is installed on the target Windows system.
+- Remove redundant hover text from labeled buttons in confirmation, import, and error dialogs. Icon tooltips display each action name once.
+- New configurations let Windows choose the time zone by default. Choosing to specify a time zone requires an explicit selection.
+- Add Windows time zones for British Columbia, Alberta, Manitoba, and two legacy entries. Update labels for Paraguay, Greenland, and other zones. Existing configurations retain their time zone IDs.
+- Search time zones using offsets such as `UTC-7` and `UTC+5:30`, Chinese or English names, or Windows time zone IDs.
+- Show an update compatibility notice when one of the new Canadian time zones is selected.
+- Optionally copy a redacted summary in the XML or ISO deployment review dialog. It lists setup passes, disk review status, local accounts, and script counts, with credentials, addresses, paths, and script text omitted.
+- Restore recognized time zones, regular Windows Setup image selection, and OOBE settings from the answer XML, with a notice when editing metadata differs.
+- Keep invalid credentials in imported answer XML, report the affected fields, and block export. An imported empty account password requires entry or explicit approval.
+- Protect files that appear while saving under a new name. Ignore attribute order and equivalent namespace prefixes in answer XML comparisons. Reuse parsed source XML when loading JSON plans.
 
 [Deployment review](docs/DeploymentReview.md)
 
@@ -71,7 +77,7 @@ The displayed product key is a public generic installation key for selecting an 
 
 ## 📦 Download and usage
 
-Download and run the matching Windows x64 executable from the repository’s [**Releases**](https://github.com/tigerJX95/UnattendLocal/releases/latest) page: `UnattendLocal_V1.54_x64_SelfContained.exe` or `UnattendLocal_V1.54_x64_FrameworkDependent.exe`. Choose `UnattendLocal_V1.54_x64_SelfContained.exe` for a bundled .NET runtime, or `UnattendLocal_V1.54_x64_FrameworkDependent.exe` if .NET 10 Desktop Runtime x64 is already installed. Both have the same features. Use a virtual machine for initial testing.
+Download and run the matching Windows x64 executable from the repository’s [**Releases**](https://github.com/tigerJX95/UnattendLocal/releases/latest) page: `UnattendLocal_V1.55_x64_SelfContained.exe` or `UnattendLocal_V1.55_x64_FrameworkDependent.exe`. Choose `UnattendLocal_V1.55_x64_SelfContained.exe` for a bundled .NET runtime, or `UnattendLocal_V1.55_x64_FrameworkDependent.exe` if .NET 10 Desktop Runtime x64 is already installed. Both have the same features. Use a virtual machine for initial testing.
 
 1. Choose a recommended, custom, or minimal starting point from New configuration, or use Open configuration to continue editing an existing file.
 2. Adjust system, appearance, and application removal options as needed.

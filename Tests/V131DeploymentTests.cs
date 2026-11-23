@@ -9,6 +9,8 @@ static class V131DeploymentTests
     private static InstallPlan Plan(string layout)
     {
         var p = QuickPresets.Create(QuickPresets.LocalAccount);
+        p.Users[0].Password = "FixturePassword!";
+        p.Users[0].AllowEmptyPassword = false;
         p.UseGeneratedPe = true; p.KeepSensitiveFiles = true;
         p.DiskMode = InstallationSettings.Wipe; p.DiskLayout = layout;
         p.TargetDiskId = 0; p.ImageSelection = UiText.Source("text.9cbbdbe44e5d"); p.ImageIndex = 1;

@@ -66,10 +66,12 @@ public sealed class ActionIconConverter : IValueConverter
 
 public sealed class ActionHelpConverter : IValueConverter
 {
-    public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+    public object? Convert(object value, Type targetType, object parameter, CultureInfo culture)
     {
-        var title = value?.ToString() ?? global::UnattendLocal.Localization.UiText.Source("text.ed31fbb483ee");
-        return new HelpTopic("action", title, ActionIconConverter.Actions.TryGetValue(title, out var action) ? HelpText.Paragraphs(action.Body) : title);
+        if (value is not string title || string.IsNullOrWhiteSpace(title)) return null;
+        if (ActionIconConverter.Actions.TryGetValue(title, out var action) && action.Body != title)
+            return new HelpTopic("action", title, HelpText.Paragraphs(action.Body));
+        return new HelpTopic("action", title, "") { Parts = [] };
     }
     public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture) => throw new NotSupportedException();
 }

@@ -7,7 +7,7 @@
 
 UnattendLocal 是基于 [Christoph Schneegans 的 UnattendGenerator](https://github.com/cschneegans/unattend-generator) 开发的 Windows 桌面配置工具，支持简体中文与英语界面，用于在本地编辑、检查和生成 Windows 10 / 11 的 `autounattend.xml`。
 
-当前版本：**V1.54**。启用 PE 脚本安装后会自动切换为“按镜像索引”，须自行填写安装镜像中的实际索引；普通 Windows Setup 仍支持原有全部镜像选择方式。支持简体中文 / English 即时切换、独立语言包维护、静态 IPv4 / IPv6 双栈、子网掩码输入、设置搜索、安装驱动目录、动态更新、自动分区、OOBE 与账户配置，以及已有 XML 的导入编辑。
+当前版本：**V1.55**。启用 PE 脚本安装后会自动切换为“按镜像索引”，须自行填写安装镜像中的实际索引；普通 Windows Setup 仍支持原有全部镜像选择方式。支持简体中文 / English 即时切换、独立语言包维护、静态 IPv4 / IPv6 双栈、子网掩码输入、设置搜索、安装驱动目录、动态更新、自动分区、OOBE 与账户配置，以及已有 XML 的导入编辑。
 
 ## 💡 开发初衷
 
@@ -47,7 +47,7 @@ UnattendLocal 是基于 [Christoph Schneegans 的 UnattendGenerator](https://git
 - 配置安装阶段动态更新与界面显示行为，以及目标 Windows PE 可访问的 INF 驱动目录。
 - 配置本地账户、内置 Administrator 首次登录、密码、密码到期与锁定策略，以及 WPA2 / WPA3 / 开放 Wi-Fi、无线配置 XML、离线安装和 OOBE。
 - 配置资源管理器、开始菜单、任务栏、系统桌面图标、视觉效果、配色、纯色或图片背景及锁屏图片。
-- 按项选择 60 个应用与系统能力移除项目，提供中文影响说明、关键词搜索和选择摘要，默认不勾选。
+- 按项选择 62 个应用与系统能力移除项目，提供中文影响说明、关键词搜索和选择摘要，默认不勾选。
 - 配置 `$OEM$` 安装介质配置集与 AppLocker 策略 XML，提供策略编辑及结构检查。
 - 配置讲述人辅助安装、Edge 卸载入口和 C 盘系统还原行为，三项默认不勾选。
 - 配置 VMware、VirtualBox、KVM / QEMU（VirtIO）和 Parallels 的工具安装，附带所需介质及作用范围说明。
@@ -56,12 +56,18 @@ UnattendLocal 是基于 [Christoph Schneegans 的 UnattendGenerator](https://git
 - 保存和恢复 JSON 方案，提供配置摘要、推荐差异、检查、脱敏预览和 XML 导出。
 - 导入已有 XML 后编辑已支持设置，保留未知内容；遇到无法可靠合并的修改时停止导出并说明原因。
 
-## V1.54 统一配置入口与应答文件对比
+## V1.55 更新 Windows 时区并完善部署复核
 
-- 「新建配置」和「打开配置」并入右上角工具栏。「打开配置」的同一文件筛选项同时显示 Windows 应答 XML 和 JSON 方案。
-- 放大侧栏「导航」标题和展开、收起图标。
-- 将 JSON 保存与配置对比收进「配置方案」页的双文档图标菜单。悬停说明随界面语言切换。
-- 「对比已保存的配置」支持应答 XML。对比当前配置生成的 XML，列出有差异的安装阶段和其他 XML 内容。
+- 应用移除新增 Windows 传真和扫描及 XPS 查看器，默认不勾选，仅在目标 Windows 已安装对应的可选功能时执行。
+- 确认、导入和错误窗口的文字按钮取消重复悬停提示。图标按钮的操作名称只显示一次。
+- 新建配置默认由 Windows 决定时区。手动指定时区时须选择具体值。
+- 新增不列颠哥伦比亚省、阿尔伯塔省和马尼托巴省的 Windows 时区，补充两个旧版时区条目，并更新巴拉圭、格陵兰等时区的显示。已保存配置继续使用原有时区 ID。
+- 时区下拉框可直接用 `UTC-7`、`UTC+5:30` 等写法筛选，也可按中英文名称或 Windows 时区 ID 查找。
+- 选择新增的加拿大时区时，提示确认目标 Windows 已包含相应时区更新。
+- 在 XML 或 ISO 的部署复核窗口中，可主动复制脱敏摘要。摘要列出安装阶段、磁盘复核状态、本地账户和脚本数量，省略凭据、网络地址、路径和脚本正文。
+- 导入应答 XML 时，以可识别的时区、普通 Windows Setup 镜像选择和 OOBE 设置为准，编辑记录不一致时提示。
+- 导入应答 XML 时保留无效凭据原值，并在检查时指出字段、阻止导出。导入的空账户密码须补填或明确允许空密码。
+- 保存为新文件时保护随后出现的同名文件。对比应答 XML 时忽略属性排列和等价的命名空间前缀，载入 JSON 时复用原始 XML 的解析结果。
 
 [部署复核](docs/DeploymentReview.md)
 
@@ -69,12 +75,12 @@ UnattendLocal 是基于 [Christoph Schneegans 的 UnattendGenerator](https://git
 
 ## 📦 下载与使用
 
-从仓库的 [**Releases**](https://github.com/tigerJX95/UnattendLocal/releases/latest) 页面下载并直接运行对应的 `UnattendLocal_V1.54_x64_SelfContained.exe` 或 `UnattendLocal_V1.54_x64_FrameworkDependent.exe`：
+从仓库的 [**Releases**](https://github.com/tigerJX95/UnattendLocal/releases/latest) 页面下载并直接运行对应的 `UnattendLocal_V1.55_x64_SelfContained.exe` 或 `UnattendLocal_V1.55_x64_FrameworkDependent.exe`：
 
 | 程序文件 | 运行要求 |
 | --- | --- |
-| `UnattendLocal_V1.54_x64_SelfContained.exe` | 集成 .NET 运行时，无需单独安装；通常选择此版。 |
-| `UnattendLocal_V1.54_x64_FrameworkDependent.exe` | 文件较小，需安装 .NET 10 Desktop Runtime x64。 |
+| `UnattendLocal_V1.55_x64_SelfContained.exe` | 集成 .NET 运行时，无需单独安装；通常选择此版。 |
+| `UnattendLocal_V1.55_x64_FrameworkDependent.exe` | 文件较小，需安装 .NET 10 Desktop Runtime x64。 |
 
 两版功能相同。首次安装测试建议使用虚拟机。
 

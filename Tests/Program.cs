@@ -2,6 +2,7 @@ using System.Text;using System.Xml;using UnattendLocal.Core;
 int count=0;var g=new GeneratorService();
 if(args.Contains("--deployment-review-only")){Console.WriteLine($"Deployment review: {DeploymentReviewTests.Run(g)} checks passed.");return;}
 if(args.Contains("--sidebar-navigation-only")){Console.WriteLine($"Sidebar navigation: {SidebarNavigationTests.Run()} checks passed.");return;}
+if(args.Contains("--time-zones-only")){Console.WriteLine($"Time zones: {TimeZoneTests.Run(g)} checks passed.");return;}
 if(args.Contains("--core-isolation-import-only")){Console.WriteLine($"Core isolation import: {CoreIsolationImportTests.Run(g)} checks passed.");return;}
 if(args.Contains("--configuration-review-only")){Console.WriteLine($"Configuration review: {ConfigurationReviewTests.Run(g)} checks passed.");return;}
 if(args.Contains("--ipv4-naming-only")){Console.WriteLine($"IPv4 naming: {Ipv4NamingTests.Run(g)} checks passed.");return;}
@@ -64,7 +65,7 @@ void Check(bool ok,string name){if(!ok)throw new Exception(name);Console.WriteLi
 void Reject(InstallPlan p,string name){try{g.Generate(p);}catch(Exception){Check(true,name);return;}throw new Exception("Expected rejection: "+name);}
 InstallPlan Plan(){var p=InstallPlan.New();p.Users[0].Password="A<&'12345";return p;}
 string Xml(InstallPlan p)=>Encoding.UTF8.GetString(g.Generate(p));
-var p=Plan();var xml=Xml(p);var doc=new XmlDocument();doc.LoadXml(xml);Check(xml.Contains("LocalAccount"),"local account");Check(xml.Contains("China Standard Time"),"time zone");Check(!xml.Contains("A&lt;"),"obscured password");Check(!xml.Contains("DiskConfiguration"),"no automatic disk formatting");
+var p=Plan();var xml=Xml(p);var doc=new XmlDocument();doc.LoadXml(xml);Check(xml.Contains("LocalAccount"),"local account");Check(doc.GetElementsByTagName("TimeZone",XmlMerge.Namespace).Count==0,"new recommended XML lets Windows decide the time zone");Check(!xml.Contains("A&lt;"),"obscured password");Check(!xml.Contains("DiskConfiguration"),"no automatic disk formatting");
 p.AutoLogon=false;Reject(p,"no auto logon requires explicit retention");p.KeepSensitiveFiles=true;Check(!Xml(p).Contains("<AutoLogon>"),"disable auto logon");p=Plan();p.Users.Add(new(){Name="USER",Password="12345678"});Reject(p,"case insensitive duplicate");p=Plan();p.Users[0].Administrator=false;Reject(p,"administrator required");p=Plan();p.Users[0].Password="";Reject(p,"explicit empty consent");p.Users[0].AllowEmptyPassword=true;Check(Xml(p).Contains("LocalAccount"),"explicit empty password");
 p=Plan();p.WifiMode="预设 WPA2 Wi-Fi";p.Ssid="测试 & Network";p.WifiPassword="testpass123";p.HiddenWifi=true;Check(Xml(p).Contains("nonBroadcast"),"hidden wifi embedded");var saved=PlanStore.Serialize(p,false);Check(!saved.Contains("testpass123"),"wifi secret omitted");var restored=PlanStore.Deserialize(saved);Reject(restored,"missing secrets prevent export");Check(PlanStore.Deserialize(PlanStore.Serialize(p,true)).WifiPassword==p.WifiPassword,"secret opt in roundtrip");p.Ssid="bad\\\"ssid";Reject(p,"unsafe wifi name");p=Plan();p.ComputerName="User";Reject(p,"computer account collision");p=Plan();p.AccountMode="安装时创建本地账户";Check(Xml(p).Contains("<HideOnlineAccountScreens>true"),"interactive local OOBE");p.AccountMode="安装时添加微软账户";p.BypassNetwork=true;Reject(p,"online offline conflict");p=Plan();p.PasswordExpiration="指定天数";p.PasswordDays=1000;Reject(p,"password days range");foreach(var arch in new[]{"amd64","arm64","x86"}){p=Plan();p.Architecture=arch;Check(Xml(p).Contains("processorArchitecture=\""+arch+"\""),arch);}
 p=Plan();p.ObscurePasswords=false;p.WifiMode="预设 WPA2 Wi-Fi";p.Ssid="Demo";p.WifiPassword="supersecret123";var preview=GeneratorService.Preview(g.Generate(p));Check(!preview.Contains("supersecret123")&&!preview.Contains("A&lt;"),"preview redacts account and wifi");p.Ssid="bad$()ssid";Reject(p,"PowerShell wifi interpolation rejected");
@@ -120,7 +121,7 @@ Console.WriteLine($"Final combined total: {count} tests passed.");
 
 // Recommendation policies are editable; applying/restoring never touches user credentials.
 foreach(var system in new[]{"Windows 10","Windows 11"})foreach(var scene in new[]{"wired","wifi"}){
- p=Plan();Recommendations.Apply(p,scene,system);
+ p=Plan();p.TimeZone="China Standard Time";Recommendations.Apply(p,scene,system);
  Check(Recommendations.Differences(p).Count==0&&p.BypassNetwork==(system=="Windows 11"),"recommendation baseline "+system+" "+scene);
  if(scene=="wifi"){p.Ssid="TestNetwork";p.WifiPassword="testpass123";}xml=Xml(p);
  Check(Node(xml,"//u:OOBE/u:ProtectYourPC")=="3"&&Node(xml,"//u:OOBE/u:HideWirelessSetupInOOBE")=="true","recommendation generated OOBE "+system+" "+scene);
@@ -168,7 +169,7 @@ p=Plan();p.ImageSelection="按镜像索引";p.ImageIndex=2;p.DiskMode=Installati
 foreach(var secrets in new[]{false,true}){saved=PlanStore.Serialize(p,secrets);restored=PlanStore.Deserialize(saved);Check(restored.DiskMode==InstallationSettings.Wipe&&restored.TargetDiskId==1&&restored.ImageIndex==2&&!restored.ConfirmWipeDisk,"stored destructive intent requires renewed consent secrets="+secrets);restored.Users[0].Password="Password123";restored.Users[0].NeedsPassword=false;Reject(restored,"reloaded wipe blocked without acknowledgement secrets="+secrets);}
 restored=PlanStore.Deserialize("{\"SchemaVersion\":1,\"DiskMode\":\"清空指定磁盘后自动分区\",\"TargetDiskId\":0,\"ConfirmWipeDisk\":true,\"ConfirmFormatPartition\":true}");Check(!restored.ConfirmWipeDisk&&!restored.ConfirmFormatPartition,"file supplied confirmations cannot authorize deletion");
 p=Plan();p.DiskMode=InstallationSettings.Existing;p.TargetDiskId=0;p.TargetPartitionId=3;p.FormatExistingPartition=true;p.ConfirmFormatPartition=true;restored=PlanStore.Deserialize(PlanStore.Serialize(p,true));Check(restored.FormatExistingPartition&&!restored.ConfirmFormatPartition,"format intent persists but acknowledgement does not");
-Recommendations.Apply(p,"wifi");Check(p.DiskMode==InstallationSettings.Manual&&!p.FormatExistingPartition&&!p.ConfirmFormatPartition&&p.RecommendationVersion==3,"recommendation restore always clears destructive mode and consent");p.TargetWindows="Windows 10";Check(Recommendations.Differences(p).Count==0&&!Recommendations.State(p).Contains("Windows 11"),"common recommendation has no system preference deviation");
+Recommendations.Apply(p,"wifi");Check(p.DiskMode==InstallationSettings.Manual&&!p.FormatExistingPartition&&!p.ConfirmFormatPartition&&p.RecommendationVersion==Recommendations.CurrentVersion,"recommendation restore always clears destructive mode and consent");p.TargetWindows="Windows 10";Check(Recommendations.Differences(p).Count==0&&!Recommendations.State(p).Contains("Windows 11"),"common recommendation has no system preference deviation");
 p.DiskMode=InstallationSettings.Existing;Check(Recommendations.Differences(p).Any(d=>d.Property==nameof(InstallPlan.DiskMode)),"explicit automatic disk mode shown as actual adjustment");Recommendations.Restore(p,nameof(InstallPlan.DiskMode));Check(p.DiskMode==InstallationSettings.Manual,"single disk recommendation restore is safe");
 viewModel.Plan=p;viewModel.Plan.DiskMode=InstallationSettings.Wipe;Check(viewModel.IsWipeDisk&&viewModel.IsDestructiveDisk&&viewModel.DiskRisk.Contains("危险"),"risk display follows destructive mode");viewModel.Plan.DiskMode=InstallationSettings.Existing;Check(viewModel.IsExistingDisk&&!viewModel.IsDestructiveDisk,"existing partition mode initially has no formatting risk");viewModel.Plan.FormatExistingPartition=true;Check(viewModel.IsFormatDisk&&viewModel.IsDestructiveDisk,"format risk immediately visible");
 Console.WriteLine($"Pre7 release total: {count} tests passed.");
@@ -272,7 +273,7 @@ Check(g.Regions.Single(x=>x.Id=="45").Label=="中国","China region display name
 Check(g.TimeZones.Single(x=>x.Id=="China Standard Time").Label=="(UTC+08:00) 北京、重庆、香港、乌鲁木齐","Chinese timezone display name retains source offset");
 Check(g.TimeZones.All(c=>c.Label.Split(')')[0]==upstream.TimeOffsets[c.Id].DisplayName.Split(')')[0]),"all timezone labels keep fixed upstream UTC offsets");
 Check(ChoiceLocalization.Architecture("amd64")=="x64（Intel / AMD 64 位）"&&ChoiceLocalization.Architecture("arm64").Contains("64 位")&&ChoiceLocalization.Architecture("x86").Contains("32 位"),"architecture labels explain bitness in Chinese");
-p=Plan();p.ImageLanguage=g.Languages.Single(x=>x.Id=="zh-CN").Id;p.Locale=g.Locales.Single(x=>x.Id=="zh-Hans-CN").Id;p.GeoId=g.Regions.Single(x=>x.Id=="45").Id;p.TimeZone=g.TimeZones.Single(x=>x.Id=="China Standard Time").Id;p.Keyboard=g.Keyboards.Single(x=>x.Id==p.Keyboard).Id;xml=Xml(p);
+p=Plan();p.ImageLanguage=g.Languages.Single(x=>x.Id=="zh-CN").Id;p.Locale=g.Locales.Single(x=>x.Id=="zh-Hans-CN").Id;p.GeoId=g.Regions.Single(x=>x.Id=="45").Id;p.TimeZoneMode="指定时区";p.TimeZone=g.TimeZones.Single(x=>x.Id=="China Standard Time").Id;p.Keyboard=g.Keyboards.Single(x=>x.Id==p.Keyboard).Id;xml=Xml(p);
 Check(Node(xml,"//u:UILanguage")=="zh-CN"&&Node(xml,"//u:UserLocale")=="zh-Hans-CN"&&Node(xml,"//u:TimeZone")=="China Standard Time","localized choices write the original Windows locale and timezone identifiers");
 restored=PlanStore.Deserialize(PlanStore.Serialize(p,true));Check(restored.ImageLanguage==p.ImageLanguage&&restored.Locale==p.Locale&&restored.Keyboard==p.Keyboard&&restored.GeoId==p.GeoId&&restored.TimeZone==p.TimeZone,"saved selections remain compatible across Chinese display update");
 viewModel.Plan=p;Check(viewModel.ConfigurationSummary.Contains("北京、重庆、香港、乌鲁木齐")&&!viewModel.ConfigurationSummary.Contains("China Standard Time")&&viewModel.HelpTips["timezone"].Body.Contains("北京"),"summary and timezone help use Chinese display labels too");
@@ -280,7 +281,7 @@ viewModel.Plan=p;Check(viewModel.ConfigurationSummary.Contains("北京、重庆�
 const string encryptionCommand=@"reg.exe add ""HKLM\SYSTEM\CurrentControlSet\Control\BitLocker"" /v ""PreventDeviceEncryption"" /t REG_DWORD /d 1 /f;";
 Check(InstallPlan.New().PreventDeviceEncryption&&InstallPlan.NewCustom().PreventDeviceEncryption,"recommended and independent custom plans prevent automatic device encryption by default");
 foreach(var scene in new[]{"wired","wifi"}){
- p=Plan();Recommendations.Apply(p,scene);Check(p.PreventDeviceEncryption&&p.RecommendationVersion==3&&Recommendations.Differences(p).Count==0,"new recommendation baseline includes encryption prevention "+scene);
+ p=Plan();Recommendations.Apply(p,scene);Check(p.PreventDeviceEncryption&&p.RecommendationVersion==Recommendations.CurrentVersion&&Recommendations.Differences(p).Count==0,"new recommendation baseline includes encryption prevention "+scene);
 }
 foreach(var arch in new[]{"amd64","arm64","x86"}){
  p=Plan();p.Architecture=arch;xml=Xml(p);var specialize=Node(xml,"//*[local-name()='File' and contains(@path,'Specialize.ps1')]")??"";
@@ -297,8 +298,8 @@ foreach(var enabled in new[]{false,true}){
  }
 }
 restored=PlanStore.Deserialize("{\"SchemaVersion\":1,\"Users\":[]}");Check(!restored.PreventDeviceEncryption,"older plans missing encryption setting keep their prior behavior");
-p=Plan();p.RecommendationVersion=2;p.PreventDeviceEncryption=false;Check(Recommendations.HasBaseline(p)&&Recommendations.Differences(p).Count==0,"version 2 recommendation baseline remains historically accurate");
-Recommendations.Restore(p,nameof(InstallPlan.PreventDeviceEncryption));Check(!p.PreventDeviceEncryption,"single restore respects older recommendation baseline");Recommendations.Apply(p,"wired");Check(p.PreventDeviceEncryption&&p.RecommendationVersion==3,"full restore explicitly upgrades old recommendation to prevention default");
+p=Plan();p.RecommendationVersion=2;p.TimeZoneMode="指定时区";p.PreventDeviceEncryption=false;Check(Recommendations.HasBaseline(p)&&Recommendations.Differences(p).Count==0,"version 2 recommendation baseline remains historically accurate");
+Recommendations.Restore(p,nameof(InstallPlan.PreventDeviceEncryption));Check(!p.PreventDeviceEncryption,"single restore respects older recommendation baseline");Recommendations.Apply(p,"wired");Check(p.PreventDeviceEncryption&&p.RecommendationVersion==Recommendations.CurrentVersion,"full restore explicitly upgrades old recommendation to prevention default");
 viewModel=new UnattendLocal.Desktop.MainViewModel();viewModel.Preview="OLD PREVIEW";viewModel.Plan.PreventDeviceEncryption=false;
 Check(viewModel.Preview!="OLD PREVIEW"&&viewModel.RecommendationDifferences.Any(d=>d.Property==nameof(InstallPlan.PreventDeviceEncryption)),"checkbox updates recommendation differences and invalidates preview");
 Check(viewModel.ConfigurationSummary.Contains("设备自动加密：遵循 Windows 默认行为")&&viewModel.HelpTips["deviceencryption"].Body.StartsWith("当前：遵循"),"disabled checkbox updates summary and current tooltip");Recommendations.Restore(viewModel.Plan,nameof(InstallPlan.PreventDeviceEncryption));
@@ -399,7 +400,7 @@ foreach(var secrets in new[]{false,true}){
 }
 p.TaskbarIconsXml=ShellSettings.TaskbarExample;p.StartPinsJson=ShellSettings.PinsExample;p.Ssid="SavedSSID";Recommendations.Apply(p,"wired");Check(p.HideFilesMode==ExplorerSettings.Default&&explorerFlags.All(name=>!(bool)typeof(InstallPlan).GetProperty(name)!.GetValue(p)!)&&p.TaskbarIconsXml==ShellSettings.TaskbarExample&&p.StartPinsJson==ShellSettings.PinsExample&&p.Ssid=="SavedSSID","full recommendation restores explorer defaults and preserves user documents and network input");
 foreach(var version in new[]{1,2,3}){
- p=Plan();p.RecommendationVersion=version;p.RecommendationWindows=version==1?"Windows 11":"";p.PreventDeviceEncryption=version>=3;
+ p=Plan();p.RecommendationVersion=version;p.TimeZoneMode="指定时区";p.RecommendationWindows=version==1?"Windows 11":"";p.PreventDeviceEncryption=version>=3;
  Check(Recommendations.Differences(p).Count==0,"explorer defaults agree with historical recommendation version "+version);
  p.HideFilesMode=ExplorerSettings.ShowAll;Recommendations.Restore(p,nameof(InstallPlan.HideFilesMode));Check(p.HideFilesMode==ExplorerSettings.Default,"single explorer restore respects historical baseline "+version);
 }
@@ -451,7 +452,7 @@ p=Plan();p.DesktopIconsMode=DesktopSettings.CustomIcons;p.StartFoldersMode=Deskt
 foreach(var secrets in new[]{false,true}){restored=PlanStore.Deserialize(PlanStore.Serialize(p,secrets));Check(restored.DesktopIconsMode==p.DesktopIconsMode&&restored.StartFoldersMode==p.StartFoldersMode&&restored.DeleteEdgeDesktopIcon&&DesktopSettings.Icons.Concat(DesktopSettings.Folders).All(item=>DesktopSettings.Selected(restored,item)),"all modes and 22 selections roundtrip credentials="+secrets);}
 p.AutoLogon=false;p.KeepSensitiveFiles=true;Check(Node(Xml(p),"//*[local-name()='File' and contains(@path,'UserOnce.ps1')]" )!.Contains("VisiblePlaces")&&!Xml(p).Contains("<AutoLogon>"),"desktop and folder settings do not force first automatic logon");
 p.TaskbarIconsXml=ShellSettings.TaskbarExample;p.StartPinsJson=ShellSettings.PinsExample;Recommendations.Apply(p,"wired");Check(p.DesktopIconsMode==DesktopSettings.DefaultIcons&&p.StartFoldersMode==DesktopSettings.DefaultFolders&&!p.DeleteEdgeDesktopIcon&&DesktopSettings.Icons.Concat(DesktopSettings.Folders).All(item=>DesktopSettings.Selected(p,item))&&p.TaskbarIconsXml==ShellSettings.TaskbarExample&&p.StartPinsJson==ShellSettings.PinsExample,"full recommendation restores modes while preserving user selections and layout documents");
-foreach(var version in new[]{1,2,3}){p=Plan();p.RecommendationVersion=version;p.RecommendationWindows=version==1?"Windows 11":"";p.PreventDeviceEncryption=version>=3;Check(Recommendations.Differences(p).Count==0,"historical baseline accepts default desktop modes "+version);}
+foreach(var version in new[]{1,2,3}){p=Plan();p.RecommendationVersion=version;p.TimeZoneMode="指定时区";p.RecommendationWindows=version==1?"Windows 11":"";p.PreventDeviceEncryption=version>=3;Check(Recommendations.Differences(p).Count==0,"historical baseline accepts default desktop modes "+version);}
 viewModel=new UnattendLocal.Desktop.MainViewModel();var desktopNotices=new HashSet<string>();viewModel.PropertyChanged+=(_,e)=>desktopNotices.Add(e.PropertyName!);
 viewModel.Plan.DesktopIconsMode=DesktopSettings.CustomIcons;viewModel.Plan.StartFoldersMode=DesktopSettings.CustomFolders;Check(viewModel.IsCustomDesktopIcons&&viewModel.IsCustomStartFolders&&viewModel.DesktopIconSelection.Contains("0 / 13")&&viewModel.StartFolderSelection.Contains("0 / 9"),"custom modes enable selectors and describe initially empty lists");
 foreach(var item in DesktopSettings.Icons.Concat(DesktopSettings.Folders)){
@@ -502,7 +503,7 @@ foreach(var secrets in new[]{false,true}){
 }
 p.AutoLogon=false;p.KeepSensitiveFiles=true;xml=Xml(p);Check(EffectUserOnce(xml).Contains("VisualFXSetting")&&!xml.Contains("<AutoLogon>"),"effects do not force first automatic logon");
 foreach(var invalid in new[]{"unknown",null!}){p=Plan();p.VisualEffectsMode=invalid;try{g.Generate(p);throw new Exception("invalid mode accepted");}catch(ArgumentException e){Check(e.Message.Contains("视觉效果"),"invalid effects mode rejected with Chinese explanation");}}
-foreach(var version in new[]{1,2,3}){p=Plan();p.RecommendationVersion=version;p.RecommendationWindows=version==1?"Windows 11":"";p.PreventDeviceEncryption=version>=3;Check(Recommendations.Differences(p).Count==0,"historical recommendations accept default effects "+version);}
+foreach(var version in new[]{1,2,3}){p=Plan();p.RecommendationVersion=version;p.TimeZoneMode="指定时区";p.RecommendationWindows=version==1?"Windows 11":"";p.PreventDeviceEncryption=version>=3;Check(Recommendations.Differences(p).Count==0,"historical recommendations accept default effects "+version);}
 viewModel=new UnattendLocal.Desktop.MainViewModel();var effectsNotices=new HashSet<string>();viewModel.PropertyChanged+=(_,e)=>effectsNotices.Add(e.PropertyName!);
 Check(!viewModel.IsCustomVisualEffects&&viewModel.VisualEffectsSummary.Contains("不写入覆盖")&&viewModel.HelpTips["effectFontSmoothing"].Body.StartsWith("当前：由 Windows 决定"),"default UI summary and each effect hint report system-chosen behavior");
 viewModel.Plan.VisualEffectsMode=VisualEffectsSettings.Custom;Check(viewModel.IsCustomVisualEffects&&viewModel.VisualEffectsSummary.Contains("0 / 17")&&viewModel.VisualEffectsSummary.Contains("全部关闭"),"custom mode exposes initially empty choice list and exact count");
@@ -524,7 +525,7 @@ Check(!viewModel.IsCustomVisualEffects&&viewModel.Plan.EffectFontSmoothing&&!vie
 viewModel.Plan.VisualEffectsMode=VisualEffectsSettings.Custom;viewModel.PendingRecommendation="wifi";
 Check(viewModel.IsCustomVisualEffects&&viewModel.Plan.EffectFontSmoothing,"network-only switch retains effects mode and personal selection");
 viewModel.Plan.DesktopIconsMode=DesktopSettings.CustomIcons;viewModel.Plan.DesktopThisPC=true;Recommendations.Apply(viewModel.Plan,"wired");
-Check(viewModel.Plan.VisualEffectsMode==VisualEffectsSettings.Default&&viewModel.Plan.EffectFontSmoothing&&viewModel.Plan.DesktopThisPC&&viewModel.Plan.RecommendationVersion==3&&viewModel.Plan.PreventDeviceEncryption,"full restoration keeps personal contents and existing baseline version");
+Check(viewModel.Plan.VisualEffectsMode==VisualEffectsSettings.Default&&viewModel.Plan.EffectFontSmoothing&&viewModel.Plan.DesktopThisPC&&viewModel.Plan.RecommendationVersion==Recommendations.CurrentVersion&&viewModel.Plan.PreventDeviceEncryption,"full restoration keeps personal contents and existing baseline version");
 viewModel.Plan=InstallPlan.NewCustom();viewModel.Plan.VisualEffectsMode=VisualEffectsSettings.Custom;viewModel.Plan.EffectFontSmoothing=true;
 Check(!viewModel.IsRecommended&&viewModel.IsCustomVisualEffects&&viewModel.ConfigurationSummary.Contains("平滑屏幕字体"),"independent custom configuration supports complete visual effects");
 Check(UnattendLocal.Desktop.HelpCatalog.PageCount>=10&&VisualEffectsSettings.Items.All(item=>viewModel.HelpTips.ContainsKey(item.HelpId))&&viewModel.HelpTips["visualeffects"].Body.Contains("全部 17 项"),"new general and 17 individual Chinese tips registered");
@@ -558,8 +559,8 @@ foreach(var item in HardwareSettings.Items){
  Recommendations.Restore(viewModel.Plan,item.Property);Check(!HardwareSettings.Enabled(viewModel.Plan,item)&&!viewModel.RecommendationDifferences.Any(d=>d.Property==item.Property)&&viewModel.HelpTips[helpId].Body.Contains("关闭"),"individual restore clears only selected bypass "+item.Property);
 }
 p=Plan();p.BypassTPMCheck=true;p.BypassSecureBootCheck=true;Recommendations.SelectNetworkScene(p,"wifi");Check(p.BypassTPMCheck&&p.BypassSecureBootCheck&&!p.BypassRAMCheck,"network scene retains independent requirement choices");
-Recommendations.Apply(p,"wired");Check(HardwareSettings.Items.All(item=>!HardwareSettings.Enabled(p,item))&&p.PreventDeviceEncryption&&p.RecommendationVersion==3,"full recommendation clears checks without changing other defaults or baseline version");
-foreach(var version in new[]{1,2,3}){p=Plan();p.RecommendationVersion=version;p.RecommendationWindows=version==1?"Windows 11":"";p.PreventDeviceEncryption=version>=3;Check(Recommendations.Differences(p).Count==0,"historic default recommendations retain native requirement checks "+version);}
+Recommendations.Apply(p,"wired");Check(HardwareSettings.Items.All(item=>!HardwareSettings.Enabled(p,item))&&p.PreventDeviceEncryption&&p.RecommendationVersion==Recommendations.CurrentVersion,"full recommendation clears checks without changing other defaults or baseline version");
+foreach(var version in new[]{1,2,3}){p=Plan();p.RecommendationVersion=version;p.TimeZoneMode="指定时区";p.RecommendationWindows=version==1?"Windows 11":"";p.PreventDeviceEncryption=version>=3;Check(Recommendations.Differences(p).Count==0,"historic default recommendations retain native requirement checks "+version);}
 p=Plan();p.BypassTPMCheck=true;p.BypassRAMCheck=true;p.DiskMode=InstallationSettings.Wipe;p.TargetDiskId=2;p.DiskLayout="UEFI / GPT";p.ConfirmWipeDisk=true;xml=Xml(p);var pe=PECommands(xml);Check(pe.Where(cmd=>cmd.Path.Contains("LabConfig")).Max(c=>c.Order)<pe.Single(cmd=>cmd.Path.Contains("diskpart.exe")).Order,"partial checks execute before confirmed automatic disk partition command");
 p=Plan();p.BypassHardware=true;p.DiskMode=InstallationSettings.Wipe;p.TargetDiskId=2;p.ConfirmWipeDisk=true;xml=Xml(p);pe=PECommands(xml);Check(pe.Count(c=>c.Path.Contains("LabConfig"))==3&&pe.Where(c=>c.Path.Contains("LabConfig")).Max(c=>c.Order)<pe.Single(c=>c.Path.Contains("diskpart.exe")).Order,"native all-checks path precedes confirmed disk partitioning without duplicates");
 p=Plan();p.BypassTPMCheck=true;p.AccountMode="安装时添加微软账户";p.BypassNetwork=false;xml=Xml(p);Check(PECommands(xml).Any(c=>c.Path.Contains("BypassTPMCheck"))&&!DecodedXml(xml).Contains("BypassNRO"),"hardware bypass stays independent from online account and network bypass");
@@ -608,7 +609,7 @@ Check(!ColorSettings.StartAccentEnabled(colorsRoundTrip)&&ColorSettings.ModeSumm
 Check(Recommendations.Differences(p).Single(d=>d.Property==nameof(InstallPlan.ColorSettingsMode)).Current.Contains("#010203"),"color recommendation difference shows meaningful current values");
 Recommendations.Restore(p,nameof(InstallPlan.ColorSettingsMode));Check(p.ColorSettingsMode==ColorSettings.Default&&p.AccentColorHex=="#010203"&&p.AccentColorOnStart&&!DecodedXml(Xml(p)).Contains("SetColorTheme.ps1"),"single color restore retains choices but stops color generation");
 p.ColorSettingsMode=ColorSettings.Custom;Recommendations.SelectNetworkScene(p,"wifi");Check(p.ColorSettingsMode==ColorSettings.Custom&&p.AccentColorHex=="#010203","network scene preserves target Windows colors");
-Recommendations.Apply(p,"wired");Check(p.ColorSettingsMode==ColorSettings.Default&&p.AccentColorHex=="#010203"&&p.PreventDeviceEncryption&&p.RecommendationVersion==3,"full recommendation restores default colors without erasing choices or changing baseline");
+Recommendations.Apply(p,"wired");Check(p.ColorSettingsMode==ColorSettings.Default&&p.AccentColorHex=="#010203"&&p.PreventDeviceEncryption&&p.RecommendationVersion==Recommendations.CurrentVersion,"full recommendation restores default colors without erasing choices or changing baseline");
 viewModel.Plan=Plan();viewModel.Plan.ColorSettingsMode=ColorSettings.Custom;viewModel.Plan.WindowsColorTheme=ColorSettings.Dark;viewModel.StartAccentChecked=true;
 viewModel.Preview="OLD COLOR PREVIEW";viewModel.Plan.WindowsColorTheme=ColorSettings.Light;
 Check(!viewModel.CanUseStartAccent&&!viewModel.StartAccentChecked&&viewModel.Plan.AccentColorOnStart&&viewModel.HelpTips["accentstart"].Body.Contains("不生效")&&viewModel.Preview!="OLD COLOR PREVIEW","light-mode control and tip follow effective state and invalidate preview");
@@ -618,7 +619,7 @@ viewModel.AccentColorPreset="#E81123";Check(viewModel.Plan.AccentColorHex=="#E81
 viewModel.Plan.AccentColorHex=" #a1b2c3 ";Check(viewModel.AccentColorPreset==null&&viewModel.AccentColorPreview=="#A1B2C3"&&viewModel.AccentColorHint.Contains("#A1B2C3"),"custom RGB input clears preset selection and updates normalized swatch");
 viewModel.Plan.AccentColorHex="invalid";Check(viewModel.AccentColorPreview=="Transparent"&&viewModel.AccentColorPreset==null&&viewModel.AccentColorHint.Contains("请输入")&&viewModel.HelpTips["accentcolor"].Body.Contains("颜色无效")&&Recommendations.MissingInputs(viewModel.Plan).Contains("强调色"),"invalid color has safe preview and clear validation hints");
 viewModel.Plan.ColorSettingsMode=ColorSettings.Default;Check(!viewModel.IsCustomColors&&!viewModel.CanUseStartAccent&&!viewModel.StartAccentChecked&&viewModel.WindowsColorsSummary.Contains("不写入")&&!Recommendations.MissingInputs(viewModel.Plan).Contains("强调色"),"default mode disables custom controls and ignores retained invalid color");
-foreach(var historical in new[]{1,2,3}){p=Plan();p.RecommendationVersion=historical;p.RecommendationWindows=historical==1?"Windows 11":"";p.PreventDeviceEncryption=historical>=3;Check(Recommendations.Differences(p).Count==0,"historic recommendation keeps default target colors "+historical);}
+foreach(var historical in new[]{1,2,3}){p=Plan();p.RecommendationVersion=historical;p.TimeZoneMode="指定时区";p.RecommendationWindows=historical==1?"Windows 11":"";p.PreventDeviceEncryption=historical>=3;Check(Recommendations.Differences(p).Count==0,"historic recommendation keeps default target colors "+historical);}
 Check(new[]{"windowscolors","systemcolortheme","appscolortheme","accentcolor","colortransparency","accentstart","accentborders"}.All(viewModel.HelpTips.ContainsKey),"all Chinese color tips registered without changing existing tips");
 p=Plan();p.ColorSettingsMode=ColorSettings.Custom;p.AutoLogon=false;p.KeepSensitiveFiles=true;Check(!Xml(p).Contains("<AutoLogon>")&&DecodedXml(Xml(p)).Contains("SetColorTheme.ps1"),"colors do not force automatic login");
 Console.WriteLine($"Final pre19 total: {count} tests passed.");
@@ -644,10 +645,10 @@ p=Plan();p.WallpaperMode=WallpaperSettings.Solid;p.WallpaperColorHex=" #0123aB "
 Check(Recommendations.Differences(p).Single(d=>d.Property==nameof(InstallPlan.WallpaperMode)).Current.Contains("#0123AB"),"background difference reports selected color");
 Recommendations.Restore(p,nameof(InstallPlan.WallpaperMode));Check(p.WallpaperMode==WallpaperSettings.Default&&p.WallpaperColorHex==" #0123aB "&&!DecodedXml(Xml(p)).Contains("SetWallpaper.ps1"),"single background restore omits script and retains personal color");
 p.WallpaperMode=WallpaperSettings.Solid;Recommendations.SelectNetworkScene(p,"wifi");Check(p.WallpaperMode==WallpaperSettings.Solid&&p.WallpaperColorHex==" #0123aB ","network scene retains background selection");
-Recommendations.Apply(p,"wired");Check(p.WallpaperMode==WallpaperSettings.Default&&p.WallpaperColorHex==" #0123aB "&&p.PreventDeviceEncryption&&p.RecommendationVersion==3,"full recommendation restores default background and retains baseline and encryption prevention");
+Recommendations.Apply(p,"wired");Check(p.WallpaperMode==WallpaperSettings.Default&&p.WallpaperColorHex==" #0123aB "&&p.PreventDeviceEncryption&&p.RecommendationVersion==Recommendations.CurrentVersion,"full recommendation restores default background and retains baseline and encryption prevention");
 p.WallpaperMode=WallpaperSettings.Solid;p.ColorSettingsMode=ColorSettings.Custom;p.AccentColorHex="#E81123";var separateColors=DecodedXml(Xml(p));Check(separateColors.Contains("$htmlAccentColor = '#E81123';")&&separateColors.Contains("Set-WallpaperColor -HtmlColor '#0123AB';"),"background RGB and Windows accent RGB remain independent");
 p.AutoLogon=false;p.KeepSensitiveFiles=true;Check(!Xml(p).Contains("<AutoLogon>")&&(Node(Xml(p),"//*[local-name()='File' and contains(@path,'UserOnce.ps1')]")??"").Contains("SetWallpaper.ps1"),"solid background does not force automatic login");
-foreach(var historical in new[]{1,2,3}){p=Plan();p.RecommendationVersion=historical;p.RecommendationWindows=historical==1?"Windows 11":"";p.PreventDeviceEncryption=historical>=3;Check(Recommendations.Differences(p).Count==0,"historic recommendations retain native background "+historical);}
+foreach(var historical in new[]{1,2,3}){p=Plan();p.RecommendationVersion=historical;p.TimeZoneMode="指定时区";p.RecommendationWindows=historical==1?"Windows 11":"";p.PreventDeviceEncryption=historical>=3;Check(Recommendations.Differences(p).Count==0,"historic recommendations retain native background "+historical);}
 viewModel.Plan=Plan();viewModel.Preview="OLD WALLPAPER PREVIEW";viewModel.Plan.WallpaperMode=WallpaperSettings.Solid;viewModel.WallpaperColorPreset="#003366";
 Check(viewModel.IsSolidWallpaper&&viewModel.Plan.WallpaperColorHex=="#003366"&&viewModel.WallpaperColorPreview=="#003366"&&viewModel.ConfigurationSummary.Contains("桌面背景：纯色背景 #003366")&&viewModel.Preview!="OLD WALLPAPER PREVIEW","mode picker swatch summary and preview invalidation stay linked");
 viewModel.Plan.WallpaperColorHex=" #a1b2c3 ";Check(viewModel.WallpaperColorPreset==null&&viewModel.WallpaperColorPreview=="#A1B2C3"&&viewModel.HelpTips["wallpapercolor"].Body.Contains("#A1B2C3"),"custom background color normalizes and clears common-color selection");
@@ -1236,9 +1237,9 @@ using(var officialImageStream42=System.Reflection.Assembly.GetExecutingAssembly(
 Console.WriteLine($"Final pre42 total: {count} tests passed.");
 
 // pre43: app removal does not execute on the host; verify native payloads and editable imports.
-Check(AppRemovalSettings.Items.Count==60&&AppRemovalSettings.Items.Select(i=>i.Id).Order().SequenceEqual(upstream.Bloatwares.Keys.Order()),"full upstream removal catalog has Chinese labels and exact stable IDs");
+Check(AppRemovalSettings.Items.Count==62&&AppRemovalSettings.Items.Select(i=>i.Id).Order().SequenceEqual(upstream.Bloatwares.Keys.Order()),"the removal catalog matches the generator IDs");
 Check(AppRemovalSettings.Items.All(i=>!string.IsNullOrWhiteSpace(i.Description))&&AppRemovalSettings.Items.Single(i=>i.Id=="RemoveStore").Description.Contains("更新"),"each removal item has an impact description including Store dependency warning");
-p=Plan();Check(p.RemovedApps.Count==0&&!DecodedXml(Xml(p)).Contains("RemovePackage.ps1"),"default does not remove apps");
+p=Plan();Check(p.RemovedApps.Count==0&&!DecodedXml(Xml(p)).Contains("RemovePackage.ps1")&&!DecodedXml(Xml(p)).Contains("RemoveInstalledCapability.ps1"),"default does not remove apps or explicitly installed optional features");
 foreach(var item43 in AppRemovalSettings.Items){
  p=Plan();p.RemovedApps.Add(item43.Id);var x43=Xml(p);
  foreach(var snapshot43 in new[]{true,false}){
@@ -1246,7 +1247,7 @@ foreach(var item43 in AppRemovalSettings.Items){
   Check(q43.RemovedApps.SequenceEqual(new[]{item43.Id})&&q43.ImportedXml!.Blockers.Length==0,"single app import restores actual native payload: "+item43.Id+snapshot43);
   Check(SameXml(input43,Xml(q43)),"single app import preserves unchanged XML: "+item43.Id+snapshot43);
   q43.RemovedApps.Clear();var output43=Xml(q43);var empty43=XmlPlanImport.Import(output43,g);
-  Check(empty43.RemovedApps.Count==0&&!DecodedXml(output43).Contains("RemovePackage.ps1")&&!DecodedXml(output43).Contains("RemoveCapability.ps1")&&!DecodedXml(output43).Contains("RemoveFeature.ps1"),"unchecking removes native helpers and custom side effects: "+item43.Id+snapshot43);
+  Check(empty43.RemovedApps.Count==0&&!DecodedXml(output43).Contains("RemovePackage.ps1")&&!DecodedXml(output43).Contains("RemoveCapability.ps1")&&!DecodedXml(output43).Contains("RemoveFeature.ps1")&&!DecodedXml(output43).Contains("RemoveInstalledCapability.ps1"),"unchecking removes native helpers and custom side effects: "+item43.Id+snapshot43);
  }
  foreach(bool secrets43 in new[]{false,true})Check(PlanStore.Deserialize(PlanStore.Serialize(p,secrets43)).RemovedApps.SequenceEqual(p.RemovedApps),"removal selections save without credential dependence: "+item43.Id+secrets43);
 }
@@ -1271,8 +1272,39 @@ p=Plan();Recommendations.Apply(p,"wired");Check(!Recommendations.Differences(p).
 viewModel.Plan=Plan();viewModel.Preview="STALE43";var choice43=viewModel.AppRemovalChoices.Single(i=>i.Id=="RemovePhotos");choice43.IsSelected=true;Check(viewModel.Plan.RemovedApps.Contains("RemovePhotos")&&viewModel.AppRemovalSummary.Contains("照片")&&viewModel.ConfigurationSummary.Contains("应用移除：已选 1 项")&&viewModel.Preview!="STALE43","checkbox updates selection, summary and preview");var detached43=viewModel.Plan;viewModel.Plan=Plan();Check(!choice43.IsSelected,"replace plan refreshes checkbox state");viewModel.Plan.RemovedApps=new(){"RemoveCalculator"};Check(viewModel.AppRemovalChoices.Single(i=>i.Id=="RemoveCalculator").IsSelected&&viewModel.AppRemovalSummary.Contains("计算器"),"replace collection rebinds removal observer");viewModel.Preview="CURRENT43";detached43.RemovedApps.Add("RemoveTeams");Check(viewModel.Preview=="CURRENT43","old plan collection unhooked");viewModel.Plan.RemovedApps.Clear();Check(viewModel.AppRemovalSummary.Contains("未选择")&&viewModel.HelpTips.ContainsKey("appremoval"),"clear selection updates removal summary and help");
 Console.WriteLine($"Final pre43 total: {count} tests passed.");
 
-viewModel.AppRemovalFilter="商店";Check(viewModel.FilteredAppRemovalChoices.Any(i=>i.Id=="RemoveStore")&&viewModel.FilteredAppRemovalChoices.Count<60,"Chinese app search filters list");viewModel.AppRemovalFilter="no_match_43";Check(viewModel.FilteredAppRemovalChoices.Count==0&&viewModel.AppRemovalFilterSummary.Contains("0 / 60"),"no search matches explicitly shown");viewModel.AppRemovalFilter="";
+viewModel.AppRemovalFilter="商店";Check(viewModel.FilteredAppRemovalChoices.Any(i=>i.Id=="RemoveStore")&&viewModel.FilteredAppRemovalChoices.Count<AppRemovalSettings.Items.Count,"Chinese app search filters list");viewModel.AppRemovalFilter="no_match_43";Check(viewModel.FilteredAppRemovalChoices.Count==0&&viewModel.AppRemovalFilterSummary.Contains($"0 / {AppRemovalSettings.Items.Count}"),"no search matches explicitly shown");viewModel.AppRemovalFilter="";
 Console.WriteLine($"Final pre43 total: {count} tests passed.");
+
+// Windows optional capabilities are opt-in and use their full servicing identities.
+const string faxCapability = "Print.Fax.Scan~~~~0.0.1.0";
+const string xpsCapability = "XPS.Viewer~~~~0.0.1.0";
+const string optionalRemovalHelper = "RemoveInstalledCapability.ps1";
+p = Plan();
+p.RemovedApps.Add("RemoveFaxAndScan");
+p.RemovedApps.Add("RemoveXpsViewer");
+var optionalRemovalXml = Xml(p);
+string OptionalRemovalBody(string xml) =>
+    XmlMerge.Read(xml).SelectNodes("//*[local-name()='File']")!.Cast<XmlElement>()
+        .Single(f => f.GetAttribute("path").EndsWith("\\" + optionalRemovalHelper, StringComparison.Ordinal)).InnerText;
+var optionalRemovalBody = OptionalRemovalBody(optionalRemovalXml);
+Check(optionalRemovalBody.Contains($"'{faxCapability}';") && optionalRemovalBody.Contains($"'{xpsCapability}';")
+    && optionalRemovalBody.Contains("Where-Object -Property 'State' -EQ -Value 'Installed'")
+    && optionalRemovalBody.Contains("$_.Name -eq $selector")
+    && optionalRemovalBody.Contains("Remove-WindowsCapability -Online"), "optional removal uses installed state and exact capability names");
+Check(DecodedXml(optionalRemovalXml).Contains($"& 'C:\\Windows\\Setup\\Scripts\\{optionalRemovalHelper}';")
+    && !DecodedXml(optionalRemovalXml).Contains("RemoveCapability.ps1"), "specialize calls the selected optional capability helper");
+var optionalImported = XmlPlanImport.Import(WithoutSnapshot(optionalRemovalXml), g);
+optionalImported.RemovedApps.Remove("RemoveFaxAndScan");
+string xpsOnlyBody = OptionalRemovalBody(Xml(optionalImported));
+Check(xpsOnlyBody.Contains(xpsCapability) && !xpsOnlyBody.Contains(faxCapability), "optional capability choices can be edited independently after importing XML");
+foreach (string optionalGroupQuery in new[] { "Windows 可选功能", "Windows optional features" })
+{
+    viewModel.AppRemovalFilter = optionalGroupQuery;
+    var matches = viewModel.FilteredAppRemovalChoices.Select(i => i.Id).ToHashSet();
+    Check(matches.Contains("RemoveFaxAndScan") && matches.Contains("RemoveXpsViewer"),
+        "the capability group is searchable in both languages: " + optionalGroupQuery);
+}
+viewModel.AppRemovalFilter = "";
 
 var nativeRemoval43=typeof(Program).Assembly.GetManifestResourceNames().First(n=>n.EndsWith("upstream-app-removal.xml"));using(var nativeStream43=typeof(Program).Assembly.GetManifestResourceStream(nativeRemoval43)!){using var reader43=new StreamReader(nativeStream43);var actual43=reader43.ReadToEnd();var imported43=XmlPlanImport.Import(actual43,g);Check(imported43.RemovedApps.Order().SequenceEqual(new[]{"RemovePhotos","RemoveTeams","RemoveCopilot","RemoveOneDrive","RemoveNotepad","RemoveRecall"}.Order()),"credential-free official removal fixture restores six choices");Check(SameXml(actual43,Xml(imported43)),"official removal fixture unchanged export retains unrelated settings");imported43.RemovedApps.Remove("RemoveCopilot");imported43.RemovedApps.Add("RemoveCalculator");Check(XmlPlanImport.Import(Xml(imported43),g).RemovedApps.Order().SequenceEqual(imported43.RemovedApps.Order()),"official removal fixture supports changing mixed selectors and custom policies");imported43.RemovedApps.Clear();Check(XmlPlanImport.Import(Xml(imported43),g).RemovedApps.Count==0,"official removal fixture can cancel all six choices");Check(XmlMerge.Read(actual43).SelectNodes("//*[local-name()='Password' or local-name()='LocalAccount']")!.Count==0,"official removal fixture has no account/password nodes");}
 Console.WriteLine($"Final pre43 total: {count} tests passed.");
@@ -1941,7 +1973,7 @@ var contradictory13=XmlPlanImport.Import(WithForm13(Xml(Plan()),"RemoveCalculato
 var unsupported13=XmlPlanImport.Import(WithForm13(Xml(Plan()),"RemoveFutureApp13=true&PartitionMode=FutureMode13&AccountPassword0=private13&FutureUnsupported13=true"),g);Check(ParameterNotice13(unsupported13,"RemoveFutureApp13")&&ParameterNotice13(unsupported13,"PartitionMode")&&ParameterNotice13(unsupported13,"FutureUnsupported13")&&unsupported13.ImportedXml!.Notices.All(n=>!n.Contains("private13")&&!n.Contains("FutureMode13")),"unknown active settings remain visible by name without disclosing values");
 var duplicateForm13=XmlPlanImport.Import(WithForm13(Xml(Plan()),"RemoveCalculator=true&RemoveCalculator=false"),g);Check(duplicateForm13.ImportedXml!.Notices.Any(n=>n.Contains("重复项：RemoveCalculator")),"duplicate implemented parameters retain ambiguity notice");
 var invalidBool13=XmlPlanImport.Import(WithForm13(Xml(Plan()),"RemoveCalculator=unknown13"),g);Check(invalidBool13.ImportedXml!.Notices.Any(n=>n.Contains("取值无法识别"))&&!invalidBool13.RemovedApps.Any(),"invalid app boolean is reported without applying it");
-var oldScript13=WithForm13(allAppXml13,allAppQuery13).Replace("RemovePackage.ps1","RemovePackages.ps1").Replace("RemoveCapability.ps1","RemoveCapabilities.ps1").Replace("RemoveFeature.ps1","RemoveFeatures.ps1");var oldPlan13=XmlPlanImport.Import(oldScript13,g);Check(oldPlan13.ImportedXml!.AppRemovalReadOnly&&oldPlan13.ImportedXml.Notices.Any(n=>n.Contains("原文件的生成参数声明选择了 60 项"))&&!ParameterNotice13(oldPlan13,"RemoveCalculator"),"different removal script format is labeled preserved/read-only rather than feature unimplemented");Check(SameXml(oldScript13,Xml(oldPlan13))&&AppRemovalSettings.Selection(oldPlan13).Contains("原 XML 移除脚本保留"),"readonly source scripts still export intact and summary explains preservation");
+var oldScript13=WithForm13(allAppXml13,allAppQuery13).Replace("RemovePackage.ps1","RemovePackages.ps1").Replace("RemoveCapability.ps1","RemoveCapabilities.ps1").Replace("RemoveFeature.ps1","RemoveFeatures.ps1");var oldPlan13=XmlPlanImport.Import(oldScript13,g);Check(oldPlan13.ImportedXml!.AppRemovalReadOnly&&oldPlan13.ImportedXml.Notices.Any(n=>n.Contains($"原文件的生成参数声明选择了 {AppRemovalSettings.Items.Count} 项"))&&!ParameterNotice13(oldPlan13,"RemoveCalculator"),"different removal script format is labeled preserved/read-only rather than feature unimplemented");Check(SameXml(oldScript13,Xml(oldPlan13))&&AppRemovalSettings.Selection(oldPlan13).Contains("原 XML 移除脚本保留"),"readonly source scripts still export intact and summary explains preservation");
 viewModel.Plan=oldPlan13;Check(!viewModel.CanEditAppRemoval,"unrecognized source disables app checkbox editing");try{viewModel.SelectFilteredApps(true);Check(false,"readonly batch");}catch(ArgumentException){Check(true,"readonly source rejects batch selection");}
 var savedReadOnly13=PlanStore.Deserialize(PlanStore.Serialize(oldPlan13,true));Check(savedReadOnly13.ImportedXml!.AppRemovalReadOnly&&SameXml(oldScript13,Xml(savedReadOnly13)),"read-only state derives from source after save/reload");
 var stale13=XmlPlanImport.Import(compact13,g);stale13.ComputerName="PENDING13";stale13.ImportedXml!.Notices=stale13.ImportedXml.Notices.Concat(new[]{"界面尚未实现或无法完整还原的生成参数：RemoveCalculator；原 XML 保留。","界面尚未实现或无法完整还原的生成参数：CompactOsMode；原 XML 保留。","生成参数暂不能完全还原：LockKeysMode；相关 XML 原文保留。","界面尚未实现或无法完整还原的生成参数：UnknownLegacy13；原 XML 保留。"}).ToArray();
@@ -1958,7 +1990,8 @@ Console.WriteLine($"V0.13 total: {count} checks passed.");
 string Legacy14(InstallPlan plan)=>LegacyRemovalFixture.FromCurrent(Xml(plan));
 string Body14(XmlDocument d,string name)=>d.SelectNodes("//*[local-name()='File']")!.Cast<XmlElement>().Single(f=>f.GetAttribute("path").EndsWith("\\"+name,StringComparison.Ordinal)).InnerText;
 XmlElement File14(XmlDocument d,string name)=>d.SelectNodes("//*[local-name()='File']")!.Cast<XmlElement>().Single(f=>f.GetAttribute("path").EndsWith("\\"+name,StringComparison.Ordinal));
-foreach(var item14 in AppRemovalSettings.Items){
+var historicalApps = AppRemovalSettings.Items.Where(i => i.Id is not ("RemoveFaxAndScan" or "RemoveXpsViewer")).ToArray();
+foreach(var item14 in historicalApps){
  p=Plan();p.RemovedApps.Add(item14.Id);var old14=Legacy14(p);var imported14=XmlPlanImport.Import(old14,g);
  Check(!imported14.ImportedXml!.AppRemovalReadOnly&&imported14.RemovedApps.SequenceEqual(new[]{item14.Id}),"legacy actual single selection: "+item14.Id);
  Check(SameXml(old14,Xml(imported14)),"legacy unedited roundtrip: "+item14.Id);
@@ -1968,7 +2001,7 @@ foreach(var item14 in AppRemovalSettings.Items){
  Check(!addedState14.Ambiguous&&addedState14.Selected.Order().SequenceEqual(new[]{item14.Id,extra14}.Order()),"legacy add converts complete recognized flow: "+item14.Id);
 }
 foreach(var arch14 in new[]{"amd64","arm64","x86"})foreach(bool hide14 in new[]{false,true}){
- p=Plan();p.Architecture=arch14;p.HidePowerShellWindows=hide14;p.RemovedApps=new(AppRemovalSettings.Items.Select(i=>i.Id));p.Scripts.Add(new(){Enabled=true,Phase="System",Type="Ps1",Content="Write-Output 'preserve-extra14';"});
+ p=Plan();p.Architecture=arch14;p.HidePowerShellWindows=hide14;p.RemovedApps=new(historicalApps.Select(i=>i.Id));p.Scripts.Add(new(){Enabled=true,Phase="System",Type="Ps1",Content="Write-Output 'preserve-extra14';"});
  var old14=Legacy14(p);var imported14=XmlPlanImport.Import(old14,g);Check(imported14.RemovedApps.Count==60&&!imported14.ImportedXml!.AppRemovalReadOnly,"legacy all items and active pipeline: "+arch14+hide14);
  Check(SameXml(old14,Xml(imported14)),"legacy all items unchanged exact tree: "+arch14+hide14);
  var saved14=PlanStore.Deserialize(PlanStore.Serialize(imported14,true));Check(saved14.RemovedApps.Count==60&&!saved14.ImportedXml!.AppRemovalReadOnly&&SameXml(old14,Xml(saved14)),"legacy saved plan retains recognized selection and source: "+arch14+hide14);
@@ -2030,7 +2063,13 @@ foreach(var arch15 in new[]{"amd64","arm64","x86"})foreach(bool encoded15 in new
  Check(AdminValue15(output15,"AdministratorPassword","AdministratorPassword")==plan15.BuiltinAdministratorPassword&&AdminValue15(output15,"AutoLogon/u:Password","Password")==plan15.BuiltinAdministratorPassword,"builtin password encoded with correct field-specific suffix: "+tag15);
  Check(state15.Known&&state15.Password==plan15.BuiltinAdministratorPassword&&state15.Obscure==encoded15&&Node(output15,"//u:LocalAccount/u:Name")!="Administrator"&&DecodedXml(output15).Contains(FirstLogonSettings.ResetCommand),"builtin flow and reset recognized without extra administrator account: "+tag15);
  var preview15=GeneratorService.Preview(g.Generate(plan15));Check(!preview15.Contains("Builtin15_")&&!preview15.Contains(Convert.ToBase64String(Encoding.Unicode.GetBytes(plan15.BuiltinAdministratorPassword+"AdministratorPassword")))&&Node(preview15[(preview15.IndexOf('\n')+1)..],"//u:AdministratorPassword/u:Value")=="[密码已遮蔽]","preview masks administrator and autologon fields: "+tag15);
- foreach(bool snapshot15 in new[]{true,false}){string original15=snapshot15?output15:WithoutSnapshot(output15);var back15=XmlPlanImport.Import(original15,g);Check(FirstLogonSettings.IsBuiltin(back15)&&back15.BuiltinAdministratorPassword==plan15.BuiltinAdministratorPassword&&back15.AllowEmptyBuiltinAdministratorPassword==empty15&&!back15.ImportedXml!.FirstLogonReadOnly&&SameXml(original15,Xml(back15)),"builtin XML restores actual password and unchanged tree: "+tag15+snapshot15);}
+ foreach(bool snapshot15 in new[]{true,false}){
+  string original15=snapshot15?output15:WithoutSnapshot(output15);
+  var back15=XmlPlanImport.Import(original15,g);
+  Check(FirstLogonSettings.IsBuiltin(back15)&&back15.BuiltinAdministratorPassword==plan15.BuiltinAdministratorPassword&&!back15.AllowEmptyBuiltinAdministratorPassword&&back15.NeedsBuiltinAdministratorPassword==empty15&&!back15.ImportedXml!.FirstLogonReadOnly,"builtin XML restores password without implying consent: "+tag15+snapshot15);
+  if(empty15){Reject(back15,"imported builtin empty password requires consent: "+tag15+snapshot15);back15.AllowEmptyBuiltinAdministratorPassword=true;}
+  Check(SameXml(original15,Xml(back15)),"unchanged builtin XML after password review: "+tag15+snapshot15);
+ }
  var saved15=PlanStore.Deserialize(PlanStore.Serialize(plan15,true));Check(FirstLogonSettings.IsBuiltin(saved15)&&saved15.BuiltinAdministratorPassword==plan15.BuiltinAdministratorPassword,"builtin opt-in secret save/reload: "+tag15);
  var hidden15=PlanStore.Serialize(plan15,false);var omitted15=PlanStore.Deserialize(hidden15);Check(!hidden15.Contains("Builtin15_")&&!hidden15.Contains(Convert.ToBase64String(Encoding.Unicode.GetBytes("Builtin15_密码<&'!")))&&omitted15.NeedsBuiltinAdministratorPassword==!empty15&&omitted15.BuiltinAdministratorPassword=="","builtin secret omission and reentry flag: "+tag15);
 }
@@ -2054,8 +2093,13 @@ foreach(var bad15 in new[]{"count","domain","mismatch","reset","resetduplicate",
  }
  var unknown15=XmlPlanImport.Import(badDoc15.OuterXml,g);Check(unknown15.ImportedXml!.FirstLogonReadOnly&&unknown15.ImportedXml.Notices.Contains(FirstLogonSettings.ReadOnlyDescription),"unsupported builtin flow is preserved/read-only: "+bad15);Check(SameXml(badDoc15.OuterXml,Xml(unknown15)),"unsupported builtin flow unchanged export: "+bad15);unknown15.AutoLogon=!unknown15.AutoLogon;Reject(unknown15,"unsupported builtin flow cannot change login: "+bad15);
 }
-var malformed15=XmlMerge.Read(native15);malformed15.SelectSingleNode("//*[local-name()='AdministratorPassword']/*[local-name()='Value']")!.InnerText="not-base64";try{XmlPlanImport.Import(malformed15.OuterXml,g);Check(false,"bad builtin credential");}catch(ArgumentException){Check(true,"invalid builtin password encoding rejects import");}
-try{XmlPlanImport.Import(GeneratorService.Preview(g.Generate(Builtin15())).Split('\n',2)[1],g);Check(false,"redacted builtin preview");}catch(ArgumentException){Check(true,"redacted builtin preview rejects import");}
+var malformed15=XmlMerge.Read(native15);malformed15.SelectSingleNode("//*[local-name()='AdministratorPassword']/*[local-name()='Value']")!.InnerText="not-base64";
+var badCredential15=XmlPlanImport.Import(malformed15.OuterXml,g);
+Check(badCredential15.ImportedXml!.SourceXml.Contains("not-base64")&&badCredential15.ImportedXml.Blockers.Length>0,"invalid builtin credential remains available in imported source");
+Reject(badCredential15,"invalid builtin password encoding blocks export");
+var redacted15=XmlPlanImport.Import(GeneratorService.Preview(g.Generate(Builtin15())).Split('\n',2)[1],g);
+Check(redacted15.ImportedXml!.SourceXml.Contains("[密码已遮蔽]")&&redacted15.ImportedXml.Blockers.Length>0,"redacted builtin credential retained with import diagnostics");
+Reject(redacted15,"redacted builtin preview blocks export");
 var editable15=XmlPlanImport.Import(native15,g);editable15.UseBuiltinAdministrator=false;var own15=Xml(editable15);Check(Node(own15,"//u:AutoLogon/u:Username")==editable15.Users.First(u=>u.Administrator).Name&&!own15.Contains("AdministratorPassword"),"supported imported builtin mode can switch to ordinary admin");editable15.AutoLogon=false;editable15.KeepSensitiveFiles=true;Check(Node(Xml(editable15),"//u:AutoLogon/u:Enabled")==null,"supported imported builtin mode can disable autologon");
 var oldBuiltin15=XmlPlanImport.Import(native15,g);oldBuiltin15.ImportedXml!.FirstLogonImportVersion=0;oldBuiltin15.ComputerName="PENDING15";var oldBack15=PlanStore.Deserialize(PlanStore.Serialize(oldBuiltin15,true));Check(oldBack15.ComputerName=="PENDING15"&&oldBack15.ImportedXml!.FirstLogonReadOnly&&oldBack15.ImportedXml.Blockers.Any(n=>n.Contains("重新导入原 XML")),"older saved builtin workflow requests reimport and preserves pending edits");Reject(oldBack15,"old unsupported builtin plan cannot silently change login");
 var privateSearch15="HiddenBuiltinSearch15!";vm15.Plan=Builtin15();vm15.Plan.BuiltinAdministratorPassword=privateSearch15;Check(UnattendLocal.Desktop.SettingsSearchCatalog.Search("Administrator").Any(r=>r.Target=="SettingAnchor073")&&UnattendLocal.Desktop.SettingsSearchCatalog.Search(privateSearch15).Count==0,"builtin search locates mode without reading secret values");
@@ -2154,3 +2198,4 @@ count+=Ipv4NamingTests.Run(g);count+=ConfigurationReviewTests.Run(g);Console.Wri
 count+=SetupDiagnosticsTests.Run(g);Console.WriteLine($"V1.49 final total: {count} tests passed.");
 count+=CoreIsolationImportTests.Run(g);count+=SidebarNavigationTests.Run();Console.WriteLine($"V1.50 final total: {count} tests passed.");
 count+=DeploymentReviewTests.Run(g);Console.WriteLine($"V1.53 final total: {count} tests passed.");
+count+=TimeZoneTests.Run(g);count+=ImportedCredentialTests.Run(g);Console.WriteLine($"V1.55 final total: {count} tests passed.");
