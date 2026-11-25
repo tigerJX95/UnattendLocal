@@ -602,6 +602,12 @@
               <TextBlock Style="{StaticResource ExplanationText}" Text="{loc:Text v137.pagefile.help}" Foreground="{DynamicResource WarningBrush}" Visibility="{Binding Plan.PeDisablePageFile,Converter={StaticResource VisibleWhen}}"/>
               <CheckBox x:Name="PeImageIntegrityCheck" Content="{loc:Source v132.integrity.name}" IsChecked="{Binding Plan.PeCheckImageIntegrity}"><CheckBox.ToolTip><ToolTip ContentTemplate="{x:Null}" Content="{loc:Text v132.integrity.help}"/></CheckBox.ToolTip></CheckBox>
               <TextBlock Style="{StaticResource ExplanationText}" Text="{loc:Text v132.integrity.warning}" Foreground="{DynamicResource WarningBrush}" Visibility="{Binding IsPeIntegrityCheckDisabled,Converter={StaticResource VisibleWhen}}"/>
+              <CheckBox x:Name="PeOfflinePackagesCheck" Content="{loc:Source v156.pePackages.name}" IsChecked="{Binding Plan.PeApplyOfflinePackages}"/>
+              <StackPanel Visibility="{Binding Plan.PeApplyOfflinePackages,Converter={StaticResource VisibleWhen}}">
+                <TextBlock Style="{StaticResource ExplanationText}" Text="{loc:Text v156.pePackages.help}"/>
+                <TextBlock x:Name="PeOfflinePackagesLabel" Text="{loc:Text v156.pePackages.files}"/>
+                <TextBox Text="{Binding Plan.PeOfflinePackageNames,UpdateSourceTrigger=PropertyChanged}" AutomationProperties.LabeledBy="{Binding ElementName=PeOfflinePackagesLabel}" AcceptsReturn="True" Height="96" FontFamily="Consolas" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto"/>
+              </StackPanel>
 
               <TextBlock Text="{loc:Text v127.selection}"/>
               <ComboBox x:Name="PeDiskSelectionMode" SelectedValue="{Binding Plan.PeTargetMode}" SelectedValuePath="Tag">
@@ -1199,7 +1205,7 @@
                 <TextBlock Style="{StaticResource ExplanationText}" Text="{loc:Text text.1f46244dad2a}" Foreground="{DynamicResource SecondaryBrush}" TextWrapping="Wrap" />
                 <CheckBox x:Name="SettingAnchor140" Content="{loc:Source text.735aa74a3c8e}" IsChecked="{Binding Plan.KeepSensitiveFiles}" ToolTip="{Binding DataContext.HelpTips[sensitivefiles],RelativeSource={RelativeSource AncestorType=Window}}" />
                 <TextBlock Style="{StaticResource ExplanationText}" Text="{loc:Text text.19a531c10f26}" Foreground="{DynamicResource SecondaryBrush}" TextWrapping="Wrap" />
-                <TextBlock Text="C:\Windows\Panther\unattend.xml&#10;C:\Windows\Panther\unattend-original.xml&#10;C:\Windows\Setup\Scripts\Wifi.xml" TextWrapping="Wrap" FontFamily="Consolas" FontSize="12" Foreground="{DynamicResource SecondaryBrush}" />
+                <TextBlock Style="{StaticResource ExplanationText}" Margin="0" Text="C:\Windows\Panther\unattend.xml&#10;C:\Windows\Panther\unattend-original.xml&#10;C:\Windows\Setup\Scripts\Wifi.xml" Foreground="{DynamicResource SecondaryBrush}" />
                 <TextBlock Style="{StaticResource ExplanationText}" Text="{loc:Text text.18948f0f17f6}" Foreground="{DynamicResource SecondaryBrush}" TextWrapping="Wrap" />
               </StackPanel>
             </Border>
@@ -1607,15 +1613,19 @@
               </StackPanel>
             </Expander>
             <Expander x:Name="OfflineDriverForm" Header="{loc:Text xml.offlineDrivers.form}" Style="{StaticResource XmlFormExpander}" Margin="0,6">
-              <StackPanel Margin="12,4,0,4">
+              <StackPanel Margin="0,4,0,4">
                 <TextBlock Style="{StaticResource ExplanationText}" Text="{loc:Text xml.offlineDrivers.help}" />
-                <Label Content="{loc:Text xml.offlineDrivers.paths}" Target="{Binding ElementName=OfflineDriverPaths}" Style="{StaticResource XmlFormLabel}" />
+                <DockPanel>
+                  <Button x:Name="AddOfflineDriverButton" DockPanel.Dock="Right" Margin="0" VerticalAlignment="Center"
+                          Content="{loc:Source xml.offlineDrivers.add}" Click="AddOfflineDriverClick" />
+                  <Label x:Name="OfflineDriverPathsLabel" VerticalAlignment="Center" Content="{loc:Text xml.offlineDrivers.paths}"
+                         Target="{Binding ElementName=OfflineDriverPaths}" Style="{StaticResource XmlFormLabel}" />
+                </DockPanel>
                 <TextBox x:Name="OfflineDriverPaths" AcceptsReturn="True" Height="100" FontFamily="Consolas"
                          TextWrapping="NoWrap" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto" />
-                <Button Content="{loc:Source xml.offlineDrivers.add}" Click="AddOfflineDriverClick" HorizontalAlignment="Left" />
               </StackPanel>
             </Expander>
-            <ListBox ItemsSource="{Binding Plan.XmlComponents}" SelectedItem="{Binding SelectedXmlComponent}"  MinHeight="65" MaxHeight="170"  loc:LocalizedItems.DisplayPath="Label"><ListBox.ItemTemplate><DataTemplate><TextBlock Text="{loc:Display Value={Binding Label}}" TextWrapping="Wrap"/></DataTemplate></ListBox.ItemTemplate></ListBox>
+            <ListBox x:Name="AdditionalXmlEntries" ItemsSource="{Binding Plan.XmlComponents}" SelectedItem="{Binding SelectedXmlComponent}" MinHeight="65" MaxHeight="170" loc:LocalizedItems.DisplayPath="Label"><ListBox.ItemTemplate><DataTemplate><TextBlock Text="{loc:Display Value={Binding Label}}" TextWrapping="Wrap"/></DataTemplate></ListBox.ItemTemplate></ListBox>
             <StackPanel DataContext="{Binding SelectedXmlComponent}" IsEnabled="{Binding DataContext.HasSelectedXmlComponent,RelativeSource={RelativeSource AncestorType=Window}}">
               <CheckBox Content="{loc:Source text.f9d86af8e5f1}" IsChecked="{Binding Enabled}" />
               <TextBlock Text="{loc:Text text.783d638053ea}" Margin="0,8,0,0" />

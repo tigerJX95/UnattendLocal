@@ -24,6 +24,7 @@ public sealed record ConfigurationErrorLocation(SettingSearchResult Setting, int
             nameof(InstallPlan.PeMinDiskGiB) or nameof(InstallPlan.PeMaxDiskGiB) => "PeMinCapacityEditor",
             nameof(InstallPlan.PeMatchDiskIndex) => "PeMatchIndexEditor",
             nameof(InstallPlan.PeTargetScript) => "PeTargetScriptEditor",
+            nameof(InstallPlan.PeOfflinePackageNames) => "PeOfflinePackagesCheck",
             nameof(InstallPlan.ConfirmWipeDisk) => "ConfirmWipeDiskCheck",
             nameof(InstallPlan.ConfirmFormatPartition) => "ConfirmFormatPartitionCheck",
             nameof(InstallPlan.ConfirmDiskScript) => "ConfirmDiskScriptCheck",

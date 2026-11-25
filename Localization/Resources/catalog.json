@@ -3054,7 +3054,8 @@
   "text.02ec7f74b065": {
     "Source": "镜像索引必须为大于等于 1 的整数。",
     "Contexts": [
-      "Core/InstallationSettings.cs:17"
+      "Core/InstallationSettings.cs:17",
+      "Core/GeneratedPeSettings.cs"
     ],
     "RawArgs": [],
     "SourceHash": "02ec7f74b065b8ea332f47f0f59490bc0a464431e1d77e585de3902c9374fb40",
@@ -36389,16 +36390,6 @@
       "$WinPEDriver$"
     ]
   },
-  "v125.pe.scope": {
-    "Source": "PE 脚本安装需要 x64、自动清空分区模式，以及 UEFI/GPT、BIOS/MBR 或跟随启动方式布局。",
-    "SourceHash": "85981a5919f46c9d3f30e4a115773e7b4deefe82a0dc56acb7275d71f43b56ec",
-    "Contexts": [
-      "Core/GeneratedPeSettings.cs",
-      "Desktop/MainWindow.xaml"
-    ],
-    "RawArgs": [],
-    "ProtectedTokens": []
-  },
   "v125.pe.image": {
     "Source": "PE 脚本安装须选择“按镜像索引”，并填写大于零的镜像索引。",
     "SourceHash": "89a011c910f90672ba69b6efb8f5fde1d1e38bad4b2b50d0e7dd8dd866143c88",
@@ -38248,10 +38239,11 @@
     "ProtectedTokens": []
   },
   "setupLogs.hint": {
-    "Source": "选择 Windows Setup、SetupAPI 或无人值守组件服务日志。在此窗口中可按关键词筛选行。",
-    "SourceHash": "6126112c8660839bdc80851ed7dfc1df00b7190dc5ebfb8527fa17eefa5b4a99",
+    "Source": "选择 Windows Setup、SetupAPI、CBS 或 DISM 日志。在此窗口中可按关键词筛选行。",
+    "SourceHash": "16d8440b824b72e65a8d4fad20ee560c6dff18f05a219c8b7a5680473ce37345",
     "Contexts": [
-      "Desktop/SetupLogWindow.xaml"
+      "Desktop/SetupLogWindow.xaml",
+      "Desktop/SettingsSearchCatalog.cs"
     ],
     "RawArgs": [],
     "ProtectedTokens": []
@@ -38282,18 +38274,6 @@
     ],
     "RawArgs": [],
     "ProtectedTokens": []
-  },
-  "setupLogs.fileFilter": {
-    "Source": "Windows 安装日志|setupact.log;setuperr.log;setupapi.dev.log;setupapi.offline.log;cbs_unattend.log",
-    "SourceHash": "f3e5d8316e4429b61d943ad5315c37150bc202167a8aeeb6994b98f3480f9fee",
-    "Contexts": [
-      "Desktop/SetupLogWindow.xaml.cs"
-    ],
-    "RawArgs": [],
-    "ProtectedTokens": [],
-    "FilterPatterns": [
-      "setupact.log;setuperr.log;setupapi.dev.log;setupapi.offline.log;cbs_unattend.log"
-    ]
   },
   "setupLogs.failed": {
     "Source": "无法读取安装日志",
@@ -39254,6 +39234,124 @@
     "RawArgs": [],
     "ProtectedTokens": [
       "[REDACTED]"
+    ]
+  },
+  "setupLogs.reload": {
+    "Source": "重新读取当前日志",
+    "SourceHash": "105a177ac9fbccc679c80cdcd57ee70c5687327c9bae170a8438dbef1d885772",
+    "Contexts": [
+      "Desktop/SetupLogWindow.xaml",
+      "Desktop/UiIcons.cs"
+    ],
+    "RawArgs": [],
+    "ProtectedTokens": []
+  },
+  "setupLogs.matches": {
+    "Source": "当前预览中匹配 {0} 行。",
+    "SourceHash": "52b1771519fc732c4b03a9aa3e8f7da9a9747f26269bd3003c489ae36d427869",
+    "Contexts": [
+      "Desktop/SetupLogWindow.xaml.cs"
+    ],
+    "RawArgs": [],
+    "ProtectedTokens": []
+  },
+  "v156.pePackages.name": {
+    "Source": "在 PE 中离线安装 Windows 更新包",
+    "SourceHash": "c9de2f16d0134a9c1e20bd992c8bdac5a21e0de399428f203d2d1c9657efbc48",
+    "Contexts": [
+      "Desktop/MainWindow.xaml",
+      "Desktop/SettingsSearchCatalog.cs"
+    ],
+    "RawArgs": [],
+    "ProtectedTokens": []
+  },
+  "v156.pePackages.help": {
+    "Source": "将更新包放入安装镜像所在介质根目录的 \\WinPEUpdates 文件夹。每行输入一个文件名，按顺序列出，依赖包排在前面。若使用检查点累积更新，文件夹内只能放目标更新及其依赖包。",
+    "SourceHash": "aaddaedff98e96905dc1c6bd32ff2673483f5e5703ff3bb6f8c143047fbe02e5",
+    "Contexts": [
+      "Desktop/MainWindow.xaml",
+      "Desktop/SettingsSearchCatalog.cs"
+    ],
+    "RawArgs": [],
+    "ProtectedTokens": [
+      "\\WinPEUpdates"
+    ]
+  },
+  "v156.pePackages.files": {
+    "Source": "更新包文件名（.msu / .cab）",
+    "SourceHash": "6705b1a03d8be90fecd5ba7a0635faec49abbe0493c5bfc6ca51487d16d4baf1",
+    "Contexts": [
+      "Desktop/MainWindow.xaml"
+    ],
+    "RawArgs": [],
+    "ProtectedTokens": [
+      ".msu",
+      ".cab"
+    ]
+  },
+  "v156.pePackages.invalid": {
+    "Source": "请输入 1 至 32 个不重复的 .msu 或 .cab 文件名，每行一个。请以字母或数字开头，仅使用英文字母、数字、空格、句点、连字符和下划线，扩展名前最多 120 个字符。请去掉路径并避开 Windows 保留设备名。",
+    "SourceHash": "286a8ba96e833eca373efb5439f0e09d4d0404dd2a4cc6b35c82465e42c77bf2",
+    "Contexts": [
+      "Core/PeOfflinePackageSettings.cs"
+    ],
+    "RawArgs": [],
+    "ProtectedTokens": [
+      ".msu",
+      ".cab"
+    ]
+  },
+  "v156.pePackages.review": {
+    "Source": "在生成启动文件前离线应用 Windows 更新包",
+    "SourceHash": "29b1891a59d1a3e5997fb9f6258dd727f149f84b10863c6eacea4decbe089309",
+    "Contexts": [
+      "Core/GeneratedPeSettings.cs",
+      "Core/DeploymentPhaseReview.cs"
+    ],
+    "RawArgs": [],
+    "ProtectedTokens": []
+  },
+  "v156.pePackages.commandLimit": {
+    "Source": "离线更新与现有 PE 配置合计超过 Windows Setup 的 500 条同步命令上限。请缩短自定义选盘脚本或减少更新包。",
+    "SourceHash": "3b30b1bbe83b7bc18b7a69b6bce19de3ada362a8e1f22382e320f4b5be8ab0b4",
+    "Contexts": [
+      "Core/GeneratedPeSettings.cs"
+    ],
+    "RawArgs": [],
+    "ProtectedTokens": [
+      "500"
+    ]
+  },
+  "v156.peValidation.architecture": {
+    "Source": "PE 脚本安装仅支持 x64，请在“基础设置”中选择 x64。",
+    "SourceHash": "54173264cca01acd44f9a4508d88f085c6217986d5cbbcf407c883692ab6301c",
+    "Contexts": [
+      "Core/GeneratedPeSettings.cs"
+    ],
+    "RawArgs": [],
+    "ProtectedTokens": [
+      "x64"
+    ]
+  },
+  "v156.peValidation.diskMode": {
+    "Source": "请将磁盘与分区方式设为“清空指定磁盘后自动分区”，以使用 PE 脚本安装。",
+    "SourceHash": "2ccc28c02e4dce3e746ef8dd71ff1d2a7dad4ef05a4893e0ec885cd2e095bcc6",
+    "Contexts": [
+      "Core/GeneratedPeSettings.cs"
+    ],
+    "RawArgs": [],
+    "ProtectedTokens": []
+  },
+  "v156.peValidation.diskLayout": {
+    "Source": "PE 脚本安装须选择 UEFI/GPT、BIOS/MBR 或跟随启动方式的分区布局。",
+    "SourceHash": "c69d80a98a441e07a7a10e2e727421a6828ff191f7936b4044f390bdf28b9fac",
+    "Contexts": [
+      "Core/GeneratedPeSettings.cs"
+    ],
+    "RawArgs": [],
+    "ProtectedTokens": [
+      "UEFI/GPT",
+      "BIOS/MBR"
     ]
   }
 }

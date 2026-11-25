@@ -48,6 +48,8 @@ static class GeneratedPeTests
         var vm = new MainViewModel { Plan = p };
         Check(ConfigurationErrorLocation.FromField(nameof(InstallPlan.UseGeneratedPe))?.Setting.Target == "GeneratedPeMode", "validation field maps to mode control");
         Check(SettingsSearchCatalog.Search("PE install image index").Any(x => x.Target == "GeneratedPeMode"), "PE mode searchable");
+        count += CheckValidationLocations(g);
+        count += CheckOfflinePackages(g, script);
         p.ConfirmWipeDisk = true; p.ImageIndex = 2; Check(!p.ConfirmWipeDisk, "image changes clear erase consent");
         p.ConfirmWipeDisk = true; p.UseGeneratedPe = false; Check(!p.ConfirmWipeDisk, "mode changes clear erase consent");
         p = Plan(); p.PauseBeforePeReboot = true; p.ConfirmWipeDisk = true;
@@ -157,6 +159,132 @@ static class GeneratedPeTests
             Check(!Recommendations.InteractiveSteps(setupReview).Contains(UiText.Source("text.f4cc320ab93b")), "inactive partition pause is omitted from manual mode");
         }
         finally { UiText.SetLanguage(previousLanguage); }
+        return count;
+    }
+
+    private static int CheckValidationLocations(GeneratorService g)
+    {
+        int count = 0;
+        void CheckLocation(InstallPlan plan, string field, string target, string messageKey)
+        {
+            try
+            {
+                g.Generate(plan);
+            }
+            catch (ConfigurationValidationException error) when (
+                error.Field == field && error.Message == UiText.Source(messageKey) &&
+                ConfigurationErrorLocation.FromException(error)?.Setting.Target == target)
+            {
+                count++;
+                return;
+            }
+            throw new Exception("PE regression: expected validation at " + field);
+        }
+
+        var plan = Plan();
+        plan.DiskMode = InstallationSettings.Manual;
+        plan.ImageIndex = null;
+        CheckLocation(plan, nameof(InstallPlan.ImageIndex), "SettingAnchor057", "text.02ec7f74b065");
+        plan.ImageIndex = 0;
+        CheckLocation(plan, nameof(InstallPlan.ImageIndex), "SettingAnchor057", "text.02ec7f74b065");
+        plan.ImageIndex = 1;
+        CheckLocation(plan, nameof(InstallPlan.DiskMode), "SettingAnchor061", "v156.peValidation.diskMode");
+        plan.DiskMode = InstallationSettings.Wipe;
+        plan.DiskLayout = "";
+        CheckLocation(plan, nameof(InstallPlan.DiskLayout), "SettingAnchor066", "v156.peValidation.diskLayout");
+        plan.DiskLayout = "UEFI / GPT";
+        plan.Architecture = "arm64";
+        CheckLocation(plan, nameof(InstallPlan.Architecture), "SettingAnchor009", "v156.peValidation.architecture");
+        plan.Architecture = "amd64";
+        CheckLocation(plan, nameof(InstallPlan.ConfirmWipeDisk), "ConfirmWipeDiskCheck", "text.7fc02b9199fe");
+        plan.ImageSelection = UiText.Source("text.5965e61aee4c");
+        CheckLocation(plan, nameof(InstallPlan.ImageSelection), "SettingAnchor055", "v125.pe.image");
+        return count;
+    }
+
+    private static int CheckOfflinePackages(GeneratorService g, string defaultScript)
+    {
+        int count = 0;
+        void Check(bool condition, string name)
+        {
+            if (!condition) throw new Exception("Offline PE packages: " + name);
+            count++;
+        }
+
+        var plan = Plan();
+        Check(!plan.PeApplyOfflinePackages && !defaultScript.Contains("/Add-Package"), "off by default");
+        const string names = "prerequisite.cab\r\n\r\nUpdate KB-123.msu";
+        plan.PeOfflinePackageNames = names;
+        Check(Script(g.Generate(plan)) == defaultScript, "disabled draft leaves the deployment script identical");
+        Check(PlanStore.Deserialize(PlanStore.Serialize(plan, true)).PeOfflinePackageNames == names, "JSON retains a disabled draft");
+        plan.PeApplyOfflinePackages = true;
+        Check(!plan.ConfirmWipeDisk, "enabling changes the reviewed deployment");
+        plan.ConfirmWipeDisk = true;
+        var xml = g.Generate(plan);
+        string script = Script(xml);
+        int partition = script.IndexOf("diskpart.exe /s", StringComparison.Ordinal);
+        int image = script.IndexOf("dism.exe /Apply-Image ", StringComparison.Ordinal);
+        int boot = script.IndexOf("bcdboot.exe", StringComparison.Ordinal);
+        int firstAdd = script.IndexOf("/Add-Package", StringComparison.Ordinal);
+        int lastAdd = script.LastIndexOf("/Add-Package", StringComparison.Ordinal);
+        Check(script.Contains("""for %%I in ("%IMAGE_FILE%") do set "UL_PACKAGE_ROOT=%%~dI\WinPEUpdates" """.TrimEnd()), "uses the selected installation image drive");
+        Check(partition > 0 && script[..partition].Contains("Missing update file:") &&
+              script[..partition].Contains("Expected an update file:") && firstAdd > image && image > partition &&
+              lastAdd > firstAdd && boot > lastAdd, "checks before DiskPart and services between image application and BCDBoot");
+        string servicing = script[image..boot];
+        Check(servicing.Contains("""if not "%UL_APPLY_EXIT%"=="0" call :fail""") &&
+              servicing.Contains("""if not "%UL_PACKAGE_EXIT%"=="0" if not "%UL_PACKAGE_EXIT%"=="3010" call :fail"""),
+              "checks exact DISM exit codes, including negative results");
+        Check(servicing.IndexOf("prerequisite.cab", StringComparison.Ordinal) < servicing.IndexOf("Update KB-123.msu", StringComparison.Ordinal) &&
+              servicing.Contains("""/Image:W:\ /Add-Package /PackagePath:"%UL_PACKAGE_ROOT%\%UL_PACKAGE_NAME%" """.TrimEnd()) &&
+              servicing.Contains(@"W:\Windows\Logs\DISM\OfflineUpdates.log"), "passes each named update in order with an offline target and persistent log");
+        var loaded = PlanStore.Deserialize(PlanStore.Serialize(plan, true));
+        Check(loaded.PeApplyOfflinePackages && loaded.PeOfflinePackageNames == names && !loaded.ConfirmWipeDisk, "JSON restores the option without consent");
+        var imported = XmlPlanImport.Import(Encoding.UTF8.GetString(xml), g);
+        Check(imported.PeApplyOfflinePackages && imported.PeOfflinePackageNames == names && GeneratedPeSettings.OwnsImported(imported) &&
+              !imported.ConfirmWipeDisk, "XML restores known settings without consent");
+        imported.PeApplyOfflinePackages = false;
+        imported.ConfirmWipeDisk = imported.ConfirmImportedXmlRisk = true;
+        Check(Script(g.Generate(imported)) == defaultScript, "can turn off the feature in an imported PE configuration");
+        Check(ConfigurationErrorLocation.FromField(nameof(InstallPlan.PeOfflinePackageNames))?.Setting.Target == "PeOfflinePackagesCheck" &&
+              SettingsSearchPrerequisites.Resolve("PeOfflinePackagesCheck", InstallPlan.New()) == "GeneratedPeMode", "validation and search navigate to the applicable controls");
+        Check(DeploymentPhaseReview.Describe(XmlMerge.Read(Encoding.UTF8.GetString(xml)), false).Contains(UiText.Source("v156.pePackages.review")),
+              "deployment review includes offline servicing");
+
+        foreach (string invalid in new[] { "", @"..\update.cab", @"C:\update.cab", "x%PATH%.msu", "x&y.cab",
+                 "x!.cab", "x\".cab", "x*.cab", "NUL.txt.cab", "com1 .msu", "错误.cab", "package.exe",
+                 "duplicate.cab\nDUPLICATE.CAB", new string('a', 121) + ".msu" })
+        {
+            plan.PeOfflinePackageNames = invalid;
+            Check(!plan.ConfirmWipeDisk, "package changes clear consent");
+            plan.ConfirmWipeDisk = true;
+            bool rejected = false;
+            try { g.Generate(plan); }
+            catch (ConfigurationValidationException ex) when (ex.Field == nameof(InstallPlan.PeOfflinePackageNames)) { rejected = true; }
+            Check(rejected, "rejects invalid list input");
+        }
+
+        plan.PeOfflinePackageNames = new string('x', 120) + ".MSU";
+        plan.ConfirmWipeDisk = true;
+        Check(Script(g.Generate(plan)).Contains(plan.PeOfflinePackageNames), "maximum-length file name fits the XML command writer");
+        plan.PeOfflinePackageNames = string.Join("\n", Enumerable.Range(1, 32).Select(i => $"{new string('x', 118)}{i:D2}.cab"));
+        plan.ConfirmWipeDisk = true;
+        var maxList = g.Generate(plan);
+        Check(System.Text.RegularExpressions.Regex.Matches(Script(maxList), "/Add-Package").Count == 32,
+              "a fixed disk can retain a full update list");
+        plan.PeTargetMode = "script";
+        plan.PeTargetScript = string.Join("\n", Enumerable.Repeat("' " + new string('x', 180), 120)) + "\nWScript.Echo 0";
+        plan.ConfirmWipeDisk = true;
+        var commandLimit = false;
+        try { g.Generate(plan); }
+        catch (ConfigurationValidationException error) when (error.Message == UiText.Source("v156.pePackages.commandLimit")) { commandLimit = true; }
+        Check(commandLimit, "rejects a combined answer file that exceeds the Windows PE command limit");
+        plan.PeTargetMode = "fixed";
+        plan.UseGeneratedPe = false;
+        plan.PeOfflinePackageNames = "%invalid%";
+        plan.ConfirmWipeDisk = true;
+        var setup = g.Generate(plan);
+        Check(Script(setup).Length == 0 && !XmlPlanImport.Import(Encoding.UTF8.GetString(setup), g).PeApplyOfflinePackages, "Setup ignores inactive PE settings");
         return count;
     }
 }

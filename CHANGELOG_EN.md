@@ -2,6 +2,14 @@
 
 [Back to the README](README_EN.md) · [简体中文](CHANGELOG.md)
 
+## V1.56 Improves the Setup log viewer and adds offline updates in PE · 2026-11-25
+
+- The keyword field, reload button, and open button share the top row. The file name appears after a log opens.
+- Reload the current log while keeping the keyword. The viewer shows the number of matching lines in the current preview.
+- Open and filter `DISM.log` and `CBS.log` to troubleshoot driver, language pack, and servicing problems.
+- Read log files in the background. Preview complete records in large CR-delimited logs and skip the extra blank line when the preview starts inside a CRLF delimiter.
+- PE script installation can apply selected `.msu` and `.cab` updates offline before creating boot files. This option is off by default. PE checks the files before wiping the disk, and servicing failures halt installation with a retained DISM log. [PE script installation](docs/GeneratedPe.md)
+
 ## V1.55.1 Redacted XML export and detailed deployment review
 
 - Export redacted XML from the XML or ISO deployment review. The diagnostic file retains setup passes, disk and partition targets, image indexes, and command order. It uses sample account and computer names and removes passwords, script bodies, and the configuration snapshot.

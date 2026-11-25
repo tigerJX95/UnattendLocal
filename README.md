@@ -7,7 +7,7 @@
 
 UnattendLocal 是基于 [Christoph Schneegans 的 UnattendGenerator](https://github.com/cschneegans/unattend-generator) 开发的 Windows 桌面配置工具，支持简体中文与英语界面，用于在本地编辑、检查和生成 Windows 10 / 11 的 `autounattend.xml`。
 
-当前版本：**V1.55.1**。启用 PE 脚本安装后会自动切换为“按镜像索引”，须自行填写安装镜像中的实际索引；普通 Windows Setup 仍支持原有全部镜像选择方式。支持简体中文 / English 即时切换、独立语言包维护、静态 IPv4 / IPv6 双栈、子网掩码输入、设置搜索、安装驱动目录、动态更新、自动分区、OOBE 与账户配置，以及已有 XML 的导入编辑。
+当前版本：**V1.56**。启用 PE 脚本安装后会自动切换为“按镜像索引”，须自行填写安装镜像中的实际索引；普通 Windows Setup 仍支持原有全部镜像选择方式。支持简体中文 / English 即时切换、独立语言包维护、静态 IPv4 / IPv6 双栈、子网掩码输入、设置搜索、安装驱动目录、动态更新、自动分区、OOBE 与账户配置，以及已有 XML 的导入编辑。
 
 ## 💡 开发初衷
 
@@ -56,24 +56,26 @@ UnattendLocal 是基于 [Christoph Schneegans 的 UnattendGenerator](https://git
 - 保存和恢复 JSON 方案，提供配置摘要、推荐差异、检查、脱敏预览和 XML 导出。
 - 导入已有 XML 后编辑已支持设置，保留未知内容；遇到无法可靠合并的修改时停止导出并说明原因。
 
-## V1.55.1 导出脱敏 XML 并细化部署复核
+## V1.56 改进安装日志查看并支持 PE 离线更新 · 2026-11-25
 
-- XML 和 ISO 的部署复核窗口新增「导出脱敏 XML」。排查文件保留安装阶段、磁盘和分区、镜像索引及命令顺序，使用示例账号及计算机名，并去除密码、脚本正文和配置快照。
-- 脱敏 XML 可通过「打开配置」重新导入。导入后需核对示例值、处理占位项，并补填账户密码或明确允许空密码。安装介质使用正式导出文件。
-- 部署复核按阶段显示清盘和创建分区请求、同步和异步命令条数、本地账户组别及配置的自动登录次数。
+- 安装日志窗口的筛选框、重新读取和打开按钮共用顶部一行，文件名在打开日志后显示。
+- 可重新读取当前日志并保留筛选词。筛选时显示当前预览范围内的匹配行数。
+- 新增对 `DISM.log` 和 `CBS.log` 的查看和筛选，便于排查驱动、语言包和组件服务问题。
+- 日志文件在后台读取。修复大日志截取时的换行处理，保留回车符分隔的完整记录，避免在 CRLF 截断处显示额外空行。
+- PE 脚本安装可离线应用指定的 `.msu` 和 `.cab` 更新包，默认关闭。[PE 脚本安装](docs/GeneratedPe.md)
 
-[部署复核](docs/DeploymentReview.md)
+[Windows 安装日志](docs/SetupLogs.md)
 
 [历史版本](CHANGELOG.md)
 
 ## 📦 下载与使用
 
-从仓库的 [**Releases**](https://github.com/tigerJX95/UnattendLocal/releases/latest) 页面下载并直接运行对应的 `UnattendLocal_V1.55.1_x64_SelfContained.exe` 或 `UnattendLocal_V1.55.1_x64_FrameworkDependent.exe`：
+从仓库的 [**Releases**](https://github.com/tigerJX95/UnattendLocal/releases/latest) 页面下载并直接运行对应的 `UnattendLocal_V1.56_x64_SelfContained.exe` 或 `UnattendLocal_V1.56_x64_FrameworkDependent.exe`：
 
 | 程序文件 | 运行要求 |
 | --- | --- |
-| `UnattendLocal_V1.55.1_x64_SelfContained.exe` | 集成 .NET 运行时，无需单独安装；通常选择此版。 |
-| `UnattendLocal_V1.55.1_x64_FrameworkDependent.exe` | 文件较小，需安装 .NET 10 Desktop Runtime x64。 |
+| `UnattendLocal_V1.56_x64_SelfContained.exe` | 集成 .NET 运行时，无需单独安装；通常选择此版。 |
+| `UnattendLocal_V1.56_x64_FrameworkDependent.exe` | 文件较小，需安装 .NET 10 Desktop Runtime x64。 |
 
 两版功能相同。首次安装测试建议使用虚拟机。
 

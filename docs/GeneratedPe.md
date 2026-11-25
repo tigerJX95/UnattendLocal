@@ -24,6 +24,14 @@
 
 `autounattend.xml` 可放在目标 PE 可访问介质根目录；应答文件 ISO 可作为第二张虚拟光盘挂载，它本身不能启动。
 
+### 离线安装 Windows 更新包
+
+在“镜像与分区”启用 PE 脚本安装后，可勾选“在 PE 中离线安装 Windows 更新包”。此项默认关闭。将适用于目标 Windows 版本和架构的 `.msu` 或 `.cab` 放在安装镜像所在介质根目录的 `WinPEUpdates` 文件夹，每行填写一个文件名，按所需顺序排列，依赖包排在前面。应答文件和应答 ISO 仅保存配置，更新包需单独放到安装介质上。
+
+清盘前检查列表中的文件是否存在。镜像应用完成后，PE 将每个文件按顺序交给 DISM，再生成启动文件。更新失败时停止安装。可在目标 Windows 分区的 `Windows\Logs\DISM\OfflineUpdates.log` 查看错误详情。
+
+对于检查点累积更新，DISM 可在相同目录发现所需的检查点。该目录只能放目标更新及其依赖包。请按目标更新的 Microsoft 支持说明准备适用包及依赖。[DISM 更新包选项](https://learn.microsoft.com/windows-hardware/manufacture/desktop/dism-operating-system-package-servicing-command-line-options?view=windows-11)
+
 ### 四种选盘方式
 
 | 方式 | 行为 |
@@ -80,6 +88,14 @@ Use custom configuration, select an actual image index, choose automatic disk wi
 Fixed mode requires the target PE disk number. Matching mode uses its own optional index filter and must find exactly one disk; zero or multiple matches stop. Interactive mode lists disks and accepts one unsigned number. Custom mode executes a trusted VBScript that must return exactly one unsigned index, optionally followed by one newline, with exit code 0 and empty stderr within 60 seconds.
 
 Capacity bounds are inclusive, compared directly in bytes using 1 GiB = 1073741824 bytes, without rounding. Either field may remain blank in every selection mode, including custom VBScript and interactive selection. Blank means no corresponding bound; accepted input is 1–1048576 GiB. Capacity, unpartitioned, IDE/SCSI-interface and fixed-media conditions apply to all modes. Interface/media names are WMI classifications, not a guarantee of excluding all USB bridges or virtual disks. Required properties and existing partition mappings must be readable. Mapping counts must agree with the disk report, and mapped volume identifiers must be valid drive letters. A basic space floor reserves the system partition, the recovery partition when enabled, and 1 GiB, not the full expanded-image and operating-system requirement; configure a suitable minimum yourself.
+
+### Install offline Windows updates
+
+With PE script installation enabled, select **Install offline Windows updates in PE** on **Image and partitions**. This option is off by default. Put the `.msu` or `.cab` files for the target Windows release and architecture in the `WinPEUpdates` folder at the root of the drive containing the installation image. Enter one file name per line in the order DISM should process them, with prerequisites first. The answer file and answer-file ISO store the configuration. Copy the update files to the installation media separately.
+
+PE checks that the listed files exist before wiping the disk. After applying the image, PE passes each file to DISM in order, then creates the boot files. A servicing failure halts installation. See `Windows\Logs\DISM\OfflineUpdates.log` on the target Windows partition for details.
+
+For checkpoint cumulative updates, DISM can discover prerequisites in the same directory. Keep only the target update and its prerequisites in that directory. Follow Microsoft's support guidance for the intended update to select the appropriate packages. [DISM package options](https://learn.microsoft.com/windows-hardware/manufacture/desktop/dism-operating-system-package-servicing-command-line-options?view=windows-11)
 
 ### Safety and trust boundaries
 
