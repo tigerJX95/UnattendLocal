@@ -1612,7 +1612,7 @@
                 <Button Content="{loc:Source xml.oem.add}" Click="AddOemSupportClick" HorizontalAlignment="Left" />
               </StackPanel>
             </Expander>
-            <Expander x:Name="OfflineDriverForm" Header="{loc:Text xml.offlineDrivers.form}" Style="{StaticResource XmlFormExpander}" Margin="0,6">
+            <Expander x:Name="OfflineDriverForm" Header="{loc:Text xml.offlineDrivers.form}" Style="{StaticResource XmlFormExpander}" Margin="0,6" BorderThickness="0">
               <StackPanel Margin="0,4,0,4">
                 <TextBlock Style="{StaticResource ExplanationText}" Text="{loc:Text xml.offlineDrivers.help}" />
                 <DockPanel>
