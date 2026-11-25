@@ -360,6 +360,8 @@ public static class XmlPlanImport {
   if(copy.DiskMode!=DiskScriptSettings.Mode)copy.DiskPartScript="";
   // Inactive PE drafts belong to JSON plans, not deployment recovery metadata.
   if(!copy.UseGeneratedPe || copy.PeTargetMode!="script")copy.PeTargetScript="";
+  if(!copy.UseGeneratedPe)copy.PeApplyOfflinePackages=false;
+  if(!copy.PeApplyOfflinePackages)copy.PeOfflinePackageNames="";
   // Embedded images are restored from the actual loader files during XML import.
   if(!WallpaperSettings.IsScript(copy)||ImageBackgroundSettings.IsEmbeddedImageScript(copy.WallpaperImageScript))copy.WallpaperImageScript="";
   if(!ImageBackgroundSettings.IsLockScript(copy)||ImageBackgroundSettings.IsEmbeddedImageScript(copy.LockScreenImageScript))copy.LockScreenImageScript="";

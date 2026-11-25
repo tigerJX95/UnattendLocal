@@ -19,17 +19,26 @@
       <RowDefinition Height="*"/>
       <RowDefinition Height="Auto"/>
     </Grid.RowDefinitions>
-    <DockPanel>
-      <Button x:Name="OpenButton" DockPanel.Dock="Left" Content="{loc:Source setupLogs.choose}" Click="OpenClick" Margin="0,0,12,4">
+    <Grid Margin="0,0,0,8">
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="Auto"/>
+        <ColumnDefinition Width="*"/>
+        <ColumnDefinition Width="Auto"/>
+        <ColumnDefinition Width="Auto"/>
+      </Grid.ColumnDefinitions>
+      <Label x:Name="LogFilterLabel" Content="{loc:Text setupLogs.filter}"
+             Foreground="{DynamicResource ForegroundBrush}" Target="{Binding ElementName=LogFilter}"
+             VerticalAlignment="Center" Padding="0,0,10,0" />
+      <TextBox Grid.Column="1" x:Name="LogFilter" VerticalAlignment="Center" Margin="0"
+               IsEnabled="False" MaxLength="256" TextChanged="FilterChanged" />
+      <Button Grid.Column="2" x:Name="ReloadButton" VerticalAlignment="Center" IsEnabled="False"
+              Content="{loc:Source setupLogs.reload}" Click="ReloadClick" Margin="8,0,0,0" />
+      <Button Grid.Column="3" x:Name="OpenButton" VerticalAlignment="Center"
+              Content="{loc:Source setupLogs.choose}" Click="OpenClick" Margin="4,0,0,0">
         <Button.ToolTip><ToolTip ContentTemplate="{x:Null}" Content="{loc:Text setupLogs.hint}" /></Button.ToolTip>
       </Button>
-      <TextBlock x:Name="LogName" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" />
-    </DockPanel>
-    <DockPanel Grid.Row="1" Margin="0,6,0,8">
-      <Label x:Name="LogFilterLabel" DockPanel.Dock="Left" Content="{loc:Text setupLogs.filter}"
-             Foreground="{DynamicResource ForegroundBrush}" Target="{Binding ElementName=LogFilter}" Padding="0,7,10,7" />
-      <TextBox x:Name="LogFilter" IsEnabled="False" MaxLength="256" TextChanged="FilterChanged" />
-    </DockPanel>
+    </Grid>
+    <TextBlock Grid.Row="1" x:Name="LogName" TextTrimming="CharacterEllipsis" Visibility="Collapsed" Margin="0,0,0,8" />
     <TextBlock Grid.Row="2" x:Name="TruncatedNotice" Text="{loc:Text setupLogs.truncated}" Visibility="Collapsed"
                Foreground="{DynamicResource WarningBrush}" TextWrapping="Wrap" Margin="0,0,0,8" />
     <TextBox Grid.Row="3" x:Name="LogText" IsReadOnly="True" IsUndoEnabled="False" TextWrapping="NoWrap"

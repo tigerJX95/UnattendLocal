@@ -59,7 +59,8 @@ static class SetupDiagnosticsTests
         plan.ConfirmAdditionalXml = true;
         Reject(() => generator.Generate(plan), "duplicate offline DriverPaths");
         Check(SettingsSearchCatalog.Search("PnpCustomizationsNonWinPE").Any(row => row.Target == "OfflineDriverForm") &&
-              SettingsSearchCatalog.Search("setupact").Any(row => row.Target == "SetupLogsButton"),
+              SettingsSearchCatalog.Search("setupact").Any(row => row.Target == "SetupLogsButton") &&
+              SettingsSearchCatalog.Search("DISM").Any(row => row.Target == "SetupLogsButton"),
               "both entries are searchable");
 
         string directory = Directory.CreateTempSubdirectory("ul149-setup-logs-").FullName;
@@ -72,12 +73,36 @@ static class SetupDiagnosticsTests
             {
                 File.WriteAllText(file, sample, encoding);
                 var result = SetupLogPreview.Read(file);
-                Check(result.Text == sample && !result.Truncated && result.Filter(" ") == sample &&
-                      result.Filter(" error ").Split(Environment.NewLine).SequenceEqual(new[] { "Error 驱动程序未安装", "ERROR service" }) &&
-                      result.Filter("absent") == "", "Unicode BOM support and literal case-insensitive line filtering");
+                Check(result.Text == sample && !result.Truncated && result.Filter(" ", out int? unfiltered) == sample && unfiltered is null &&
+                      result.Filter(" error ", out int? count).Split(Environment.NewLine).SequenceEqual(new[] { "Error 驱动程序未安装", "ERROR service" }) &&
+                      count == 2 && result.Filter("absent", out int? absent) == "" && absent == 0,
+                      "Unicode BOM support and literal case-insensitive line filtering with counts");
                 File.WriteAllText(file, new string('A', 300000) + "\r\n最近错误\n", encoding);
                 result = SetupLogPreview.Read(file);
                 Check(result.Truncated && result.Text == "最近错误\n", "bounded tail starts at a complete line");
+
+                File.WriteAllText(file, new string('A', 300000) + "\r最近错误\rINFO service\r", encoding);
+                result = SetupLogPreview.Read(file);
+                Check(result.Truncated && result.Text == "最近错误\rINFO service\r", "bounded tail supports carriage-return line separators");
+
+                const string firstLine = "最近错误\r\n";
+                int unitBytes = encoding.GetByteCount("x");
+                int padding = (256 * 1024 - unitBytes - encoding.GetByteCount(firstLine)) / unitBytes;
+                string suffix = firstLine + new string('x', padding);
+                File.WriteAllText(file, "discard\r\n" + suffix, encoding);
+                result = SetupLogPreview.Read(file);
+                Check(result.Truncated && result.Text == suffix, "a CRLF split at the tail boundary creates no leading blank line");
+            }
+            foreach (string name in new[] { "dism.LOG", "Cbs.log", "OfflineUpdates.log" })
+            {
+                string servicingLog = Path.Combine(directory, name);
+                File.WriteAllText(servicingLog, "INFO first\n");
+                Check(SetupLogPreview.Read(servicingLog).Filter("error", out int? before) == "" && before == 0 &&
+                      SetupLogPreview.FilePatterns.Split(';').Contains(name, StringComparer.OrdinalIgnoreCase),
+                      "the servicing log is readable and offered by the file picker");
+                File.AppendAllText(servicingLog, "ERROR appended\n");
+                Check(SetupLogPreview.Read(servicingLog).Filter("error", out int? after) == "ERROR appended" && after == 1,
+                      "rereading a servicing log exposes appended lines under the same keyword");
             }
             File.WriteAllText(file, "discard\n" + new string('a', 256 * 1024 - 1) + "\n");
             Check(SetupLogPreview.Read(file).Text.Length == 256 * 1024, "a byte boundary on a complete line retains that line");

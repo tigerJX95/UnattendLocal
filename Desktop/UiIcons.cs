@@ -18,6 +18,7 @@ public sealed class ActionIconConverter : IValueConverter
         }
         const string document = "M4,2 H13 L18,7 V20 H4 Z M13,2 V7 H18 ";
         Add(global::UnattendLocal.Localization.UiText.Source("plan.open"), "M2,8 V4 H9 L12,7 H20 V10 M2,8 H21 L18,20 H2 Z", global::UnattendLocal.Localization.UiText.Source("plan.open.help"));
+        Add(global::UnattendLocal.Localization.UiText.Source("setupLogs.reload"), "M4,8 A8,8 0 1 1 3,15 M4,8 V2 M4,8 H10", global::UnattendLocal.Localization.UiText.Source("setupLogs.reload"));
         Add(global::UnattendLocal.Localization.UiText.Source("text.ad9fd5bf109f"), "M4,8 A8,8 0 1 1 3,15 M4,8 V2 M4,8 H10 M8,12 H16 M12,8 V16", global::UnattendLocal.Localization.UiText.Source("text.b5c413d90407"));
         Add(global::UnattendLocal.Localization.UiText.Source("text.f0866be5e5a3"), document+"M7,12 H15 M7,16 H12", global::UnattendLocal.Localization.UiText.Source("text.2d0b28cf3383"));
         Add(global::UnattendLocal.Localization.UiText.Source("text.f3393a498bde"), "M4,8 A8,8 0 1 1 3,15 M4,8 V2 M4,8 H10", global::UnattendLocal.Localization.UiText.Source("text.f3393a498bde"));

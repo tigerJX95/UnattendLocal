@@ -40,9 +40,11 @@ internal static class DeploymentPhaseReview
 
             if (phase.Id == "windowsPE")
             {
-                bool peScript = doc.SelectSingleNode(
-                    "/u:unattend/s:Extensions/s:Build/s:PEScriptCopy[normalize-space(.) != '']", ns) != null;
+                string? peScriptText = doc.SelectSingleNode(
+                    "/u:unattend/s:Extensions/s:Build/s:PEScriptCopy[normalize-space(.) != '']", ns)?.InnerText;
+                bool peScript = peScriptText != null;
                 Add(peScript, "review.phases.peScript");
+                Add(peScriptText?.Contains(PeOfflinePackageSettings.Marker, StringComparison.Ordinal) == true, "v156.pePackages.review");
                 Add(Has(Setup + "/u:DiskConfiguration") || (!peScript && AutoPartitionSettings.Inspect(doc).Known), "review.phases.disk");
                 Add(Has(Setup + "/u:DiskConfiguration/u:Disk/u:WillWipeDisk[normalize-space(.)='true' or normalize-space(.)='1']"), "review.phases.wipeRequested");
                 AddCount(Setup + "/u:DiskConfiguration/u:Disk/u:CreatePartitions/u:CreatePartition", "review.phases.createPartitions");

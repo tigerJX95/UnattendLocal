@@ -235,6 +235,8 @@ public class InstallPlan : Observable {
  private bool _UseGeneratedPe; public bool UseGeneratedPe {get=>_UseGeneratedPe;set{if(_UseGeneratedPe==value)return;ClearDiskConsent();Set(ref _UseGeneratedPe,value);}}
  private bool _PeCreateRecoveryPartition=true; public bool PeCreateRecoveryPartition {get=>_PeCreateRecoveryPartition;set{if(_PeCreateRecoveryPartition==value)return;ClearDiskConsent();Set(ref _PeCreateRecoveryPartition,value);}}
  private bool _PeCheckImageIntegrity=true; public bool PeCheckImageIntegrity {get=>_PeCheckImageIntegrity;set{if(_PeCheckImageIntegrity==value)return;ClearDiskConsent();Set(ref _PeCheckImageIntegrity,value);}}
+ private bool _PeApplyOfflinePackages; public bool PeApplyOfflinePackages {get=>_PeApplyOfflinePackages;set{if(_PeApplyOfflinePackages==value)return;ClearDiskConsent();Set(ref _PeApplyOfflinePackages,value);}}
+ private string _PeOfflinePackageNames=""; public string PeOfflinePackageNames {get=>_PeOfflinePackageNames;set{if(_PeOfflinePackageNames==value)return;if(PeApplyOfflinePackages)ClearDiskConsent();Set(ref _PeOfflinePackageNames,value);}}
  private bool _PauseBeforePeReboot; public bool PauseBeforePeReboot {get=>_PauseBeforePeReboot;set{if(_PauseBeforePeReboot==value)return;ClearDiskConsent();Set(ref _PauseBeforePeReboot,value);}}
  private string _ImageSelection=global::UnattendLocal.Localization.UiText.Source("text.cc65b6582544"); public string ImageSelection {get=>_ImageSelection;set{if(_ImageSelection==value)return;if(UseGeneratedPe)ClearDiskConsent();Set(ref _ImageSelection,value);}}
  private string _ImageName=""; public string ImageName {get=>_ImageName;set=>Set(ref _ImageName,value);}

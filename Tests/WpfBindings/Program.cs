@@ -231,6 +231,10 @@ internal static class Program
         string themeBeforeTest = UiTheme.Current;
         var section = (StackPanel)window.FindName("AdditionalXmlSection");
         var card = (Border)section.Parent;
+        var offlinePaths = (TextBox)window.FindName("OfflineDriverPaths");
+        var offlineLabel = (Label)window.FindName("OfflineDriverPathsLabel");
+        var offlineAdd = (Button)window.FindName("AddOfflineDriverButton");
+        var xmlEntries = (ListBox)window.FindName("AdditionalXmlEntries");
         var forms = new[]
         {
             (Form: (Expander)window.FindName("OemSupportForm"), HeaderKey: "xml.oem.form", HelpKey: "xml.oem.help"),
@@ -263,14 +267,25 @@ internal static class Program
                         if (!expanded) continue;
 
                         CheckThemeText(body, UiText.Get(helpKey), card.Background, expectedText, context);
-                        foreach (var label in body.Children.OfType<Label>())
+                        foreach (var label in VisualDescendants<Label>(body))
                             CheckThemeText(label, (string)label.Content, card.Background, expectedText, context);
                         foreach (var input in body.Children.OfType<TextBox>())
                             CheckTextContrast(input.Foreground, input.Background, $"{context}/{input.Name}");
+                        if (form.Name == "OfflineDriverForm")
+                        {
+                            Point inputLeft = offlinePaths.TranslatePoint(new Point(0, 0), section);
+                            Point listLeft = xmlEntries.TranslatePoint(new Point(0, 0), section);
+                            if (Math.Abs(inputLeft.X - listLeft.X) > 1 || Math.Abs(offlinePaths.ActualWidth - xmlEntries.ActualWidth) > 1)
+                                throw new Exception($"{context}: the driver paths editor and XML list must align.");
+                            Point labelCenter = offlineLabel.TranslatePoint(new Point(0, offlineLabel.ActualHeight / 2), section);
+                            Point actionCenter = offlineAdd.TranslatePoint(new Point(offlineAdd.ActualWidth, offlineAdd.ActualHeight / 2), section);
+                            if (Math.Abs(labelCenter.Y - actionCenter.Y) > 1 || Math.Abs(actionCenter.X - inputLeft.X - offlinePaths.ActualWidth) > 1)
+                                throw new Exception($"{context}: the add button must share the label row and align to the editor's right edge.");
+                        }
                     }
                 }
             }
-            Console.WriteLine("PASS advanced XML form text contrast and expansion in both languages and themes.");
+            Console.WriteLine("PASS advanced XML form text contrast, expansion and driver layout in both languages and themes.");
         }
         finally
         {
@@ -323,6 +338,9 @@ internal static class Program
             log.Show();
             var filterLabel = (Label)log.FindName("LogFilterLabel");
             var logFilter = (TextBox)log.FindName("LogFilter");
+            var openButton = (Button)log.FindName("OpenButton");
+            var reloadButton = (Button)log.FindName("ReloadButton");
+            var logName = (TextBlock)log.FindName("LogName");
             var logText = (TextBox)log.FindName("LogText");
             var status = (TextBlock)log.FindName("LogStatus");
             var intro = (TextBlock)owner.FindName("ExportIntro");
@@ -341,8 +359,18 @@ internal static class Program
                         ((SolidColorBrush)log.Foreground).Color, context);
                     CheckTextContrast(status.Foreground, log.Background, $"{context}/footer");
                     CheckTextContrast(logText.Foreground, logText.Background, $"{context}/contents");
-                    if (!logText.IsReadOnly || logFilter.IsEnabled || !ReferenceEquals(filterLabel.Target, logFilter))
+                    if (!logText.IsReadOnly || logFilter.IsEnabled || reloadButton.IsEnabled || !ReferenceEquals(filterLabel.Target, logFilter))
                         throw new Exception($"{context}: preview and keyword filtering must retain their initial state.");
+                    var label = filterLabel.TranslatePoint(new Point(filterLabel.ActualWidth, filterLabel.ActualHeight / 2), log);
+                    var filter = logFilter.TranslatePoint(new Point(0, logFilter.ActualHeight / 2), log);
+                    var reload = reloadButton.TranslatePoint(new Point(0, reloadButton.ActualHeight / 2), log);
+                    var open = openButton.TranslatePoint(new Point(0, openButton.ActualHeight / 2), log);
+                    if (logFilter.ActualWidth <= 0 || openButton.ActualWidth <= 0 || reloadButton.ActualWidth <= 0
+                        || label.X > filter.X + 1 || filter.X + logFilter.ActualWidth > reload.X
+                        || reload.X + reloadButton.ActualWidth > open.X || Math.Abs(label.Y - filter.Y) > 1
+                        || Math.Abs(filter.Y - reload.Y) > 1 || Math.Abs(filter.Y - open.Y) > 1
+                        || logName.Visibility != Visibility.Collapsed)
+                        throw new Exception($"{context}: the filter and log actions must share the top row, with Open on the right.");
                     foreach (var paragraph in new[] { intro, warning, status })
                         if (string.IsNullOrEmpty(paragraph.Text) || char.IsWhiteSpace(paragraph.Text[0])
                             || paragraph.TextAlignment != TextAlignment.Left)
@@ -355,7 +383,7 @@ internal static class Program
             ApplicationCommands.Close.Execute(null, log);
             if (log.IsVisible)
                 throw new Exception("The setup log dialog's Escape command must close the window.");
-            Console.WriteLine("PASS Windows Setup log dialog themes, Escape, and unindented export instructions.");
+            Console.WriteLine("PASS Windows Setup log dialog layout, themes, Escape, and unindented export instructions.");
         }
         finally
         {

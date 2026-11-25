@@ -12,11 +12,18 @@ public static class GeneratedPeSettings
     public static void Validate(InstallPlan p)
     {
         if (!p.UseGeneratedPe) return;
-        if (p.Architecture != "amd64" || p.DiskMode != InstallationSettings.Wipe || (p.DiskLayout != "UEFI / GPT" && p.DiskLayout != "BIOS / MBR" && p.DiskLayout != PeDiskSafety.AutomaticLayout))
-            Fail(nameof(p.UseGeneratedPe), "v125.pe.scope");
+        if (p.ImageSelection != UiText.Source("text.9cbbdbe44e5d"))
+            Fail(nameof(p.ImageSelection), "v125.pe.image");
+        if (p.ImageIndex is null or < 1)
+            Fail(nameof(p.ImageIndex), "text.02ec7f74b065");
+        if (p.Architecture != "amd64")
+            Fail(nameof(p.Architecture), "v156.peValidation.architecture");
+        if (p.DiskMode != InstallationSettings.Wipe)
+            Fail(nameof(p.DiskMode), "v156.peValidation.diskMode");
+        if (p.DiskLayout is not ("UEFI / GPT" or "BIOS / MBR" or PeDiskSafety.AutomaticLayout))
+            Fail(nameof(p.DiskLayout), "v156.peValidation.diskLayout");
         PeDiskSafety.Validate(p);
-        if (p.ImageSelection != UiText.Source("text.9cbbdbe44e5d") || p.ImageIndex is null or < 1)
-            Fail(nameof(p.ImageIndex), "v125.pe.image");
+        if (p.PeApplyOfflinePackages) PeOfflinePackageSettings.Validate(p);
         if (p.EditionMode != UiText.Source("text.5056d73b13ec"))
             Fail(nameof(p.EditionMode), "v125.pe.edition");
         if (HardwareSettings.Items.Any(i => HardwareSettings.Enabled(p, i)))
@@ -51,6 +58,7 @@ public static class GeneratedPeSettings
         if (!p.UseGeneratedPe) return doc;
         var script = doc.SelectSingleNode("//*[local-name()='PEScriptCopy']")?.InnerText ?? throw new InvalidOperationException("Missing PE installation script.");
         script = PePreflight.Keyboard(script);
+        if (p.PeApplyOfflinePackages) script = PeOfflinePackageSettings.InsertServicing(script, p);
         const string anchor = "set \"OS_VERSION=11\"";
         int at = script.IndexOf(anchor, StringComparison.Ordinal);
         if (at < 0 || script.IndexOf(anchor, at + anchor.Length, StringComparison.Ordinal) >= 0) throw new InvalidOperationException("Unexpected PE installation script.");
@@ -87,7 +95,18 @@ public static class GeneratedPeSettings
         // This path is not exposed to user exports.
         if (previousFirmwareGuard)
             guard = RemoveKnownFirmwarePreflight(guard, FirmwareLayoutPreflight(p));
-        return engine.GenerateXml(config with { PESettings = new ScriptPESetttings(PeDiskSafety.Guard(script.Insert(at, guard + "\r\n"), p, legacyTargetChain)) });
+        if (p.PeApplyOfflinePackages)
+            guard += "\r\n" + PeOfflinePackageSettings.Preflight(p) + "\r\n";
+        var generated = engine.GenerateXml(config with { PESettings = new ScriptPESetttings(PeDiskSafety.Guard(script.Insert(at, guard + "\r\n"), p, legacyTargetChain)) });
+        if (p.PeApplyOfflinePackages)
+        {
+            // Windows Setup accepts RunSynchronous order values from 1 to 500.
+            // A custom disk selector and a long package list share this budget.
+            const string peCommands = "/*[local-name()='unattend']/*[local-name()='settings'][@pass='windowsPE']/*[local-name()='component'][@name='Microsoft-Windows-Setup']/*[local-name()='RunSynchronous']/*[local-name()='RunSynchronousCommand']";
+            if (generated.SelectNodes(peCommands)!.Count > 500)
+                Fail(nameof(p.PeOfflinePackageNames), "v156.pePackages.commandLimit");
+        }
+        return generated;
     }
     // Reconstruct a known V1.34 import baseline without the V1.35 firmware
     // check. C# raw string literals preserve the checkout's line endings,
@@ -187,5 +206,7 @@ public static class GeneratedPeSettings
                 !(p.ImportedXml.CompactOsSourceKnown && n.StartsWith(UiText.Source("text.ffca52313ae7"), StringComparison.Ordinal))).ToArray();
         }
     }
-    public static string Summary(InstallPlan p) => PeDiskSafety.Summary(p);
+    public static string Summary(InstallPlan p) => p.PeApplyOfflinePackages
+        ? UiText.Join("\n", [PeDiskSafety.Summary(p), UiText.Source("v156.pePackages.review")])
+        : PeDiskSafety.Summary(p);
 }
