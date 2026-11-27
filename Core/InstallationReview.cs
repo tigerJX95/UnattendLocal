@@ -11,8 +11,9 @@ public static class InstallationReview
     public record Target(string Description, bool MayNeedSelection);
     public record ExportReview(string Target, AppControlSettings.PolicyReview? AppLocker, string Phases)
     {
+        public string OfflinePackages { get; init; } = "";
         public string Describe() => global::UnattendLocal.Localization.UiText.Join("\n\n",
-            AppLocker is {} policy ? [Target, Phases, policy.Message] : new[] { Target, Phases });
+            new[] { Target, Phases, OfflinePackages, AppLocker?.Message ?? "" }.Where(text => text.Length > 0));
     }
     private static Target Unspecified => new(global::UnattendLocal.Localization.UiText.Source("text.551f5c31a0e6"), true);
     public static Target FromXml(XmlDocument doc)
@@ -85,7 +86,14 @@ public static class InstallationReview
     {
         var doc = XmlMerge.Read(System.Text.Encoding.UTF8.GetString(bytes));
         var policy = AppControlSettings.ReviewEmbeddedPolicy(doc);
-        return new(FromXml(doc).Description, policy, DeploymentPhaseReview.Describe(doc, policy != null));
+        string script = doc.SelectSingleNode("//*[local-name()='PEScriptCopy']")?.InnerText ?? "";
+        string[] packages = PeOfflinePackageSettings.ReviewNames(script);
+        return new(FromXml(doc).Description, policy, DeploymentPhaseReview.Describe(doc, policy != null))
+        {
+            OfflinePackages = packages.Length == 0 ? "" : UiText.Concat(
+                [UiText.Source("v157.pePackages.order"), "\n", string.Join("\n", packages.Select((name, i) => $"{i + 1}. {name}"))],
+                [false, true, true])
+        };
     }
 
 }

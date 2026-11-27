@@ -30,7 +30,9 @@ public class GeneratorService {
  internal byte[] GeneratePreviousPeBaseline(InstallPlan p)=>GenerateDocument(p,false,false,false,true);
  internal byte[] GeneratePrePagingPeBaseline(InstallPlan p)=>GenerateDocument(p,false,false,false,false,true);
  internal byte[] GenerateV134PeBaseline(InstallPlan p)=>GenerateDocument(p,true,false,false,false,false,true);
- private byte[] GenerateDocument(InstallPlan p,bool includeImport,bool checkDeployment=true,bool legacyTargetChain=false,bool unguardedSelector=false,bool legacyPePaging=false,bool previousFirmwareGuard=false) {
+ internal byte[] GenerateV156PeBaseline(InstallPlan p)=>GenerateDocument(p,false,false,legacyMedia:true);
+ private byte[] GenerateDocument(InstallPlan p,bool includeImport,bool checkDeployment=true,bool legacyTargetChain=false,bool unguardedSelector=false,bool legacyPePaging=false,bool previousFirmwareGuard=false,bool legacyMedia=false) {
+  legacyMedia=legacyMedia||legacyTargetChain||unguardedSelector||legacyPePaging||previousFirmwareGuard;
   GeneratedPeSettings.Validate(p);
   NativePreferences.Validate(p);
   AdditionalXmlSettings.Validate(p,checkDeployment);
@@ -104,10 +106,10 @@ public class GeneratorService {
    PasswordExpirationSettings=p.AccountMode!=global::UnattendLocal.Localization.UiText.Source("text.cdaa9a6700f6")?new DefaultPasswordExpirationSettings():p.PasswordExpiration switch {"永不过期"=>new UnlimitedPasswordExpirationSettings(),"Windows 默认"=>new DefaultPasswordExpirationSettings(),"指定天数"=>new CustomPasswordExpirationSettings(p.PasswordDays),_=>throw new ArgumentException(global::UnattendLocal.Localization.UiText.Source("text.ef0cd5829f6b"))},
    ExpressSettings=p.PrivacyMode switch {"安装时手动选择"=>ExpressSettingsMode.Interactive,"关闭快捷隐私设置"=>ExpressSettingsMode.DisableAll,"启用快捷设置"=>ExpressSettingsMode.EnableAll,_=>throw new ArgumentException(global::UnattendLocal.Localization.UiText.Source("text.f46ca367fb9b"))},
    BypassNetworkCheck=p.BypassNetwork,
-   PESettings=GeneratedPeSettings.Build(p,CreateEdition(p),legacyTargetChain,unguardedSelector,legacyPePaging),
+   PESettings=GeneratedPeSettings.Build(p,CreateEdition(p),legacyTargetChain,unguardedSelector,legacyPePaging,legacyMedia),
    ProcessorArchitectures=ImmutableHashSet.Create(Enum.Parse<ProcessorArchitecture>(p.Architecture))
   };
-  var doc=GeneratedPeSettings.Generate(generator,config,p,legacyTargetChain,previousFirmwareGuard);
+  var doc=GeneratedPeSettings.Generate(generator,config,p,legacyTargetChain,previousFirmwareGuard,legacyMedia);
   var ns=new XmlNamespaceManager(doc.NameTable);ns.AddNamespace("u","urn:schemas-microsoft-com:unattend");
   foreach(XmlElement oobe in doc.SelectNodes("//u:OOBE",ns)!) {
    SetOobe(doc,ns,oobe,"HideEULAPage",p.HideEula);
@@ -134,6 +136,7 @@ public class GeneratorService {
    if(credentialErrors.Length>0)throw new ArgumentException(global::UnattendLocal.Localization.UiText.Join("\n",credentialErrors,false));
    RedactedAnswerFile.FinishDeployment(doc);
   }
+  if(checkDeployment&&p.UseGeneratedPe)GeneratedPeSettings.ValidateCommandCount(p,doc);
   using var schema=typeof(UnattendGenerator).Assembly.GetManifestResourceStream("Schneegans.Unattend.resource.autounattend.xsd")!;
   doc.Schemas.Add("urn:schemas-microsoft-com:unattend",XmlReader.Create(schema));
   doc.Validate((_,e)=>throw new ArgumentException(global::UnattendLocal.Localization.UiText.Concat(new object?[] { global::UnattendLocal.Localization.UiText.Source("text.f0a035a733c2"), global::UnattendLocal.Localization.UiText.DescribeError(e.Exception) },new bool[]{false,false}), e.Exception));

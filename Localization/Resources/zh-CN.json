@@ -4162,12 +4162,14 @@
   "setupLogs.reload": "重新读取当前日志",
   "setupLogs.matches": "当前预览中匹配 {0} 行。",
   "v156.pePackages.name": "在 PE 中离线安装 Windows 更新包",
-  "v156.pePackages.help": "将更新包放入安装镜像所在介质根目录的 \\WinPEUpdates 文件夹。每行输入一个文件名，按顺序列出，依赖包排在前面。若使用检查点累积更新，文件夹内只能放目标更新及其依赖包。",
+  "v156.pePackages.help": "将更新包放入安装镜像所在介质根目录的 \\WinPEUpdates 文件夹。每行一个文件名，依赖包排在前面。可用“文件名 | SHA-256”核对哈希，需 Windows PE 提供 certutil.exe。目录中的 .msu 和 .cab 均须列出。",
   "v156.pePackages.files": "更新包文件名（.msu / .cab）",
-  "v156.pePackages.invalid": "请输入 1 至 32 个不重复的 .msu 或 .cab 文件名，每行一个。请以字母或数字开头，仅使用英文字母、数字、空格、句点、连字符和下划线，扩展名前最多 120 个字符。请去掉路径并避开 Windows 保留设备名。",
   "v156.pePackages.review": "在生成启动文件前离线应用 Windows 更新包",
   "v156.pePackages.commandLimit": "离线更新与现有 PE 配置合计超过 Windows Setup 的 500 条同步命令上限。请缩短自定义选盘脚本或减少更新包。",
   "v156.peValidation.architecture": "PE 脚本安装仅支持 x64，请在“基础设置”中选择 x64。",
   "v156.peValidation.diskMode": "请将磁盘与分区方式设为“清空指定磁盘后自动分区”，以使用 PE 脚本安装。",
-  "v156.peValidation.diskLayout": "PE 脚本安装须选择 UEFI/GPT、BIOS/MBR 或跟随启动方式的分区布局。"
+  "v156.peValidation.diskLayout": "PE 脚本安装须选择 UEFI/GPT、BIOS/MBR 或跟随启动方式的分区布局。",
+  "v157.pePackages.invalid": "请输入 1 至 32 个不重复的 .msu 或 .cab 文件名，每行一个。文件名以英文字母或数字开头，仅可包含英文字母、数字、空格、句点、连字符和下划线，扩展名前最多 120 个字符。可用竖线追加 64 位十六进制 SHA-256。",
+  "v157.pePackages.order": "离线更新包（提交给 DISM 的顺序）",
+  "v157.pe.commandLimit": "此 PE 方案超过 Windows Setup 的 500 条同步命令上限。请缩短自定义选盘脚本。"
 }
