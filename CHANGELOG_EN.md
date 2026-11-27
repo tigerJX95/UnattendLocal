@@ -2,6 +2,14 @@
 
 [Back to the README](README_EN.md) · [简体中文](CHANGELOG.md)
 
+## V1.57 Strengthens PE media discovery and offline update checks · 2026-11-27
+
+- PE requires a unique installation image and stops before wiping the disk if multiple images are found. Split image segments and media support directories follow the selected image.
+- Before wiping the disk, PE reads the listed offline updates and rejects missing, empty, or unlisted packages. Each package can optionally have a SHA-256 hash. The export review lists packages in installation order.
+- PE installation enforces the 500-command `RunSynchronous` limit even when offline updates are disabled.
+
+[PE script installation](docs/GeneratedPe.md)
+
 ## V1.56 Improves the Setup log viewer and adds offline updates in PE · 2026-11-25
 
 - The keyword field, reload button, and open button share the top row. The file name appears after a log opens.

@@ -39,6 +39,14 @@ static class GeneratedPeTests
         Check(script.Contains("create partition efi", StringComparison.OrdinalIgnoreCase) && script.Contains("create partition msr", StringComparison.OrdinalIgnoreCase), "GPT boot and MSR partitions");
         Check(script.Contains("/CheckIntegrity /Verify"), "image verification retained");
         Check(script.Contains("bcdboot.exe") && script.Contains("wpeutil.exe reboot"), "boot files and reboot");
+        int mediaCheck = script.IndexOf("Several installation images found", StringComparison.Ordinal);
+        Check(mediaCheck >= 0 && mediaCheck < script.IndexOf("diskpart.exe /s", StringComparison.Ordinal) &&
+            script.Contains("""if /I "%%e"=="swm" set "SWM_PARAM=/SWMFile:%%d:\sources\install*.swm" """.TrimEnd()) &&
+            script.Contains("""set "SWM_PARAM=" """.TrimEnd()), "ambiguous media stops before partitioning; SWM options bind to the image drive");
+        Check(script.Contains("""set "OEM_FOLDER=%UL_IMAGE_DRIVE%\$OEM$" """.TrimEnd()) &&
+            script.Contains("""set "PEDRIVERS_FOLDER=%UL_IMAGE_DRIVE%\$WinPEDriver$" """.TrimEnd()) &&
+            script.Contains("Several answer files found") && script.Contains("""copy "%XML_FILE%" """.TrimEnd()),
+            "auxiliary folders follow image media; an unambiguous separate XML path stays supported");
         foreach (string check in new[] { "%PROCESSOR_ARCHITECTURE%", "UL_PE_FIRMWARE", "/Get-ImageInfo", "UL_IMAGE_CHECK_EXIT" })
             Check(script.IndexOf(check, StringComparison.Ordinal) >= 0 && script.IndexOf(check, StringComparison.Ordinal) < script.IndexOf("diskpart.exe /s", StringComparison.Ordinal), "preflight before DiskPart: " + check);
         Check(script.Contains("/Index:1") && script.Contains("Architecture field is missing or duplicated."), "index and image architecture preflight");
@@ -229,7 +237,10 @@ static class GeneratedPeTests
         int lastAdd = script.LastIndexOf("/Add-Package", StringComparison.Ordinal);
         Check(script.Contains("""for %%I in ("%IMAGE_FILE%") do set "UL_PACKAGE_ROOT=%%~dI\WinPEUpdates" """.TrimEnd()), "uses the selected installation image drive");
         Check(partition > 0 && script[..partition].Contains("Missing update file:") &&
-              script[..partition].Contains("Expected an update file:") && firstAdd > image && image > partition &&
+              script[..partition].Contains("Empty update file:") &&
+              script[..partition].Contains("""X:\UL-packagecheck.vbs "%UL_PACKAGE_ROOT%" read""") &&
+              script[partition..firstAdd].Contains("""X:\UL-packagecheck.vbs "%UL_PACKAGE_ROOT%" list""") &&
+              firstAdd > image && image > partition &&
               lastAdd > firstAdd && boot > lastAdd, "checks before DiskPart and services between image application and BCDBoot");
         string servicing = script[image..boot];
         Check(servicing.Contains("""if not "%UL_APPLY_EXIT%"=="0" call :fail""") &&
@@ -250,10 +261,28 @@ static class GeneratedPeTests
               SettingsSearchPrerequisites.Resolve("PeOfflinePackagesCheck", InstallPlan.New()) == "GeneratedPeMode", "validation and search navigate to the applicable controls");
         Check(DeploymentPhaseReview.Describe(XmlMerge.Read(Encoding.UTF8.GetString(xml)), false).Contains(UiText.Source("v156.pePackages.review")),
               "deployment review includes offline servicing");
+        Check(InstallationReview.ForExport(xml).OfflinePackages.Contains("1. prerequisite.cab\n2. Update KB-123.msu"),
+              "deployment review lists exactly the submitted names in order");
+        var legacyGenerator = typeof(GeneratorService).GetMethod("GenerateV156PeBaseline",
+            System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!;
+        var legacyBytes = (byte[])legacyGenerator.Invoke(g, [plan])!;
+        var oldXml = XmlMerge.Read(Encoding.UTF8.GetString(legacyBytes));
+        XmlPlanImport.AddSnapshot(oldXml, plan);
+        var migrated = XmlPlanImport.Import(oldXml.OuterXml, g);
+        Check(GeneratedPeSettings.OwnsImported(migrated) && migrated.PeApplyOfflinePackages, "V1.56 offline plan remains editable");
+        migrated.ConfirmWipeDisk = migrated.ConfirmImportedXmlRisk = true;
+        Check(Script(g.Generate(migrated)).Contains("Several installation images found"), "regenerating V1.56 PE upgrades the media checks");
+
+        string hash = new string('A', 64);
+        plan.PeOfflinePackageNames = "Update KB-123.msu | " + hash;
+        plan.ConfirmWipeDisk = true;
+        var withHash = g.Generate(plan);
+        Check(Script(withHash).Contains(hash) && !InstallationReview.ForExport(withHash).OfflinePackages.Contains(hash),
+              "SHA-256 is emitted for preflight but omitted from the package order display");
 
         foreach (string invalid in new[] { "", @"..\update.cab", @"C:\update.cab", "x%PATH%.msu", "x&y.cab",
                  "x!.cab", "x\".cab", "x*.cab", "NUL.txt.cab", "com1 .msu", "错误.cab", "package.exe",
-                 "duplicate.cab\nDUPLICATE.CAB", new string('a', 121) + ".msu" })
+                 "duplicate.cab\nDUPLICATE.CAB", "a.msu | ", "a.msu | abc", new string('a', 121) + ".msu" })
         {
             plan.PeOfflinePackageNames = invalid;
             Check(!plan.ConfirmWipeDisk, "package changes clear consent");
@@ -279,6 +308,14 @@ static class GeneratedPeTests
         try { g.Generate(plan); }
         catch (ConfigurationValidationException error) when (error.Message == UiText.Source("v156.pePackages.commandLimit")) { commandLimit = true; }
         Check(commandLimit, "rejects a combined answer file that exceeds the Windows PE command limit");
+        plan.PeApplyOfflinePackages = false;
+        plan.PeTargetScript = string.Join("\n", Enumerable.Repeat("' " + new string('x', 180), 250)) + "\nWScript.Echo 0";
+        plan.ConfirmWipeDisk = true;
+        commandLimit = false;
+        try { g.Generate(plan); }
+        catch (ConfigurationValidationException error) when (error.Field == nameof(InstallPlan.PeTargetScript) &&
+            error.Message == UiText.Source("v157.pe.commandLimit")) { commandLimit = true; }
+        Check(commandLimit, "also checks the Windows PE command limit with no updates selected");
         plan.PeTargetMode = "fixed";
         plan.UseGeneratedPe = false;
         plan.PeOfflinePackageNames = "%invalid%";

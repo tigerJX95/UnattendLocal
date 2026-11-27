@@ -22,15 +22,21 @@
 4. PE 模式由实际镜像索引决定安装版本，不通过 SKU 或安装密钥选择版本。“版本与密钥方式”需选择“在 Windows 安装程序中手动输入”，这是当前 PE 路径的兼容选项，不会因此增加 PE 脚本的密钥输入步骤。原有选择与草稿保留，不自动修改。独立激活密钥仍可配置，但须与目标版本匹配，不用于选择镜像索引。
 5. 首次验证建议启用分区前暂停和重启前暂停。核对清盘风险并确认后，导出 XML 或应答文件 ISO。
 
-`autounattend.xml` 可放在目标 PE 可访问介质根目录；应答文件 ISO 可作为第二张虚拟光盘挂载，它本身不能启动。
+`autounattend.xml` 可放在安装介质根目录，也可用单独的应答文件 ISO。应答 ISO 只承载配置。PE 优先使用 Windows Setup 已记录的应答文件，其次使用镜像盘根目录的应答文件，再检查是否只有一个其他介质中的根目录应答文件。
+
+PE 在可访问的卷上查找 `sources\install.wim`、`sources\install.esd` 和 `sources\install.swm`，只接受一个镜像入口。同一卷有多个入口或另一张安装介质也有镜像时，PE 在清盘前停止。`install*.swm` 分卷须同在所选介质；`$OEM$` 和 `$WinPEDriver$` 也从该镜像介质读取。启用 VirtIO 时，附加驱动介质也必须唯一，并从目标磁盘候选中排除。
+
+PE 的 `windowsPE/RunSynchronous` 最多允许 500 条命令，包含安装脚本和并入的自定义命令。超限时停止检查与导出。
 
 ### 离线安装 Windows 更新包
 
-在“镜像与分区”启用 PE 脚本安装后，可勾选“在 PE 中离线安装 Windows 更新包”。此项默认关闭。将适用于目标 Windows 版本和架构的 `.msu` 或 `.cab` 放在安装镜像所在介质根目录的 `WinPEUpdates` 文件夹，每行填写一个文件名，按所需顺序排列，依赖包排在前面。应答文件和应答 ISO 仅保存配置，更新包需单独放到安装介质上。
+在“镜像与分区”启用 PE 脚本安装后，可勾选“在 PE 中离线安装 Windows 更新包”。此项默认关闭。将适用于目标 Windows 版本和架构的 `.msu` 或 `.cab` 放在安装镜像所在介质根目录的 `WinPEUpdates` 文件夹，每行填写一个文件名，最多 32 个包，按所需顺序排列，依赖包排在前面。应答文件和应答 ISO 仅保存配置，更新包需单独放到安装介质上。
 
-清盘前检查列表中的文件是否存在。镜像应用完成后，PE 将每个文件按顺序交给 DISM，再生成启动文件。更新失败时停止安装。可在目标 Windows 分区的 `Windows\Logs\DISM\OfflineUpdates.log` 查看错误详情。
+导出复核按处理顺序列出包名。清盘前 PE 逐个读取更新包，缺失、空文件、无法读取或目录中有未列出的 `.msu`、`.cab` 时停止。可以使用 `文件名 | SHA-256` 格式提供 64 位十六进制哈希。指定哈希时，启动用 Windows PE 须包含 `certutil.exe`；PE 在清盘前以及应用镜像后核验哈希。大包的读取和哈希核验会增加清盘前等待时间。
 
-对于检查点累积更新，DISM 可在相同目录发现所需的检查点。该目录只能放目标更新及其依赖包。请按目标更新的 Microsoft 支持说明准备适用包及依赖。[DISM 更新包选项](https://learn.microsoft.com/windows-hardware/manufacture/desktop/dism-operating-system-package-servicing-command-line-options?view=windows-11)
+镜像应用完成后，PE 再检查更新目录，按清单顺序逐个调用 DISM，然后生成启动文件。更新失败时停止安装，可在目标 Windows 分区的 `Windows\Logs\DISM\OfflineUpdates.log` 查看详情。
+
+对于检查点累积更新，DISM 可在相同目录发现所需的检查点。清单须显式列出该目录内所有检查点和目标更新，依赖包在前。请按目标更新的 Microsoft 支持说明确定所需包。[DISM 更新包选项](https://learn.microsoft.com/windows-hardware/manufacture/desktop/dism-operating-system-package-servicing-command-line-options?view=windows-11)
 
 ### 四种选盘方式
 
@@ -83,7 +89,11 @@ Enable **Install using a PE script** on Image and partitions. It is off by defau
 
 Supports x64 PE, x64 images selected by index, one explicitly confirmed target and separate system and Windows partitions, plus a recovery partition by default. Choose UEFI/GPT, BIOS/MBR or follow firmware. BIOS/MBR primarily targets compatible Windows 10 installations and does not bypass Windows 11 platform requirements. The ordinary Setup path is unchanged; the dynamic selectors and gates described here apply only to PE script installation.
 
-Use custom configuration, select an actual image index, choose automatic disk wiping, enable PE installation and review the selector, layout and partition sizes. Automatic layout defaults to a 500 MiB system partition when unspecified. The actual image index selects the edition; SKU and installation-key selection are not supported by this PE path. Keep the mode at Enter manually in Windows Setup, a compatibility setting that does not add a key prompt to the PE script. Existing inputs are preserved. A separate activation key must match the target edition and does not select the image index. Enable both pauses for initial testing, review erasure consent, then export XML or an answer-file ISO. The answer-file ISO is not bootable.
+Use custom configuration, select an actual image index, choose automatic disk wiping, enable PE installation and review the selector, layout and partition sizes. Automatic layout defaults to a 500 MiB system partition when unspecified. The actual image index selects the edition; SKU and installation-key selection are not supported by this PE path. Keep the mode at Enter manually in Windows Setup, a compatibility setting that does not add a key prompt to the PE script. Existing inputs are preserved. A separate activation key must match the target edition and does not select the image index. Enable both pauses for initial testing, review erasure consent, then export XML or an answer-file ISO. The answer-file ISO holds configuration only. PE uses the answer file already recorded by Windows Setup, then the one at the image-volume root, then a unique root-level answer file on another volume.
+
+PE looks for `sources\install.wim`, `sources\install.esd`, and `sources\install.swm` across accessible volumes. Multiple image entries, including entries on the same volume, stop installation before the disk is wiped. Keep all `install*.swm` segments on the selected volume. PE uses that volume for `$OEM$` and `$WinPEDriver$`. When VirtIO is enabled, a separate driver medium must be unique and is excluded from the target disks.
+
+The PE `windowsPE/RunSynchronous` sequence permits up to 500 commands, including generated commands and merged custom commands. Checking and exporting stop when the sequence exceeds this limit.
 
 Fixed mode requires the target PE disk number. Matching mode uses its own optional index filter and must find exactly one disk; zero or multiple matches stop. Interactive mode lists disks and accepts one unsigned number. Custom mode executes a trusted VBScript that must return exactly one unsigned index, optionally followed by one newline, with exit code 0 and empty stderr within 60 seconds.
 
@@ -91,11 +101,13 @@ Capacity bounds are inclusive, compared directly in bytes using 1 GiB = 10737418
 
 ### Install offline Windows updates
 
-With PE script installation enabled, select **Install offline Windows updates in PE** on **Image and partitions**. This option is off by default. Put the `.msu` or `.cab` files for the target Windows release and architecture in the `WinPEUpdates` folder at the root of the drive containing the installation image. Enter one file name per line in the order DISM should process them, with prerequisites first. The answer file and answer-file ISO store the configuration. Copy the update files to the installation media separately.
+With PE script installation enabled, select **Install offline Windows updates in PE** on **Image and partitions**. This option is off by default. Put the `.msu` or `.cab` files for the target Windows release and architecture in the `WinPEUpdates` folder at the root of the drive containing the installation image. Enter one file name per line, up to 32 packages, in processing order with prerequisites first. The answer file and answer-file ISO store the configuration. Copy the update files to the installation media separately.
 
-PE checks that the listed files exist before wiping the disk. After applying the image, PE passes each file to DISM in order, then creates the boot files. A servicing failure halts installation. See `Windows\Logs\DISM\OfflineUpdates.log` on the target Windows partition for details.
+The export review lists packages in processing order. Before wiping the disk, PE reads each listed package and rejects missing, empty, unreadable, or unlisted `.msu` and `.cab` files. Use `file name | SHA-256` to supply an optional 64-digit hexadecimal hash. Hash checking requires `certutil.exe` in the booted Windows PE image and runs before wiping the disk and again after the image is applied. Reading and hashing large packages increases preflight time.
 
-For checkpoint cumulative updates, DISM can discover prerequisites in the same directory. Keep only the target update and its prerequisites in that directory. Follow Microsoft's support guidance for the intended update to select the appropriate packages. [DISM package options](https://learn.microsoft.com/windows-hardware/manufacture/desktop/dism-operating-system-package-servicing-command-line-options?view=windows-11)
+After applying the image, PE checks the update directory again and calls DISM for each listed package in order before creating the boot files. A servicing failure halts installation. See `Windows\Logs\DISM\OfflineUpdates.log` on the target Windows partition for details.
+
+For checkpoint cumulative updates, DISM can discover prerequisites in the same directory. Explicitly list all checkpoint packages and the target update, with prerequisites first. Follow Microsoft's support guidance for that update to identify the required packages. [DISM package options](https://learn.microsoft.com/windows-hardware/manufacture/desktop/dism-operating-system-package-servicing-command-line-options?view=windows-11)
 
 ### Safety and trust boundaries
 

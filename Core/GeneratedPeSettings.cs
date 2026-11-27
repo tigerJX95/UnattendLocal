@@ -33,10 +33,10 @@ public static class GeneratedPeSettings
         if (p.ImportedXml != null && !OwnsImported(p)) Fail(nameof(p.UseGeneratedPe), "v125.pe.import");
     }
     public static IPESettings Build(InstallPlan p, IEditionSettings edition) => Build(p, edition, false);
-    internal static IPESettings Build(InstallPlan p, IEditionSettings edition, bool legacyTargetChain, bool unguardedSelector = false, bool legacyPePaging = false) => !p.UseGeneratedPe
+    internal static IPESettings Build(InstallPlan p, IEditionSettings edition, bool legacyTargetChain, bool unguardedSelector = false, bool legacyPePaging = false, bool legacyMedia = false) => !p.UseGeneratedPe
         ? new DefaultPESettings(edition, HardwareSettings.AllEnabled(p))
         : new GeneratePESettings(
-            new UnattendedPartitionSettings(new ScriptTargetDiskSettings(PeDiskSafety.Selector(p, legacyTargetChain, unguardedSelector)), PeDiskSafety.Layout(p), p.PeCreateRecoveryPartition ? RecoveryMode.Partition : RecoveryMode.None, AutoPartitionSettings.SystemSize(p), p.RecoverySizeMB),
+            new UnattendedPartitionSettings(new ScriptTargetDiskSettings(PeDiskSafety.Selector(p, legacyTargetChain, unguardedSelector, legacyMedia)), PeDiskSafety.Layout(p), p.PeCreateRecoveryPartition ? RecoveryMode.Partition : RecoveryMode.None, AutoPartitionSettings.SystemSize(p), p.RecoverySizeMB),
             new IndexInstallFromSettings(p.ImageIndex!.Value),
             BuildPagingFile(p, legacyTargetChain || unguardedSelector || legacyPePaging),
             DisableDefender: false, Disable8Dot3Names: false, PauseBeforeFormatting: p.PauseBeforeFormatting,
@@ -52,13 +52,14 @@ public static class GeneratedPeSettings
     }
 
     public static XmlDocument Generate(Schneegans.Unattend.UnattendGenerator engine, Configuration config, InstallPlan p) => Generate(engine, config, p, false);
-    internal static XmlDocument Generate(Schneegans.Unattend.UnattendGenerator engine, Configuration config, InstallPlan p, bool legacyTargetChain, bool previousFirmwareGuard = false)
+    internal static XmlDocument Generate(Schneegans.Unattend.UnattendGenerator engine, Configuration config, InstallPlan p, bool legacyTargetChain, bool previousFirmwareGuard = false, bool legacyMedia = false)
     {
         var doc = engine.GenerateXml(config);
         if (!p.UseGeneratedPe) return doc;
         var script = doc.SelectSingleNode("//*[local-name()='PEScriptCopy']")?.InnerText ?? throw new InvalidOperationException("Missing PE installation script.");
         script = PePreflight.Keyboard(script);
-        if (p.PeApplyOfflinePackages) script = PeOfflinePackageSettings.InsertServicing(script, p);
+        if (!legacyMedia) script = PeMediaDiscovery.Bind(script, config.VirtIoGuestTools);
+        if (p.PeApplyOfflinePackages) script = PeOfflinePackageSettings.InsertServicing(script, p, legacyMedia);
         const string anchor = "set \"OS_VERSION=11\"";
         int at = script.IndexOf(anchor, StringComparison.Ordinal);
         if (at < 0 || script.IndexOf(anchor, at + anchor.Length, StringComparison.Ordinal) >= 0) throw new InvalidOperationException("Unexpected PE installation script.");
@@ -96,17 +97,17 @@ public static class GeneratedPeSettings
         if (previousFirmwareGuard)
             guard = RemoveKnownFirmwarePreflight(guard, FirmwareLayoutPreflight(p));
         if (p.PeApplyOfflinePackages)
-            guard += "\r\n" + PeOfflinePackageSettings.Preflight(p) + "\r\n";
-        var generated = engine.GenerateXml(config with { PESettings = new ScriptPESetttings(PeDiskSafety.Guard(script.Insert(at, guard + "\r\n"), p, legacyTargetChain)) });
-        if (p.PeApplyOfflinePackages)
-        {
-            // Windows Setup accepts RunSynchronous order values from 1 to 500.
-            // A custom disk selector and a long package list share this budget.
-            const string peCommands = "/*[local-name()='unattend']/*[local-name()='settings'][@pass='windowsPE']/*[local-name()='component'][@name='Microsoft-Windows-Setup']/*[local-name()='RunSynchronous']/*[local-name()='RunSynchronousCommand']";
-            if (generated.SelectNodes(peCommands)!.Count > 500)
-                Fail(nameof(p.PeOfflinePackageNames), "v156.pePackages.commandLimit");
-        }
-        return generated;
+            guard += "\r\n" + PeOfflinePackageSettings.Preflight(p, legacyMedia) + "\r\n";
+        return engine.GenerateXml(config with { PESettings = new ScriptPESetttings(PeDiskSafety.Guard(script.Insert(at, guard + "\r\n"), p, legacyTargetChain)) });
+    }
+
+    internal static void ValidateCommandCount(InstallPlan plan, XmlDocument doc)
+    {
+        const string peCommands = "/*[local-name()='unattend']/*[local-name()='settings'][@pass='windowsPE']/*[local-name()='component'][@name='Microsoft-Windows-Setup']/*[local-name()='RunSynchronous']/*[local-name()='RunSynchronousCommand']";
+        if (doc.SelectNodes(peCommands)!.Count <= 500) return;
+        if (plan.PeApplyOfflinePackages)
+            Fail(nameof(plan.PeOfflinePackageNames), "v156.pePackages.commandLimit");
+        Fail(plan.PeTargetMode == "script" ? nameof(plan.PeTargetScript) : nameof(plan.UseGeneratedPe), "v157.pe.commandLimit");
     }
     // Reconstruct a known V1.34 import baseline without the V1.35 firmware
     // check. C# raw string literals preserve the checkout's line endings,
@@ -148,20 +149,21 @@ public static class GeneratedPeSettings
     // merge upgrade it on export without discarding unrelated source content.
     internal static void RestoreLegacyImport(InstallPlan p, InstallPlan baselinePlan, GeneratorService service)
     {
-        if (!p.UseGeneratedPe || p.PeDisablePageFile || OwnsImported(p) || p.ImportedXml is not { OriginalOmitted: false, Blockers.Length: 0 } data) return;
+        if (!p.UseGeneratedPe || OwnsImported(p) || p.ImportedXml is not { OriginalOmitted: false, Blockers.Length: 0 } data) return;
         var source = XmlMerge.Read(data.SourceXml);
         var sourcePipeline = Pipeline(source);
         XmlDocument? predecessor = null;
-        foreach (int revision in new[] { 0, 1, 2, 3 })
+        for (int revision = 0; revision < (p.PeDisablePageFile ? 1 : 5); revision++)
         {
             var candidate = XmlMerge.Read(System.Text.Encoding.UTF8.GetString(revision switch
             {
-                0 => service.GeneratePrePagingPeBaseline(baselinePlan),
-                1 => service.GeneratePreviousPeBaseline(baselinePlan),
-                2 => service.GenerateLegacyPeBaseline(baselinePlan),
+                0 => service.GenerateV156PeBaseline(baselinePlan),
+                1 => service.GeneratePrePagingPeBaseline(baselinePlan),
+                2 => service.GeneratePreviousPeBaseline(baselinePlan),
+                3 => service.GenerateLegacyPeBaseline(baselinePlan),
                 _ => service.GenerateV134PeBaseline(baselinePlan)
             }));
-            if (p.UseCustomPageFile)
+            if (revision != 0 && p.UseCustomPageFile)
             {
                 // Migration also removes the old System-phase paging payload.
                 // Require the whole known document before replacing that baseline.

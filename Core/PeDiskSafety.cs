@@ -29,12 +29,17 @@ public static class PeDiskSafety
             p.PeTargetScript.Any(char.IsSurrogate))) Fail(nameof(p.PeTargetScript));
     }
     public static string Selector(InstallPlan p) => Selector(p, false);
-    internal static string Selector(InstallPlan p, bool legacyTargetChain, bool unguardedSelector = false)
+    internal static string Selector(InstallPlan p, bool legacyTargetChain, bool unguardedSelector = false, bool preserveLegacyMedia = false)
     {
         Validate(p);
         using var stream = typeof(PeDiskSafety).Assembly.GetManifestResourceStream("UnattendLocal.Core.Resources.PeTargetDisk.vbs")!;
         using var reader = new StreamReader(stream);
         string source = reader.ReadToEnd();
+        if (!preserveLegacyMedia && p.VirtIoGuestTools)
+            source = source.Replace("      If device = imageDrive Or device = xmlDrive Or device = \"X:\" Then Exit Function",
+                "      If device = imageDrive Or device = xmlDrive Or device = \"X:\" Then Exit Function\n" +
+                "      If device = UCase(shell.Environment(\"PROCESS\")(\"VIRTIO_DRIVE\")) Then Exit Function",
+                StringComparison.Ordinal);
         // Recognition only: reconstruct each exact shipped predecessor.
         // Public exports always retain the explicit runtime failure boundary.
         if (legacyTargetChain || unguardedSelector)

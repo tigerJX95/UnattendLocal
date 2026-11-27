@@ -4162,12 +4162,14 @@
   "setupLogs.reload": "Reload current log",
   "setupLogs.matches": "Matching lines in this preview: {0}.",
   "v156.pePackages.name": "Install offline Windows updates in PE",
-  "v156.pePackages.help": "Place the update files in \\WinPEUpdates at the root of the drive containing the installation image. Enter one file name per line, with prerequisites first. For checkpoint cumulative updates, keep only the target update and its prerequisites in that folder.",
+  "v156.pePackages.help": "Place the updates in \\WinPEUpdates at the root of the installation image drive. List one file per line, with prerequisites first. Use “file name | SHA-256” to verify a hash when Windows PE includes certutil.exe. List every .msu and .cab file in the folder.",
   "v156.pePackages.files": "Update file names (.msu / .cab)",
-  "v156.pePackages.invalid": "Enter 1 to 32 distinct .msu or .cab file names, one per line. Start each with an ASCII letter or digit, then use only ASCII letters, digits, spaces, periods, hyphens, and underscores. Use at most 120 characters before the extension. Omit paths and avoid Windows reserved device names.",
   "v156.pePackages.review": "Apply offline Windows updates before creating boot files",
   "v156.pePackages.commandLimit": "These updates and the current PE configuration exceed the Windows Setup limit of 500 synchronous commands. Shorten the custom disk selector script or reduce the update list.",
   "v156.peValidation.architecture": "PE script installation requires x64. Select x64 in Basic settings.",
   "v156.peValidation.diskMode": "To use PE script installation, set the disk and partition mode to “Erase the specified disk and create partitions automatically”.",
-  "v156.peValidation.diskLayout": "For PE script installation, select a UEFI/GPT, BIOS/MBR or firmware-matched partition layout."
+  "v156.peValidation.diskLayout": "For PE script installation, select a UEFI/GPT, BIOS/MBR or firmware-matched partition layout.",
+  "v157.pePackages.invalid": "Enter 1 to 32 distinct .msu or .cab file names, one per line. Start with an ASCII letter or digit. Use only ASCII letters, digits, spaces, periods, hyphens and underscores, with at most 120 characters before the extension. Optionally append a 64-digit hexadecimal SHA-256 after a vertical bar.",
+  "v157.pePackages.order": "Offline update packages in the order passed to DISM",
+  "v157.pe.commandLimit": "This PE configuration exceeds the Windows Setup limit of 500 synchronous commands. Shorten the custom disk selector script."
 }

@@ -366,6 +366,7 @@ public partial class MainWindow : Window {
   else sections.Add(review.Target);
   if (review.AppLocker is {} policy) sections.Add(policy.Message);
   sections.Add(review.Phases);
+  if (review.OfflinePackages.Length > 0) sections.Add(review.OfflinePackages);
   sections.Add(UiText.Source(diskRisk ? "text.52007b38f82f" :
    policyRisk ? "applocker.export.confirm" : "review.phases.confirm"));
   var caption = UiText.Source(diskRisk ? "text.74dff760c77e" : "review.phases.title");

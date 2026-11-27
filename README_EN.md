@@ -7,7 +7,7 @@
 
 UnattendLocal is a Windows desktop tool with Simplified Chinese and English interfaces based on [Christoph Schneegans’ UnattendGenerator](https://github.com/cschneegans/unattend-generator). It lets you edit, check, and generate `autounattend.xml` for Windows 10 / 11 locally.
 
-Current version: **V1.56**. When PE script installation is enabled, image selection switches to **By image index** and requires an index from the installation image; the regular Windows Setup path retains all image selection modes. Includes static IPv4/IPv6 dual stack, subnet-mask input, settings search, setup driver directories, Dynamic Update, partitioning, OOBE and account settings, and existing XML import/editing.
+Current version: **V1.57**. When PE script installation is enabled, image selection switches to **By image index** and requires an index from the installation image; the regular Windows Setup path retains all image selection modes. Includes static IPv4/IPv6 dual stack, subnet-mask input, settings search, setup driver directories, Dynamic Update, partitioning, OOBE and account settings, and existing XML import/editing.
 
 ## 💡 Why this project exists
 
@@ -58,13 +58,13 @@ The displayed product key is a public generic installation key for selecting an 
 - Save and restore JSON plans; review summaries, recommended-setting differences, checks, redacted previews, and XML exports.
 - Import existing XML and edit supported settings while preserving unknown content. Export stops with an explanation when changes cannot be merged reliably.
 
-## V1.56 Improves the Setup log viewer and adds offline updates in PE · 2026-11-25
+## V1.57 Strengthens PE media discovery and offline update checks · 2026-11-27
 
-- The keyword field, reload button, and open button share the top row. The file name appears after a log opens.
-- Reload the current log while keeping the keyword. The viewer shows the number of matching lines in the current preview.
-- Open and filter `DISM.log` and `CBS.log` to troubleshoot driver, language pack, and servicing problems.
-- Read log files in the background. Preview complete records in large CR-delimited logs and skip the extra blank line when the preview starts inside a CRLF delimiter.
-- PE script installation can apply selected `.msu` and `.cab` updates offline. This option is off by default. [PE script installation](docs/GeneratedPe.md)
+- PE requires a unique installation image and stops before wiping the disk if multiple images are found. Split image segments and media support directories follow the selected image.
+- Before wiping the disk, PE reads the listed offline updates and rejects missing, empty, or unlisted packages. Each package can optionally have a SHA-256 hash. The export review lists packages in installation order.
+- PE installation enforces the 500-command `RunSynchronous` limit even when offline updates are disabled.
+
+[PE script installation](docs/GeneratedPe.md)
 
 [Windows Setup logs](docs/SetupLogs.md)
 
@@ -72,7 +72,7 @@ The displayed product key is a public generic installation key for selecting an 
 
 ## 📦 Download and usage
 
-Download and run the matching Windows x64 executable from the repository’s [**Releases**](https://github.com/tigerJX95/UnattendLocal/releases/latest) page: `UnattendLocal_V1.56_x64_SelfContained.exe` or `UnattendLocal_V1.56_x64_FrameworkDependent.exe`. Choose `UnattendLocal_V1.56_x64_SelfContained.exe` for a bundled .NET runtime, or `UnattendLocal_V1.56_x64_FrameworkDependent.exe` if .NET 10 Desktop Runtime x64 is already installed. Both have the same features. Use a virtual machine for initial testing.
+Download and run the matching Windows x64 executable from the repository’s [**Releases**](https://github.com/tigerJX95/UnattendLocal/releases/latest) page: `UnattendLocal_V1.57_x64_SelfContained.exe` or `UnattendLocal_V1.57_x64_FrameworkDependent.exe`. Choose `UnattendLocal_V1.57_x64_SelfContained.exe` for a bundled .NET runtime, or `UnattendLocal_V1.57_x64_FrameworkDependent.exe` if .NET 10 Desktop Runtime x64 is already installed. Both have the same features. Use a virtual machine for initial testing.
 
 1. Choose a recommended, custom, or minimal starting point from New configuration, or use Open configuration to continue editing an existing file.
 2. Adjust system, appearance, and application removal options as needed.

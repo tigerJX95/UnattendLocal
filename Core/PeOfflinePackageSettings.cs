@@ -1,4 +1,5 @@
 using System.Text.RegularExpressions;
+using Schneegans.Unattend;
 using UnattendLocal.Localization;
 
 namespace UnattendLocal.Core;
@@ -16,30 +17,62 @@ internal static partial class PeOfflinePackageSettings
     [GeneratedRegex(@"\A(?:CON|PRN|AUX|NUL|COM[0-9]|LPT[0-9]) *(?:\.|\z)", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant)]
     private static partial Regex DeviceName();
 
-    internal static void Validate(InstallPlan plan) => ReadNames(plan);
+    [GeneratedRegex(@"\A[0-9A-Fa-f]{64}\z", RegexOptions.CultureInvariant)]
+    private static partial Regex Sha256();
 
-    private static string[] ReadNames(InstallPlan plan)
+    private sealed record Package(string Name, string Hash);
+    internal static void Validate(InstallPlan plan) => ReadPackages(plan);
+
+    private static Package[] ReadPackages(InstallPlan plan)
     {
-        var names = (plan.PeOfflinePackageNames ?? "").ReplaceLineEndings("\n")
+        var lines = (plan.PeOfflinePackageNames ?? "").ReplaceLineEndings("\n")
             .Split('\n', StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries);
-        if (names.Length is < 1 or > 32 || names.Any(name => !PackageName().IsMatch(name) || DeviceName().IsMatch(name)) ||
-            names.Distinct(StringComparer.OrdinalIgnoreCase).Count() != names.Length)
-            throw new ConfigurationValidationException(nameof(InstallPlan.PeOfflinePackageNames), UiText.Source("v156.pePackages.invalid"));
-        return names;
+        if (lines.Length is < 1 or > 32) throw InvalidList();
+        var names = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        var packages = new List<Package>();
+        foreach (string line in lines)
+        {
+            var parts = line.Split('|', 2, StringSplitOptions.TrimEntries);
+            string name = parts[0];
+            string hash = parts.Length == 2 ? parts[1] : "";
+            if (!PackageName().IsMatch(name) || DeviceName().IsMatch(name) || !names.Add(name) ||
+                (parts.Length == 2 && !Sha256().IsMatch(hash))) throw InvalidList();
+            packages.Add(new(name, hash));
+        }
+        return packages.ToArray();
     }
 
-    internal static string Preflight(InstallPlan plan)
+    private static ConfigurationValidationException InvalidList() =>
+        new(nameof(InstallPlan.PeOfflinePackageNames), UiText.Source("v157.pePackages.invalid"));
+
+    internal static string Preflight(InstallPlan plan, bool legacyMedia)
     {
         var lines = new List<string> { """for %%I in ("%IMAGE_FILE%") do set "UL_PACKAGE_ROOT=%%~dI\WinPEUpdates" """ };
-        foreach (string name in ReadNames(plan))
+        var packages = ReadPackages(plan);
+        if (!legacyMedia)
         {
-            lines.Add($"""set "UL_PACKAGE_NAME={name}" """);
-            AddFileChecks(lines);
+            using var stream = typeof(PeOfflinePackageSettings).Assembly.GetManifestResourceStream("UnattendLocal.Core.Resources.PePackageCheck.vbs")!;
+            using var reader = new StreamReader(stream);
+            string packageEntries = string.Join("\n", packages.Select(package =>
+                $"    package = \"{package.Name}\"\n    packages.Add package, \"{package.Hash}\""));
+            string script = reader.ReadToEnd().Replace("@@PACKAGES@@", packageEntries, StringComparison.Ordinal);
+            lines.Add(@">X:\UL-packagecheck.vbs (");
+            lines.AddRange(EchoProcessor.Process(script.Split('\n')));
+            lines.Add(")");
+            AddPackageCheck(lines, "read");
+        }
+        else
+        {
+            foreach (var package in packages)
+            {
+                lines.Add($"""set "UL_PACKAGE_NAME={package.Name}" """);
+                AddFileChecks(lines);
+            }
         }
         return string.Join("\r\n", lines.Select(line => line.TrimEnd()));
     }
 
-    internal static string InsertServicing(string script, InstallPlan plan)
+    internal static string InsertServicing(string script, InstallPlan plan, bool legacyMedia)
     {
         var lines = script.ReplaceLineEndings("\n").Split('\n').ToList();
         int index = lines.FindIndex(line => line.TrimStart().StartsWith(ApplyImage, StringComparison.Ordinal));
@@ -63,9 +96,10 @@ internal static partial class PeOfflinePackageSettings
             @"if not exist W:\Windows\Temp\ mkdir W:\Windows\Temp",
             """if not exist W:\Windows\Temp\ call :fail "Could not create the offline servicing scratch directory." """
         };
-        foreach (string name in ReadNames(plan))
+        if (!legacyMedia) AddPackageCheck(servicing, "list");
+        foreach (var package in ReadPackages(plan))
         {
-            servicing.Add($"""set "UL_PACKAGE_NAME={name}" """);
+            servicing.Add($"""set "UL_PACKAGE_NAME={package.Name}" """);
             AddFileChecks(servicing);
             servicing.Add("""echo:Applying "%UL_PACKAGE_NAME%" """);
             servicing.Add("""set "ERRORLEVEL=" """);
@@ -75,6 +109,27 @@ internal static partial class PeOfflinePackageSettings
         }
         lines.InsertRange(index + 2, servicing.Select(line => line.TrimEnd()));
         return string.Join("\r\n", lines);
+    }
+
+    private static void AddPackageCheck(List<string> lines, string mode)
+    {
+        lines.Add("""set "ERRORLEVEL=" """);
+        lines.Add($"""cscript.exe //E:vbscript //Nologo X:\UL-packagecheck.vbs "%UL_PACKAGE_ROOT%" {mode}""");
+        string failure = mode == "read" ? "Offline package verification failed. No disk was formatted." : "Offline package verification failed.";
+        lines.Add($"""if not "%errorlevel%"=="0" call :fail "{failure}" """);
+    }
+
+    internal static string[] ReviewNames(string script)
+    {
+        int start = script.IndexOf(Marker, StringComparison.Ordinal);
+        if (start < 0) return [];
+        const string assignment = """set "UL_PACKAGE_NAME=""";
+        return script[start..].Split('\n').Select(line => line.Trim())
+            .TakeWhile(line => !line.StartsWith(BootFiles, StringComparison.Ordinal))
+            .Where(line => line.StartsWith(assignment, StringComparison.Ordinal) && line.EndsWith('"'))
+            .Select(line => line[assignment.Length..^1])
+            .Where(name => PackageName().IsMatch(name) && !DeviceName().IsMatch(name))
+            .Take(32).ToArray();
     }
 
     private static void AddFileChecks(List<string> lines)

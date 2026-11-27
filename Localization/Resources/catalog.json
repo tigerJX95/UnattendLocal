@@ -39266,34 +39266,20 @@
     "ProtectedTokens": []
   },
   "v156.pePackages.help": {
-    "Source": "将更新包放入安装镜像所在介质根目录的 \\WinPEUpdates 文件夹。每行输入一个文件名，按顺序列出，依赖包排在前面。若使用检查点累积更新，文件夹内只能放目标更新及其依赖包。",
-    "SourceHash": "aaddaedff98e96905dc1c6bd32ff2673483f5e5703ff3bb6f8c143047fbe02e5",
+    "Source": "将更新包放入安装镜像所在介质根目录的 \\WinPEUpdates 文件夹。每行一个文件名，依赖包排在前面。可用“文件名 | SHA-256”核对哈希，需 Windows PE 提供 certutil.exe。目录中的 .msu 和 .cab 均须列出。",
+    "SourceHash": "39746916e7a97017c4fc5a3b1465c794033707a69c54a0b0f90ad5e92e452ac0",
     "Contexts": [
       "Desktop/MainWindow.xaml",
       "Desktop/SettingsSearchCatalog.cs"
     ],
     "RawArgs": [],
-    "ProtectedTokens": [
-      "\\WinPEUpdates"
-    ]
+    "ProtectedTokens": []
   },
   "v156.pePackages.files": {
     "Source": "更新包文件名（.msu / .cab）",
     "SourceHash": "6705b1a03d8be90fecd5ba7a0635faec49abbe0493c5bfc6ca51487d16d4baf1",
     "Contexts": [
       "Desktop/MainWindow.xaml"
-    ],
-    "RawArgs": [],
-    "ProtectedTokens": [
-      ".msu",
-      ".cab"
-    ]
-  },
-  "v156.pePackages.invalid": {
-    "Source": "请输入 1 至 32 个不重复的 .msu 或 .cab 文件名，每行一个。请以字母或数字开头，仅使用英文字母、数字、空格、句点、连字符和下划线，扩展名前最多 120 个字符。请去掉路径并避开 Windows 保留设备名。",
-    "SourceHash": "286a8ba96e833eca373efb5439f0e09d4d0404dd2a4cc6b35c82465e42c77bf2",
-    "Contexts": [
-      "Core/PeOfflinePackageSettings.cs"
     ],
     "RawArgs": [],
     "ProtectedTokens": [
@@ -39353,5 +39339,32 @@
       "UEFI/GPT",
       "BIOS/MBR"
     ]
+  },
+  "v157.pePackages.invalid": {
+    "Source": "请输入 1 至 32 个不重复的 .msu 或 .cab 文件名，每行一个。文件名以英文字母或数字开头，仅可包含英文字母、数字、空格、句点、连字符和下划线，扩展名前最多 120 个字符。可用竖线追加 64 位十六进制 SHA-256。",
+    "SourceHash": "2412bce20b617d1915157ca49b86892d3811cd49564c73d94780bcb0bd905937",
+    "Contexts": [
+      "Core/PeOfflinePackageSettings.cs"
+    ],
+    "RawArgs": [],
+    "ProtectedTokens": []
+  },
+  "v157.pePackages.order": {
+    "Source": "离线更新包（提交给 DISM 的顺序）",
+    "SourceHash": "360bd1ebda2c3055b54fff9cb3312c072a010815bbedc8b24ef6d4822ae9050e",
+    "Contexts": [
+      "Core/InstallationReview.cs"
+    ],
+    "RawArgs": [],
+    "ProtectedTokens": []
+  },
+  "v157.pe.commandLimit": {
+    "Source": "此 PE 方案超过 Windows Setup 的 500 条同步命令上限。请缩短自定义选盘脚本。",
+    "SourceHash": "f4bc259954b39c96aa406ddb82a8fe3ccbc836153a74d44731f6bd35f51f20ac",
+    "Contexts": [
+      "Core/GeneratedPeSettings.cs"
+    ],
+    "RawArgs": [],
+    "ProtectedTokens": []
   }
 }
